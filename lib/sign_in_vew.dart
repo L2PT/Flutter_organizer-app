@@ -56,6 +56,10 @@ class _SignInPageState extends State<SignInPage> {
     Navigator.of(context).pushNamedAndRemoveUntil(Constants.calendarRoute,
             (Route<dynamic> route) => false);
   }
+  void _navigateToReset() {
+    Navigator.of(context).pushNamedAndRemoveUntil(Constants.resetCodeRoute,
+            (Route<dynamic> route) => false);
+  }
 
   void showErrorDialog(error) {
     showDialog(
@@ -131,6 +135,7 @@ class _SignInPageState extends State<SignInPage> {
           resetMessage = 'Please enter a email address.';
         } else {
           resetMessage = 'Reset password for ' + _data.email;
+          resetMessage+=". Manda all'altra view o un identificativo dell'utente o già mail e telefono in modo che i campi siano già compilati";
         }
 
         showDialog(
@@ -144,9 +149,9 @@ class _SignInPageState extends State<SignInPage> {
                   new FlatButton(
                       onPressed: () {
                         if (_data.email.isNotEmpty) {
-                          //do here
+                          _navigateToReset();
                         }
-                        Navigator.of(context).pop(true);
+                        Navigator.of(context).pop(false);
                       },
                       child: new Text('OK')
                   ),

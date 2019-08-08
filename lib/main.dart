@@ -7,8 +7,10 @@ import 'package:intl/date_symbol_data_local.dart';
 
 import 'table_calendar/table_calendar.dart';
 import 'models/event_model.dart';
-import 'sign_in_vew.dart';
 import 'event_creator.dart';
+import 'operator_list.dart';
+import 'reset_code_view.dart';
+import 'sign_in_vew.dart';
 
 // This is only for the custom calendar builder (_buildTableCalendarWithBuilders)
 final Map<DateTime, List> _holidays = {
@@ -33,12 +35,17 @@ class MyApp extends StatelessWidget {
       ),
       home: SignInPage(),
       routes: {
-        '/calendar': (context) => MyHomePage(title: 'Table Calendar Demo'),
+        '/calendar': (context) => MyHomePage(title: 'Home Calendar'),
+        '/list': (context) => SearchList(),
         '/event_creator': (context) => EventCreator(null),
+        '/reset_code_page': (context) => ResetCodePage("1235"),
         '/sign_in_page': (context) => SignInPage(),
       },
     );
   }
+}
+
+class Reset {
 }
 
 class MyHomePage extends StatefulWidget {
