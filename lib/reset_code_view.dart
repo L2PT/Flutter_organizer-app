@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter_web/material.dart';
-import 'global_contants.dart';
+import 'package:table_calendar_app/utils/global_contants.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 

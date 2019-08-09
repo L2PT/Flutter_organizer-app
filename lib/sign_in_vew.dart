@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter_web/material.dart';
-import 'global_contants.dart';
+import 'package:table_calendar_app/utils/global_contants.dart';
+import 'package:table_calendar_app/utils/theme.dart';
 
 class LoginData {
   String email = '';
@@ -171,10 +172,6 @@ class _SignInPageState extends State<SignInPage> {
       ),
     );
 
-    final loginImage = new Image.asset('assets/logo.png',
-      height: 128.0,
-    );
-
     final loadingSpinner = new Center(
       heightFactor: null,
       widthFactor: null,
@@ -195,7 +192,7 @@ class _SignInPageState extends State<SignInPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
                 SizedBox(height: 8.0),
-                loginImage,
+                logo,
                 new Form(
                   key: this._formKey,
                   child: new Column(

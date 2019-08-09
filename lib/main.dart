@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'table_calendar/table_calendar.dart';
+import 'utils/theme.dart';
 import 'models/event_model.dart';
 import 'event_creator.dart';
 import 'operator_list.dart';
 import 'reset_code_view.dart';
+import 'user_profile.dart';
 import 'sign_in_vew.dart';
 
 // This is only for the custom calendar builder (_buildTableCalendarWithBuilders)
@@ -30,15 +32,14 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Table Calendar Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: SignInPage(),
+      theme: customLightTheme,
+      home: SearchList(),
       routes: {
         '/calendar': (context) => MyHomePage(title: 'Home Calendar'),
         '/list': (context) => SearchList(),
         '/event_creator': (context) => EventCreator(null),
         '/reset_code_page': (context) => ResetCodePage("1235"),
+        '/profile': (context) => ProfilePage(),
         '/sign_in_page': (context) => SignInPage(),
       },
     );

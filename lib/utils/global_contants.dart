@@ -7,4 +7,5 @@ class Constants {
   static String resetCodeRoute = '/reset_code_page';
   static String signInRoute = '/sign_in_page';
   static bool debug = false;
+
 }

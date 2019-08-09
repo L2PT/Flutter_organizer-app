@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'global_contants.dart';
+import 'package:intl/intl.dart';
+import 'package:table_calendar_app/utils/global_contants.dart';
+import 'package:table_calendar_app/utils/theme.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:datetime_picker_formfield/time_picker_formfield.dart';
 
 class SearchList extends StatefulWidget {
   SearchList({ Key key }) : super(key: key);
@@ -8,13 +12,16 @@ class SearchList extends StatefulWidget {
 
 }
 
-class _SearchListState extends State<SearchList>
-{
-  final key = new GlobalKey<ScaffoldState>();
+class _SearchListState extends State<SearchList>{
+  final dateFormat = DateFormat("dd MM yy");
+  final timeFormat = DateFormat("h:mm a");
+  final _filtersKey = new GlobalKey<FormState>();
   final TextEditingController _searchQuery = new TextEditingController();
   List<String> _list;
   bool _IsSearching;
   bool _filters;
+  DateTime _filterDate;
+  DateTime _filterTime;
   String _searchText = "";
 
   _SearchListState() {
@@ -38,8 +45,8 @@ class _SearchListState extends State<SearchList>
   void initState() {
     super.initState();
     _IsSearching = false;
+    _filters = false;
     init();
-
   }
 
   void init() {
@@ -72,21 +79,28 @@ class _SearchListState extends State<SearchList>
         title: new Text("Home"),
         actions: <Widget>[
           new IconButton(
-            icon: new Icon(Icons.account_circle, color: Colors.white,),
-            onPressed: () {
+              icon: new Icon(Icons.account_circle),
+              onPressed: () {
                 Navigator.of(context).pushNamedAndRemoveUntil(Constants.profileRoute,
-                        (Route<dynamic> route) => false);
-            }
+                        (Route<dynamic> route) => true);
+              }
           )
         ],
       ),
       body: Container(
         child: Column(
           children: <Widget>[
+            SizedBox(height: 8.0),
+            logo,
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: searchBar(context)
-            ),resultList(1)
+                padding: const EdgeInsets.all(8.0),
+                child: searchBar()
+            ),
+            Visibility(
+              child: filtersBox(),
+              visible: _filters,
+            ),
+            resultList(1)
           ],
         ),
       ),
@@ -141,26 +155,130 @@ class _SearchListState extends State<SearchList>
   }
 ////END
 
-  Widget searchBar(BuildContext context) {
-    return TextField(
-      controller: _searchQuery,
-      decoration: InputDecoration(
-          prefixIcon: new Icon(Icons.search, color: Colors.white),
-          suffixIcon: IconButton(
-              icon: Icon(Icons.tune),
+  Widget searchBar() {
+    return DecoratedBox(
+        decoration: BoxDecoration(
+            color: dark,
+            borderRadius: BorderRadius.all(Radius.circular(15.0))
+        ),
+        child: TextField(
+          style: new TextStyle(color: white),
+          controller: _searchQuery,
+          decoration: InputDecoration(
+            prefixIcon: new Icon(Icons.search, color: white,),
+            suffixIcon: IconButton(
+              icon: new Icon((!_filters)?Icons.tune:Icons.keyboard_arrow_up, color: white),
               onPressed: (){setState(() {
-                _filters = true;
-              });}
+                _filters = !_filters;
+              });},
+            ),
+            hintText: "Cerca un operatore",
           ),
-          hintText: "Search...",
-          hintStyle: new TextStyle(color: Colors.white),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(15.0)))),
+        )
     );
   }
 
+  Widget filtersBox() {
+    return Container(
+        margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
+        padding: const EdgeInsets.only(top:16.0, right:16.0, bottom:4.0, left:16.0),
+        decoration: BoxDecoration(
+            color: dark,
+            borderRadius: BorderRadius.all(Radius.circular(15.0))
+        ),
+        child: Column(
+            children: <Widget>[
+              Row(children: <Widget>[
+                Icon(Icons.tune),
+                Text("FILTRA PER OPEARATORI LIBERI",style: subtitle_rev),
+                //Align(alignment: Alignment.topRight, child: Icon(Icons.keyboard_arrow_up))
+              ],),
+              Padding(
+                padding: EdgeInsets.all(5.0),
+                child: new Form(
+                  key: this._filtersKey,
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.calendar_today),
+                      Container(
+                        width: 120,
+                        child: DateTimePickerFormField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
+                          ),
+                          initialDate: DateTime.now(),
+                          initialValue: DateTime.now(),
+                          keyboardType: TextInputType.datetime,
+                          style: subtitle_rev,
+                          inputType: InputType.date,
+                          format: dateFormat,
+                          resetIcon: null,
+                          onSaved: (DateTime value)=>setState((){_filterDate = value;}),
+                        )
+                      ),
+                      Icon(Icons.access_time),
+                      Container(
+                        width: 120,
+                        child: DateTimePickerFormField(
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
+                          ),
+                          initialDate: DateTime.now(),
+                          initialValue: DateTime.now(),
+                          keyboardType: TextInputType.number,
+                          style: subtitle_rev,
+                          inputType: InputType.time,
+                          format: timeFormat,
+                          resetIcon: null,
+                          validator: this._validateFilter,
+                          onSaved: (DateTime value)=>setState((){_filterTime = value;}),
+                        )
+                      )
+                    ],
+                  )
+                )
+              ),
+              Align(
+                  alignment: Alignment.bottomRight,
+                  child: RaisedButton(
+                    child: new Text('APPLICA', style: subtitle_rev),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                    elevation: 15,
+                    onPressed: () => _applyFilters(),
+                  )
+              )
+            ]
+        )
+    );
+  }
+
+
+  String _validateFilter(DateTime value) {
+    if (value == null) {
+      return 'Please enter a valid period';
+    } else {
+      return null;
+    }
+  }
+
+  Future _applyFilters() async {
+    if (this._filtersKey.currentState.validate()) {
+      _filtersKey.currentState.save();
+      print("Internal logic stuff(meotdo 1) or Firebase stuff(Metodo 2)");
+      //All in _filterDate e _filterTime
+      setState(() {
+        _filters = false;
+      });
+      Navigator.maybePop(context);
+    }
+  }
+
+
+
+
 }
 
+//TODO stile del ChildItem
 class ChildItem extends StatelessWidget {
   final String name;
   ChildItem(this.name);
