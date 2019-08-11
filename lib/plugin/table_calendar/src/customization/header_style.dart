@@ -57,13 +57,12 @@ class HeaderStyle {
   /// Icon used for right chevron.
   /// Defaults to black `Icons.chevron_right`.
   final Icon rightChevronIcon;
-
   const HeaderStyle({
-    this.centerHeaderTitle = false,
-    this.formatButtonVisible = true,
+    this.centerHeaderTitle = true,
+    this.formatButtonVisible = false,
     this.formatButtonShowsNext = true,
     this.titleTextBuilder,
-    this.titleTextStyle = const TextStyle(fontSize: 17.0),
+    this.titleTextStyle = const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 20),
     this.formatButtonTextStyle = const TextStyle(),
     this.formatButtonDecoration = const BoxDecoration(
       border: const Border(top: BorderSide(), bottom: BorderSide(), left: BorderSide(), right: BorderSide()),
@@ -74,7 +73,7 @@ class HeaderStyle {
     this.rightChevronPadding = const EdgeInsets.all(12.0),
     this.leftChevronMargin = const EdgeInsets.symmetric(horizontal: 8.0),
     this.rightChevronMargin = const EdgeInsets.symmetric(horizontal: 8.0),
-    this.leftChevronIcon = const Icon(Icons.chevron_left, color: Colors.black),
-    this.rightChevronIcon = const Icon(Icons.chevron_right, color: Colors.black),
+    this.leftChevronIcon = const Icon(Icons.calendar_today, color: Colors.black),
+    this.rightChevronIcon = const Icon(Icons.calendar_view_day, color: Colors.black),
   });
 }

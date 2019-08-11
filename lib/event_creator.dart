@@ -21,7 +21,7 @@ class EventCreator extends StatefulWidget {
   }
 
   EventCreator(this._event) {
-    if(this._event == null)_event=Event("", "", DateTime.now());
+    if(this._event == null)_event=Event("", "", DateTime.now(),DateTime.now(),"","");
     createState();
   }
 }
@@ -60,7 +60,7 @@ class EventCreatorState extends State<EventCreator> {
           borderRadius: BorderRadius.circular(8.0)
         )
       ),
-      initialValue: widget._event.summary,
+      initialValue: widget._event.description,
       style: Theme.of(context).textTheme.headline,
       onSaved: (String value) => this._eventData.summary = value,
     );
@@ -93,8 +93,8 @@ class EventCreatorState extends State<EventCreator> {
               titleWidget,
               SizedBox(height: 16.0),
               new DateTimePickerFormField(
-                initialDate: widget._event.time,
-                initialValue: widget._event.time,
+                initialDate: widget._event.start,
+                initialValue: widget._event.start,
                 inputType: InputType.both,
                 format: dateFormat,
                 keyboardType: TextInputType.datetime,

@@ -26,6 +26,7 @@ dependencies:
   #-all-
   intl: ^0.15.7
   date_utils: ^0.1.0+2
+  queries: ^0.1.12
 dev_dependencies:
   #-mobile-
   flutter_test:

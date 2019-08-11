@@ -9,6 +9,12 @@ typedef void OnDaySelected(DateTime day, List events);
 /// Callback exposing currently visible days (first and last of them), as well as current `CalendarFormat`.
 typedef void OnVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format);
 
+//VISIBLE METHOD ADDED
+typedef void SelectPrevious();
+
+//VISIBLE METHOD ADDED
+typedef void SelectNext();
+
 /// Builder signature for any text that can be localized and formatted with `DateFormat`.
 typedef String TextBuilder(DateTime date, dynamic locale);
 
@@ -52,6 +58,12 @@ class TableCalendar extends StatefulWidget {
 
   /// Called whenever the range of visible days changes.
   final OnVisibleDaysChanged onVisibleDaysChanged;
+
+  //ADDED
+  final SelectPrevious selectPrevious;
+
+  //ADDED
+  final SelectNext selectNext;
 
   /// Initially selected DateTime. Usually it will be `DateTime.now()`.
   /// This property can be used to programmatically select a new date.
@@ -132,6 +144,8 @@ class TableCalendar extends StatefulWidget {
     this.onDaySelected,
     this.onUnavailableDaySelected,
     this.onVisibleDaysChanged,
+    this.selectPrevious = null,
+    this.selectNext = null,
     this.initialSelectedDay,
     this.startDay,
     this.endDay,
@@ -209,6 +223,13 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
       _selectedDayCallback(day);
     });
   }
+  @override
+  void _selectToDay() {
+    setState(() {
+      widget.calendarController.setSelectedDay(DateTime.now(), isProgrammatic: false);
+      _selectedDayCallback(DateTime.now());
+    });
+  }
 
   void _toggleCalendarFormat() {
     setState(() {
@@ -276,22 +297,22 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
     final children = [
       _CustomIconButton(
         icon: widget.headerStyle.leftChevronIcon,
-        onTap: _selectPrevious,
+        onTap: (widget.selectPrevious is Function)?_selectToDay:_selectPrevious,
         margin: widget.headerStyle.leftChevronMargin,
         padding: widget.headerStyle.leftChevronPadding,
       ),
       Expanded(
         child: Text(
           widget.headerStyle.titleTextBuilder != null
-              ? widget.headerStyle.titleTextBuilder(widget.calendarController.focusedDay, widget.locale)
-              : DateFormat.yMMMM(widget.locale).format(widget.calendarController.focusedDay),
+              ? widget.headerStyle.titleTextBuilder(widget.calendarController.focusedDay, widget.locale).toUpperCase()
+              : DateFormat.yMMMM(widget.locale).format(widget.calendarController.focusedDay).toUpperCase(),
           style: widget.headerStyle.titleTextStyle,
           textAlign: widget.headerStyle.centerHeaderTitle ? TextAlign.center : TextAlign.start,
         ),
       ),
       _CustomIconButton(
         icon: widget.headerStyle.rightChevronIcon,
-        onTap: _selectNext,
+        onTap: (widget.selectNext is Function)?widget.selectPrevious:_selectNext,
         margin: widget.headerStyle.rightChevronMargin,
         padding: widget.headerStyle.rightChevronPadding,
       ),

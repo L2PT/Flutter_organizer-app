@@ -1,6 +1,5 @@
 //  Copyright (c) 2019 Aleksander Woźniak
 //  Licensed under Apache License v2.0
-
 part of table_calendar;
 
 /// Class containing styling for `TableCalendar`'s content.
@@ -78,15 +77,15 @@ class CalendarStyle {
   final bool canEventMarkersOverflow;
 
   const CalendarStyle({
-    this.weekdayStyle = const TextStyle(),
-    this.weekendStyle = const TextStyle(color: const Color(0xFFF44336)), // Material red[500]
-    this.holidayStyle = const TextStyle(color: const Color(0xFFF44336)), // Material red[500]
-    this.selectedStyle = const TextStyle(color: const Color(0xFFFAFAFA), fontSize: 16.0), // Material grey[50]
-    this.todayStyle = const TextStyle(color: const Color(0xFFFAFAFA), fontSize: 16.0), // Material grey[50]
+    this.weekdayStyle = const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 16),
+    this.weekendStyle = const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 16), // Material red[500]
+    this.holidayStyle = const TextStyle(fontWeight: FontWeight.bold, color: const Color(0xFFF44336), fontSize: 16), // Material red[500]
+    this.selectedStyle = const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333), fontSize: 18), // Material grey[50]
+    this.todayStyle = const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18), // Material grey[50]
     this.outsideStyle = const TextStyle(color: const Color(0xFF9E9E9E)), // Material grey[500]
-    this.outsideWeekendStyle = const TextStyle(color: const Color(0xFFEF9A9A)), // Material red[200]
-    this.outsideHolidayStyle = const TextStyle(color: const Color(0xFFEF9A9A)), // Material red[200]
-    this.unavailableStyle = const TextStyle(color: const Color(0xFFBFBFBF)),
+    this.outsideWeekendStyle = const TextStyle(color: const Color(0x00EF9A9A)), // Material red[200]
+    this.outsideHolidayStyle = const TextStyle(color: const Color(0x00EF9A9A)), // Material red[200]
+    this.unavailableStyle = const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18),
     this.selectedColor = const Color(0xFF5C6BC0), // Material indigo[400]
     this.todayColor = const Color(0xFF9FA8DA), // Material indigo[200]
     this.markersColor = const Color(0xFF263238), // Material blueGrey[900]
