@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'package:table_calendar_app/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'models/event_model.dart';
@@ -284,7 +284,7 @@ class _CustomTitle extends AnimatedWidget {
 class _BackLayer extends StatelessWidget {
   //ROUTES
   final Map<String,String> _menuResponsabile = const {
-    "Incarichi attivi":"",
+    "Incarichi attivi":"/",
     "Operatori ":"/list",
     "Calendario generale":"/calendar",
     "Creazione nuovo utente":"/",

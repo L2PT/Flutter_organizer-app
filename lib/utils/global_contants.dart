@@ -1,5 +1,5 @@
 library App.globals;
-import 'package:table_calendar_app/models/event_model.dart';
+import 'package:venturiautospurghi/models/event_model.dart';
 
 bool isLoggedIn = false;
 bool isSupervisor = true;

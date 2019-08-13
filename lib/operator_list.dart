@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:table_calendar_app/utils/global_contants.dart';
-import 'package:table_calendar_app/utils/theme.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:datetime_picker_formfield/time_picker_formfield.dart';
 

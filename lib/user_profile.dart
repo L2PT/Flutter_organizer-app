@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter_web/material.dart';
-import 'package:table_calendar_app/utils/global_contants.dart';
-import 'package:table_calendar_app/utils/theme.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 
 
 class ProfilePage extends StatefulWidget {
