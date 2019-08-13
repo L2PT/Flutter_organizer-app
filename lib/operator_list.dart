@@ -74,20 +74,8 @@ class _SearchListState extends State<SearchList>{
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text("Home"),
-        actions: <Widget>[
-          new IconButton(
-              icon: new Icon(Icons.account_circle),
-              onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(Constants.profileRoute,
-                        (Route<dynamic> route) => true);
-              }
-          )
-        ],
-      ),
-      body: Container(
+    return new Container(
+      color: whitebackground,
         child: Column(
           children: <Widget>[
             SizedBox(height: 8.0),
@@ -103,7 +91,6 @@ class _SearchListState extends State<SearchList>{
             resultList(1)
           ],
         ),
-      ),
     );
   }
 

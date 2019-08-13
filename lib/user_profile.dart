@@ -103,32 +103,26 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     deviceSize = MediaQuery.of(context).size;
-    return new Scaffold(
-        appBar: new AppBar(
-            leading: new BackButton(),
-            title: new Text('Profile'),
-            elevation: 0
-        ),
-        body: new SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              profileHeader(),
-              Container(
-                padding: const EdgeInsets.all(10.0),
-                child:Column(
-                  children:<Widget>[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text("Area Personale",style: title, textAlign: TextAlign.left)
-                    ),
-                    options()
-                  ]
+    return new SingleChildScrollView(
+      child: Column(
+        children: <Widget>[
+          profileHeader(),
+          Container(
+            color: whitebackground,
+            padding: const EdgeInsets.all(10.0),
+            child:Column(
+              children:<Widget>[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text("Area Personale",style: title, textAlign: TextAlign.left)
                 ),
-              ),
-
-            ],
+                options()
+              ]
+            ),
           ),
-        )
+
+        ],
+      ),
     );
   }
 }
@@ -137,7 +131,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
 
 class PathPainter extends CustomPainter {
-  int span = 50;
+  int span = 50; //HANDLE
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()

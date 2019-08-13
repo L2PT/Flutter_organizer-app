@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'package:flutter_web/material.dart';
-import 'package:table_calendar_app/utils/global_contants.dart';
+import 'package:table_calendar_app/utils/global_contants.dart' as global;
 import 'package:table_calendar_app/utils/theme.dart';
 
 class LoginData {
@@ -33,7 +33,7 @@ class _SignInPageState extends State<SignInPage> {
   }
 
   Future signInWithEmail() async {
-    if(Constants.debug)_navigateToCalendarView();
+    if(global.Constants.debug)_navigateToCalendarView();
     if (this._formKey.currentState.validate()) {
       _formKey.currentState.save();
 
@@ -46,7 +46,7 @@ class _SignInPageState extends State<SignInPage> {
       setState(() {
         _isLoading = false;
       });
-
+      global.isLoggedIn = true;
       // Navigate to main calendar view
       _navigateToCalendarView();
     }
@@ -54,12 +54,12 @@ class _SignInPageState extends State<SignInPage> {
 
 
   void _navigateToCalendarView() {
-    Navigator.of(context).pushNamedAndRemoveUntil(Constants.calendarRoute,
+    Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.calendarRoute,
             (Route<dynamic> route) => false);
   }
   void _navigateToReset() {
-    Navigator.of(context).pushNamedAndRemoveUntil(Constants.resetCodeRoute,
-            (Route<dynamic> route) => false);
+    Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.resetCodeRoute,
+            (Route<dynamic> route) => true);
   }
 
   void showErrorDialog(error) {

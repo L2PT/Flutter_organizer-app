@@ -8,37 +8,19 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 
 import 'package:flutter/material.dart';
 //import 'package:flutter_web/material.dart';
-import 'package:queries/collections.dart';
-import 'package:queries/queries.dart';
 import 'dart:math';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:table_calendar_app/plugin/table_calendar/table_calendar.dart';
-import 'utils/global_contants.dart';
+import 'package:table_calendar_app/utils/global_contants.dart' as global;
 import 'utils/theme.dart';
 import 'models/event_model.dart';
 import 'event_creator.dart';
-import 'package:flutter/material.dart';
-//import 'package:flutter_web/material.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:queries/collections.dart';
-import 'package:queries/queries.dart';
-import 'dart:math';
-import 'package:table_calendar_app/plugin/table_calendar/table_calendar.dart';
-import 'utils/global_contants.dart';
-import 'utils/theme.dart';
-import 'models/event_model.dart';
-import 'event_creator.dart';
-import 'operator_list.dart';
-import 'reset_code_view.dart';
-import 'user_profile.dart';
-import 'sign_in_vew.dart';
 
+//HANDLE cambia questa costante per modifcare la grandezza degli eventi
 const double minEventHeight = 60.0;
 
 class DailyCalendar extends StatefulWidget {
-  DailyCalendar({Key key, this.title}) : super(key: key);
-
-  final String title;
+  DailyCalendar({Key key}) : super(key: key);
 
   @override
   _DailyCalendarState createState() => _DailyCalendarState();
@@ -88,18 +70,15 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     super.dispose();
   }
 
-      //MAIN BUILEDERS METHOD
+      //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _onFabClicked,
-        child: new Icon(Icons.add),
-      ),
-      body: Column(
+    return new Material(
+      elevation: 12.0,
+      borderRadius: new BorderRadius.only(
+          topLeft: new Radius.circular(16.0),
+          topRight: new Radius.circular(16.0)),
+      child: Column(
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           _buildTableCalendarWithBuilders(),
@@ -110,14 +89,14 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     );
   }
 
-        //CALENDAR
+        //--CALENDAR
   Widget _buildTableCalendarWithBuilders() {
     return TableCalendar(
 
       locale: 'it_IT',
       calendarController: _calendarController,
       events: _events,
-      holidays: Constants().holidays,
+      holidays: global.Constants().holidays,
       initialCalendarFormat: CalendarFormat.week,
       formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.monday,
@@ -222,7 +201,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     );
   }
 
-        //EVENT LIST
+        //--EVENT LIST
   Widget _buildEventList() {
     return ListView(
         children:<Widget>[Stack(
@@ -236,7 +215,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
         )]
     );
   }
-
+//TODO probabilmente da eliminare post integrazione di Firebase
   void initList() {
     //order by start date
     if(_selectedEvents.length>0) {
@@ -337,7 +316,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                         Container(
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(4.0),
-                              color: Color(Constants().category[e.category])
+                              color: Color(global.Constants().category[e.category])
                           ),
                           width: 6,
                           height: minEventHeight-(8*2),
@@ -347,7 +326,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(e.title,style: title_rev,),
-                              Text(e.category,style: subtitle_rev.copyWith(color: Color(Constants().category[e.category]))),
+                              Text(e.category,style: subtitle_rev.copyWith(color: Color(global.Constants().category[e.category]))),
                             ],),
                           margin: const EdgeInsets.symmetric(vertical: 4.0),
                         )
@@ -387,51 +366,9 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     print("Delete");
   }
 
-  void _onFabClicked() {
-    DateTime _createDateTime = new DateTime.now();
-
-    Event _event = new Event("", "",_createDateTime,_createDateTime, "", "");
-
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) => EventCreator(_event)
-    )
-    );
-  }
-
-//METODI DI UTILITY
-
+      //METODI DI UTILITY
   String getTitle(Event e){
     return e.title;
   }
 
-
-
 }
-
-
-/*
- return ListView(
-      children: _selectedEvents
-          .map((event) => Stack(
-          children: <Widget>[Container(
-
-              decoration: BoxDecoration(
-                border: Border.all(width: 0.8),
-                borderRadius: BorderRadius.circular(12.0),
-              ),
-              margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-
-              child: new ListTile(
-                title: Text(getTitle(event)),
-                onTap: () => _onCardClicked(event),
-              )
-          ),Container(
-              child: new IconButton(
-                  iconSize: 30.0,
-                  padding: EdgeInsets.all(5.0),
-                  icon: new Icon(Icons.delete),
-                  onPressed: () => _deleteEvent(event))
-          )]))
-          .toList(),
-    );
-*/
