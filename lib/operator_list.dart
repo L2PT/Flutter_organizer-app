@@ -5,14 +5,14 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:datetime_picker_formfield/time_picker_formfield.dart';
 
-class SearchList extends StatefulWidget {
-  SearchList({ Key key }) : super(key: key);
+class OperatorList extends StatefulWidget {
+  OperatorList({ Key key }) : super(key: key);
   @override
-  _SearchListState createState() => new _SearchListState();
+  _OperatorListState createState() => new _OperatorListState();
 
 }
 
-class _SearchListState extends State<SearchList>{
+class _OperatorListState extends State<OperatorList>{
   final dateFormat = DateFormat("dd MM yy");
   final timeFormat = DateFormat("h:mm a");
   final _filtersKey = new GlobalKey<FormState>();

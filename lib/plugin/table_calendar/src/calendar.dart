@@ -297,7 +297,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
     final children = [
       _CustomIconButton(
         icon: widget.headerStyle.leftChevronIcon,
-        onTap: (widget.selectPrevious is Function)?_selectToDay:_selectPrevious,
+        onTap: (widget.selectPrevious is Function)?_selectToDay:null,
         margin: widget.headerStyle.leftChevronMargin,
         padding: widget.headerStyle.leftChevronPadding,
       ),
@@ -312,7 +312,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
       ),
       _CustomIconButton(
         icon: widget.headerStyle.rightChevronIcon,
-        onTap: (widget.selectNext is Function)?widget.selectPrevious:_selectNext,
+        onTap: (widget.selectNext is Function)?widget.selectNext:_selectNext,
         margin: widget.headerStyle.rightChevronMargin,
         padding: widget.headerStyle.rightChevronPadding,
       ),

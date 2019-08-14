@@ -8,12 +8,12 @@ class LoginData {
   String password = '';
 }
 
-class SignInPage extends StatefulWidget {
+class LogInPage extends StatefulWidget {
   @override
-  State createState() => new _SignInPageState();
+  State createState() => new _LogInPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _LogInPageState extends State<LogInPage> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   LoginData _data = new LoginData();
   bool _isLoading = false;
@@ -54,7 +54,7 @@ class _SignInPageState extends State<SignInPage> {
 
 
   void _navigateToCalendarView() {
-    Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.calendarRoute,
+    Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.globalCalendarRoute,
             (Route<dynamic> route) => false);
   }
   void _navigateToReset() {

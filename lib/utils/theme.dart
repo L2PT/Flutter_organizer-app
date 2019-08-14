@@ -63,6 +63,7 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
 
 const dark = const Color(0xFF333333);
 const grey_dark = const Color(0xFFA8A8A8);
+const grey = const Color(0xFFA3A3A3);
 const grey_light = const Color(0xFFF4F4F4);
 const white = const Color(0xFFFFFFFF);
 const whitebackground = const Color(0xFFFFFFFF);

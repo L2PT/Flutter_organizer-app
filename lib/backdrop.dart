@@ -18,12 +18,14 @@ import 'package:meta/meta.dart';
 import 'models/event_model.dart';
 import 'utils/theme.dart';
 import 'event_creator.dart';
+import 'global_calendar_view.dart';
 import 'daily_calendar_view.dart';
 import 'operator_list.dart';
 import 'reset_code_view.dart';
 import 'user_profile.dart';
 import 'backdrop.dart';
-import 'sign_in_vew.dart';
+import 'log_in_view.dart';
+import 'event_view.dart';
 
 
 //HANDLE cambia questa velocità
@@ -37,11 +39,13 @@ const double _kFlingVelocity = 2.0;
 /// The route selected is notified to the frontlayer
 class Backdrop extends StatefulWidget {
   final String frontLayerRoute;
+  final Object frontLayerArg;
   final Function backLayerRouteChanger;
 
   const Backdrop({
-    @required this.frontLayerRoute,
     @required this.backLayerRouteChanger,
+    @required this.frontLayerRoute,
+    @required this.frontLayerArg,
   })  : assert(frontLayerRoute != null),
         assert(backLayerRouteChanger != null);
 
@@ -62,6 +66,8 @@ class _BackdropState extends State<Backdrop>
 
   @override
   void didUpdateWidget(Backdrop old) {
+    print(widget.frontLayerArg);
+    print("backdrop up");
     super.didUpdateWidget(old);
     if (widget.frontLayerRoute != old.frontLayerRoute) {
       _toggleBackdropLayerVisibility(true);
@@ -81,6 +87,8 @@ class _BackdropState extends State<Backdrop>
   //TODO spostare il controllo della route dal FrontLayer alla backdrop per fare il Fab custom
   @override
   Widget build(BuildContext context) {
+    print(widget.frontLayerArg);
+    print("backdrop rebuild");
     return Scaffold(
       appBar: AppBar(
         title: new Text("Backdrop"),//TODO decidere se volete il nome della pagina o che cambia se hai il menu aperto
@@ -117,7 +125,7 @@ class _BackdropState extends State<Backdrop>
 
         //--BUILDER DELL' OVERLAP DEI DUE LAYER
   Widget _buildStack(BuildContext context, BoxConstraints constraints) {
-    const double layerTitleHeight = 48.0;
+    const double layerTitleHeight = 48.0; //HANDLE
     final Size layerSize = constraints.biggest;
     final double layerTop = layerSize.height - layerTitleHeight;
 
@@ -140,13 +148,17 @@ class _BackdropState extends State<Backdrop>
           rect: layerAnimation,
           child: _FrontLayer(
             onTap: ()=>_toggleBackdropLayerVisibility(false),
-            route: widget.frontLayerRoute
+            flag: _frontLayerVisible,
+            route: widget.frontLayerRoute,
+            arguments: widget.frontLayerArg
           ),
         ),
       ],
     );
   }
   Widget _buildStack2(BuildContext context, BoxConstraints constraints) {
+    print(widget.frontLayerArg);
+    print("backdrop top");
     const double layerTitleHeight = 48.0;
     final Size layerSize = constraints.biggest;
     final double layerTop = layerSize.height - layerTitleHeight;
@@ -177,8 +189,10 @@ class _BackdropState extends State<Backdrop>
           PositionedTransition(
             rect: layerAnimation,
             child:  _FrontLayer(
-                  onTap: ()=>_toggleBackdropLayerVisibility(false),
-                route: widget.frontLayerRoute
+                onTap: ()=>_toggleBackdropLayerVisibility(false),
+                flag: _frontLayerVisible,
+                route: widget.frontLayerRoute,
+                arguments: widget.frontLayerArg
             ),
           ),
         ],
@@ -284,9 +298,9 @@ class _CustomTitle extends AnimatedWidget {
 class _BackLayer extends StatelessWidget {
   //ROUTES
   final Map<String,String> _menuResponsabile = const {
-    "Incarichi attivi":"/",
-    "Operatori ":"/list",
-    "Calendario generale":"/calendar",
+    "Incarichi attivi":"/event_view",
+    "Operatori ":"/op_list",
+    "Calendario generale":"/global_calendar",
     "Creazione nuovo utente":"/",
     "Impostazioni":"/",
     "Statistiche":"/"
@@ -295,7 +309,7 @@ class _BackLayer extends StatelessWidget {
   final Map<String,String> _menuOperatore = const {
     "Impegni del giorno":"",
     "Incarichi non letti":"/",
-    "Calendario":"/calendar",
+    "Calendario":"/daily_calendar",
     "Impostazioni":"/",
     "Statistiche":"/"
   };
@@ -373,21 +387,32 @@ class _FrontLayer extends StatelessWidget {
   const _FrontLayer({
     Key key,
     this.onTap,
+    this.flag,
     this.route,
+    this.arguments,
   }) : super(key: key);
 
   final VoidCallback onTap;
+  final bool flag;
   final String route;
+  final Object arguments;
 
   Widget router(){
+    print(arguments);
+    print(route);
+    print("frontlayer");
     switch(route) {
-      case "/calendar": {return DailyCalendar();}
+      case global.Constants.globalCalendarRoute: {return GlobalCalendar();}
       break;
-      case "/profile": {return ProfilePage();}
+      case global.Constants.dailyCalendarRoute: {return DailyCalendar();}
       break;
-      case "/list": {return SearchList();}
+      case global.Constants.profileRoute: {return ProfilePage();}
       break;
-      case "/event_creator": {return EventCreator(null);}
+      case global.Constants.operatorListRoute: {return OperatorList();}
+      break;
+      case global.Constants.eventViewRoute: {return arguments!=null?EventView(event: arguments):null;}
+      break;
+      case global.Constants.eventCreatorRoute: {return EventCreator(null);}
       break;
       default: {return DailyCalendar();}
       break;
@@ -397,16 +422,21 @@ class _FrontLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
+
       children: <Widget>[
         router(),
-        GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: Container(
-            height: 40.0,
-            alignment: AlignmentDirectional.centerStart,
+        Visibility(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: onTap,
+            child: Container(
+              height: 40.0,
+              alignment: AlignmentDirectional.centerStart,
+            ),
           ),
-        ),
+          visible: !flag,
+          maintainSize: false,
+        )
       ],
     );
   }

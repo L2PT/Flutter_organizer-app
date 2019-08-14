@@ -25,11 +25,14 @@ class Constants {
   };
 
   // Flutter Routes
-  static String calendarRoute = '/calendar';
-  static String eventCreatorRoute = '/event_creator';
-  static String profileRoute = '/profile';
-  static String resetCodeRoute = '/reset_code_page';
-  static String signInRoute = '/sign_in_page';
+  static const String globalCalendarRoute = '/global_calendar';
+  static const String dailyCalendarRoute = '/daily_calendar';
+  static const String operatorListRoute = '/op_list';
+  static const String eventViewRoute = '/event_creator';
+  static const String eventCreatorRoute = '/event_creator';
+  static const String profileRoute = '/profile';
+  static const String resetCodeRoute = '/reset_code_page';
+  static const  String logInRoute = '/log_in_page';
   static bool debug = false;
 
 }

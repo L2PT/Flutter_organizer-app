@@ -42,7 +42,7 @@ class _ResetCodeState extends State<ResetCodePage> {
       _signature = await SmsAutoFill().getAppSignature;
       setState((){});
       if(widget.code == code || Constants.debug){
-        Navigator.of(context).pushNamedAndRemoveUntil(Constants.calendarRoute,
+        Navigator.of(context).pushNamedAndRemoveUntil(Constants.dailyCalendarRoute,
                 (Route<dynamic> route) => false);
       }
   }

@@ -13,7 +13,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Size deviceSize;
 
   void _navigateToCalendarView() {
-    Navigator.of(context).pushNamedAndRemoveUntil(Constants.calendarRoute,
+    Navigator.of(context).pushNamedAndRemoveUntil(Constants.dailyCalendarRoute,
             (Route<dynamic> route) => false);
   }
 

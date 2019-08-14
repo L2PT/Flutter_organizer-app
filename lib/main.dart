@@ -12,10 +12,11 @@ import 'operator_list.dart';
 import 'reset_code_view.dart';
 import 'user_profile.dart';
 import 'backdrop.dart';
-import 'sign_in_vew.dart';
+import 'event_view.dart';
+import 'log_in_view.dart';
 
 void main() {
-  initializeDateFormatting().then((_) => runApp(MyApp()));
+  initializeDateFormatting("it_IT").then((_) => runApp(MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -25,6 +26,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _currentView = "/";//<--DEBUG MODE vista corrente
+  Object _currentArg = null;
   String _role = "";
 
   @override
@@ -39,25 +41,29 @@ class _MyAppState extends State<MyApp> {
       routes: {
         //ROUTES COMMENTATE DELEGATE ALLA BACKDROP(AL FRONTLAYER DELLA BACKDROP)
         //'/calendar': (context) => DailyCalendar(title: "Home Calendar"),
-        //'/list': (context) => SearchList(),
+        //'/op_list': (context) => SearchList(),
         //'/event_creator': (context) => EventCreator(null),
         '/reset_code_page': (context) => ResetCodePage("1235"),
         //'/profile': (context) => ProfilePage(),
-        '/sign_in_page': (context) => SignInPage(),
+        '/log_in_page': (context) => LogInPage(),
       },
       onUnknownRoute: _getRoute,
     );
   }
 
   Route<dynamic> _getRoute(RouteSettings settings) {
+    print(settings);
+    print("main");
     setState(() {
       _currentView = settings.name;
+      _currentArg = settings.arguments;
     });
     return MaterialPageRoute<void>(
     settings: settings,
     builder: (BuildContext context) =>
         Backdrop(
           frontLayerRoute: _currentView,
+          frontLayerArg: _currentArg,
           backLayerRouteChanger: _onCategoryTap,
         ),
     fullscreenDialog: true,
