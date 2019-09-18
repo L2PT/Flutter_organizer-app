@@ -30,7 +30,8 @@ class Constants {
   static const String eventCreatorRoute = '/event_creator';
   static const String profileRoute = '/profile';
   static const String resetCodeRoute = '/reset_code_page';
-  static const  String logInRoute = '/log_in_page';
+  static const String logInRoute = '/log_in_page';
+  static const String logOut = 'log_out';
   static bool debug = false;
 
 }

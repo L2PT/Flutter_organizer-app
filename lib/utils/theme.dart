@@ -67,4 +67,5 @@ const grey = const Color(0xFFA3A3A3);
 const grey_light = const Color(0xFFF4F4F4);
 const white = const Color(0xFFFFFFFF);
 const whitebackground = const Color(0xFFFFFFFF);
+const whiteoverlapbackground = const Color(0x99FFFFFF);
 const red = const Color(0xFFC5032B);

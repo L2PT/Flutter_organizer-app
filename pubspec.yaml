@@ -35,6 +35,7 @@ dependencies:
   uuid: ^2.0.2
   firebase_auth: ^0.14.0
   flutter_launcher_icons: ^0.7.2+1
+  loading: ^1.0.1
 dev_dependencies:
   #-mobile-
   flutter_test:

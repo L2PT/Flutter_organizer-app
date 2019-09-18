@@ -27,7 +27,7 @@ class _LogInPageState extends State<LogInPage> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _success;
+  bool _success = false;
   String _userEmail;
   LoginData _data = new LoginData();
   bool _isLoading = false;
@@ -229,7 +229,6 @@ class _LogInPageState extends State<LogInPage> {
     return new Scaffold(
         backgroundColor: Colors.white,
         appBar: new AppBar(
-          leading: new BackButton(),
           title: new Text('LOGIN'),
           backgroundColor: Colors.black,
         ),
@@ -262,7 +261,7 @@ class _LogInPageState extends State<LogInPage> {
                         ),
                       ),
                       SizedBox(height: 08.0),
-                      _isLoading ? loadingSpinner :
+                      _isLoading||_success ? loadingSpinner :
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
@@ -281,33 +280,35 @@ class _LogInPageState extends State<LogInPage> {
   }
   // Example code of how to sign in with email and password.
   void _signInWithEmailAndPassword() async {
+    //enable loading
+    setState(() {
+      _isLoading = true;
+    });
     final FirebaseUser user = (await _auth.signInWithEmailAndPassword(
       email: _emailController.text,
       password: _passwordController.text,
     )).user;
     if (user != null) {
+      //enable loading
       setState(() {
         _success = true;
+        _isLoading = false;
       });
       //this set the user info into a global state (main)
       //and navigate to '/' (home)
       onLoginSuccesfull(user);
     } else {
-      _success = false;
+      //disable loading
+      setState(() {
+        _success = false;
+        _isLoading = false;
+      });
     }
   }
 
   void onLoginSuccesfull (FirebaseUser user) async {
-  //get role
-    bool isSupervisor= false;
-    QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
-    for (DocumentSnapshot document in documents.documents) {
-      if(document != null) {
-        isSupervisor = document.data['Responsabile']; break;
-      }
-    }
-    //setRole
-    widget.onLogin(isSupervisor);
+    //setMainStatus
+    widget.onLogin(user);
     //navigate
     Navigator.of(context).pushReplacementNamed('/');
     }

@@ -17,6 +17,8 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
+import 'package:loading/loading.dart';
+import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:meta/meta.dart';
 import 'models/event_model.dart';
 import 'utils/theme.dart';
@@ -30,8 +32,6 @@ import 'backdrop.dart';
 import 'log_in_view.dart';
 import 'event_view.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
-final tabellaUtenti = 'Utenti';
 //HANDLE cambia questa velocità
 const double _kFlingVelocity = 2.0;
 
@@ -45,12 +45,14 @@ class Backdrop extends StatefulWidget {
   final String frontLayerRoute;
   final Object frontLayerArg;
   final Function backLayerRouteChanger;
+  final bool isLoggedIn;
   final bool isSupervisor;
 
   const Backdrop({
     @required this.backLayerRouteChanger,
     @required this.frontLayerRoute,
     @required this.frontLayerArg,
+    @required this.isLoggedIn,
     @required this.isSupervisor,
   })  : assert(frontLayerRoute != null),
         assert(backLayerRouteChanger != null);
@@ -64,18 +66,9 @@ class _BackdropState extends State<Backdrop>
   final GlobalKey _backdropKey = GlobalKey(debugLabel: "Backdrop");
   AnimationController _controller;
 
-  void checkLogin() async {
-    final FirebaseUser user = await _auth.currentUser();
-    if(user==null){
-      //not logged in
-      Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
-    }
-  }
-
   @override
   void initState() {
     super.initState();
-    checkLogin();
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
@@ -89,6 +82,11 @@ class _BackdropState extends State<Backdrop>
     }/* else if (!_frontLayerVisible) {
       _controller.fling(velocity: _kFlingVelocity);
     }*/
+    Timer.run(() {
+      if (widget.isLoggedIn == false) {
+        Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
+      }
+    });
   }
 
   @override
@@ -106,7 +104,7 @@ class _BackdropState extends State<Backdrop>
     print("backdrop rebuild");
     return Scaffold(
       appBar: AppBar(
-        title: new Text("Backdrop"),//TODO decidere se volete il nome della pagina o che cambia se hai il menu aperto
+        title: new Text("Backdrop"),//TODO decidere se volete il nome della pagina fisso o che cambia se hai il menu aperto
         elevation: 0.0,
         leading: new IconButton(
           onPressed: ()=>_toggleBackdropLayerVisibility(true),
@@ -162,8 +160,6 @@ class _BackdropState extends State<Backdrop>
     );
   }
   Widget _buildStack2(BuildContext context, BoxConstraints constraints) {
-    print(widget.frontLayerArg);
-    print("backdrop top");
     const double layerTitleHeight = 48.0;
     final Size layerSize = constraints.biggest;
     final double layerTop = layerSize.height - layerTitleHeight;
@@ -201,6 +197,15 @@ class _BackdropState extends State<Backdrop>
                 arguments: widget.frontLayerArg,
                 isSupervisor: widget.isSupervisor,
             ),
+          ),
+          Visibility(
+            child: Container(
+              color: whiteoverlapbackground,
+              child: Center(
+                child: Loading(indicator: BallPulseIndicator(), size: 100.0),
+              ),
+            ),
+            visible: widget.isLoggedIn == null,
           ),
         ],
       ),
@@ -302,23 +307,25 @@ class _CustomTitle extends AnimatedWidget {
 ///
 ///
 ///
-class _BackLayer extends StatelessWidget {
+class _BackLayer extends StatelessWidget {//TODO poluzzi
   //ROUTES
   final Map<String,String> _menuResponsabile = const {
-    "Incarichi attivi":"/event_view",
-    "Operatori ":"/op_list",
-    "Calendario generale":"/global_calendar",
-    "Creazione nuovo utente":"/",
-    "Impostazioni":"/",
-    "Statistiche":"/"
+    "Incarichi attivi":global.Constants.eventViewRoute,
+    "Operatori ":global.Constants.operatorListRoute,
+    "Calendario generale":global.Constants.globalCalendarRoute,
+    "Creazione nuovo utente":global.Constants.homeRoute,
+    "Impostazioni":global.Constants.homeRoute,
+    "Statistiche":global.Constants.homeRoute,
+    "Log out":global.Constants.logOut
   };
 
   final Map<String,String> _menuOperatore = const {
-    "Impegni del giorno":"",
-    "Incarichi non letti":"/",
-    "Calendario":"/daily_calendar",
-    "Impostazioni":"/",
-    "Statistiche":"/"
+    "Impegni del giorno":global.Constants.eventViewRoute,
+    "Incarichi non letti":global.Constants.homeRoute,
+    "Calendario":global.Constants.dailyCalendarRoute,
+    "Impostazioni":global.Constants.homeRoute,
+    "Statistiche":global.Constants.homeRoute,
+    "Log out":global.Constants.logOut
   };
 
   const _BackLayer({
@@ -408,7 +415,6 @@ class _FrontLayer extends StatelessWidget {
   final Object arguments;
   final Object isSupervisor;
 
-  //TODO POLUZ usa la classe User w fai switch sulla route
   Widget router(){
     print(arguments);
     print(route);
