@@ -21,7 +21,9 @@ import 'event_creator.dart';
 const double minEventHeight = 60.0;
 
 class DailyCalendar extends StatefulWidget {
-  DailyCalendar({Key key}) : super(key: key);
+  DateTime day;
+
+  DailyCalendar({ this.day, Key key}) : super(key: key);
 
   @override
   _DailyCalendarState createState() => _DailyCalendarState();
@@ -30,6 +32,7 @@ class DailyCalendar extends StatefulWidget {
 class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateMixin {
   Map<DateTime, List> _events;
   List _selectedEvents;
+  DateTime _selectedDay;
   AnimationController _animationController;
   CalendarController _calendarController;
   double _gridHourHeight;
@@ -38,18 +41,21 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    final _selectedDay = DateTime.now();
+    print(widget.day);
+    _selectedDay = widget.day!=null?widget.day:DateTime.now();
+    final _today = DateTime.now();
+
 
 
     //Firebase getter events
-    _events = {_selectedDay:[
+    _events = {_today:[
       Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi"),
       Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),DateTime(2019, 8, 11, 11, 0, 0), "","Fogne"),
       Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),DateTime(2019, 8, 11, 16, 0, 0), "","Tombini")
     ],
-      _selectedDay.subtract(Duration(days: 2)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi")],
-      _selectedDay.subtract(Duration(days: 3)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Fogne")],
-      _selectedDay.subtract(Duration(days: 4)): [ Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Tombini")]
+      _today.subtract(Duration(days: 2)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi")],
+      _today.subtract(Duration(days: 3)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Fogne")],
+      _today.subtract(Duration(days: 4)): [ Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Tombini")]
     };
     ///////////////
 
@@ -102,6 +108,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       startingDayOfWeek: StartingDayOfWeek.monday,
       availableGestures: AvailableGestures.horizontalSwipe,
       availableCalendarFormats: {CalendarFormat.week: ''},
+      initialSelectedDay: _selectedDay,
       builders: CalendarBuilders(
         selectedDayBuilder: (context, date, _) {
           return FadeTransition(

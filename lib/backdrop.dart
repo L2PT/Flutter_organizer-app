@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
@@ -27,7 +30,8 @@ import 'backdrop.dart';
 import 'log_in_view.dart';
 import 'event_view.dart';
 
-
+final FirebaseAuth _auth = FirebaseAuth.instance;
+final tabellaUtenti = 'Utenti';
 //HANDLE cambia questa velocità
 const double _kFlingVelocity = 2.0;
 
@@ -41,11 +45,13 @@ class Backdrop extends StatefulWidget {
   final String frontLayerRoute;
   final Object frontLayerArg;
   final Function backLayerRouteChanger;
+  final bool isSupervisor;
 
   const Backdrop({
     @required this.backLayerRouteChanger,
     @required this.frontLayerRoute,
     @required this.frontLayerArg,
+    @required this.isSupervisor,
   })  : assert(frontLayerRoute != null),
         assert(backLayerRouteChanger != null);
 
@@ -58,9 +64,18 @@ class _BackdropState extends State<Backdrop>
   final GlobalKey _backdropKey = GlobalKey(debugLabel: "Backdrop");
   AnimationController _controller;
 
+  void checkLogin() async {
+    final FirebaseUser user = await _auth.currentUser();
+    if(user==null){
+      //not logged in
+      Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    checkLogin();
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
@@ -100,18 +115,6 @@ class _BackdropState extends State<Backdrop>
             progress: _controller.view,
           ),
         ),
-        actions: <Widget>[
-          new IconButton(
-            icon: Icon(
-              Icons.account_circle,
-              semanticLabel: 'login',
-            ),
-            onPressed: () {
-              Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.profileRoute,
-                      (Route<dynamic> route) => true);
-            },
-          ),
-        ],
       ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _onFabClicked,
@@ -141,6 +144,7 @@ class _BackdropState extends State<Backdrop>
           child: _BackLayer(
               onTap: widget.backLayerRouteChanger,
               currentViewR: widget.frontLayerRoute,
+              isSupervisor: widget.isSupervisor,
           ),
           excluding: _frontLayerVisible,
         ),
@@ -150,7 +154,8 @@ class _BackdropState extends State<Backdrop>
             onTap: ()=>_toggleBackdropLayerVisibility(false),
             flag: _frontLayerVisible,
             route: widget.frontLayerRoute,
-            arguments: widget.frontLayerArg
+            arguments: widget.frontLayerArg,
+            isSupervisor: widget.isSupervisor,
           ),
         ),
       ],
@@ -183,6 +188,7 @@ class _BackdropState extends State<Backdrop>
             child: _BackLayer(
               onTap: widget.backLayerRouteChanger,
               currentViewR: widget.frontLayerRoute,
+              isSupervisor: widget.isSupervisor,
             ),
             excluding: _frontLayerVisible,
           ),
@@ -192,7 +198,8 @@ class _BackdropState extends State<Backdrop>
                 onTap: ()=>_toggleBackdropLayerVisibility(false),
                 flag: _frontLayerVisible,
                 route: widget.frontLayerRoute,
-                arguments: widget.frontLayerArg
+                arguments: widget.frontLayerArg,
+                isSupervisor: widget.isSupervisor,
             ),
           ),
         ],
@@ -318,18 +325,20 @@ class _BackLayer extends StatelessWidget {
     Key key,
     this.onTap,
     this.currentViewR,
+    this.isSupervisor,
   })  : assert(currentViewR != null),
         super(key: key);
 
   final ValueChanged<String> onTap;
   final String currentViewR;
+  final bool isSupervisor;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       color: dark,
       child: new ListView(
-          children: (global.isSupervisor?_menuResponsabile:_menuOperatore)
+          children: (isSupervisor?_menuResponsabile:_menuOperatore)
           .map((title, route) => _buildMenu(title, route, context)).values.toList()
       ),
     );
@@ -390,21 +399,28 @@ class _FrontLayer extends StatelessWidget {
     this.flag,
     this.route,
     this.arguments,
+    this.isSupervisor,
   }) : super(key: key);
 
   final VoidCallback onTap;
   final bool flag;
   final String route;
   final Object arguments;
+  final Object isSupervisor;
 
+  //TODO POLUZ usa la classe User w fai switch sulla route
   Widget router(){
     print(arguments);
     print(route);
     print("frontlayer");
     switch(route) {
+      case global.Constants.homeRoute: {
+        if(isSupervisor) return OperatorList();
+        else return DailyCalendar();}
+      break;
       case global.Constants.globalCalendarRoute: {return GlobalCalendar();}
       break;
-      case global.Constants.dailyCalendarRoute: {return DailyCalendar();}
+      case global.Constants.dailyCalendarRoute: {return DailyCalendar(day:arguments);}
       break;
       case global.Constants.profileRoute: {return ProfilePage();}
       break;

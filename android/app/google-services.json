@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "964614131015",
+    "firebase_url": "https://com-l2pt-venturiautospurghi.firebaseio.com",
+    "project_id": "com-l2pt-venturiautospurghi",
+    "storage_bucket": "com-l2pt-venturiautospurghi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964614131015:android:edf25e605592975d",
+        "android_client_info": {
+          "package_name": "com.l2pt.venturiautospurghi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "964614131015-d489larbe8iuv9tpnlu970t0vgako9l7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCMFHfWf2MxkrUab3eRaismkAjO6EnMiho"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "964614131015-d489larbe8iuv9tpnlu970t0vgako9l7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

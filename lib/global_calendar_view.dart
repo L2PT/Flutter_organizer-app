@@ -194,6 +194,7 @@ class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStat
     setState(() {
       _selectedEvents = events;
     });
+    Navigator.of(context).pushReplacementNamed(global.Constants.dailyCalendarRoute,arguments: day);
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

@@ -1,6 +1,7 @@
 //  Copyright (c) 2019 Aleksander Woźniak
 //  Licensed under Apache License v2.0
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 //import 'package:flutter_web/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -27,16 +28,18 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _currentView = "/";//<--DEBUG MODE vista corrente
   Object _currentArg = null;
-  String _role = "";
+  bool _isSupervisor = false;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Table Calendar Demo',
       theme: customLightTheme,
-      home: Backdrop(//<--DEBUG MODE vista corrente da cambiare con pagina di login
-        frontLayerRoute: _currentView,
+      debugShowCheckedModeBanner: false,
+      home:Backdrop(frontLayerRoute: _currentView,
+        frontLayerArg: _currentArg,
         backLayerRouteChanger: _onCategoryTap,
+        isSupervisor: _isSupervisor
       ),
       routes: {
         //ROUTES COMMENTATE DELEGATE ALLA BACKDROP(AL FRONTLAYER DELLA BACKDROP)
@@ -45,7 +48,7 @@ class _MyAppState extends State<MyApp> {
         //'/event_creator': (context) => EventCreator(null),
         '/reset_code_page': (context) => ResetCodePage("1235"),
         //'/profile': (context) => ProfilePage(),
-        '/log_in_page': (context) => LogInPage(),
+        '/log_in_page': (context) => LogInPage(_onLogin),
       },
       onUnknownRoute: _getRoute,
     );
@@ -65,6 +68,7 @@ class _MyAppState extends State<MyApp> {
           frontLayerRoute: _currentView,
           frontLayerArg: _currentArg,
           backLayerRouteChanger: _onCategoryTap,
+          isSupervisor: _isSupervisor,
         ),
     fullscreenDialog: true,
     );
@@ -74,6 +78,12 @@ class _MyAppState extends State<MyApp> {
   void _onCategoryTap(String route) {
     setState(() {
       _currentView = route;
+    });
+  }
+  /// Function to setup the user
+  void _onLogin(bool isSupervisor) {
+    setState(() {
+      _isSupervisor = isSupervisor;
     });
   }
 }

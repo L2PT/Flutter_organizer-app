@@ -1,9 +1,6 @@
 library App.globals;
 import 'package:venturiautospurghi/models/event_model.dart';
 
-bool isLoggedIn = false;
-bool isSupervisor = true;
-
 class Constants {
   //Calendar related
   final Map<DateTime, List> holidays = {
@@ -25,6 +22,7 @@ class Constants {
   };
 
   // Flutter Routes
+  static const String homeRoute = '/';
   static const String globalCalendarRoute = '/global_calendar';
   static const String dailyCalendarRoute = '/daily_calendar';
   static const String operatorListRoute = '/op_list';
