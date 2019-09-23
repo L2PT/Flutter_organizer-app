@@ -1,0 +1,11 @@
+#wrap {
+    margin: 0 40px;
+    z-index: 1;
+    position: relative;
+    color: #333;
+    font: 14px sans-serif;
+}
+
+#calendar {
+    margin-top:66px;
+}

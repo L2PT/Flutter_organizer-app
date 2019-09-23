@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 final logo = new Image.asset('assets/logo.png', height: 128.0);
+final logo_web = new Image.asset('logo.png', height: 128.0);
 final ThemeData customLightTheme = _buildTheme();
 final title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: dark, );
 final subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
@@ -54,7 +55,7 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
       fontSize: 16.0,
     ),
   ).apply(
-    fontFamily: 'Rubik',
+    fontFamily: 'Roboto',
     displayColor: Color(0xFFC5032B), //dunno
     bodyColor: c, //text
 
@@ -69,3 +70,4 @@ const white = const Color(0xFFFFFFFF);
 const whitebackground = const Color(0xFFFFFFFF);
 const whiteoverlapbackground = const Color(0x99FFFFFF);
 const red = const Color(0xFFC5032B);
+const yellow = const Color(0xFFFDA90A);
