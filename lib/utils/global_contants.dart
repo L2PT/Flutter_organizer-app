@@ -11,8 +11,6 @@ class Constants {
     DateTime(2019, 4, 22): [new Event("Easter Monday", "", DateTime(2019, 4, 22),DateTime(2019, 4, 22),"","")]
   };
 
-
-
   //Event related
   //TODO sarebbe bello averle su database queste categorie
   Map<String,int> category = {
@@ -23,14 +21,15 @@ class Constants {
 
   // Flutter Routes
   static const String homeRoute = '/';
-  static const String globalCalendarRoute = '/global_calendar';
-  static const String dailyCalendarRoute = '/daily_calendar';
-  static const String operatorListRoute = '/op_list';
-  static const String eventViewRoute = '/event_creator';
-  static const String eventCreatorRoute = '/event_creator';
-  static const String profileRoute = '/profile';
-  static const String resetCodeRoute = '/reset_code_page';
-  static const String logInRoute = '/log_in_page';
+  static const String monthlyCalendarRoute = 'view/monthly_calendar';
+  static const String dailyCalendarRoute = 'view/daily_calendar';
+  static const String operatorListRoute = 'view/op_list';
+  static const String detailsEventViewRoute = 'view/details_event';
+  static const String formEventCreatorRoute = 'view/form_event_creator';
+  static const String waitingEventListRoute = 'view/waiting_event_list';
+  static const String profileRoute = 'view/profile';
+  static const String resetCodeRoute = 'view/reset_code_page';
+  static const String logInRoute = 'view/log_in';
   static const String logOut = 'log_out';
   static bool debug = false;
 

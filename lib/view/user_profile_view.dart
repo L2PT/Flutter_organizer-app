@@ -8,9 +8,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 final tabellaUtenti = 'Utenti';
 
-class ProfilePage extends StatefulWidget {
+class Profile extends StatefulWidget {
   @override
-  State createState() => new _ProfilePageState();
+  State createState() => new _ProfileState();
 }
 
 void inputData() async {
@@ -19,7 +19,7 @@ void inputData() async {
   // here you write the codes to input the data into firestore
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfileState extends State<Profile> {
   Size deviceSize;
 
   @override

@@ -1,29 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_web/material.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'utils/theme.dart';
-import 'user_profile.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
+final _auth = FBAuth();
 
 class LoginData {
   String email = '';
   String password = '';
 }
 
-class LogInPage extends StatefulWidget {
+class LogIn extends StatefulWidget {
   final Function onLogin;
 
-  const LogInPage(this.onLogin)  : assert(onLogin != null);
+  const LogIn(this.onLogin)  : assert(onLogin != null);
 
   @override
-  State createState() => new _LogInPageState();
+  State createState() => new _LogInState();
 }
 
-class _LogInPageState extends State<LogInPage> {
+class _LogInState extends State<LogIn> {
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -284,10 +280,7 @@ class _LogInPageState extends State<LogInPage> {
     setState(() {
       _isLoading = true;
     });
-    final FirebaseUser user = (await _auth.signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    )).user;
+    final AuthUser user = (await _auth.login(_emailController.text,_passwordController.text));
     if (user != null) {
       //enable loading
       setState(() {
@@ -306,7 +299,7 @@ class _LogInPageState extends State<LogInPage> {
     }
   }
 
-  void onLoginSuccesfull (FirebaseUser user) async {
+  void onLoginSuccesfull (AuthUser user) async {
     //setMainStatus
     widget.onLogin(user);
     //navigate

@@ -14,9 +14,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'utils/theme.dart';
-import 'models/event_model.dart';
-import 'event_creator.dart';
+import '../utils/theme.dart';
+import '../models/event_model.dart';
+import 'form_event_creator_view.dart';
 
 class EventView extends StatefulWidget {
   final Event event;

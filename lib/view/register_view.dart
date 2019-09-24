@@ -1,17 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'Utente.dart';
+import '../models/Utente.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
-class RegisterPage extends StatefulWidget {
+class Register extends StatefulWidget {
   final String title = 'Registration';
   @override
-  State<StatefulWidget> createState() => RegisterPageState();
+  State<StatefulWidget> createState() => RegisterState();
 }
 
-class RegisterPageState extends State<RegisterPage> {
+class RegisterState extends State<Register> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();

@@ -1,13 +1,20 @@
 @JS()
 library jquery;
+import 'dart:async';
+
+import 'package:fb_auth/fb_auth.dart';
 import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:js/js.dart';
 
-import 'global_calendar_view.dart';
+import 'view/monthly_calendar_view.dart';
+
+final _auth = FBAuth();
+final tabellaUtenti = 'Utenti';
 
 @JS("jQuery('#calendar').fullCalendar('today')")
 external void today();
@@ -37,21 +44,77 @@ class CssOptions {
   external dynamic get zIndex;
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  bool _isLoggedIn = null;
+
+  @override
+  void initState() {
+    _onLogin(null);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: customLightTheme,
-      home: MyAppWeb(),
+      home: MyAppWeb(isLoggedIn: _isLoggedIn,),
+      routes: {
+        //global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
+        global.Constants.logInRoute: (context) => LogIn(_onLogin),
+      },
     );
   }
+
+  /// Function to setup the user
+  void _onLogin(AuthUser user) async {
+    if(user == null){
+      //check status and get role
+      user = await _auth.currentUser();
+      if(user == null){
+        //go to the login page (you can't do it from here)
+        setState(() {
+          _isLoggedIn = false; //this tells the backdrop to navigate to login page
+        });
+        return;
+      }else{
+        setState(() {
+          _isLoggedIn = true; //this tells the backdrop to navigate to login page
+        });
+      }
+    }
+//  //you are logged in, get role
+//  QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
+//  for (DocumentSnapshot document in documents.documents) {
+//    if(document != null) {
+//      isSupervisor = document.data['Responsabile'];
+//      setState(() {
+//        _isSupervisor = isSupervisor;
+//        _isLoggedIn = true; //this tells the backdrop to stop loading
+//      });
+//      break;
+//    }
+//  }
+  }
+
+  void _onLogout() async {
+    await _auth.logout();
+    Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
+  }
+
 }
 
 class MyAppWeb extends StatefulWidget {
-  const MyAppWeb({Key key, }) : super(key: key);
+  final bool isLoggedIn;
+
+  const MyAppWeb({Key key,
+    @required this.isLoggedIn
+    }) : super(key: key);
+
   @override
   _MyAppWebState createState() => _MyAppWebState();
 }
@@ -63,7 +126,16 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     _calendarController = CalendarController();
-    //_onLogin(null); //TODO
+  }
+
+  @override
+  void didUpdateWidget(MyAppWeb old) {
+    super.didUpdateWidget(old);
+    Timer.run(() {
+    if (widget.isLoggedIn == false) {
+      Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
+    }
+    });
   }
 
   @override

@@ -20,17 +20,17 @@ import 'package:flutter/material.dart';
 import 'package:loading/loading.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:meta/meta.dart';
-import 'models/event_model.dart';
-import 'utils/theme.dart';
-import 'event_creator.dart';
-import 'global_calendar_view.dart';
+import 'package:venturiautospurghi/view/waiting_event_view.dart';
+import '../models/event_model.dart';
+import '../utils/theme.dart';
+import 'form_event_creator_view.dart';
+import 'monthly_calendar_view.dart';
 import 'daily_calendar_view.dart';
-import 'operator_list.dart';
+import 'operator_list_view.dart';
 import 'reset_code_view.dart';
-import 'user_profile.dart';
-import 'backdrop.dart';
+import 'user_profile_view.dart';
 import 'log_in_view.dart';
-import 'event_view.dart';
+import 'details_event_view.dart';
 
 //HANDLE cambia questa velocità
 const double _kFlingVelocity = 2.0;
@@ -310,9 +310,9 @@ class _CustomTitle extends AnimatedWidget {
 class _BackLayer extends StatelessWidget {//TODO poluzzi
   //ROUTES
   final Map<String,String> _menuResponsabile = const {
-    "Incarichi attivi":global.Constants.eventViewRoute,
+    "Incarichi attivi":global.Constants.detailsEventViewRoute,
     "Operatori ":global.Constants.operatorListRoute,
-    "Calendario generale":global.Constants.globalCalendarRoute,
+    "Calendario generale":global.Constants.monthlyCalendarRoute,
     "Creazione nuovo utente":global.Constants.homeRoute,
     "Impostazioni":global.Constants.homeRoute,
     "Statistiche":global.Constants.homeRoute,
@@ -320,8 +320,8 @@ class _BackLayer extends StatelessWidget {//TODO poluzzi
   };
 
   final Map<String,String> _menuOperatore = const {
-    "Impegni del giorno":global.Constants.eventViewRoute,
-    "Incarichi non letti":global.Constants.homeRoute,
+    "Impegni del giorno":global.Constants.dailyCalendarRoute,
+    "Incarichi in sospeso":global.Constants.waitingEventListRoute,
     "Calendario":global.Constants.dailyCalendarRoute,
     "Impostazioni":global.Constants.homeRoute,
     "Statistiche":global.Constants.homeRoute,
@@ -424,17 +424,19 @@ class _FrontLayer extends StatelessWidget {
         if(isSupervisor) return OperatorList();
         else return DailyCalendar();}
       break;
-      case global.Constants.globalCalendarRoute: {return GlobalCalendar();}
+      case global.Constants.monthlyCalendarRoute: {return MonthlyCalendar();}
       break;
       case global.Constants.dailyCalendarRoute: {return DailyCalendar(day:arguments);}
       break;
-      case global.Constants.profileRoute: {return ProfilePage();}
+      case global.Constants.profileRoute: {return Profile();}
       break;
       case global.Constants.operatorListRoute: {return OperatorList();}
       break;
-      case global.Constants.eventViewRoute: {return arguments!=null?EventView(event: arguments):null;}
+      case global.Constants.detailsEventViewRoute: {return arguments!=null?EventView(event: arguments):null;}
       break;
-      case global.Constants.eventCreatorRoute: {return EventCreator(null);}
+      case global.Constants.formEventCreatorRoute: {return EventCreator(null);}
+      break;
+      case global.Constants.waitingEventListRoute: {return waitingEvent();}
       break;
       default: {return DailyCalendar();}
       break;

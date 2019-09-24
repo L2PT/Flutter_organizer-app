@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 import 'utils/theme.dart';
-import 'reset_code_view.dart';
-import 'backdrop.dart';
-import 'log_in_view.dart';
+import 'view/reset_code_view.dart';
+import 'view/backdrop.dart';
+import 'view/log_in_view.dart';
 
 final _auth = FBAuth();
 final tabellaUtenti = 'Utenti';
@@ -42,8 +42,8 @@ class _MyAppState extends State<MyApp> {
           isSupervisor: _isSupervisor
       ),
       routes: {
-        '/reset_code_page': (context) => ResetCodePage("1235"),
-        '/log_in_page': (context) => LogInPage(_onLogin),
+        global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
+        global.Constants.logInRoute: (context) => LogIn(_onLogin),
       },
       onUnknownRoute: _getRoute,
     );

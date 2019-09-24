@@ -81,7 +81,7 @@ function initCategories(){
 }
 
 function readResources(callback){
-    var docRef = db.collection("Utenti").doc(loggedId);
+    //var docRef = db.collection("Utenti").doc(loggedId);
     var docRef = db.collection("Utenti").where("Responsabile", "==", false);//TODO FIX THIS QUERY
     var res = [];
     docRef.get().then(function(querySnapshot) {
@@ -99,7 +99,7 @@ function readResources(callback){
 }
 function readEvents(start, end, timezone, callback){
     //var date = calendar.getDate().format();
-    var docRef = db.collection("Eventi").where("Data inizio",">=",firebase.firestore.Timestamp.fromDate(new Date()))  ; //TODO ADD QUERY FOR RESOURCES ID
+    var docRef = db.collection("Eventi").where("Data inizio","<=",firebase.firestore.Timestamp.fromDate(new Date()))  ; //TODO ADD QUERY FOR RESOURCES ID
     var evs = [];
    docRef.get().then(function(querySnapshot) {
        querySnapshot.forEach(function(doc) {
@@ -116,6 +116,7 @@ function readEvents(start, end, timezone, callback){
 function removeResource(res){
 
 }
+
 function mapEventObj(eventData){
     if(eventData!=null){
         var e = eventData;

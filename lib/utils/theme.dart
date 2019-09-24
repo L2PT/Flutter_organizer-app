@@ -7,6 +7,10 @@ final title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: dark, 
 final subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
 final title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: white, );
 final subtitle_rev = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_light);
+final orario_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: white, );
+final button_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: white, );
+final dayWaitingEvent = TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: dark );
+final datWaitingEvent = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey );
 
 ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();

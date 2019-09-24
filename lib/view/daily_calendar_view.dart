@@ -12,38 +12,49 @@ import 'dart:math';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'utils/theme.dart';
-import 'models/event_model.dart';
-import 'event_creator.dart';
+import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
+import '../utils/theme.dart';
+import '../models/event_model.dart';
+import 'details_event_view.dart';
+import 'form_event_creator_view.dart';
 
-class GlobalCalendar extends StatefulWidget {
-  GlobalCalendar({Key key}) : super(key: key);
+//HANDLE cambia questa costante per modifcare la grandezza degli eventi
+const double minEventHeight = 60.0;
+
+class DailyCalendar extends StatefulWidget {
+  DateTime day;
+
+  DailyCalendar({ this.day, Key key}) : super(key: key);
 
   @override
-  _GlobalCalendarState createState() => _GlobalCalendarState();
+  _DailyCalendarState createState() => _DailyCalendarState();
 }
 
-class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStateMixin {
+class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateMixin {
   Map<DateTime, List> _events;
   List _selectedEvents;
+  DateTime _selectedDay;
   AnimationController _animationController;
   CalendarController _calendarController;
+  double _gridHourHeight;
+  int _gridHourSpan;
 
   @override
   void initState() {
     super.initState();
-    final _selectedDay = DateTime.now();
-
+    print(widget.day);
+    _selectedDay = widget.day!=null?widget.day:DateTime.now();
+    final _today = DateTime.now();
 
     //Firebase getter events
-    _events = {_selectedDay:[
+    _events = {_today:[
       Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi"),
       Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),DateTime(2019, 8, 11, 11, 0, 0), "","Fogne"),
       Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),DateTime(2019, 8, 11, 16, 0, 0), "","Tombini")
     ],
-      _selectedDay.subtract(Duration(days: 2)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi")],
-      _selectedDay.subtract(Duration(days: 3)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Fogne")],
-      _selectedDay.subtract(Duration(days: 4)): [ Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Tombini")]
+      _today.subtract(Duration(days: 2)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi")],
+      _today.subtract(Duration(days: 3)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Fogne")],
+      _today.subtract(Duration(days: 4)): [ Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Tombini")]
     };
     ///////////////
 
@@ -54,6 +65,8 @@ class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStat
       duration: const Duration(milliseconds: 400),
     );
     _animationController.forward();
+    _gridHourHeight = minEventHeight;
+    _gridHourSpan = 1;
   }
 
   @override
@@ -71,7 +84,14 @@ class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStat
       borderRadius: new BorderRadius.only(
           topLeft: new Radius.circular(16.0),
           topRight: new Radius.circular(16.0)),
-      child: _buildTableCalendarWithBuilders(),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          _buildTableCalendarWithBuilders(),
+          const SizedBox(height: 8.0),
+          Expanded(child: _buildEventList()),
+        ],
+      ),
     );
   }
 
@@ -82,14 +102,12 @@ class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStat
       calendarController: _calendarController,
       events: _events,
       holidays: global.Constants().holidays,
-      initialCalendarFormat: CalendarFormat.month,
+      initialCalendarFormat: CalendarFormat.week,
       formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.monday,
       availableGestures: AvailableGestures.horizontalSwipe,
-      availableCalendarFormats: {CalendarFormat.month: ''},
-      headerStyle: HeaderStyle(
-        rightChevronIcon: Icon(null)
-      ),
+      availableCalendarFormats: {CalendarFormat.week: ''},
+      initialSelectedDay: _selectedDay,
       builders: CalendarBuilders(
         selectedDayBuilder: (context, date, _) {
           return FadeTransition(
@@ -153,7 +171,8 @@ class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStat
         _animationController.forward(from: 0.0);
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
-      selectNext: (){},
+      selectNext: (){Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.monthlyCalendarRoute,
+              (Route<dynamic> route) => true);},
       selectPrevious: (){},
     );
   }
@@ -189,24 +208,147 @@ class _GlobalCalendarState extends State<GlobalCalendar> with TickerProviderStat
     );
   }
 
+        //--EVENT LIST
+  Widget _buildEventList() {
+    return ListView(
+        children:<Widget>[Stack(
+            children: <Widget>[
+              Column(
+                  children: _buildBack((16/_gridHourSpan).toInt())
+              ),Column(
+                  children: _buildFront()
+              )
+            ]
+        )]
+    );
+  }
+//TODO probabilmente da eliminare post integrazione di Firebase
+  void initList() {
+    //order by start date
+    if(_selectedEvents.length>0) {
+      setState(() {
+        _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
+      });
+      //identify minimum duration's event
+      int md = 4;
+      _selectedEvents.forEach((e) => {
+        md = min(md.toInt(), (((e.end.hour * 60 + e.end.minute) -
+            (e.start.hour * 60 + e.start.minute)) / 60).toInt())
+      });
+      if (md == 0) {
+        //TODO to decidere
+        setState(() {
+          _gridHourHeight = minEventHeight * 2;
+          _gridHourSpan = 1;
+        });
+      } else {
+        int i = 0;
+        while (md == (max(pow(2, i), md)))i++;
+        md = (min(pow(2, i), md));
+        setState(() {
+          _gridHourHeight = minEventHeight;
+          _gridHourSpan = md;
+        });
+      }
+    }else{
+      setState(() {
+        _gridHourHeight = minEventHeight;
+        _gridHourSpan = 1;
+      });
+    }
+  }
+
+  List<Widget> _buildBack(int length) {
+    double barHourHeight = _gridHourHeight / 2;
+    return List.generate(length, (i) {
+      int n = ((i)*_gridHourSpan) + 6;
+      return Row(children: <Widget>[Expanded(
+          flex: 2,
+          child: Container(
+              padding: EdgeInsets.only(left: 20),
+              height: _gridHourHeight,
+              child: Center(
+                child: Text("$n:00", style: TextStyle(color: grey_dark),),)
+          )
+      ),
+        Expanded(
+            flex: 8,
+            child: Column(children: <Widget>
+            [Container(
+                  height: barHourHeight,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(width: 4, color: grey_light),
+                    ),
+                  )
+              ), Container(
+                height: barHourHeight,
+              )
+            ]
+            )
+        ),
+      ]
+      );
+    }).toList();
+  }
+
+  List<Widget> _buildFront(){
+    List<Widget> r = new List<Widget>();
+    double barHourHeight = _gridHourHeight / 2;
+    DateTime base = new DateTime(1990,1,1,6,0,0);
+    DateTime top = new DateTime(1990,1,1,21,0,0);
+    r.add(SizedBox(height: barHourHeight));
+    this.initList();
+    _selectedEvents.forEach((e){
+      r.add(SizedBox(height: (((e.start.hour*60+e.start.minute)-(base.hour*60+base.minute))/60)*_gridHourHeight));
+      r.add(
+          Row(children: <Widget>[
+            Expanded(
+                flex: 2,
+                child: Container(
+                    padding: EdgeInsets.only(right: 40),
+                    height: (((e.end.hour*60+e.end.minute)-(e.start.hour*60+e.start.minute))/60)*_gridHourHeight,
+                    child: Icon(Icons.notification_important,color: red)
+                )
+            ),
+            Expanded(
+              flex: 8,
+              child: cardEvent(
+                e:e,
+                hourHeight:_gridHourHeight,
+                actionEvent: _onCardClicked,
+                buttonArea: false,
+              )
+            ),
+          ])
+      );
+      base = e.end;
+    });
+    r.add(SizedBox(height: (((top.hour*60+top.minute)-(base.hour*60+base.minute))/60)*_gridHourHeight));
+    return r;
+  }
+
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
     setState(() {
       _selectedEvents = events;
     });
-    Navigator.of(context).pushReplacementNamed(global.Constants.dailyCalendarRoute,arguments: day);
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
   }
 
   void _onCardClicked(Event ev) {
-    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-    => new EventCreator(ev)));
+    Navigator.of(context).pushNamed(global.Constants.detailsEventViewRoute, arguments: ev);
   }
 
   void _deleteEvent(Event ev) {
     print("Delete");
+  }
+
+      //METODI DI UTILITY
+  String getTitle(Event e){
+    return e.title;
   }
 
 }

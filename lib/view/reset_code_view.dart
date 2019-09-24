@@ -6,7 +6,7 @@ import 'package:sms_autofill/sms_autofill.dart';
 
 //https://developers.google.com/identity/sms-retriever/verify
 
-class ResetCodePage extends StatefulWidget {
+class ResetCode extends StatefulWidget {
   String code;
 
   @override
@@ -14,12 +14,12 @@ class ResetCodePage extends StatefulWidget {
     return new _ResetCodeState();
   }
 
-  ResetCodePage(this.code){
+  ResetCode(this.code){
     createState();
   }
 }
 
-class _ResetCodeState extends State<ResetCodePage> {
+class _ResetCodeState extends State<ResetCode> {
   String _signature;
   String _code;
   @override
