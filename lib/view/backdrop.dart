@@ -432,7 +432,7 @@ class _FrontLayer extends StatelessWidget {
       break;
       case global.Constants.operatorListRoute: {return OperatorList();}
       break;
-      case global.Constants.detailsEventViewRoute: {return arguments!=null?EventView(event: arguments):null;}
+      case global.Constants.detailsEventViewRoute: {return arguments!=null?DetailsEvent(event: arguments):null;}
       break;
       case global.Constants.formEventCreatorRoute: {return EventCreator(null);}
       break;

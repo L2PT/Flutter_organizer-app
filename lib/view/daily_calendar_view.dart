@@ -1,9 +1,9 @@
 /*
 THIS IS THE MAIN PAGE OF THE OPERATOR
--l'appBar contiene menu a sinistra, titolo al centro, profilo a destra
+-l'appBar contiene menu a sinistra, titolo al centro
 -in alto c'è una riga di giorni della settimana selezionabili
 -(R)al centro e in basso c'è una grglia oraria dove sono rappresentati gli eventi dell'operatore corrente del giorno selezionato in alto
--(o)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
+-(O)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
 import 'package:flutter/material.dart';

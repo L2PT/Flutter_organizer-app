@@ -5,26 +5,43 @@ import 'dart:async';
 import 'package:fb_auth/fb_auth.dart';
 import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/models/event_model.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:js/js.dart';
 
-import 'view/monthly_calendar_view.dart';
-
 final _auth = FBAuth();
 final tabellaUtenti = 'Utenti';
 
-@JS("jQuery('#calendar').fullCalendar('today')")
-external void today();
+
+/*------------------ DB -----------------------------*/
+
+@JS()
+external void initJs2Dart(dynamic data);
+
+@JS()
+external void login(String email);
+
+@JS()
+external void initCalendar();
+
+/*------------------- jQuery ----------------------------*/
+//@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
+//external String today();
 
 @JS()
 class jQuery {
   external factory jQuery(String selector);
   external int get length;
+  external jQuery html(String content);
   external jQuery css(CssOptions options);
+  external jQuery children();
   external jQuery fullCalendar(String a,String b);
+  external jQuery format(String a);
 }
 
 @JS()
@@ -43,6 +60,7 @@ class CssOptions {
   external dynamic get width;
   external dynamic get zIndex;
 }
+/*-------------------------------------------------*/
 
 class MyApp extends StatefulWidget {
   @override
@@ -51,6 +69,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   bool _isLoggedIn = null;
+  dynamic _user = null;
 
   @override
   void initState() {
@@ -62,7 +81,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: customLightTheme,
-      home: MyAppWeb(isLoggedIn: _isLoggedIn,),
+      home: MyAppWeb(isLoggedIn: _isLoggedIn, user: _user, actionLogOut: _onLogOut),
       routes: {
         //global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
         global.Constants.logInRoute: (context) => LogIn(_onLogin),
@@ -82,27 +101,21 @@ class _MyAppState extends State<MyApp> {
         });
         return;
       }else{
+        login(user.email);
         setState(() {
           _isLoggedIn = true; //this tells the backdrop to navigate to login page
+          _user = user;
         });
       }
     }
-//  //you are logged in, get role
-//  QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
-//  for (DocumentSnapshot document in documents.documents) {
-//    if(document != null) {
-//      isSupervisor = document.data['Responsabile'];
-//      setState(() {
-//        _isSupervisor = isSupervisor;
-//        _isLoggedIn = true; //this tells the backdrop to stop loading
-//      });
-//      break;
-//    }
-//  }
   }
 
-  void _onLogout() async {
-    await _auth.logout();
+  void _onLogOut() async {
+    _auth.logout();
+    setState(() {
+      _isLoggedIn = false; //this tells the backdrop to navigate to login page
+      _user = null;
+    });
     Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
   }
 
@@ -110,9 +123,13 @@ class _MyAppState extends State<MyApp> {
 
 class MyAppWeb extends StatefulWidget {
   final bool isLoggedIn;
+  final dynamic user;
+  final Function actionLogOut;
 
   const MyAppWeb({Key key,
-    @required this.isLoggedIn
+    @required this.isLoggedIn,
+    @required this.user,
+    @required this.actionLogOut
     }) : super(key: key);
 
   @override
@@ -121,11 +138,13 @@ class MyAppWeb extends StatefulWidget {
 
 class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   CalendarController _calendarController;
-
+  String _dateCalendar;
   @override
   void initState() {
     super.initState();
     _calendarController = CalendarController();
+    _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString():"";
+    initJs2Dart(this);
   }
 
   @override
@@ -133,6 +152,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     super.didUpdateWidget(old);
     Timer.run(() {
     if (widget.isLoggedIn == false) {
+      jQuery("#calendar").html("");
       Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
     }
     });
@@ -158,8 +178,15 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           )
         );
   }
-
   Widget navbar() {
+    String n = "",c ="";
+    if(widget.user!=null && widget.user.displayName!=null){
+      var s = widget.user.displayName.toString().split(" ");
+      c = s[0].toString().toUpperCase();
+      if(s.length>1){
+        n = s[1].toString();
+      }
+    }
     return Container(
       //margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
       //padding: const EdgeInsets.only(top:16.0, right:16.0, bottom:4.0, left:16.0),
@@ -183,9 +210,12 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                         Container(
                           alignment: Alignment.bottomRight,
                           child: Row(children: <Widget>[
-                            Icon(Icons.supervisor_account,),
-                            Text("VENTURI ", textAlign: TextAlign.right,style: title_rev),
-                            Text("Nicola", textAlign: TextAlign.right,style: subtitle_rev),
+                            IconButton(
+                              icon: Icon(Icons.supervisor_account,),
+                              onPressed: (){widget.actionLogOut();},
+                            ),
+                            Text(c, textAlign: TextAlign.right,style: title_rev),
+                            Text(n, textAlign: TextAlign.right,style: subtitle_rev),
                             SizedBox(width: 30),
                             FlatButton(
                                 color: whiteoverlapbackground,
@@ -230,7 +260,29 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                 )
             ),
           ),
-          Expanded(child: Container(),),
+          Expanded(child: Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(width: 15,),
+                IconButton(
+                    onPressed: (){
+                      jQuery('#calendar').fullCalendar('prev',null);
+                      updateDateCalendar();
+                    },
+                    icon: Icon(Icons.arrow_back_ios,color:dark)
+                ),
+                IconButton(
+                    onPressed: (){
+                      jQuery('#calendar').fullCalendar('next',null);
+                      updateDateCalendar();
+                    },
+                    icon: Icon(Icons.arrow_forward_ios,color:dark)
+                ),SizedBox(width: 15,),
+                Text(_dateCalendar, style: title,)
+              ],
+            ),
+          ),),
           Container(
               alignment: Alignment.bottomRight,
               child: Row(
@@ -240,6 +292,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                     child: RaisedButton(
                         onPressed: (){
                           jQuery('#calendar').fullCalendar('today',null);
+                          updateDateCalendar();
                         },
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
@@ -254,7 +307,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                   Container(
                     margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                     child: RaisedButton(
-                        onPressed: _showDialog,
+                        onPressed: ()=>showDialogWindow("calendar", null),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
                           children: <Widget>[
@@ -273,14 +326,19 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     );
   }
 
-  void _showDialog() {
+  void showDialogWindow(String opt,dynamic param) {
     // flutter defined function
     jQuery('#wrap').css(CssOptions(zIndex: -1));
+    var dialogContainer;
+    switch(opt) {
+      case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
+      case "event":{dialogContainer = DetailsEvent(event:Event.fromJson(param));}break;
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
-        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(width:300,child:_buildTableCalendarWithBuilders(context)),
+        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(width:300,child:dialogContainer),
         );
       },
     ).then((onValue)=>jQuery('#wrap').css(CssOptions(zIndex: 1)));
@@ -293,12 +351,20 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       availableGestures: AvailableGestures.none,
       onDaySelected: (date, events){
         jQuery('#calendar').fullCalendar('gotoDate',date.toLocal().toString());
+        updateDateCalendar();
         Navigator.of(context).pop();},
       headerStyle: HeaderStyle(
         leftChevronIcon:Icon(Icons.arrow_back_ios, color: dark,),
         rightChevronIcon:Icon(Icons.arrow_forward_ios, color: dark,),
       ),
     );
+  }
+
+
+  void updateDateCalendar(){
+    setState(() {
+      _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString();
+    });
   }
 
 }

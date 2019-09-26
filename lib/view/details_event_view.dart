@@ -1,36 +1,24 @@
-/*
-THIS IS THE MAIN PAGE OF THE OPERATOR
--l'appBar contiene menu a sinistra, titolo al centro, profilo a destra
--in alto c'è una riga di giorni della settimana selezionabili
--(R)al centro e in basso c'è una grglia oraria dove sono rappresentati gli eventi dell'operatore corrente del giorno selezionato in alto
--(o)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
- */
-
 import 'package:flutter/material.dart';
-//import 'package:flutter_web/material.dart';
-import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import '../utils/theme.dart';
 import '../models/event_model.dart';
-import 'form_event_creator_view.dart';
 
-class EventView extends StatefulWidget {
+class DetailsEvent extends StatefulWidget {
   final Event event;
 
-  EventView({Key key,
+  DetailsEvent({Key key,
     @required this.event
   })  : assert(event != null),
         super(key: key);
 
   @override
-  _EventViewState createState()=>_EventViewState();
+  _DetailsEventState createState()=>_DetailsEventState();
 }
 
-class _EventViewState extends State<EventView> with TickerProviderStateMixin {
+class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMixin {
   String dateToText = "";
   Color c = Colors.blueAccent;
   final List<Tab> tabs = <Tab>[
