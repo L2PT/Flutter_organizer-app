@@ -6,7 +6,7 @@ import 'package:fb_auth/fb_auth.dart';
 import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:venturiautospurghi/models/event_model.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
@@ -332,7 +332,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     var dialogContainer;
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(event:Event.fromJson(param));}break;
+      case "event":{dialogContainer = DetailsEvent(event:Event.fromMap(param.id, param));}break;
     }
     showDialog(
       context: context,

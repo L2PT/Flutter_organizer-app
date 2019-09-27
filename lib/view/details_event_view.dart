@@ -3,8 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import '../utils/theme.dart';
-import '../models/event_model.dart';
+import '../models/event.dart';
 
 class DetailsEvent extends StatefulWidget {
   final Event event;
@@ -20,12 +21,12 @@ class DetailsEvent extends StatefulWidget {
 
 class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMixin {
   String dateToText = "";
-  Color c = Colors.blueAccent;
   final List<Tab> tabs = <Tab>[
     new Tab(text: "DETTAGLIO"),
     new Tab(text: "DOCUMENTI"),
     new Tab(text: "NOTE")
   ];
+  Color c = Color(global.Constants.fallbackColor);
 
   TabController _tabController;
   @override
@@ -33,7 +34,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
     super.initState();
     _tabController = new TabController(vsync: this, length: tabs.length);
     getDate(widget.event.start);
-    c = Color(global.Constants().category[widget.event.category]);
+    c = Utils.getColor(widget.event.category);
   }
 
   @override
@@ -186,7 +187,6 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
         )
     );
   }
-
   void getDate(DateTime d) async{
     initializeDateFormatting("it_IT", null).then((_){
       var formatter = new DateFormat(' MMM\n  d\n E');
@@ -196,37 +196,5 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
       });
     });
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//--
-
-        //--
-
-
-      //METODI DI CALLBACK
-
-
-      //METODI DI UTILITY
-
 
 }

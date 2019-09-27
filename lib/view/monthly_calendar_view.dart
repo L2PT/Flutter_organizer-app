@@ -7,13 +7,14 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
  */
 
 import 'package:flutter/material.dart';
-//import 'package:flutter_web/material.dart';
 import 'dart:math';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import '../utils/theme.dart';
-import '../models/event_model.dart';
+import '../models/event.dart';
 import 'form_event_creator_view.dart';
 
 class MonthlyCalendar extends StatefulWidget {
@@ -33,20 +34,18 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   void initState() {
     super.initState();
     final _selectedDay = DateTime.now();
-
-
-    //Firebase getter events
-    _events = {_selectedDay:[
-      Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi"),
-      Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),DateTime(2019, 8, 11, 11, 0, 0), "","Fogne"),
-      Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),DateTime(2019, 8, 11, 16, 0, 0), "","Tombini")
-    ],
-      _selectedDay.subtract(Duration(days: 2)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi")],
-      _selectedDay.subtract(Duration(days: 3)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Fogne")],
-      _selectedDay.subtract(Duration(days: 4)): [ Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Tombini")]
-    };
+    //Firebase getter events - TODO for all the month
+    PlatformUtils.fire.collection("Eventi").getDocuments().then((documents) {
+      for (var document in documents.documents) {
+        if (document != null && document.exists) {
+          _events[Utils.formatDate(_selectedDay)] = [
+            ..._events[Utils.formatDate(_selectedDay)],
+            Event.fromMap(document.documentID, document.data)
+          ];
+        }
+      }
+    });
     ///////////////
-
     _selectedEvents = _events[_selectedDay] ?? [];
     _calendarController = CalendarController();
     _animationController = AnimationController(
@@ -198,15 +197,31 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
+    _readEvents(first.month);
   }
-
   void _onCardClicked(Event ev) {
     Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
     => new EventCreator(ev)));
   }
 
   void _deleteEvent(Event ev) {
-    print("Delete");
+    PlatformUtils.fire.collection("Eventi").document(ev.id).delete();
+  }
+
+  void _readEvents(int month){
+    //TODO query
+//    DateTime parsedDate = Utils.formatDate();
+//    _events[parsedDate] = [];
+//    PlatformUtils.fire.collection("Eventi").getDocuments().then((documents) {
+//      for (var document in documents.documents) {
+//        if (document != null && document.exists) {
+//          _events[parsedDate] = [
+//            ..._events[parsedDate],
+//            Event.fromMap(document.documentID, document.data)
+//          ];
+//        }
+//      }
+//    });
   }
 
 }

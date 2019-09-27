@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
-import 'package:venturiautospurghi/models/event_model.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
-class waitingEvent extends StatefulWidget {
+class WaitingEvent extends StatefulWidget {
   DateTime day;
 
-  waitingEvent({this.day, Key key}) : super(key: key);
+  WaitingEvent({this.day, Key key}) : super(key: key);
 
   @override
-  _waitingEventState createState() => _waitingEventState();
+  _WaitingEventState createState() => _WaitingEventState();
 }
 
-class _waitingEventState extends State<waitingEvent> {
+class _WaitingEventState extends State<WaitingEvent> {
   Map<int, List> _events;
   List _selectedEvents;
   DateTime _selectedDay;
@@ -24,7 +24,8 @@ class _waitingEventState extends State<waitingEvent> {
     super.initState();
     _selectedDay = widget.day != null ? widget.day : DateTime.now();
     final _today = DateTime.now();
-
+    //TURRO se guardi il daily o il calendar prendo gli eventi del db. Ho fixato la mappa degli eventi come mi hai detto qui ho lasciato statico così fai te
+    //e li gestisci come preferisci
     //Firebase getter events
     _events = {
       _today.day: [

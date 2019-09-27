@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../models/Utente.dart';
+import '../models/user.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -137,7 +137,7 @@ class RegisterState extends State<Register> {
     ))
         .user;
 
-    createNote(_codFiscaleController.text, _cognomeController.text, _emailController.text, _nomeController.text, false, false, _telefonoController.text);
+    createUser(_codFiscaleController.text, _cognomeController.text, _emailController.text, _nomeController.text, false, false, _telefonoController.text);
     if (user != null) {
       setState(() {
         _success = true;
@@ -148,7 +148,7 @@ class RegisterState extends State<Register> {
     }
   }
 
-  Future<Utente> createNote(String codFiscale, String cognome, String email, String nome, bool occupato, bool responsabile, String telefono) async {
+  Future<Utente> createUser(String codFiscale, String cognome, String email, String nome, bool occupato, bool responsabile, String telefono) async {
     final TransactionHandler createTransaction = (Transaction tx) async {
       final DocumentSnapshot ds = await tx.get(Firestore.instance.collection('Utenti').document());
 

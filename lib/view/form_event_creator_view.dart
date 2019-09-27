@@ -1,16 +1,11 @@
 
 import 'package:flutter/material.dart';
-//import 'package:flutter_web/material.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import '../models/event_model.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import '../models/event.dart';
 
-class EventData {
-  String title = '';
-  DateTime time;
-  String summary = '';
-}
 
 class EventCreator extends StatefulWidget {
   Event _event;
@@ -21,18 +16,17 @@ class EventCreator extends StatefulWidget {
   }
 
   EventCreator(this._event) {
-    if(this._event == null)_event=Event("", "", DateTime.now(),DateTime.now(),"","");
+    if(this._event == null)_event=new Event.empty();
     createState();
   }
 }
 
 class EventCreatorState extends State<EventCreator> {
   final dateFormat = DateFormat("MMMM d, yyyy 'at' h:mma");
-  EventData _eventData = new EventData();
   final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
-
     final titleWidget = new TextFormField(
       keyboardType: TextInputType.text,
       decoration: new InputDecoration(
@@ -46,7 +40,7 @@ class EventCreatorState extends State<EventCreator> {
       initialValue: widget._event.title,
       style: Theme.of(context).textTheme.headline,
       validator: this._validateTitle,
-      onSaved: (String value) => this._eventData.title = value,
+      onSaved: (String value) => widget._event.title = value,
     );
 
     final notesWidget = new TextFormField(
@@ -62,7 +56,7 @@ class EventCreatorState extends State<EventCreator> {
       ),
       initialValue: widget._event.description,
       style: Theme.of(context).textTheme.headline,
-      onSaved: (String value) => this._eventData.summary = value,
+      onSaved: (String value) => widget._event.description = value,
     );
     
     return new Scaffold(
@@ -110,7 +104,7 @@ class EventCreatorState extends State<EventCreator> {
                 ),
                 autovalidate: false,
                 validator: this._validateDate,
-                onSaved: (DateTime value) => this._eventData.time = value,
+                onSaved: (DateTime value) => widget._event.start = value,
               ),
               SizedBox(height: 16.0),
               notesWidget,
@@ -143,9 +137,10 @@ class EventCreatorState extends State<EventCreator> {
 
   Future _saveNewEvent(BuildContext context) async {
     if (this._formKey.currentState.validate()) {
-      _formKey.currentState.save(); // Save our form now.
+      _formKey.currentState.save();
       print("Firebase save");
-      //All in _eventData
+      PlatformUtils.fire.collection("Eventi").add(widget._event.toMap());
+      PlatformUtils.notify();
       Navigator.maybePop(context);
     }
   }

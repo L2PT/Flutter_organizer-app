@@ -5,6 +5,8 @@ abstract class PlatformUtils {
     throw 'Platform Not Supported';
   }
 */
+  static void notify(){}
+
   static const dynamic myApp = null;
 
   static dynamic gestureDetector({dynamic child, Function onVerticalSwipe, dynamic swipeConfig}){
@@ -12,7 +14,6 @@ abstract class PlatformUtils {
   }
   static const dynamic simpleSwipeConfig = null;
   static const dynamic Dir = null;
-
-
+  static const dynamic fire = null;
 
 }

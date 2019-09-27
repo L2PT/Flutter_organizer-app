@@ -21,7 +21,7 @@ import 'package:loading/loading.dart';
 import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:meta/meta.dart';
 import 'package:venturiautospurghi/view/waiting_event_view.dart';
-import '../models/event_model.dart';
+import '../models/event.dart';
 import '../utils/theme.dart';
 import 'form_event_creator_view.dart';
 import 'monthly_calendar_view.dart';
@@ -215,9 +215,7 @@ class _BackdropState extends State<Backdrop>
       //METODI DI UTILITY
   //TODO make it custom
   void _onFabClicked() {
-    DateTime _createDateTime = new DateTime.now();
-
-    Event _event = new Event("", "",_createDateTime,_createDateTime, "", "");
+    Event _event = new Event.empty();
 
     Navigator.push(context, MaterialPageRoute(
         builder: (context) => EventCreator(_event)
@@ -436,7 +434,7 @@ class _FrontLayer extends StatelessWidget {
       break;
       case global.Constants.formEventCreatorRoute: {return EventCreator(null);}
       break;
-      case global.Constants.waitingEventListRoute: {return waitingEvent();}
+      case global.Constants.waitingEventListRoute: {return WaitingEvent();}
       break;
       default: {return DailyCalendar();}
       break;

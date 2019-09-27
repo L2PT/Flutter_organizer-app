@@ -10,17 +10,6 @@ class Utente {
 
   Utente(this._id, this._codFiscale, this._cognome, this._email, this._nome, this._occupato, this._responsabile, this._telefono);
 
-  Utente.map(dynamic obj) {
-    this._id = obj['id'];
-    this._codFiscale = obj['Codice Fiscale'];
-    this._cognome = obj['Cognome'];
-    this._email = obj['Email'];
-    this._nome = obj['Nome'];
-    this._occupato = obj['Occupato'];
-    this._responsabile = obj['Responsabile'];
-    this._telefono = obj['Telefono'];
-  }
-
   String get id => _id;
   String get codFiscale => _codFiscale;
   String get cognome => _cognome;
@@ -35,7 +24,7 @@ class Utente {
     if (_id != null) {
       map['id'] = _id;
     }
-    map['Codice Fiscale'] = _codFiscale;
+    map['CodiceFiscale'] = _codFiscale;
     map['Cognome'] = _cognome;
     map['Email'] = _email;
     map['Nome'] = _nome;
@@ -48,7 +37,7 @@ class Utente {
 
   Utente.fromMap(Map<String, dynamic> map) {
     this._id = map['id'];
-    this._codFiscale = map['Codice Fiscale'];
+    this._codFiscale = map['CodiceFiscale'];
     this._cognome = map['Cognome'];
     this._email = map['Email'];
     this._nome = map['Nome'];
