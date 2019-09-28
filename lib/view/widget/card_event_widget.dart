@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_model.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
@@ -44,6 +44,7 @@ class cardEvent extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Row(
+
                 children: <Widget>[
                   Container(
                     decoration: BoxDecoration(
@@ -79,15 +80,15 @@ class cardEvent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Container(
-                      child: RaisedButton(
-                    child: new Text('RIFIUTA', style: button_card),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                    color: Color(global.Constants().category[e.category]),
-                    elevation: 15,
-                    onPressed: () => _actionRifiuta(),
-                  ),
-                  margin: EdgeInsets.only(right: 10),
+                    child: RaisedButton(
+                      child: new Text('RIFIUTA', style: button_card),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                      color: Color(global.Constants().category[e.category]),
+                      elevation: 15,
+                      onPressed: () => _actionRifiuta(),
+                    ),
+                    margin: EdgeInsets.only(right: 10),
                   ),
                   Container(
                     child: RaisedButton(
@@ -111,7 +112,7 @@ class cardEvent extends StatelessWidget {
       );
     } else {
       hour = (((e.end.hour * 60 + e.end.minute) -
-              (e.start.hour * 60 + e.start.minute)) /
+          (e.start.hour * 60 + e.start.minute)) /
           60);
       containerHeight = hour * this.hourHeight;
       paddingContainer = 5 * hour;

@@ -1,21 +1,20 @@
 /*
 THIS IS THE MAIN PAGE OF THE OPERATOR
--l'appBar contiene menu a sinistra, titolo al centro
+-l'appBar contiene menu a sinistra, titolo al centro, profilo a destra
 -in alto c'è una riga di giorni della settimana selezionabili
 -(R)al centro e in basso c'è una grglia oraria dove sono rappresentati gli eventi dell'operatore corrente del giorno selezionato in alto
--(O)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
+-(o)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
 import 'package:flutter/material.dart';
+//import 'package:flutter_web/material.dart';
 import 'dart:math';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import '../utils/theme.dart';
-import '../models/event.dart';
+import '../models/event_model.dart';
 import 'details_event_view.dart';
 import 'form_event_creator_view.dart';
 
@@ -24,6 +23,7 @@ const double minEventHeight = 60.0;
 
 class DailyCalendar extends StatefulWidget {
   DateTime day;
+
   DailyCalendar({ this.day, Key key}) : super(key: key);
 
   @override
@@ -42,10 +42,23 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
+    print(widget.day);
     _selectedDay = widget.day!=null?widget.day:DateTime.now();
-    _events = Map();
-    _readEvents(_selectedDay);
-    _selectedEvents = _events[Utils.formatDate(_selectedDay)] ?? [];
+    final _today = DateTime.now();
+
+    //Firebase getter events
+    _events = {_today:[
+      Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi"),
+      Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),DateTime(2019, 8, 11, 11, 0, 0), "","Fogne"),
+      Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),DateTime(2019, 8, 11, 16, 0, 0), "","Tombini")
+    ],
+      _today.subtract(Duration(days: 2)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Spurghi")],
+      _today.subtract(Duration(days: 3)): [Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Fogne")],
+      _today.subtract(Duration(days: 4)): [ Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0), DateTime(2019, 8, 11, 8, 0, 0),"","Tombini")]
+    };
+    ///////////////
+
+    _selectedEvents = _events[_selectedDay] ?? [];
     _calendarController = CalendarController();
     _animationController = AnimationController(
       vsync: this,
@@ -63,7 +76,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     super.dispose();
   }
 
-      //MAIN BUILEDER METHODS
+  //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
     return new Material(
@@ -82,7 +95,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     );
   }
 
-        //--CALENDAR
+  //--CALENDAR
   Widget _buildTableCalendarWithBuilders() {
     return TableCalendar(
       locale: 'it_IT',
@@ -101,18 +114,18 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
             opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
             child: Container(
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                      color: dark,
-                      width: 3
+                  border: Border(
+                      bottom: BorderSide(
+                          color: dark,
+                          width: 3
+                      )
                   )
-                )
               ),
               child: Center(
                 child:Text(
-                  '${date.day}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
-              ),
+                    '${date.day}',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
+                ),
               ),
             ),
           );
@@ -123,10 +136,10 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
             decoration: BoxDecoration(
               color: grey_light,
               borderRadius: BorderRadius.circular(10.0),
-          ),
+            ),
             child: Center(child:Text(
-              '${date.day}',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
+                '${date.day}',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
             ),
             ),
           );
@@ -195,9 +208,10 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     );
   }
 
-        //--EVENT LIST
+  //--EVENT LIST
   Widget _buildEventList() {
     return ListView(
+        physics: new BouncingScrollPhysics(),
         children:<Widget>[Stack(
             children: <Widget>[
               Column(
@@ -209,9 +223,10 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
         )]
     );
   }
+//TODO probabilmente da eliminare post integrazione di Firebase
   void initList() {
+    //order by start date
     if(_selectedEvents.length>0) {
-      //order by start date
       setState(() {
         _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
       });
@@ -222,6 +237,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
             (e.start.hour * 60 + e.start.minute)) / 60).toInt())
       });
       if (md == 0) {
+        //TODO to decidere
         setState(() {
           _gridHourHeight = minEventHeight * 2;
           _gridHourSpan = 1;
@@ -297,13 +313,13 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                 )
             ),
             Expanded(
-              flex: 8,
-              child: cardEvent(
-                e:e,
-                hourHeight:_gridHourHeight,
-                actionEvent: _onCardClicked,
-                buttonArea: false,
-              )
+                flex: 8,
+                child: cardEvent(
+                  e:e,
+                  hourHeight:_gridHourHeight,
+                  actionEvent: _onCardClicked,
+                  buttonArea: false,
+                )
             ),
           ])
       );
@@ -313,7 +329,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     return r;
   }
 
-      //METODI DI CALLBACK
+  //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
     setState(() {
       _selectedEvents = events;
@@ -321,14 +337,6 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-    int period = 1;
-    DateTime s = Utils.formatDate(first);
-    if(format == CalendarFormat.week)period=7;
-    else if(format == CalendarFormat.month)period=30;
-    for(int i=0; i<period; i++){
-      _readEvents(s.add(new Duration(days: i)));
-    }
   }
 
   void _onCardClicked(Event ev) {
@@ -336,28 +344,12 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   void _deleteEvent(Event ev) {
-    PlatformUtils.fire.collection("Eventi").document(ev.id).delete();
+    print("Delete");
   }
 
-  void _readEvents(DateTime day) async {
-    //TODO query
-    DateTime parsedDate = Utils.formatDate(day);
-    List<Event> l = List();
-    var documents = await PlatformUtils.fire.collection("Eventi").getDocuments();
-    for (var document in documents.documents) {
-      if (document != null && document.exists) {
-        l.add(Event.fromMap(document.documentID, document.data));
-      }
-    }
-    setState(() {
-      _events[parsedDate] = l;
-    });
-  }
-
-      //METODI DI UTILITY
+  //METODI DI UTILITY
   String getTitle(Event e){
     return e.title;
   }
-
 
 }

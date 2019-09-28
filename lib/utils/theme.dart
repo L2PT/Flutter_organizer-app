@@ -11,6 +11,7 @@ final orario_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: 
 final button_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: white, );
 final dayWaitingEvent = TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: dark );
 final datWaitingEvent = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey );
+final Text12WhiteNormal = TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: white );
 
 ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();

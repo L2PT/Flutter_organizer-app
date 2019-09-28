@@ -2,19 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
-import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_model.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
-class WaitingEvent extends StatefulWidget {
+class waitingEvent extends StatefulWidget {
   DateTime day;
 
-  WaitingEvent({this.day, Key key}) : super(key: key);
+  waitingEvent({this.day, Key key}) : super(key: key);
 
   @override
-  _WaitingEventState createState() => _WaitingEventState();
+  _waitingEventState createState() => _waitingEventState();
 }
 
-class _WaitingEventState extends State<WaitingEvent> {
+class _waitingEventState extends State<waitingEvent> {
   Map<int, List> _events;
   List _selectedEvents;
   DateTime _selectedDay;
@@ -24,8 +25,7 @@ class _WaitingEventState extends State<WaitingEvent> {
     super.initState();
     _selectedDay = widget.day != null ? widget.day : DateTime.now();
     final _today = DateTime.now();
-    //TURRO se guardi il daily o il calendar prendo gli eventi del db. Ho fixato la mappa degli eventi come mi hai detto qui ho lasciato statico così fai te
-    //e li gestisci come preferisci
+
     //Firebase getter events
     _events = {
       _today.day: [
@@ -35,6 +35,14 @@ class _WaitingEventState extends State<WaitingEvent> {
             DateTime(2019, 8, 11, 11, 0, 0), "", "Fogne"),
         Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),
             DateTime(2019, 8, 11, 16, 0, 0), "", "Tombini")
+      ],
+      _today.day + 1: [
+        Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 12, 7, 0, 0),
+            DateTime(2019, 8, 12, 8, 0, 0), "", "Spurghi"),
+        Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),
+            DateTime(2019, 8, 12, 11, 0, 0), "", "Fogne"),
+        Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),
+            DateTime(2019, 8, 12, 16, 0, 0), "", "Tombini")
       ]
     };
     ///////////////
@@ -53,7 +61,16 @@ class _WaitingEventState extends State<WaitingEvent> {
         padding: EdgeInsets.all(15.0),
         child: Column(
           mainAxisSize: MainAxisSize.max,
-          children: _buildWaitingEvent(),
+          children: <Widget>[
+            Expanded(
+              child: ListView(
+
+                children: _buildWaitingEvent(),
+                physics: new BouncingScrollPhysics(),
+              ),
+            )
+
+          ],
         ),
       ),
     );
@@ -61,71 +78,91 @@ class _WaitingEventState extends State<WaitingEvent> {
 
   List<Widget> _buildWaitingEvent() {
     List<Widget> r = new List<Widget>();
-    var formatter = new DateFormat('MMMM yyyy', 'it_IT');
     print(_selectedEvents);
-    _selectedEvents.forEach((e) {
-      int day = e.start.day;
-      String meseAnno = formatter.format(e.start);
-      r.add(Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Text(
-                    '$day',
-                    style: dayWaitingEvent,
-                  ),
-                ),
-                Expanded(
-                  flex: 10,
-                  child: Text(
-                    meseAnno.toUpperCase(),
-                    style: datWaitingEvent,
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: IconButton(
-                      icon: new Icon(Icons.today),
-                      alignment: Alignment.centerRight,
-                      color: Colors.grey,
-                      onPressed: () {
-                        print("Pressed");
-                      }),
-                ),
-              ],
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 9,
-                  child: Center(
-                    child: new Container(
-                        margin: const EdgeInsets.only(
-                            left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
-                        child: Divider(
-                          color: Colors.grey,
-                          height: 0,
-                        )),
-                  ),
-                ),
-              ],
-            ),
-            Row(children: <Widget>[
-              Expanded(
-                flex: 9,
-                child: cardEvent(
-                  e: e,
-                  hourHeight: 120,
-                  buttonArea: true,
-                ),
-              ),
-            ]),
-            SizedBox(height: 15)
-          ]));
+    _events.keys.forEach((e) {
+      List _eventList = _events[e];
+      r.add(_viewDateHeader(_eventList.first.start));
+      _eventList.forEach((e) {
+        r.add(_viewEvent(e));
+      });
     });
     return r;
+  }
+
+  void _onDaySelected(DateTime day) {
+    Navigator.of(context).pushReplacementNamed(
+        global.Constants.dailyCalendarRoute,
+        arguments: day);
+  }
+
+  Widget _viewEvent(Event e) {
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(children: <Widget>[
+            Expanded(
+              flex: 9,
+              child: cardEvent(
+                e: e,
+                hourHeight: 140,
+                buttonArea: true,
+              ),
+            ),
+          ]),
+          SizedBox(height: 15)
+        ]);
+  }
+
+  Widget _viewDateHeader(DateTime dateEvent) {
+    int day = dateEvent.day;
+    var formatter = new DateFormat('MMMM yyyy', 'it_IT');
+    String meseAnno = formatter.format(dateEvent);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Text(
+                '$day',
+                style: dayWaitingEvent,
+              ),
+            ),
+            Expanded(
+              flex: 10,
+              child: Text(
+                meseAnno.toUpperCase(),
+                style: datWaitingEvent,
+              ),
+            ),
+            Expanded(
+              flex: 1,
+              child: IconButton(
+                  icon: new Icon(Icons.today),
+                  alignment: Alignment.centerRight,
+                  color: Colors.grey,
+                  onPressed: () => _onDaySelected(dateEvent)),
+            ),
+          ],
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              flex: 9,
+              child: Center(
+                child: new Container(
+                    margin: const EdgeInsets.only(
+                        left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
+                    child: Divider(
+                      color: Colors.grey,
+                      height: 0,
+                    )),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
   }
 }
