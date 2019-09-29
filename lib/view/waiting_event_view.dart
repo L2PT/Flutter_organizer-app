@@ -1,13 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase/firebase.dart';
+import 'package:fb_auth/data/classes/auth_user.dart';
+import 'package:fb_auth/data/services/auth/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+
+final _auth = FBAuth();
 
 class waitingEvent extends StatefulWidget {
 
@@ -153,8 +154,8 @@ class _waitingEventState extends State<waitingEvent> {
   }
 
   void _readWaitngEvent() async {
-    User user = await _auth.currentUser();
-    var documents = Firestore.instance.collection('Eventi').where('Accettato', isEqualTo: false).where('Operatore', isEqualTo: ).orderBy(field);//PlatformUtils.fire.collection("Eventi").order.where();
+    AuthUser  user = await _auth.currentUser();
+    var documents = Firestore.instance.collection(global.Constants.tabellaEventi).where(global.Constants.tabellaEventi_stato, isLessThan:  ).where('Operatore', isEqualTo: user.uid).orderBy('Start');//PlatformUtils.fire.collection("Eventi").order.where();
     for (var document in documents.documents){
       if (document != null && document.exists) {
 

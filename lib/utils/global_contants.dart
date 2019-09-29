@@ -36,4 +36,20 @@ class Constants {
   static const int fallbackColor = 0xFFFDA90A;
   static const String fallbackHexColor = "#FDA90A";
 
+  // TABLE DATABASE
+  static const String tabellaUtenti = 'Utenti';
+  static const String tabellaEventi = 'Eventi';
+    // TABELLA EVENTI
+    static const String tabellaEventi_categoria = 'Categoria';
+    static const String tabellaEventi_dataFine = 'DataFine';
+    static const String tabellaEventi_dataInizio = 'DataInizio';
+    static const String tabellaEventi_desc = 'Descrizione';
+    static const String tabellaEventi_luogo = 'Luogo';
+    static const String tabellaEventi_ope = 'Operatore';
+    static const String tabellaEventi_resp = 'Responsabile';
+    static const String tabellaEventi_stato = 'Stato';
+    static const String tabellaEventi_subOpe = 'SubOperatori';
+    static const String tabellaEventi_titolo = 'Titolo';
+
+
 }

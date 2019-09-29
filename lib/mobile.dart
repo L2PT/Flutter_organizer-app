@@ -11,7 +11,6 @@ import 'view/backdrop.dart';
 import 'view/log_in_view.dart';
 
 final _auth = FBAuth();
-final tabellaUtenti = 'Utenti';
 
 class MyApp extends StatefulWidget {
   @override
