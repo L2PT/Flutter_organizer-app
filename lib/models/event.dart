@@ -6,14 +6,14 @@ class Event {
   DateTime _start=DateTime.now();
   DateTime _end=DateTime.now();
   String _address="";
-  Status _status=Status.none;
+  int _status=Status.New;
   String _category="";
   String _color="";
 
   Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color);
   Event.empty();
   Event.fromMap(String id, dynamic json){
-    _id = (id!=null && id!="")?id:json.id;
+    _id = (id!=null && id!="e")?id:json.id;
     _title = json["Titolo"];
     _description = json["Descrizione"];
     _start = new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
@@ -44,7 +44,7 @@ class Event {
   DateTime get start => _start;
   DateTime get end => _end;
   String get address => _address;
-  Status get status => _status;
+  int get status => _status;
   String get category => _category;
   String get color => _color;
 
@@ -56,7 +56,7 @@ class Event {
     _category = value;
   }
 
-  set status(Status value) {
+  set status(int value) {
     _status = value;
   }
 
@@ -86,11 +86,11 @@ class Event {
 
 }
 
-enum Status {
-  none,
-  delivered,
-  seen,
-  accepted,
-  rejected,
-  ended
+class Status {
+  static const int New = 0;
+  static const int Delivered = 1;
+  static const int Seen = 2;
+  static const int Accepted = 3;
+  static const int Rejected = 4;
+  static const int Ended = 5;
 }
