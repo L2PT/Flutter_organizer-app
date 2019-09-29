@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/models/event_model.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
@@ -116,6 +116,13 @@ class _persistenNotificationState extends State<persistenNotification> {
 
   List<Widget> rectangleEvent(){
     List<Widget> r = new List<Widget>();
+
+  }
+  void _actionConferma(){
+
+  }
+
+  void _actionRifiuta(){
 
   }
 }

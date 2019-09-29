@@ -434,7 +434,7 @@ class _FrontLayer extends StatelessWidget {
       break;
       case global.Constants.formEventCreatorRoute: {return EventCreator(null);}
       break;
-      case global.Constants.waitingEventListRoute: {return WaitingEvent();}
+      case global.Constants.waitingEventListRoute: {return waitingEvent();}
       break;
       default: {return DailyCalendar();}
       break;

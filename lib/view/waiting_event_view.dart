@@ -1,15 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
-import 'package:venturiautospurghi/models/event_model.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class waitingEvent extends StatefulWidget {
-  DateTime day;
 
-  waitingEvent({this.day, Key key}) : super(key: key);
+
+  waitingEvent({ Key key}) : super(key: key);
 
   @override
   _waitingEventState createState() => _waitingEventState();
@@ -23,29 +26,12 @@ class _waitingEventState extends State<waitingEvent> {
   @override
   void initState() {
     super.initState();
-    _selectedDay = widget.day != null ? widget.day : DateTime.now();
-    final _today = DateTime.now();
 
-    //Firebase getter events
-    _events = {
-      _today.day: [
-        Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 11, 7, 0, 0),
-            DateTime(2019, 8, 11, 8, 0, 0), "", "Spurghi"),
-        Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),
-            DateTime(2019, 8, 11, 11, 0, 0), "", "Fogne"),
-        Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),
-            DateTime(2019, 8, 11, 16, 0, 0), "", "Tombini")
-      ],
-      _today.day + 1: [
-        Event("PULIZIA IMPIANTI", "", DateTime(2019, 8, 12, 7, 0, 0),
-            DateTime(2019, 8, 12, 8, 0, 0), "", "Spurghi"),
-        Event("PULIZIE INDUSTRIALI", "", DateTime(2019, 8, 11, 10, 0, 0),
-            DateTime(2019, 8, 12, 11, 0, 0), "", "Fogne"),
-        Event("RACCOLTA OLI", "", DateTime(2019, 8, 11, 15, 0, 0),
-            DateTime(2019, 8, 12, 16, 0, 0), "", "Tombini")
-      ]
-    };
-    ///////////////
+
+
+
+
+
 
     _selectedEvents = _events[_selectedDay.day] ?? [];
   }
@@ -164,5 +150,15 @@ class _waitingEventState extends State<waitingEvent> {
         ),
       ],
     );
+  }
+
+  void _readWaitngEvent() async {
+    User user = await _auth.currentUser();
+    var documents = Firestore.instance.collection('Eventi').where('Accettato', isEqualTo: false).where('Operatore', isEqualTo: ).orderBy(field);//PlatformUtils.fire.collection("Eventi").order.where();
+    for (var document in documents.documents){
+      if (document != null && document.exists) {
+
+      }
+    }
   }
 }
