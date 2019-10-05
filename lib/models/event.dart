@@ -9,11 +9,13 @@ class Event {
   int _status=Status.New;
   String _category="";
   String _color="";
+  String _op="";
+  List<String> _subops = new List();
 
-  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color);
+  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._op, this._subops);
   Event.empty();
   Event.fromMap(String id, dynamic json){
-    _id = (id!=null && id!="e")?id:json.id;
+    _id = (id!=null && id!="e")?id:json["id"];
     _title = json["Titolo"];
     _description = json["Descrizione"];
     _start = new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
@@ -22,19 +24,23 @@ class Event {
     _status = json["Stato"];
     _category = json["Categoria"];
     _color = json["color"];
+    _op = json["Operatore"];
+    _subops = json["SubOperatori"];
   }
 
   Map<String, dynamic> toMap(){
     return Map<String, dynamic>.of({
-      "id":_id,
-      "Title":_title,
-      "Description":_description,
-      "DataInizio":_start,
-      "DataFine":_end,
-      "Indirizzo":_address,
-      "Status":_status,
-      "Categoria":_category,
-      "Colore":_color
+      "id":this.id,
+      "Titolo":this.title,
+      "Descrizione":this.description,
+      "DataInizio":this.start,
+      "DataFine":this.end,
+      "Indirizzo":this.address,
+      "Stato":this.status,
+      "Categoria":this.category,
+      "color":this.color,
+      "Operatore":this.op,
+      "SubOperatori":this.subops
     });
   }
 
@@ -47,6 +53,8 @@ class Event {
   int get status => _status;
   String get category => _category;
   String get color => _color;
+  String get op => _op;
+  List<String> get subops => _subops;
 
   set color(String value) {
     _color = value;
@@ -82,6 +90,14 @@ class Event {
 
   set id(String value) {
     _id = value;
+  }
+
+  set subops(List<String> value) {
+    _subops = value;
+  }
+
+  set op(String value) {
+    _op = value;
   }
 
 }

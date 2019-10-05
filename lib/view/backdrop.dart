@@ -15,6 +15,8 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
 import 'package:loading/loading.dart';
@@ -114,10 +116,7 @@ class _BackdropState extends State<Backdrop>
           ),
         ),
       ),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: _onFabClicked,
-        child: new Icon(Icons.add),
-      ),
+      floatingActionButton:  _FabChooser(),
       body: LayoutBuilder(
         builder: _buildStack2,
       ),
@@ -213,13 +212,150 @@ class _BackdropState extends State<Backdrop>
   }
 
       //METODI DI UTILITY
-  //TODO make it custom
-  void _onFabClicked() {
-    Event _event = new Event.empty();
+  Widget _FabChooser(){
+    if(widget.frontLayerRoute == global.Constants.detailsEventViewRoute){
+      if(widget.isSupervisor) {
+        return FloatingActionButton(
+          child: Icon(FontAwesomeIcons.clipboardList),
+          onPressed: _showDialogFabSupervisor,
+          backgroundColor: dark,
+        );
+      }else {
+        return FloatingActionButton(
+          child: Icon(FontAwesomeIcons.phone),
+          onPressed: _showDialogFabOperator,
+          backgroundColor: dark,
+        );
+      }
+    }else{
+      return null;
+    }
+  }
 
-    Navigator.push(context, MaterialPageRoute(
-        builder: (context) => EventCreator(_event)
-    )
+  void _showDialogFabSupervisor() {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Container(
+            padding: EdgeInsets.all(20.0),
+            alignment: Alignment.bottomRight,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.symmetric(vertical:5.0),
+                  child:
+                    Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Cancella", style: customLightTheme.textTheme.title.copyWith(color: white)),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){},
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: dark,
+                          ),
+                          child: Icon(FontAwesomeIcons.trashAlt),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical:5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Modifica", style: customLightTheme.textTheme.title.copyWith(color: white)),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){},
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: dark,
+                          ),
+                          child: Icon(FontAwesomeIcons.pencilAlt),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 65,)
+              ],
+            )
+          );
+        }
+    );
+  }
+  void _showDialogFabOperator() {
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return Container(
+            padding: EdgeInsets.all(20.0),
+            alignment: Alignment.bottomRight,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.symmetric(vertical:5.0),
+                  child:
+                    Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Responsabile", style: customLightTheme.textTheme.title.copyWith(color: white)),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){},
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: dark,
+                          ),
+                          child: Icon(FontAwesomeIcons.userTie),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical:5.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Ufficio", style: customLightTheme.textTheme.title.copyWith(color: white)),
+                      SizedBox(width: 10,),
+                      GestureDetector(
+                        onTap: (){},
+                        child: Container(
+                          height: 50,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: dark,
+                          ),
+                          child: Icon(FontAwesomeIcons.building),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: 65,)
+              ],
+            )
+          );
+        }
     );
   }
 
@@ -434,7 +570,7 @@ class _FrontLayer extends StatelessWidget {
       break;
       case global.Constants.formEventCreatorRoute: {return EventCreator(null);}
       break;
-      case global.Constants.waitingEventListRoute: {return waitingEvent();}
+//      case global.Constants.waitingEventListRoute: {return waitingEvent();}
       break;
       default: {return DailyCalendar();}
       break;

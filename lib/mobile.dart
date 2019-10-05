@@ -4,7 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:venturiautospurghi/view/details_event_view.dart';
+import 'package:venturiautospurghi/view/form_event_creator_view.dart';
+import 'package:venturiautospurghi/view/register_view.dart';
 
+import 'models/event.dart';
 import 'utils/theme.dart';
 import 'view/reset_code_view.dart';
 import 'view/backdrop.dart';
@@ -38,12 +42,13 @@ class _MyAppState extends State<MyApp> {
       title: 'Table Calendar Demo',
       theme: customLightTheme,
       debugShowCheckedModeBanner: false,
-      home: Backdrop(frontLayerRoute: _currentView,
-          frontLayerArg: _currentArg,
-          backLayerRouteChanger: _onCategoryTap,
-          isLoggedIn: _isLoggedIn,
-          isSupervisor: _isSupervisor
-      ),
+      home: EventCreator(null)/*Backdrop(
+        isLoggedIn: _isLoggedIn,
+        isSupervisor: _isSupervisor,
+        backLayerRouteChanger: _onCategoryTap,
+        frontLayerArg: _currentArg,
+        frontLayerRoute: _currentView,
+      )*/,
       routes: {
         global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
         global.Constants.logInRoute: (context) => LogIn(_onLogin),
@@ -105,7 +110,7 @@ class _MyAppState extends State<MyApp> {
       }
     }
     //you are logged in, get role
-    firebaseCloudMessaging_Listeners(user);
+    //firebaseCloudMessaging_Listeners(user);
     QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
     for (DocumentSnapshot document in documents.documents) {
       if(document != null) {

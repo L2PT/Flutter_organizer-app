@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../utils/theme.dart';
 import '../models/event.dart';
 
@@ -21,20 +23,23 @@ class DetailsEvent extends StatefulWidget {
 
 class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMixin {
   String dateToText = "";
-  final List<Tab> tabs = <Tab>[
+  final List<Tab> tabsHeaders = <Tab>[
     new Tab(text: "DETTAGLIO"),
     new Tab(text: "DOCUMENTI"),
     new Tab(text: "NOTE")
   ];
-  Color c = Color(global.Constants.fallbackColor);
-
+  List<Widget> tabsContents = List();
   TabController _tabController;
+  Color c = Color(global.Constants.fallbackColor);
+  String operators;
+
   @override
   void initState() {
     super.initState();
-    _tabController = new TabController(vsync: this, length: tabs.length);
+    tabsContents = _buildTabsContents();
+    _tabController = new TabController(vsync: this, length: tabsHeaders.length);
+    getColor();
     getDate(widget.event.start);
-    c = Utils.getColor(widget.event.category);
   }
 
   @override
@@ -42,6 +47,149 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
     _tabController.dispose();
     super.dispose();
   }
+
+  List<Widget> _buildTabsContents(){
+    double padding = 10.0; //HANDLE
+    List<Widget> t = List();
+
+    Widget detailsContet = Container(
+      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal:40.0),
+      child: Column(
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 10.0),
+            child: Row(
+              children: <Widget>[
+                Icon(FontAwesomeIcons.clock, size: 25,),
+                SizedBox(width: padding,),
+                Text("0-10", style: subtitle_rev)
+              ],
+            ),
+          ),
+          Divider(height: 2, thickness: 2, indent: 35, color: almost_dark,),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+            child: Row(
+              children: <Widget>[
+                Icon(FontAwesomeIcons.map, size: 25,),
+                SizedBox(width: padding,),
+                Text("0-10", style: subtitle_rev)
+              ],
+            ),
+          ),
+          Divider(height: 2, thickness: 2, indent: 35, color: almost_dark,),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+            child: Row(
+              children: <Widget>[
+                Icon(FontAwesomeIcons.truck, size: 25,),
+                SizedBox(width: padding,),
+                Text("0-10", style: subtitle_rev)
+              ],
+            ),
+          ),
+          Divider(height: 2, thickness: 2, indent: 35, color: almost_dark,),
+          Container(
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+            child: Row(
+              children: <Widget>[
+                Icon(FontAwesomeIcons.hardHat, size: 25,),
+                SizedBox(width: padding,),
+                Text("0-10", style: subtitle_rev)
+              ],
+            ),
+          ),
+          Divider(height: 2, thickness: 2, indent: 35, color: almost_dark,),
+          Container(
+            alignment: Alignment.topLeft,
+            padding: EdgeInsets.symmetric(vertical: 15.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Icon(FontAwesomeIcons.clipboard, size: 25,),
+                SizedBox(width: padding,),
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text("0-10", style: subtitle_rev, overflow: TextOverflow.ellipsis,),
+                      FlatButton(
+                        child: Text("LEGGI", style: subtitle_rev,),
+                        padding: EdgeInsets.symmetric(vertical: 2.0, horizontal: 5.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                        color: c,
+                        onPressed: ()=>_tabController.animateTo(2),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Widget detailsDocument = Container(
+      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal:40.0),
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 5),
+            child: Container(
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: white,
+                borderRadius: BorderRadius.all(Radius.circular(15.0)),
+              ),
+              child: Row(
+                children: <Widget>[
+                  Icon(FontAwesomeIcons.file, size: 30, color: dark,),
+                  SizedBox(width: padding,),
+                  Text("0-10", style: subtitle.copyWith(color: dark))
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+
+    Widget detailsNote = Container(
+      padding: EdgeInsets.symmetric(vertical: 15.0, horizontal:40.0),
+      child: Flex(
+        direction: Axis.vertical,
+        children: <Widget>[Container(
+          alignment: Alignment.topLeft,
+          padding: EdgeInsets.symmetric(vertical: 10.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Icon(FontAwesomeIcons.clipboard, size: 30,),
+                  SizedBox(width: padding,),
+                  new Expanded(
+                    flex: 1,
+                    child: new SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                        child: new Text("riautospurgh(26111): Accessing hidden method Ljava/security/spec/ECParameterSpec;->setCurveName(Ljava/lang/String;)V (greylist, reflection, allowed)"
+                        "W/turiautospurgh(26111):", style: subtitle_rev),
+                    )
+                  )
+                ],
+              ),
+            ),
+        ],
+      )
+    );
+
+
+    t.add(detailsContet);
+    t.add(detailsDocument);
+    t.add(detailsNote);
+    return t;
+  }
+
+
 
   //MAIN BUILEDER METHODS
   @override
@@ -137,19 +285,14 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                                             indicatorColor: c,
                                             tabBarIndicatorSize: TabBarIndicatorSize.tab,
                                           ),
-                                          tabs: tabs,
+                                          tabs: tabsHeaders,
                                           controller: _tabController,
                                         ),
                                       ),Expanded(
                                         child: new TabBarView(
                                           controller: _tabController,
-                                          children: tabs.map((Tab tab) {
-                                            return new Center(
-                                                child: new Text(
-                                                  tab.text,
-                                                  style: title_rev
-                                                )
-                                            );
+                                          children: tabsContents.map((Widget tab) {
+                                            return tab;
                                           }).toList(),
                                         ),
                                       )
@@ -197,4 +340,25 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
     });
   }
 
+  void getColor() async {
+    var a = await Utils.getColor(widget.event.category);
+    if(c!=a){
+      setState((){
+        c=a;
+      });
+    }
+  }
+
+  void getNames() async {
+    String names = "";
+    for(String op in widget.event.subops) {
+      var doc = await Firestore.instance.collection("Utenti").document(op).get();
+      if (doc != null && doc.exists) {
+        names += doc.data["Cognome"].toString().toUpperCase() + " " + doc.data["Name"] + ", ";
+      }
+    }
+    setState(() {
+      operators = names.substring(0,names.length-3);
+    });
+  }
 }

@@ -1,48 +1,47 @@
 class Utente {
   String _id;
-  String _codFiscale;
+  String _nome;
   String _cognome;
   String _email;
-  String _nome;
+  String _telefono;
+  String _codFiscale;
   bool _occupato;
   bool _responsabile;
-  String _telefono;
 
-  Utente(this._id, this._codFiscale, this._cognome, this._email, this._nome, this._occupato, this._responsabile, this._telefono);
+  Utente(this._id, this._nome, this._cognome, this._email, this._telefono, this._codFiscale, this._occupato, this._responsabile);
 
   String get id => _id;
-  String get codFiscale => _codFiscale;
+  String get nome => _nome;
   String get cognome => _cognome;
   String get email => _email;
-  String get nome => _nome;
+  String get telefono => _telefono;
+  String get codFiscale => _codFiscale;
   bool get occupato => _occupato;
   bool get responsabile => _responsabile;
-  String get telefono => _telefono;
 
   Map<String, dynamic> toMap() {
     var map = new Map<String, dynamic>();
     if (_id != null) {
       map['id'] = _id;
     }
-    map['CodiceFiscale'] = _codFiscale;
+    map['Nome'] = _nome;
     map['Cognome'] = _cognome;
     map['Email'] = _email;
-    map['Nome'] = _nome;
+    map['Telefono'] = _telefono;
+    map['CodiceFiscale'] = _codFiscale;
     map['Occupato'] = _occupato;
     map['Responsabile'] = _responsabile;
-    map['Telefono'] = _telefono;
-
     return map;
   }
 
   Utente.fromMap(Map<String, dynamic> map) {
     this._id = map['id'];
-    this._codFiscale = map['CodiceFiscale'];
+    this._nome = map['Nome'];
     this._cognome = map['Cognome'];
     this._email = map['Email'];
-    this._nome = map['Nome'];
+    this._telefono = map['Telefono'];
+    this._codFiscale = map['CodiceFiscale'];
     this._occupato = map['Occupato'];
     this._responsabile = map['Responsabile'];
-    this._telefono = map['Telefono'];
   }
 }

@@ -5,19 +5,15 @@ import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class Utils {
-  static Color getColor(arg) {
+  static Future<Color> getColor(arg) async {
     Map <String,dynamic> categories;
-    var docRef = PlatformUtils.fire.collection("Costanti").document("Categorie");
-    docRef.get().then((doc) {
-      if (doc.exists) {
-        categories = doc.data;
-        categories['default'] = global.Constants.fallbackHexColor;
-      } else {
-        print("No categories!");
-      }
-    }).catchError((error) {
-      print("Error getting categories: "+error);
-    });
+    var doc = await PlatformUtils.fire.collection("Costanti").document("Categorie").get();
+    if (doc.exists) {
+      categories = doc.data;
+      categories['default'] = global.Constants.fallbackHexColor;
+    } else {
+      print("No categories!");
+    }
     return HexColor((arg != null && categories[arg] != null)
         ? categories[arg]
         : categories['default']);
@@ -32,6 +28,12 @@ class Utils {
   }
   static DateTime formatDate(DateTime date) {
     return DateTime.parse(formatDateString(date));
+  }
+  static bool isNumeric(String str) {
+    if(str == null) {
+      return false;
+    }
+    return double.tryParse(str) != null;
   }
 }
 class HexColor extends Color {

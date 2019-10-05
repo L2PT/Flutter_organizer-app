@@ -147,7 +147,7 @@ function mapEventObj(eventData){
     if(eventData!=null){
         var e = eventData;
         e.resourceId = e.Operatore;
-        e.resourceIds = e.subop;
+        e.resourceIds = e.SubOperatori;
         e.title = e.Titolo;
         e.url = e.Categoria;
         e.color = getColor(e.Categoria);
