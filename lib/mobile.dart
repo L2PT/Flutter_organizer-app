@@ -105,7 +105,7 @@ class _MyAppState extends State<MyApp> {
     }
     //you are logged in, get role
     firebaseCloudMessaging_Listeners(user);
-    QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
+    QuerySnapshot documents = (await Firestore.instance.collection(global.Constants.tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
     for (DocumentSnapshot document in documents.documents) {
       if(document != null) {
         isSupervisor = document.data['Responsabile'];
@@ -127,12 +127,12 @@ class _MyAppState extends State<MyApp> {
     if (Platform.isIOS) iOS_Permission();
 
     _firebaseMessaging.getToken().then((token) async {
-      QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).getDocuments());
+      QuerySnapshot documents = (await Firestore.instance.collection(global.Constants.tabellaUtenti).getDocuments());
       var e = user.email;
       for (DocumentSnapshot document in documents.documents) {
         if(document != null && document.data['Email'] == e) {
           if(document.data['Token'] != token){
-            Firestore.instance.collection(tabellaUtenti).document(document.documentID).updateData(<String,dynamic>{"Token":token});
+            Firestore.instance.collection(global.Constants.tabellaUtenti).document(document.documentID).updateData(<String,dynamic>{"Token":token});
           }
           break;
         }

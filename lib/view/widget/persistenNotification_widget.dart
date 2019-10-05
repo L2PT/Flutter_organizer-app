@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
@@ -81,7 +82,7 @@ class _persistenNotificationState extends State<persistenNotification> {
                     child: new Text('RIFIUTA', style: button_card),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                    color: Color(global.Constants().category[e.category]),
+                    color: Utils.getColor(''),
                     elevation: 15,
                     onPressed: () => _actionRifiuta(),
                   ),
@@ -92,7 +93,7 @@ class _persistenNotificationState extends State<persistenNotification> {
                     child: new Text('CONFERMA', style: button_card),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                    color: Color(global.Constants().category[e.category]),
+                    color: Utils.getColor(''),
                     elevation: 15,
                     onPressed: () => _actionConferma(),
                   ),

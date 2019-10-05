@@ -1,4 +1,7 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+
 class Event {
   String _id="";
   String _title="";
@@ -8,9 +11,8 @@ class Event {
   String _address="";
   int _status=Status.New;
   String _category="";
-  String _color="";
 
-  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color);
+  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category);
   Event.empty();
   Event.fromMap(String id, dynamic json){
     _id = (id!=null && id!="e")?id:json.id;
@@ -21,8 +23,9 @@ class Event {
     _address = json["Indirizzo"];
     _status = json["Stato"];
     _category = json["Categoria"];
-    _color = json["color"];
   }
+
+
 
   Map<String, dynamic> toMap(){
     return Map<String, dynamic>.of({
@@ -33,8 +36,7 @@ class Event {
       "DataFine":_end,
       "Indirizzo":_address,
       "Status":_status,
-      "Categoria":_category,
-      "Colore":_color
+      "Categoria":_category
     });
   }
 
@@ -46,11 +48,7 @@ class Event {
   String get address => _address;
   int get status => _status;
   String get category => _category;
-  String get color => _color;
 
-  set color(String value) {
-    _color = value;
-  }
 
   set category(String value) {
     _category = value;
@@ -84,6 +82,15 @@ class Event {
     _id = value;
   }
 
+  Event.fromSnapshot(DocumentSnapshot snapshot)
+      : _id =  snapshot.documentID,
+        _title = snapshot[global.Constants.tabellaEventi_titolo],
+        _description = snapshot[global.Constants.tabellaEventi_desc],
+        _start = snapshot[global.Constants.tabellaEventi_dataInizio],
+        _end = snapshot[global.Constants.tabellaEventi_dataFine],
+        _address = snapshot[global.Constants.tabellaEventi_luogo],
+        _status = snapshot[global.Constants.tabellaEventi_stato],
+        _category = snapshot[global.Constants.tabellaEventi_categoria];
 }
 
 class Status {
