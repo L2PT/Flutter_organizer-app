@@ -1,9 +1,13 @@
 import 'package:fb_auth/data/classes/auth_user.dart';
 import 'package:fb_auth/data/services/auth/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -24,42 +28,38 @@ class _waitingEventState extends State<waitingEvent> {
   @override
   void initState()  {
     super.initState();
-    getUser();
+    user = BlocProvider.of<BackdropBloc>(context).user;
+    BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(Utils.formatDate(DateTime.now())));
   }
 
-  void getUser() async{
-    this.user = await _auth.currentUser();
-  }
   @override
   Widget build(BuildContext context) {
-    return new Material(
-      elevation: 12.0,
-      borderRadius: new BorderRadius.only(
-          topLeft: new Radius.circular(16.0),
-          topRight: new Radius.circular(16.0)),
-      child: Padding(
-        padding: EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[Expanded(
-              child: StreamBuilder(
-                  stream: _readWaitngEventData(user.uid),
-                  builder: (BuildContext c,
-                      AsyncSnapshot<List<Event>> listEvent) {
-                    if(!listEvent.hasData){
-                      return const Text("Loging");
-                    }
-                    return ListView.builder(
-                      physics: new BouncingScrollPhysics(),
-                      itemBuilder: (context, index) =>
-                          _buildWaitingEvent(listEvent.data[index]),
-                    );
-                  }
-              )
-          )
-          ],
-        ),
-      ),
+    return BlocBuilder<EventsBloc, EventsState>(
+        builder: (context, state) {
+          if (state is Loaded) {
+            return Material(
+              elevation: 12.0,
+              borderRadius: new BorderRadius.only(
+                  topLeft: new Radius.circular(16.0),
+                  topRight: new Radius.circular(16.0)),
+              child: Padding(
+                padding: EdgeInsets.all(15.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    Expanded(
+                        child:
+                        state.events.length==0?ListView.builder(
+                          itemBuilder: (context, index) =>
+                              _buildWaitingEvent(state.events[index]),):Container()
+                    )
+                  ],
+                ),
+              ),
+            );
+          }
+          return Container();
+        }
     );
   }
 
@@ -70,17 +70,14 @@ class _waitingEventState extends State<waitingEvent> {
       r.add(_viewDateHeader(dataCorrente));
     }
     r.add(_viewEvent(evento));
+    r.add(Container(width: 10, height: 10, color: dark,));
     return Row(
       children: r,
     );
   }
 
-
-
 void _onDaySelected(DateTime day) {
-  Navigator.of(context).pushReplacementNamed(
-      global.Constants.dailyCalendarRoute,
-      arguments: day);
+  BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,Utils.formatDate(day)));
 }
 
 Widget _viewEvent(Event e) {
@@ -152,20 +149,6 @@ Widget _viewDateHeader(DateTime dateEvent) {
       ),
     ],
   );
-}
-
-
-Stream<List<Event>> _readWaitngEventData(String uid) {
-    var elem = PlatformUtils.fire
-        .collection(global.Constants.tabellaEventi)
-        /*.where(global.Constants.tabellaEventi_stato,
-        isLessThan: Status.Accepted)
-        .where(global.Constants.tabellaEventi_subOpe, isEqualTo: uid)
-        .orderBy(global.Constants.tabellaEventi_dataInizio) */;
-
-  return elem.snapshots().map((list) =>
-      list.documents.map((list) =>
-          Event.fromSnapshot(list)).toList());
 }
 
 }

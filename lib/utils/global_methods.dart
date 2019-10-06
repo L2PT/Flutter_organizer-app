@@ -5,6 +5,18 @@ import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class Utils {
+  static Future<Map<String,dynamic>> getCategories() async {
+    Map <String,dynamic> categories;
+    var doc = await PlatformUtils.fire.collection("Costanti").document("Categorie").get();
+    if (doc.exists) {
+      categories = doc.data;
+      categories['default'] = global.Constants.fallbackHexColor;
+    } else {
+      print("No categories!");
+    }
+    return categories;
+  }
+
   static Future<Color> getColor(arg) async {
     Map <String,dynamic> categories;
     var doc = await PlatformUtils.fire.collection("Costanti").document("Categorie").get();

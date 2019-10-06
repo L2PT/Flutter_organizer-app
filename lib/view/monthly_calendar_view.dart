@@ -40,7 +40,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
         if (document != null && document.exists) {
           _events[Utils.formatDate(_selectedDay)] = [
             ..._events[Utils.formatDate(_selectedDay)],
-            Event.fromMap(document.documentID, document.data)
+//            Event.fromMap(document.documentID, document.data)
           ];
         }
       }

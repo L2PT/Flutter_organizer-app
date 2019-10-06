@@ -2,19 +2,19 @@ import 'dart:io' show Platform;
 import 'package:fb_auth/fb_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:venturiautospurghi/view/details_event_view.dart';
-import 'package:venturiautospurghi/view/form_event_creator_view.dart';
-import 'package:venturiautospurghi/view/register_view.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
 
-import 'models/event.dart';
+import 'bloc/authentication_bloc/authentication_bloc.dart';
+import 'bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'bloc/events_bloc/events_bloc.dart';
 import 'utils/theme.dart';
-import 'view/reset_code_view.dart';
 import 'view/backdrop.dart';
 import 'view/log_in_view.dart';
 
-final _auth = FBAuth();
 final tabellaUtenti = 'Utenti';
 
 class MyApp extends StatefulWidget {
@@ -24,109 +24,29 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  String _currentView = "/";//<--DEBUG MODE vista corrente
-  Object _currentArg = null;
-  bool _isLoggedIn = null;
-  bool _isSupervisor = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _onLogin(null);
-  }
 
   @override
   Widget build(BuildContext context) {
-    //(1)-App init injection and routes standard
     return MaterialApp(
-      title: 'Table Calendar Demo',
-      theme: customLightTheme,
-      debugShowCheckedModeBanner: false,
-      home: EventCreator(null)/*Backdrop(
-        isLoggedIn: _isLoggedIn,
-        isSupervisor: _isSupervisor,
-        backLayerRouteChanger: _onCategoryTap,
-        frontLayerArg: _currentArg,
-        frontLayerRoute: _currentView,
-      )*/,
-      routes: {
-        global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
-        global.Constants.logInRoute: (context) => LogIn(_onLogin),
-      },
-      onUnknownRoute: _getRoute,
-    );
-  }
-
-  /// Function that resolves the route not standard for Android.
-  /// It pass the route and the arguments to the Backdrop that will present the page
-  Route<dynamic> _getRoute(RouteSettings settings) {
-    //(2)-if route not standard it goes here
-    //get route and arguments (not standard)
-    setState(() {
-      _currentView = settings.name;
-      _currentArg = settings.arguments;
-    });
-    //return backdrop and pass it route and arguments to resolve
-    return MaterialPageRoute<void>(
-      settings: settings,
-      builder: (BuildContext context) =>
-          Backdrop(
-            frontLayerRoute: _currentView,
-            frontLayerArg: _currentArg,
-            backLayerRouteChanger: _onCategoryTap,
-            isLoggedIn: _isLoggedIn,
-            isSupervisor: _isSupervisor,
+          title: 'Table Calendar Demo',
+          theme: customLightTheme,
+          debugShowCheckedModeBanner: false,
+          home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+            builder: (context, state) {
+              if (state is Unauthenticated) {
+                return LogIn();
+              }else if (state is Authenticated) {
+                return BlocProvider(
+                    builder: (context) {
+                      return BackdropBloc(state.user, state.isSupervisor)..dispatch(NavigateEvent(global.Constants.homeRoute,null));
+                      },
+                    child: Backdrop()
+                );
+              }
+              return SplashScreen();
+            },
           ),
-      fullscreenDialog: true,
     );
-  }
-
-  /// Function to call when a [Category] is tapped.
-  void _onCategoryTap(String route) {
-    if(route == global.Constants.logOut) {
-      _onLogout();
-      setState(() {
-        _isLoggedIn = false; //this tells the backdrop to navigate to login page
-      });
-    }else{
-      setState(() {
-        _currentView = route; //this tells the backdrop to navigate to login page
-      });
-    }
-  }
-
-  /// Function to setup the user
-  void _onLogin(AuthUser user) async {
-    bool isSupervisor = false;
-    if(user == null){
-      //check status and get role
-      user = await _auth.currentUser();
-      if(user == null){
-        //go to the login page (you can't do it from here)
-        setState(() {
-          _isLoggedIn = false; //this tells the backdrop to navigate to login page
-        });
-        return;
-      }
-    }
-    //you are logged in, get role
-    //firebaseCloudMessaging_Listeners(user);
-    QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).where('Email',isEqualTo: user.email).getDocuments());
-    for (DocumentSnapshot document in documents.documents) {
-      if(document != null) {
-        isSupervisor = document.data['Responsabile'];
-        setState(() {
-          _isSupervisor = isSupervisor;
-          _isLoggedIn = true; //this tells the backdrop to stop loading
-        });
-        break;
-      }
-    }
-  }
-
-  void _onLogout() async {
-    await _auth.logout();
-    Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
   }
 
   void firebaseCloudMessaging_Listeners(AuthUser user){
@@ -170,5 +90,3 @@ class _MyAppState extends State<MyApp> {
     });
   }
 }
-
-

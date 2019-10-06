@@ -7,24 +7,24 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'dart:math';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import '../utils/theme.dart';
 import '../models/event.dart';
-import 'details_event_view.dart';
-import 'form_event_creator_view.dart';
 
 //HANDLE cambia questa costante per modifcare la grandezza degli eventi
 const double minEventHeight = 60.0;
 
 class DailyCalendar extends StatefulWidget {
   DateTime day;
-  DailyCalendar({ this.day, Key key}) : super(key: key);
+  DailyCalendar(this.day,{Key key}) : super(key: key);
 
   @override
   _DailyCalendarState createState() => _DailyCalendarState();
@@ -42,10 +42,11 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    _selectedDay = widget.day!=null?widget.day:DateTime.now();
+    //carica gli eventi
+    _selectedDay = widget.day!=null?widget.day:Utils.formatDate(DateTime.now());
+    BlocProvider.of<EventsBloc>(context).dispatch(LoadEventsOnce(_selectedDay));
     _events = Map();
-    _readEvents(_selectedDay);
-    _selectedEvents = _events[Utils.formatDate(_selectedDay)] ?? [];
+    _selectedEvents = _events[_selectedDay] ?? [];
     _calendarController = CalendarController();
     _animationController = AnimationController(
       vsync: this,
@@ -66,20 +67,31 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
-    return new Material(
-      elevation: 12.0,
-      borderRadius: new BorderRadius.only(
-          topLeft: new Radius.circular(16.0),
-          topRight: new Radius.circular(16.0)),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          _buildTableCalendarWithBuilders(),
-          const SizedBox(height: 8.0),
-          Expanded(child: _buildEventList()),
-        ],
-      ),
-    );
+    return BlocBuilder<EventsBloc, EventsState>(
+    builder: (context, state) {
+      if (state is Loaded) {
+        _events[state.selectedDay] = state.events;
+//        BlocProvider.of<EventsBloc>(context).dispatch(Done());
+//      } else if (state is Loaded) {
+        initList();
+        return Material(
+          elevation: 12.0,
+          borderRadius: new BorderRadius.only(
+              topLeft: new Radius.circular(16.0),
+              topRight: new Radius.circular(16.0)),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              _buildTableCalendarWithBuilders(),
+              const SizedBox(height: 8.0),
+              Expanded(child: _buildEventList()),
+            ],
+          ),
+        );
+      }
+      return SplashScreen();
+    }
+  );
   }
 
   //--CALENDAR
@@ -198,23 +210,26 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   //--EVENT LIST
   Widget _buildEventList() {
     return ListView(
-        children:<Widget>[Stack(
-            children: <Widget>[
-              Column(
-                  children: _buildBack((16/_gridHourSpan).toInt())
-              ),Column(
-                  children: _buildFront()
-              )
-            ]
-        )]
+//      shrinkWrap: true,
+        children: <Widget>[
+          Stack(
+              children: <Widget>[
+                Column(
+                    children: _buildBack((16/_gridHourSpan).toInt()) //16 sono le ore della griglia
+                ),Column(
+                    children: _buildFront()
+                ),
+              ]
+          )
+        ],
     );
   }
+
   void initList() {
+    _selectedEvents = _events[_selectedDay] ?? [];
     if(_selectedEvents.length>0) {
       //order by start date
-      setState(() {
-        _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
-      });
+      _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
       //identify minimum duration's event
       int md = 4;
       _selectedEvents.forEach((e) => {
@@ -222,24 +237,18 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
             (e.start.hour * 60 + e.start.minute)) / 60).toInt())
       });
       if (md == 0) {
-        setState(() {
-          _gridHourHeight = minEventHeight * 2;
-          _gridHourSpan = 1;
-        });
+        _gridHourHeight = minEventHeight * 2;
+        _gridHourSpan = 1;
       } else {
         int i = 0;
         while (md == (max(pow(2, i), md)))i++;
-        md = (min(pow(2, i), md));
-        setState(() {
-          _gridHourHeight = minEventHeight;
-          _gridHourSpan = md;
-        });
+        md = (min(pow(2, i-1), md));
+        _gridHourHeight = minEventHeight;
+        _gridHourSpan = md;
       }
     }else{
-      setState(() {
-        _gridHourHeight = minEventHeight;
-        _gridHourSpan = 1;
-      });
+      _gridHourHeight = minEventHeight;
+      _gridHourSpan = 1;
     }
   }
 
@@ -283,16 +292,15 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     DateTime base = new DateTime(1990,1,1,6,0,0);
     DateTime top = new DateTime(1990,1,1,21,0,0);
     r.add(SizedBox(height: barHourHeight));
-    this.initList();
     _selectedEvents.forEach((e){
-      r.add(SizedBox(height: (((e.start.hour*60+e.start.minute)-(base.hour*60+base.minute))/60)*_gridHourHeight));
+      r.add(SizedBox(height: (((e.start.hour*60+e.start.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
       r.add(
           Row(children: <Widget>[
             Expanded(
                 flex: 2,
                 child: Container(
                     padding: EdgeInsets.only(right: 40),
-                    height: (((e.end.hour*60+e.end.minute)-(e.start.hour*60+e.start.minute))/60)*_gridHourHeight,
+                    height: (((e.end.hour*60+e.end.minute)-(e.start.hour*60+e.start.minute))/60)/_gridHourSpan*_gridHourHeight,
                     child: Icon(Icons.notification_important,color: red)
                 )
             ),
@@ -300,6 +308,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                 flex: 8,
                 child: cardEvent(
                   e:e,
+                  hourSpan:_gridHourSpan,
                   hourHeight:_gridHourHeight,
                   actionEvent: _onCardClicked,
                   buttonArea: false,
@@ -309,26 +318,24 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       );
       base = e.end;
     });
-    r.add(SizedBox(height: (((top.hour*60+top.minute)-(base.hour*60+base.minute))/60)*_gridHourHeight));
+    r.add(SizedBox(height: (((top.hour*60+top.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
     return r;
   }
 
   //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    setState(() {
-      _selectedEvents = events;
-    });
+    _selectedDay = Utils.formatDate(day);
+    BlocProvider.of<EventsBloc>(context).dispatch(LoadEventsOnce(Utils.formatDate(day)));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-    print("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
-    int period = 1;
-    DateTime s = Utils.formatDate(first);
-    if(format == CalendarFormat.week)period=7;
-    else if(format == CalendarFormat.month)period=30;
-    for(int i=0; i<period; i++){
-      _readEvents(s.add(new Duration(days: i)));
-    }
+//    int period = 1;
+//    DateTime s = Utils.formatDate(first);
+//    if(format == CalendarFormat.week)period=7;
+//    else if(format == CalendarFormat.month)period=30;
+//    for(int i=0; i<period; i++){
+//      _readEvents(s.add(new Duration(days: i)));
+//    }
   }
 
   void _onCardClicked(Event ev) {
@@ -340,13 +347,14 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   void _readEvents(DateTime day) async {
+    //dispatch() query eventi
     //TODO query
     DateTime parsedDate = Utils.formatDate(day);
     List<Event> l = List();
     var documents = await PlatformUtils.fire.collection("Eventi").getDocuments();
     for (var document in documents.documents) {
       if (document != null && document.exists) {
-        l.add(Event.fromMap(document.documentID, document.data));
+//        l.add(Event.fromMap(document.documentID, document.data));
       }
     }
     setState(() {

@@ -1,5 +1,7 @@
 import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
@@ -11,9 +13,8 @@ class LoginData {
 }
 
 class LogIn extends StatefulWidget {
-  final Function onLogin;
 
-  const LogIn(this.onLogin)  : assert(onLogin != null);
+  const LogIn();
 
   @override
   State createState() => new _LogInState();
@@ -42,7 +43,6 @@ class _LogInState extends State<LogIn> {
 
   @override
   Widget build(BuildContext context) {
-
     final emailWidget = new Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -180,7 +180,8 @@ class _LogInState extends State<LogIn> {
           resetMessage = 'Please enter an email address.';
         } else {
           resetMessage = 'Reset password for ' + _data.email;
-          resetMessage+=". Manda all'altra view o un identificativo dell'utente o già mail e telefono in modo che i campi siano già compilati";
+          resetMessage +=
+          ". Manda all'altra view o un identificativo dell'utente o già mail e telefono in modo che i campi siano già compilati";
         }
 
         showDialog(
@@ -211,7 +212,7 @@ class _LogInState extends State<LogIn> {
             }
         );
       },
-      child: new Text('Reset Password',textAlign: TextAlign.center,
+      child: new Text('Reset Password', textAlign: TextAlign.center,
         style: new TextStyle(fontSize: 18.0, color: Colors.black54),
       ),
     );
@@ -257,7 +258,7 @@ class _LogInState extends State<LogIn> {
                         ),
                       ),
                       SizedBox(height: 08.0),
-                      _isLoading||_success ? loadingSpinner :
+                      _isLoading || _success ? loadingSpinner :
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
@@ -274,13 +275,15 @@ class _LogInState extends State<LogIn> {
         )
     );
   }
+
   // Example code of how to sign in with email and password.
   void _signInWithEmailAndPassword() async {
     //enable loading
     setState(() {
       _isLoading = true;
     });
-    final AuthUser user = (await _auth.login(_emailController.text,_passwordController.text));
+    final AuthUser user = (await _auth.login(
+        _emailController.text, _passwordController.text));
     if (user != null) {
       //enable loading
       setState(() {
@@ -288,8 +291,7 @@ class _LogInState extends State<LogIn> {
         _isLoading = false;
       });
       //this set the user info into a global state (main)
-      //and navigate to '/' (home)
-      onLoginSuccesfull(user);
+      BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
     } else {
       //disable loading
       setState(() {
@@ -298,14 +300,7 @@ class _LogInState extends State<LogIn> {
       });
     }
   }
-
-  void onLoginSuccesfull (AuthUser user) async {
-    //setMainStatus
-    widget.onLogin(user);
-    //navigate
-    Navigator.of(context).pushReplacementNamed('/');
-    }
-  }
+}
 
 class MyClipper extends CustomClipper<Path> {
   @override

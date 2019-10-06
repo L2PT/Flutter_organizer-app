@@ -10,12 +10,12 @@ class Event {
   String _category="";
   String _color="";
   String _op="";
-  List<String> _subops = new List();
+  List<dynamic> _subops = new List();
 
   Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._op, this._subops);
   Event.empty();
-  Event.fromMap(String id, dynamic json){
-    _id = (id!=null && id!="e")?id:json["id"];
+  Event.fromMap(String id, String color, dynamic json){
+    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
     _title = json["Titolo"];
     _description = json["Descrizione"];
     _start = new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
@@ -23,7 +23,7 @@ class Event {
     _address = json["Indirizzo"];
     _status = json["Stato"];
     _category = json["Categoria"];
-    _color = json["color"];
+    _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
     _op = json["Operatore"];
     _subops = json["SubOperatori"];
   }
@@ -39,6 +39,20 @@ class Event {
       "Stato":this.status,
       "Categoria":this.category,
       "color":this.color,
+      "Operatore":this.op,
+      "SubOperatori":this.subops
+    });
+  }
+
+  Map<String, dynamic> toDocument(){
+    return Map<String, dynamic>.of({
+      "Titolo":this.title,
+      "Descrizione":this.description,
+      "DataInizio":this.start,
+      "DataFine":this.end,
+      "Indirizzo":this.address,
+      "Stato":this.status,
+      "Categoria":this.category,
       "Operatore":this.op,
       "SubOperatori":this.subops
     });

@@ -6,11 +6,12 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class cardEvent extends StatelessWidget {
   final Event e;
+  final int hourSpan;
   final double hourHeight;
   final bool buttonArea;
   final void Function(Event) actionEvent;
 
-  cardEvent({this.e, this.hourHeight, this.actionEvent, this.buttonArea});
+  cardEvent({this.e, this.hourSpan, this.hourHeight, this.actionEvent, this.buttonArea});
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +115,7 @@ class cardEvent extends StatelessWidget {
       hour = (((e.end.hour * 60 + e.end.minute) -
           (e.start.hour * 60 + e.start.minute)) /
           60);
-      containerHeight = hour * this.hourHeight;
+      containerHeight = hour / this.hourSpan * this.hourHeight;
       paddingContainer = 5 * hour;
       heightBar = 40;
       r = Card(

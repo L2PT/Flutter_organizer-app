@@ -14,11 +14,20 @@
 
 import 'dart:async';
 
+import 'package:fb_auth/fb_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bloc/bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/models/linkMenu.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
+import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
 import 'package:loading/loading.dart';
@@ -39,7 +48,7 @@ const double _kFlingVelocity = 2.0;
 
 final Map<String, LinkMenu> _menuOperatore = const {
   global.Constants.homeRoute:
-      const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
   global.Constants.waitingEventListRoute: const LinkMenu(Icons.visibility_off,
       Colors.white, 30, "Incarichi in sospeso", title_rev),
   global.Constants.monthlyCalendarRoute: const LinkMenu(
@@ -48,8 +57,33 @@ final Map<String, LinkMenu> _menuOperatore = const {
 
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
-      const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+  const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
 };
+
+router(route, isSupervisor, arg){
+  switch(route) {
+    case global.Constants.homeRoute: {
+      if(isSupervisor) return OperatorList;
+      else return DailyCalendar(null);}
+    break;
+    case global.Constants.monthlyCalendarRoute: {return MonthlyCalendar;}
+    break;
+    case global.Constants.dailyCalendarRoute: {return DailyCalendar(null);}
+    break;
+    case global.Constants.profileRoute: {return Profile;}
+    break;
+    case global.Constants.operatorListRoute: {return OperatorList;}
+    break;
+    case global.Constants.detailsEventViewRoute: {DetailsEvent;}
+    break;
+    case global.Constants.formEventCreatorRoute: {return EventCreator;}
+    break;
+    case global.Constants.waitingEventListRoute: {return waitingEvent();}
+    break;
+    default: {return DailyCalendar(null);}
+    break;
+  }
+}
 
 /// Builds a Backdrop.
 ///
@@ -58,28 +92,12 @@ final Map<String, LinkMenu> _menuResponsabile = const {
 /// can make a selection. We can configure a custom interchangable title
 /// The route selected is notified to the frontlayer
 class Backdrop extends StatefulWidget {
-  final String frontLayerRoute;
-  final Object frontLayerArg;
-  final Function backLayerRouteChanger;
-  final bool isLoggedIn;
-  final bool isSupervisor;
-
-  const Backdrop({
-    @required this.backLayerRouteChanger,
-    @required this.frontLayerRoute,
-    @required this.frontLayerArg,
-    @required this.isLoggedIn,
-    @required this.isSupervisor,
-  })  : assert(frontLayerRoute != null),
-        assert(backLayerRouteChanger != null);
-
   @override
   _BackdropState createState() => _BackdropState();
 }
 
 class _BackdropState extends State<Backdrop>
     with SingleTickerProviderStateMixin {
-  final GlobalKey _backdropKey = GlobalKey(debugLabel: "Backdrop");
   AnimationController _controller;
 
   @override
@@ -89,294 +107,90 @@ class _BackdropState extends State<Backdrop>
   }
 
   @override
-  void didUpdateWidget(Backdrop old) {
-    print(widget.frontLayerArg);
-    print("backdrop up");
-    super.didUpdateWidget(old);
-    if (widget.frontLayerRoute != old.frontLayerRoute) {
-      _toggleBackdropLayerVisibility(true);
-    }/* else if (!_frontLayerVisible) {
-      _controller.fling(velocity: _kFlingVelocity);
-    }*/
-    Timer.run(() {
-      if (widget.isLoggedIn == false) {
-        Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
-      }
-    });
-  }
-
-  @override
   void dispose(){
     _controller.dispose();
     super.dispose();
   }
 
-      //MAIN BUILEDER METHODS
-        //--APPBAR DELLA BACKDROP
-  //TODO spostare il controllo della route dal FrontLayer alla backdrop per fare il Fab custom
+  //MAIN BUILEDER METHODS
+  //--APPBAR DELLA BACKDROP
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: new Text(
-            widget.isSupervisor
-                ? _menuResponsabile[widget.frontLayerRoute]
-                .textLink
-                .toUpperCase()
-                : _menuOperatore[widget.frontLayerRoute]
-                .textLink
-                .toUpperCase(),
-            style: title_rev),
-        elevation: 0.0,
-        leading: new IconButton(
-          onPressed: ()=>_toggleBackdropLayerVisibility(true),
-          icon: new AnimatedIcon(
-            icon: AnimatedIcons.close_menu,
-            progress: _controller.view,
-          ),
-        ),
-      ),
-      floatingActionButton:  _FabChooser(),
-      body: LayoutBuilder(
-        builder: _buildStack2,
-      ),
+    final backdropBloc = BlocProvider.of<BackdropBloc>(context);
+    return BlocBuilder<BackdropBloc, BackdropState>(
+        builder: (context, state) {
+          if (state is Ready) {
+            _toggleBackdropLayerVisibility(false);
+            return Scaffold(
+                appBar: AppBar(
+                  title: new Text(
+                      (backdropBloc.isSupervisor
+                          ? _menuResponsabile[state.route]
+                          : _menuOperatore[state.route]).textLink.toUpperCase(),
+                      style: title_rev),
+                  elevation: 0.0,
+                  leading: new IconButton(
+                    onPressed: () => _toggleBackdropLayerVisibility(true),
+                    icon: new AnimatedIcon(
+                      icon: AnimatedIcons.close_menu,
+                      progress: _controller.view,
+                    ),
+                  ),
+                ),
+                floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.isSupervisor),
+                body:_buildStack(state.route, state.arg, backdropBloc.isSupervisor)
+            );
+          }
+          return Container(
+            child: SplashScreen(),
+          );
+        }
     );
   }
 
-  //--BUILDER DELL' OVERLAP DEI DUE LAYER
-  Widget _buildStack(BuildContext context, BoxConstraints constraints) {
-    const double layerTitleHeight = 48.0; //HANDLE
-    final Size layerSize = constraints.biggest;
+  Widget _buildStack(String frontLayerRoute, dynamic frontLayerArg, bool isSupervisor) {
+    const double layerTitleHeight = 64.0;
+    final Size layerSize = MediaQuery.of(context).size;
     final double layerTop = layerSize.height - layerTitleHeight;
-
-    Animation<RelativeRect> layerAnimation = RelativeRectTween(
-      begin: RelativeRect.fromLTRB(
-          0.0, layerTop, 0.0, layerTop - layerSize.height),
-      end: RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0),
-    ).animate(_controller.view);
-    return Stack(
-      key: _backdropKey,
-      children: <Widget>[
-        ExcludeSemantics(
-          child: _BackLayer(
-            onTap: widget.backLayerRouteChanger,
-            currentViewR: widget.frontLayerRoute,
-            isSupervisor: widget.isSupervisor,
-          ),
-          excluding: _frontLayerVisible,
-        ),
-        PositionedTransition(
-          rect: layerAnimation,
-          child: _FrontLayer(
-            onTap: () => _toggleBackdropLayerVisibility(false),
-            flag: _frontLayerVisible,
-            route: widget.frontLayerRoute,
-            arguments: widget.frontLayerArg,
-            isSupervisor: widget.isSupervisor,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStack2(BuildContext context, BoxConstraints constraints) {
-    const double layerTitleHeight = 48.0;
-    final Size layerSize = constraints.biggest;
-    final double layerTop = layerSize.height - layerTitleHeight;
-
-    const header_height = 32.0;
-    final height = constraints.biggest.height;
-    final backPanelHeight = height - header_height;
-    final frontPanelHeight = -header_height;
 
     Animation<RelativeRect> layerAnimation = new RelativeRectTween(
-            begin: new RelativeRect.fromLTRB(
-                0.0, backPanelHeight, 0.0, frontPanelHeight),
-            end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
+        begin: new RelativeRect.fromLTRB(
+            0.0, layerTop-layerTitleHeight, 0.0, -(layerTop-layerTitleHeight)),
+        end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
         .animate(
-            new CurvedAnimation(parent: _controller, curve: Curves.linear));
+        new CurvedAnimation(parent: _controller, curve: Curves.linear));
+    Animation<RelativeRect> overLayerAnimation = new RelativeRectTween(
+        begin: new RelativeRect.fromLTRB(
+            0.0, layerTop-layerTitleHeight, 0.0, 0.0),
+        end: new RelativeRect.fromLTRB(0.0, layerTop, 0.0, 0.0))
+        .animate(
+        new CurvedAnimation(parent: _controller, curve: Curves.linear));
 
     return Container(
       child: Stack(
-        key: _backdropKey,
         children: <Widget>[
           ExcludeSemantics(
-            child: _BackLayer(
-              onTap: widget.backLayerRouteChanger,
-              currentViewR: widget.frontLayerRoute,
-              isSupervisor: widget.isSupervisor,
-            ),
+            child: _BackLayer(currentViewRoute: frontLayerRoute),
             excluding: _frontLayerVisible,
           ),
           PositionedTransition(
             rect: layerAnimation,
-            child: _FrontLayer(
-              onTap: () => _toggleBackdropLayerVisibility(false),
-              flag: _frontLayerVisible,
-              route: widget.frontLayerRoute,
-              arguments: widget.frontLayerArg,
-              isSupervisor: widget.isSupervisor,
+            child:  _FrontLayer(
+              content: router(frontLayerRoute, isSupervisor, frontLayerArg),
             ),
           ),
-          Visibility(
-            child: Container(
-              color: whiteoverlapbackground,
-              child: Center(
-                child: Loading(indicator: BallPulseIndicator(), size: 100.0),
+          PositionedTransition(
+            rect: overLayerAnimation,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: ()=>_toggleBackdropLayerVisibility(false),
+              child: Container(
+                height: 40.0,
               ),
-            ),
-            visible: widget.isLoggedIn == null,
+            )
           ),
         ],
       ),
-    );
-  }
-
-      //METODI DI UTILITY
-  Widget _FabChooser(){
-    if(widget.frontLayerRoute == global.Constants.detailsEventViewRoute){
-      if(widget.isSupervisor) {
-        return FloatingActionButton(
-          child: Icon(FontAwesomeIcons.clipboardList),
-          onPressed: _showDialogFabSupervisor,
-          backgroundColor: dark,
-        );
-      }else {
-        return FloatingActionButton(
-          child: Icon(FontAwesomeIcons.phone),
-          onPressed: _showDialogFabOperator,
-          backgroundColor: dark,
-        );
-      }
-    }else{
-      return null;
-    }
-  }
-
-  void _showDialogFabSupervisor() {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return Container(
-            padding: EdgeInsets.all(20.0),
-            alignment: Alignment.bottomRight,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.symmetric(vertical:5.0),
-                  child:
-                    Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text("Cancella", style: customLightTheme.textTheme.title.copyWith(color: white)),
-                      SizedBox(width: 10,),
-                      GestureDetector(
-                        onTap: (){},
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: dark,
-                          ),
-                          child: Icon(FontAwesomeIcons.trashAlt),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical:5.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text("Modifica", style: customLightTheme.textTheme.title.copyWith(color: white)),
-                      SizedBox(width: 10,),
-                      GestureDetector(
-                        onTap: (){},
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: dark,
-                          ),
-                          child: Icon(FontAwesomeIcons.pencilAlt),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(height: 65,)
-              ],
-            )
-          );
-        }
-    );
-  }
-  void _showDialogFabOperator() {
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return Container(
-            padding: EdgeInsets.all(20.0),
-            alignment: Alignment.bottomRight,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Container(
-                  margin: EdgeInsets.symmetric(vertical:5.0),
-                  child:
-                    Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text("Responsabile", style: customLightTheme.textTheme.title.copyWith(color: white)),
-                      SizedBox(width: 10,),
-                      GestureDetector(
-                        onTap: (){},
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: dark,
-                          ),
-                          child: Icon(FontAwesomeIcons.userTie),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical:5.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Text("Ufficio", style: customLightTheme.textTheme.title.copyWith(color: white)),
-                      SizedBox(width: 10,),
-                      GestureDetector(
-                        onTap: (){},
-                        child: Container(
-                          height: 50,
-                          width: 50,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: dark,
-                          ),
-                          child: Icon(FontAwesomeIcons.building),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(height: 65,)
-              ],
-            )
-          );
-        }
     );
   }
 
@@ -460,23 +274,18 @@ class _CustomTitle extends AnimatedWidget {
 ///
 ///
 ///
-class _BackLayer extends StatelessWidget {//TODO poluzzi
-  //ROUTES
-
+class _BackLayer extends StatelessWidget {
   const _BackLayer({
     Key key,
-    this.onTap,
-    this.currentViewR,
-    this.isSupervisor,
-  })  : assert(currentViewR != null),
+    this.currentViewRoute,
+  })  : assert(currentViewRoute != null),
         super(key: key);
 
-  final ValueChanged<String> onTap;
-  final String currentViewR;
-  final bool isSupervisor;
+  final String currentViewRoute;
 
   @override
   Widget build(BuildContext context) {
+
     return Container(
         color: dark,
         child: Column(
@@ -484,16 +293,16 @@ class _BackLayer extends StatelessWidget {//TODO poluzzi
             Expanded(
               child: new ListView(
                   physics: new BouncingScrollPhysics(),
-                  children: (isSupervisor ? _menuResponsabile : _menuOperatore)
+                  children: (BlocProvider.of<BackdropBloc>(context).isSupervisor ? _menuResponsabile : _menuOperatore)
                       .map((route, linkMenu) =>
-                          _buildMenu(linkMenu, route, context))
+                      _buildMenu(linkMenu, route, context))
                       .values
                       .toList()),
             ),
             Expanded(
               child: Container(
                 child: GestureDetector(
-                  onTap: () => onTap(global.Constants.logOut),
+                  onTap: ()=>BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedOut()),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -514,73 +323,73 @@ class _BackLayer extends StatelessWidget {//TODO poluzzi
         ));
   }
 
-  //TODO aspettanndo il layout di Turro
   MapEntry<String, Widget> _buildMenu(
       LinkMenu view, String route, BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final b = BlocProvider.of<BackdropBloc>(context);
     return new MapEntry(
         route,
         GestureDetector(
-          onTap: () => onTap(route),
-          child: currentViewR == route
+          onTap: () => b.dispatch(NavigateEvent(route,null)),
+          child: currentViewRoute == route
               ? Column(
+            children: <Widget>[
+              SizedBox(height: 16.0),
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height: 16.0),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget>[
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
 
-                              Icon(
-                                view.iconLink,
-                                color: view.colorIcon,
-                                size: view.sizeIcon,
-                                semanticLabel: 'Icon menu',
+                        Icon(
+                          view.iconLink,
+                          color: view.colorIcon,
+                          size: view.sizeIcon,
+                          semanticLabel: 'Icon menu',
+                        ),
+                        SizedBox(width: 15.0),
+                        Container(
+                            child: Padding(
+                              padding: EdgeInsets.only(bottom: 5.0),
+                              child: Text(
+                                view.textLink,
+                                style: title_rev,
                               ),
-                              SizedBox(width: 15.0),
-                              Container(
-                                child: Padding(
-                                  padding: EdgeInsets.only(bottom: 5.0),
-                                  child: Text(
-                                    view.textLink,
-                                    style: title_rev,
-                                  ),
-                                ),
-                                  decoration: BoxDecoration(
-                                      border: Border(
-                                          bottom: BorderSide(
-                                            color: yellow,
-                                            width: 2.0,
-                                          )))
-                               ),
+                            ),
+                            decoration: BoxDecoration(
+                                border: Border(
+                                    bottom: BorderSide(
+                                      color: yellow,
+                                      width: 2.0,
+                                    )))
+                        ),
 
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                        ],
-                      ),
+                      ],
                     ),
+                    SizedBox(height: 8.0),
                   ],
-                )
-              : Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(
-                        view.iconLink,
-                        color: view.colorIcon,
-                        size: view.sizeIcon,
-                        semanticLabel: 'Icon menu',
-                      ),
-                      SizedBox(width: 15.0),
-                      Text(view.textLink, style: title_rev),
-                    ],
-                  ),
                 ),
+              ),
+            ],
+          )
+              : Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  view.iconLink,
+                  color: view.colorIcon,
+                  size: view.sizeIcon,
+                  semanticLabel: 'Icon menu',
+                ),
+                SizedBox(width: 15.0),
+                Text(view.textLink, style: title_rev),
+              ],
+            ),
+          ),
         ));
   }
 }
@@ -596,68 +405,23 @@ class _BackLayer extends StatelessWidget {//TODO poluzzi
 /// L'onTap chiude il menu a discesa
 /// La route viene gestita in modo da caricare la classe corretta in base
 /// al rouolo dell' utente
-//TODO rounded corner da decidere aspettando il layout di Turro
 class _FrontLayer extends StatelessWidget {
   const _FrontLayer({
     Key key,
-    this.onTap,
-    this.flag,
-    this.route,
-    this.arguments,
-    this.isSupervisor,
-  }) : super(key: key);
+    this.content}) : super(key: key);
 
-  final VoidCallback onTap;
-  final bool flag;
-  final String route;
-  final Object arguments;
-  final Object isSupervisor;
-
-  Widget router(){
-    print(arguments);
-    print(route);
-    print("frontlayer");
-    switch(route) {
-      case global.Constants.homeRoute: {
-        if(isSupervisor) return OperatorList();
-        else return DailyCalendar();}
-      break;
-      case global.Constants.monthlyCalendarRoute: {return MonthlyCalendar();}
-      break;
-      case global.Constants.dailyCalendarRoute: {return DailyCalendar(day:arguments);}
-      break;
-      case global.Constants.profileRoute: {return Profile();}
-      break;
-      case global.Constants.operatorListRoute: {return OperatorList();}
-      break;
-      case global.Constants.detailsEventViewRoute: {return arguments!=null?DetailsEvent(event: arguments):null;}
-      break;
-      case global.Constants.formEventCreatorRoute: {return EventCreator(null);}
-      break;
-      case global.Constants.waitingEventListRoute: {return waitingEvent();}
-      break;
-      default: {return DailyCalendar();}
-      break;
-    }
-  }
+  final Widget content;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: <Widget>[
-        router(),
-        Visibility(
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: onTap,
-            child: Container(
-              height: 40.0,
-              alignment: AlignmentDirectional.centerStart,
-            ),
-          ),
-          visible: !flag,
-          maintainSize: false,
-        )
+        BlocProvider(
+              builder: (context) {
+                return EventsBloc(eventsRepository: EventsRepository());
+              },
+          child: content,
+        ),
       ],
     );
   }
