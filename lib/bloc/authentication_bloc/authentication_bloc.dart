@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:fb_auth/fb_auth.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/mobile.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
 
 part 'authentication_event.dart';
@@ -26,7 +27,7 @@ class AuthenticationBloc
     if (event is AppStarted) {
       yield* _mapAppStartedToState();
     } else if (event is LoggedIn) {
-      yield* _mapLoggedInToState();
+      yield* _mapLoggedInToState(event);
     } else if (event is LoggedOut) {
       yield* _mapLoggedOutToState();
     }
@@ -46,8 +47,8 @@ class AuthenticationBloc
     }
   }
 
-  Stream<AuthenticationState> _mapLoggedInToState() async* {
-    user = await _userRepository.currentUser();
+  Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
+    user = event.user;
     isSupervisor = await getSupervisorFlag(user.email);
     yield Authenticated(user, isSupervisor);
   }
@@ -58,10 +59,10 @@ class AuthenticationBloc
   }
 
   Future<bool> getSupervisorFlag(String email) async {
-    var docs = await PlatformUtils.fire.collection("Utenti").where('Email',isEqualTo: email).getDocuments();
-    for (var doc in docs.documents) {
+    var docs = await PlatformUtils.waitFireCollection("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
+    for (var doc in docs) {
       if(doc != null) {
-        return doc.data['Responsabile'];
+        return doc.get('Responsabile');
       }
     }
   }

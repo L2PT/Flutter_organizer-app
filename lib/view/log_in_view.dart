@@ -282,7 +282,7 @@ class _LogInState extends State<LogIn> {
     setState(() {
       _isLoading = true;
     });
-    final AuthUser user = (await _auth.login(
+  final AuthUser user = (await _auth.login(
         _emailController.text, _passwordController.text));
     if (user != null) {
       //enable loading
@@ -291,7 +291,7 @@ class _LogInState extends State<LogIn> {
         _isLoading = false;
       });
       //this set the user info into a global state (main)
-      BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn());
+      BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn(user));
     } else {
       //disable loading
       setState(() {

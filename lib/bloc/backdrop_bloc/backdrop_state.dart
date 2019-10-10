@@ -9,10 +9,10 @@ class Ready extends BackdropState {
   final String route;
   final dynamic arg;
 
-  Ready([this.route, this.arg]);
+  Ready([this.route, this.arg]) : super([route,arg]);
 
   @override
-  List<Object> get props => [this.route,this.arg];
+  List<Object> get props => [route,arg];
 }
 
 class NotReady extends BackdropState {

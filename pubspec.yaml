@@ -33,6 +33,7 @@ dependencies:
   flutter_bloc: ^0.21.0
   equatable: ^0.6.1
 
+
   #mobile only
   datetime_picker_formfield: ^0.1.8
   simple_gesture_detector: ^0.1.3
