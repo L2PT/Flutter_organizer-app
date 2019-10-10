@@ -20,7 +20,9 @@ abstract class PlatformUtils {
   static const dynamic fire = null;
 
   static dynamic waitFireCollection(collection,
-      {whereCondFirst, whereOp, whereCondSecond, document}) async => null;
+      {whereCondFirst, whereOp, whereCondSecond}) async => null;
 
   static dynamic fireDocument(collection, document) => null;
+
+  static dynamic getFireDocumentField(document, field) => null;
 }

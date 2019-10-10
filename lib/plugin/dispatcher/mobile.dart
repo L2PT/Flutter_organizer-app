@@ -48,7 +48,7 @@ abstract class PlatformUtils {
   static const dynamic Dir = SwipeDirection.up;
   static Firestore fire = new Firestore();
 
-  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond,document}) async {
+  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
     if(whereOp!=null) {
       switch(whereOp){
@@ -75,5 +75,7 @@ abstract class PlatformUtils {
   }
 
   static dynamic fireDocument(collection,document) => fire.collection(collection).document(document).get();
+
+  static dynamic getFireDocumentField(document, field) => document.data[field];
 
 }

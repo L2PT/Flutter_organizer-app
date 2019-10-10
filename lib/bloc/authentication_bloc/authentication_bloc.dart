@@ -62,7 +62,7 @@ class AuthenticationBloc
     var docs = await PlatformUtils.waitFireCollection("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
     for (var doc in docs) {
       if(doc != null) {
-        return doc.get('Responsabile');
+        return PlatformUtils.getFireDocumentField(doc,'Responsabile');
       }
     }
   }

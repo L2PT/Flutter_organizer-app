@@ -43,6 +43,7 @@ class _LogInState extends State<LogIn> {
 
   @override
   Widget build(BuildContext context) {
+
     final emailWidget = new Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -71,6 +72,7 @@ class _LogInState extends State<LogIn> {
           new Expanded(
             child: TextFormField(
               controller: _emailController,
+              textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Enter your email',
@@ -111,6 +113,8 @@ class _LogInState extends State<LogIn> {
           new Expanded(
             child: TextFormField(
               controller: _passwordController,
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (term)=>{this._signInWithEmailAndPassword()},
               obscureText: true,
               decoration: InputDecoration(
                 border: InputBorder.none,

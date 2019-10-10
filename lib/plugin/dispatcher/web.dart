@@ -22,7 +22,7 @@ class PlatformUtils {
   static const dynamic Dir = null;
   static dynamic fire = firestore();
 
-  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond,document}) async {
+  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
     if(whereOp!=null) {
       query = fire.collection(collection).where(whereCondFirst,whereOp,whereCondSecond);
@@ -34,6 +34,8 @@ class PlatformUtils {
   }
 
   static dynamic fireDocument(collection,document) => fire.collection(collection).doc(document).get();
+
+  static dynamic getFireDocumentField(document, field) => document.get(field);
 
 
 }

@@ -3,14 +3,12 @@ import 'package:fb_auth/fb_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/backdrop_bloc/backdrop_bloc.dart';
-import 'bloc/events_bloc/events_bloc.dart';
 import 'utils/theme.dart';
 import 'view/backdrop.dart';
 import 'view/log_in_view.dart';
