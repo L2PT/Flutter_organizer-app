@@ -4,13 +4,14 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
 
 class EventsRepository {
-  final collection = Firestore.instance.collection('Eventi');
+  final collection = PlatformUtils.fire.collection('Eventi');
   Map<String,dynamic> categories;
   EventsRepository(){init();}
   void init() async {

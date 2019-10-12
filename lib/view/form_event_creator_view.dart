@@ -1,5 +1,3 @@
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -126,7 +124,6 @@ class EventCreatorState extends State<EventCreator> {
                         ),
                         Expanded(
                           child: new DateTimePickerFormField(
-                            locale: Locale.cachedLocale,
                             textAlign: TextAlign.left,
                             initialDate: widget._event.start,
                             initialValue: widget._event.start,
@@ -156,7 +153,6 @@ class EventCreatorState extends State<EventCreator> {
                         Expanded(
                           child:
                           new DateTimePickerFormField(
-                            locale: Locale.cachedLocale,
                             textAlign: TextAlign.right,
                             initialDate: widget._event.start,
                             inputType: InputType.time,
@@ -192,7 +188,6 @@ class EventCreatorState extends State<EventCreator> {
                         ),
                         Expanded(
                           child: new DateTimePickerFormField(
-                            locale: Locale.cachedLocale,
                             textAlign: TextAlign.left,
                             initialDate: widget._event.end,
                             initialValue: widget._event.end,
@@ -224,7 +219,6 @@ class EventCreatorState extends State<EventCreator> {
                         Expanded(
                           child:
                           new DateTimePickerFormField(
-                            locale: Locale.cachedLocale,
                             textAlign: TextAlign.right,
                             initialDate: widget._event.end,
                             inputType: InputType.time,
@@ -350,11 +344,11 @@ class EventCreatorState extends State<EventCreator> {
   }
 
   getCategories(){
-    PlatformUtils.fire.collection("Costanti").document("Categorie").get().then((doc){
+    PlatformUtils.fireDocument("Costanti","Categorie").then((doc){
       if(doc.exists && doc != null){
         setState(() {
-          _categoriesN = doc.data.keys.toList();
-          _categoriesC = doc.data.values.toList();
+          _categoriesN = doc.data().keys.toList();
+          _categoriesC = doc.data().values.toList();
         });
       }
     });

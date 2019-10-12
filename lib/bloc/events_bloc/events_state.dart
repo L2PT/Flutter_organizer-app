@@ -9,7 +9,7 @@ class Loaded extends EventsState {
   final List<Event> events;
   final DateTime selectedDay;
 
-  Loaded([this.events, this.selectedDay]);
+  Loaded([this.events, this.selectedDay]) : super([events,selectedDay]);
 
   @override
   List<Object> get props => [events, selectedDay];

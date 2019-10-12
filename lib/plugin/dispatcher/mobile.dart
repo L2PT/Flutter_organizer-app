@@ -48,4 +48,32 @@ abstract class PlatformUtils {
   static const dynamic Dir = SwipeDirection.up;
   static Firestore fire = new Firestore();
 
+  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond,document}) async {
+    var query;
+    if(whereOp!=null) {
+      switch(whereOp){
+        case "<" :{
+          query = fire.collection(collection).where(whereCondFirst,isLessThan: whereCondSecond);
+        }break;
+        case "<=" :{
+          query = fire.collection(collection).where(whereCondFirst,isLessThanOrEqualTo: whereCondSecond);
+        }break;
+        case "==" :{
+          query = fire.collection(collection).where(whereCondFirst,isEqualTo: whereCondSecond);
+        }break;
+        case ">=" :{
+          query = fire.collection(collection).where(whereCondFirst,isGreaterThanOrEqualTo: whereCondSecond);
+        }break;
+        case ">" :{
+          query = fire.collection(collection).where(whereCondFirst,isGreaterThan: whereCondSecond);
+        }break;
+      }
+    }else{
+      query = fire.collection(collection);
+    }
+    return (await query.getDocuments()).documents;
+  }
+
+  static dynamic fireDocument(collection,document) => fire.collection(collection).document(document).get();
+
 }

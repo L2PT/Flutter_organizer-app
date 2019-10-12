@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -12,9 +11,7 @@ import '../models/event.dart';
 class DetailsEvent extends StatefulWidget {
   final Event event;
 
-  DetailsEvent({Key key,
-    @required this.event
-  })  : assert(event != null),
+  DetailsEvent(@required this.event,{Key key,})  : assert(event != null),
         super(key: key);
 
   @override
@@ -347,18 +344,5 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
         c=a;
       });
     }
-  }
-
-  void getNames() async {
-    String names = "";
-    for(String op in widget.event.subops) {
-      var doc = await Firestore.instance.collection("Utenti").document(op).get();
-      if (doc != null && doc.exists) {
-        names += doc.data["Cognome"].toString().toUpperCase() + " " + doc.data["Name"] + ", ";
-      }
-    }
-    setState(() {
-      operators = names.substring(0,names.length-3);
-    });
   }
 }

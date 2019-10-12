@@ -1,7 +1,6 @@
 var calendar;
 var db;
 var categories;
-var loggedId = "PCsJ86Gtiww4tmjbttu4";
 var dart;
 $(function() { // document ready
 // Your web app's Firebase configuration
@@ -92,7 +91,7 @@ function initCategories(){
 }
 
 function readResources(callback){
-    var docRef = db.collection("Utenti").doc(loggedId);
+    var docRef = db.collection("Utenti").doc(dart.widget.user.uid);
     docRef.get().then(function(doc) {
         if (doc.exists) {
             var arr = doc.data().OperatoriWeb
@@ -158,26 +157,6 @@ function mapEventObj(eventData){
 }
 
 /*-------------------------------------------------------------------*/
-                        /*--DB--*/
-function login(email){
-    var docRef = db.collection("Utenti").where("Email","==",email);
-    docRef.get().then(function(querySnapshot) {
-        querySnapshot.forEach(function(doc) {
-            loggedId = doc.id;
-            initCalendar();
-            dart.updateDateCalendar();
-            return;
-        });
-    }).catch(function(error) {
-        console.log("Error getting user:", error);
-    });
-}
-
-
-
-
-
-/*-------------------------------------------------------------------*/
                         /*--UTILITIES--*/
 function getColor(arg){
     return (arg != null && categories[arg] != null)?categories[arg]:categories['default'];
@@ -192,4 +171,34 @@ function formatDate(date) {
 }
 function initJs2Dart(callback){
     dart=callback;
+}
+
+function cookieJar(name, val){
+    if(val!=null){
+        if(val == "") setCookie(name, val, 1);
+        else setCookie(name, val, -10);
+    }
+    else return getCookie(name);
+}
+
+function getCookie(cname) {
+  var name = cname + "=";
+  var decodedCookie = decodeURIComponent(document.cookie);
+  var ca = decodedCookie.split(';');
+  for(var i = 0; i <ca.length; i++) {
+    var c = ca[i];
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+function setCookie(cname, cvalue, exdays) {
+  var d = new Date();
+  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+  var expires = "expires="+d.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
