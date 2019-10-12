@@ -36,6 +36,7 @@ class _MyAppState extends State<MyApp> {
               }else if (state is Authenticated) {
                 return BlocProvider(
                     builder: (context) {
+                      firebaseCloudMessaging_Listeners(state.user);
                       return BackdropBloc(state.user, state.isSupervisor)..dispatch(NavigateEvent(global.Constants.homeRoute,null));
                       },
                     child: Backdrop()

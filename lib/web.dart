@@ -312,7 +312,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
-        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:300, width:300, child:dialogContainer),
+        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:600, width:400, child:dialogContainer),
         );
       },
     ).then((onValue)=>jQuery('#wrap').css(CssOptions(zIndex: 1)));

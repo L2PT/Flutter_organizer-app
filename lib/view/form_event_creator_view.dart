@@ -362,9 +362,9 @@ class EventCreatorState extends State<EventCreator> {
       widget._event.category = _categoriesN[_radioValue];
       widget._event.color = _categoriesC[_radioValue];
       if(_allDayFlag)widget._event.end = widget._event.start;
-      PlatformUtils.fire.collection("Eventi").add(widget._event.toMap());
-//      PlatformUtils.notify();
-//      Navigator.maybePop(context);
+      PlatformUtils.fire.collection("Eventi").add(widget._event.toDocument());
+      Utils.notify();
+      Navigator.maybePop(context);
     }
   }
 

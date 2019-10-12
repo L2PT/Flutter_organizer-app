@@ -6,7 +6,6 @@ abstract class PlatformUtils {
     throw 'Platform Not Supported';
   }
 */
-  static void notify() {}
 
   static const dynamic myApp = null;
 

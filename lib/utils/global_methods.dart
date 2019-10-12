@@ -1,8 +1,11 @@
 library App.utils;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:http/http.dart' as http;
 
 class Utils {
   static Future<Map<String,dynamic>> getCategories() async {
@@ -46,6 +49,19 @@ class Utils {
       return false;
     }
     return double.tryParse(str) != null;
+  }
+
+  static void notify() async {
+    String url = "https://fcm.googleapis.com/fcm/send";
+    String json = "";
+    Map<String,String> not = new Map<String,String>();
+    json = "{\"to\":\"fIyuHzH7gzQ:APA91bGA_qRjV4XGlAm8ToYQbd3jbEwsj0gABsng0WUOyhm1uNjtDXVty3pwwpdurWO7Yb43GYWTlD-b4bS5E5ZWOTYnN9wNaXTiWvdd_6qtvgDtIc3zFjBpVigYYJ7QpLfSzbVyLoNE\",";
+    not['title'] = "It's time to work";
+    not['body'] = "Hey, hai un nuovo lavoro.";
+    json += "\"notification\":"+jsonEncode(not)+"}";
+    var response = await http.post(url, body: json, headers: {"Authorization": "key=AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk","Content-Type": "application/json"},encoding: Encoding.getByName('utf-8'));
+    print("response: "+jsonEncode(json));
+    print("response: "+response.body);
   }
 }
 class HexColor extends Color {

@@ -11,8 +11,6 @@ class PlatformUtils {
 //    html.window.open(url, name);
 //}
 
-  static void notify(){}
-
   static dynamic myApp = MyApp();
 
   static dynamic gestureDetector({dynamic child, Function onVerticalSwipe, dynamic swipeConfig}){

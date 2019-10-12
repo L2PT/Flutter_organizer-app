@@ -29,6 +29,7 @@ dependencies:
   loading: ^1.0.1
   fb_auth: ^0.0.1+1
   font_awesome_flutter: ^8.5.0
+  font_awesome: ^5.10.1
   firebase_messaging: ^5.1.6
   flutter_bloc: ^0.21.0
   equatable: ^0.6.1
