@@ -12,6 +12,7 @@ import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'dart:math';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
@@ -170,8 +171,10 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
         _animationController.forward(from: 0.0);
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
-      selectNext: (){Navigator.of(context).pushNamedAndRemoveUntil(global.Constants.monthlyCalendarRoute,
-              (Route<dynamic> route) => true);},
+      selectNext: () {
+        BlocProvider.of<BackdropBloc>(context).dispatch(
+            NavigateEvent(global.Constants.monthlyCalendarRoute, null));
+      },
       selectPrevious: (){},
     );
   }
@@ -339,7 +342,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   void _onCardClicked(Event ev) {
-    Navigator.of(context).pushNamed(global.Constants.detailsEventViewRoute, arguments: ev);
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.detailsEventViewRoute,ev));
   }
 
   void _deleteEvent(Event ev) {

@@ -48,8 +48,10 @@ class _waitingEventState extends State<waitingEvent> {
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
                     Expanded(
+
                         child:
-                        state.events.length==0?ListView.builder(
+                        state.events.length!=0?ListView.builder(
+                          itemCount: state.events.length,
                           itemBuilder: (context, index) =>
                               _buildWaitingEvent(state.events[index]),):Container()
                     )
@@ -67,12 +69,12 @@ class _waitingEventState extends State<waitingEvent> {
     List<Widget> r = new List<Widget>();
     if (dataCorrente != evento.start) {
       dataCorrente = evento.start;
-      r.add(_viewDateHeader(dataCorrente));
+      _viewDateHeader(dataCorrente).forEach((row) => r.add(row));
     }
     r.add(_viewEvent(evento));
-    r.add(Container(width: 10, height: 10, color: dark,));
-    return Row(
-      children: r,
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: r
     );
   }
 
@@ -81,74 +83,75 @@ void _onDaySelected(DateTime day) {
 }
 
 Widget _viewEvent(Event e) {
-  return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(children: <Widget>[
-          Expanded(
-            flex: 9,
-            child: cardEvent(
-              e: e,
-              hourHeight: 140,
-              buttonArea: true,
+  return
+          Row(children: <Widget>[
+            Expanded(
+              flex: 9,
+              child: cardEvent(
+                e: e,
+                hourHeight: 140,
+                buttonArea: true,
+              ),
             ),
-          ),
-        ]),
-        SizedBox(height: 15)
-      ]);
+            SizedBox(height: 15)
+          ]);
 }
 
-Widget _viewDateHeader(DateTime dateEvent) {
+List<Widget> _viewDateHeader(DateTime dateEvent) {
   int day = dateEvent.day;
   var formatter = new DateFormat('MMMM yyyy', 'it_IT');
   String meseAnno = formatter.format(dateEvent);
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
-      Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Text(
-              '$day',
-              style: dayWaitingEvent,
+  List<Widget> r = new List<Widget>();
+  r.add(
+        Row(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: Text(
+                '$day',
+                style: dayWaitingEvent,
+              ),
             ),
-          ),
-          Expanded(
-            flex: 10,
-            child: Text(
-              meseAnno.toUpperCase(),
-              style: datWaitingEvent,
+            Expanded(
+              flex: 10,
+              child: Text(
+                meseAnno.toUpperCase(),
+                style: datWaitingEvent,
+              ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: IconButton(
-                icon: new Icon(Icons.today),
-                alignment: Alignment.centerRight,
-                color: Colors.grey,
-                onPressed: () => _onDaySelected(dateEvent)),
-          ),
-        ],
-      ),
-      Row(
-        children: <Widget>[
-          Expanded(
-            flex: 9,
-            child: Center(
-              child: new Container(
-                  margin: const EdgeInsets.only(
-                      left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
-                  child: Divider(
-                    color: Colors.grey,
-                    height: 0,
-                  )),
+            Expanded(
+              flex: 1,
+              child: IconButton(
+                  icon: new Icon(Icons.today),
+                  alignment: Alignment.centerRight,
+                  color: Colors.grey,
+                  onPressed: () => _onDaySelected(dateEvent)),
             ),
-          ),
-        ],
-      ),
-    ],
+          ],
+        ),
   );
+  r.add(
+        Row(
+          children: <Widget>[
+            Expanded(
+              flex: 9,
+              child: Center(
+                child: new Container(
+                    margin: const EdgeInsets.only(
+                        left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
+                    child: Divider(
+                      color: Colors.grey,
+                      height: 0,
+                    )),
+              ),
+            ),
+          ],
+        ),
+
+
+  );
+  return r;
+
 }
 
 }

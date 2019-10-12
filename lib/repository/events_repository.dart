@@ -29,7 +29,7 @@ class EventsRepository {
 
   @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
-    var docs = await collection.where("DataInizio",isLessThanOrEqualTo:selectedDay).getDocuments();
+    var docs = await collection.where("DataInizio",isLessThan:new DateTime.now()).where("DataFine",isGreaterThan: selectedDay).getDocuments();
     return docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
           .toList();
   }

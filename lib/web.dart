@@ -5,11 +5,13 @@ import 'dart:async';
 import 'package:fb_auth/fb_auth.dart';
 import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:js/js.dart';
@@ -84,7 +86,7 @@ class _MyAppState extends State<MyApp> {
       home: MyAppWeb(isLoggedIn: _isLoggedIn, user: _user, actionLogOut: _onLogOut),
       routes: {
         //global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
-        global.Constants.logInRoute: (context) => LogIn(_onLogin),
+        global.Constants.logInRoute: (context) => LogIn(_onLogin,null),
       },
     );
   }
@@ -116,7 +118,7 @@ class _MyAppState extends State<MyApp> {
       _isLoggedIn = false; //this tells the backdrop to navigate to login page
       _user = null;
     });
-    Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.logInRoute,null));
   }
 
 }
@@ -153,7 +155,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     Timer.run(() {
     if (widget.isLoggedIn == false) {
       jQuery("#calendar").html("");
-      Navigator.of(context).pushReplacementNamed(global.Constants.logInRoute);
+      BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.logInRoute,null));
     }
     });
   }
