@@ -1,20 +1,23 @@
 @JS()
 library jquery;
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:fb_auth/fb_auth.dart';
-import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
+import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:js/js.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
+
+import 'bloc/authentication_bloc/authentication_bloc.dart';
+import 'bloc/backdrop_bloc/backdrop_bloc.dart';
 
 final _auth = FBAuth();
 final tabellaUtenti = 'Utenti';
@@ -30,6 +33,9 @@ external void login(String email);
 
 @JS()
 external void initCalendar();
+
+@JS()
+external dynamic cookieJar(String cookie, String value);
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -70,69 +76,39 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  bool _isLoggedIn = null;
-  dynamic _user = null;
-
-  @override
-  void initState() {
-    _onLogin(null);
-  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: customLightTheme,
-      home: MyAppWeb(isLoggedIn: _isLoggedIn, user: _user, actionLogOut: _onLogOut),
-      routes: {
-        //global.Constants.resetCodeRoute: (context) => ResetCode("1235"),
-        global.Constants.logInRoute: (context) => LogIn(_onLogin,null),
-      },
+      home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+        builder: (context, state) {
+          if (state is Unauthenticated) {
+            dynamic c = cookieJar("user", null);
+            if(c != null && c != ""){
+              Map<String, dynamic> map = jsonDecode(c);
+              AuthUser u = AuthUser(uid: map["uid"],email: map["uid"],displayName: map["displayName"],isAnonymous: map["isAnonymous"],isEmailVerified: map["isEmailVerified"],);
+              BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn(u));
+              return SplashScreen();
+            }
+            jQuery("#calendar").html("");
+            return LogIn();
+          }else if (state is Authenticated) {
+            cookieJar("user", '{"uid":"${state.user.uid}","email":"${state.user.email}","displayName":"${state.user.displayName}","isAnonymous":"${state.user.isAnonymous}","isEmailVerified":"${state.user.isEmailVerified}"}');
+            return MyAppWeb(state.user, state.isSupervisor);
+          }
+          return SplashScreen();
+        },
+      ),
     );
   }
-
-  /// Function to setup the user
-  void _onLogin(AuthUser user) async {
-    if(user == null){
-      //check status and get role
-      user = await _auth.currentUser();
-      if(user == null){
-        //go to the login page (you can't do it from here)
-        setState(() {
-          _isLoggedIn = false; //this tells the backdrop to navigate to login page
-        });
-        return;
-      }else{
-        login(user.email);
-        setState(() {
-          _isLoggedIn = true; //this tells the backdrop to navigate to login page
-          _user = user;
-        });
-      }
-    }
-  }
-
-  void _onLogOut() async {
-    _auth.logout();
-    setState(() {
-      _isLoggedIn = false; //this tells the backdrop to navigate to login page
-      _user = null;
-    });
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.logInRoute,null));
-  }
-
 }
 
 class MyAppWeb extends StatefulWidget {
-  final bool isLoggedIn;
-  final dynamic user;
-  final Function actionLogOut;
-
-  const MyAppWeb({Key key,
-    @required this.isLoggedIn,
-    @required this.user,
-    @required this.actionLogOut
-    }) : super(key: key);
+  final AuthUser user;
+  final bool isSupervisor;
+  const MyAppWeb(this.user, this.isSupervisor, {Key key}) : super(key: key);
 
   @override
   _MyAppWebState createState() => _MyAppWebState();
@@ -141,23 +117,15 @@ class MyAppWeb extends StatefulWidget {
 class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   CalendarController _calendarController;
   String _dateCalendar;
+
   @override
   void initState() {
     super.initState();
     _calendarController = CalendarController();
     _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString():"";
     initJs2Dart(this);
-  }
-
-  @override
-  void didUpdateWidget(MyAppWeb old) {
-    super.didUpdateWidget(old);
-    Timer.run(() {
-    if (widget.isLoggedIn == false) {
-      jQuery("#calendar").html("");
-      BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.logInRoute,null));
-    }
-    });
+    initCalendar();
+    updateDateCalendar();
   }
 
   @override
@@ -214,7 +182,10 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                           child: Row(children: <Widget>[
                             IconButton(
                               icon: Icon(Icons.supervisor_account,),
-                              onPressed: (){widget.actionLogOut();},
+                              onPressed: (){
+                                cookieJar("user", "");
+                                BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedOut());
+                              },
                             ),
                             Text(c, textAlign: TextAlign.right,style: title_rev),
                             Text(n, textAlign: TextAlign.right,style: subtitle_rev),
@@ -251,7 +222,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           Container(
             margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
             child: RaisedButton(
-                onPressed: (){},
+                onPressed: ()=>showDialogWindow("new_event", null),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
                   children: <Widget>[
@@ -334,7 +305,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     var dialogContainer;
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(event:Event.fromMap(param.id, param));}break;
+      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param));}break;
+      case "new_event":{dialogContainer = EventCreator(null);}break;
     }
     showDialog(
       context: context,
