@@ -7,10 +7,12 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
  */
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dart:math';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import '../utils/theme.dart';
@@ -193,7 +195,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
     setState(() {
       _selectedEvents = events;
     });
-    Navigator.of(context).pushReplacementNamed(global.Constants.dailyCalendarRoute,arguments: day);
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,day));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

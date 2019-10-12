@@ -2,7 +2,9 @@ import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 final _auth = FBAuth();
@@ -37,8 +39,7 @@ class _LogInState extends State<LogIn> {
   }
 
   void _navigateToReset() {
-    Navigator.of(context).pushNamedAndRemoveUntil(Constants.resetCodeRoute,
-            (Route<dynamic> route) => false);
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.resetCodeRoute, null));
   }
 
   @override
