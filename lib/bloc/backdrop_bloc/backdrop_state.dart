@@ -7,12 +7,13 @@ abstract class BackdropState extends Equatable {
 
 class Ready extends BackdropState {
   final String route;
-  final dynamic arg;
+  final dynamic content;
+  final dynamic subscription;
 
-  Ready([this.route, this.arg]) : super([route,arg]);
+  Ready([this.route, this.content, this.subscription]) : super([route,content,subscription]);
 
   @override
-  List<Object> get props => [route,arg];
+  List<Object> get props => [route,content,subscription];
 }
 
 class NotReady extends BackdropState {

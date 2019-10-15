@@ -10,11 +10,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'dart:math';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import '../utils/theme.dart';
@@ -39,15 +39,14 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   CalendarController _calendarController;
   double _gridHourHeight;
   int _gridHourSpan;
+  bool ready = false;
 
   @override
   void initState() {
     super.initState();
     //carica gli eventi
-    _selectedDay = widget.day!=null?widget.day:Utils.formatDate(DateTime.now());
-    BlocProvider.of<EventsBloc>(context).dispatch(LoadEventsOnce(_selectedDay));
+    _selectedDay = widget.day!=null?widget.day:Utils.formatDate(DateTime.now(), "day");
     _events = Map();
-    _selectedEvents = _events[_selectedDay] ?? [];
     _calendarController = CalendarController();
     _animationController = AnimationController(
       vsync: this,
@@ -69,30 +68,32 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EventsBloc, EventsState>(
-    builder: (context, state) {
-      if (state is Loaded) {
-        _events[state.selectedDay] = state.events;
-//        BlocProvider.of<EventsBloc>(context).dispatch(Done());
-//      } else if (state is Loaded) {
-        initList();
-        return Material(
-          elevation: 12.0,
-          borderRadius: new BorderRadius.only(
-              topLeft: new Radius.circular(16.0),
-              topRight: new Radius.circular(16.0)),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              _buildTableCalendarWithBuilders(),
-              const SizedBox(height: 8.0),
-              Expanded(child: _buildEventList()),
-            ],
-          ),
-        );
-      }
-      return SplashScreen();
-    }
-  );
+        builder: (context, state) {
+          if (state is Loaded) {
+            //get data
+            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(_selectedDay));
+            ready = true;
+          }else if(state is Filtered && ready){
+            if(state.events.length>0)_events[state.selectedDay] = state.events;
+            initList();
+            return Material(
+              elevation: 12.0,
+              borderRadius: new BorderRadius.only(
+                  topLeft: new Radius.circular(16.0),
+                  topRight: new Radius.circular(16.0)),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  _buildTableCalendarWithBuilders(),
+                  const SizedBox(height: 8.0),
+                  Expanded(child: _buildEventList()),
+                ],
+              ),
+            );
+          }
+          return SplashScreen();
+        }
+    );
   }
 
   //--CALENDAR
@@ -173,7 +174,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       onVisibleDaysChanged: _onVisibleDaysChanged,
       selectNext: () {
         BlocProvider.of<BackdropBloc>(context).dispatch(
-            NavigateEvent(global.Constants.monthlyCalendarRoute, null));
+            NavigateEvent(global.Constants.monthlyCalendarRoute, Utils.formatDate(_selectedDay, "month")));
       },
       selectPrevious: (){},
     );
@@ -213,13 +214,14 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   //--EVENT LIST
   Widget _buildEventList() {
     return ListView(
-//      shrinkWrap: true,
+      //shrinkWrap: true,
         children: <Widget>[
           Stack(
               children: <Widget>[
                 Column(
                     children: _buildBack((16/_gridHourSpan).toInt()) //16 sono le ore della griglia
-                ),Column(
+                )
+                ,Column(
                     children: _buildFront()
                 ),
               ]
@@ -327,48 +329,14 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
 
   //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    _selectedDay = Utils.formatDate(day);
-    BlocProvider.of<EventsBloc>(context).dispatch(LoadEventsOnce(Utils.formatDate(day)));
+    _selectedDay = Utils.formatDate(day, "day");
+    BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(Utils.formatDate(day, "day")));
   }
 
-  void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-//    int period = 1;
-//    DateTime s = Utils.formatDate(first);
-//    if(format == CalendarFormat.week)period=7;
-//    else if(format == CalendarFormat.month)period=30;
-//    for(int i=0; i<period; i++){
-//      _readEvents(s.add(new Duration(days: i)));
-//    }
-  }
+  void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {}
 
   void _onCardClicked(Event ev) {
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.detailsEventViewRoute,ev));
+    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+    => new DetailsEvent(ev)));
   }
-
-  void _deleteEvent(Event ev) {
-    PlatformUtils.fire.collection("Eventi").document(ev.id).delete();
-  }
-
-  void _readEvents(DateTime day) async {
-    //dispatch() query eventi
-    //TODO query
-    DateTime parsedDate = Utils.formatDate(day);
-    List<Event> l = List();
-    var documents = await PlatformUtils.fire.collection("Eventi").getDocuments();
-    for (var document in documents.documents) {
-      if (document != null && document.exists) {
-//        l.add(Event.fromMap(document.documentID, document.data));
-      }
-    }
-    setState(() {
-      _events[parsedDate] = l;
-    });
-  }
-
-  //METODI DI UTILITY
-  String getTitle(Event e){
-    return e.title;
-  }
-
-
 }

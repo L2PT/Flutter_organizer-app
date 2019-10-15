@@ -30,16 +30,18 @@ class EventsRepository {
 
   @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
-    var docs = await collection.where("DataInizio",isLessThan:new DateTime.now()).where("DataFine",isGreaterThan: selectedDay).getDocuments();
-    return docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
+    var docs = await collection.where("days",isGreaterThanOrEqualTo:new DateTime.now().day).getDocuments();
+    List a = docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
           .toList();
+    print(a.length);
+    return a;
   }
   
   @override
   Stream<List<Event>> events() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
+          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
           .toList();
     });
   }

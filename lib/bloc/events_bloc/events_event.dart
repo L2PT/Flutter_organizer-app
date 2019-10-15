@@ -5,22 +5,36 @@ abstract class EventsEvent extends Equatable {
   EventsEvent([List props = const []]);
 }
 
-class LoadEventsOnce extends EventsEvent {
+class LoadEvents extends EventsEvent {
+  final dynamic subscription;
+
+  LoadEvents(this.subscription) : super([subscription]);
+
+  @override
+  List<Object> get props => [subscription];
+}
+
+class FilterEventsByDay extends EventsEvent {
   final DateTime selectedDay;
 
-  LoadEventsOnce(this.selectedDay) : super([selectedDay]);
+  FilterEventsByDay(this.selectedDay) : super([selectedDay]);
 
   @override
   List<Object> get props => [selectedDay];
 }
 
-class LoadEvents extends EventsEvent {
+class FilterEventsByMonth extends EventsEvent {
   final DateTime selectedDay;
 
-  LoadEvents(this.selectedDay) : super([selectedDay]);
+  FilterEventsByMonth(this.selectedDay) : super([selectedDay]);
 
   @override
   List<Object> get props => [selectedDay];
+}
+
+class FilterEventsByWaiting extends EventsEvent {
+  @override
+  List<Object> get props => [];
 }
 
 class AddEvent extends EventsEvent {
@@ -52,15 +66,19 @@ class DeleteEvent extends EventsEvent {
 
 class EventsUpdated extends EventsEvent {
   final List<Event> events;
-  final DateTime selectedDay;
 
-  EventsUpdated(this.events, this.selectedDay);
+  EventsUpdated(this.events);
 
   @override
-  List<Object> get props => [events, selectedDay];
+  List<Object> get props => [events];
 }
 
 class Done extends EventsEvent {
+  final List<Event> events;
+  final DateTime selectedDay;
+
+  Done(this.events, this.selectedDay);
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [events,selectedDay];
 }

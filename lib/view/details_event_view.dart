@@ -191,139 +191,147 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
   //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
-    return new Material(
-        elevation: 12.0,
-        child: Stack(
-            children: <Widget>[
-              Container(
-                  child: Column(
-                      children: <Widget>[Expanded(
-                        flex: 6,
-                        child: Row(
-                            children: <Widget>[
-                              Expanded(
-                                flex: 5,
-                                child: Container(color: dark),
-                              ),
-                              Expanded(
-                                flex: 5,
-                                child: Container(color: c),
-                              )
-                            ]
-                        ),
-                      ),Expanded(
-                        flex: 4,
-                        child: Container(color: grey),
-                      )
-                    ]
-                  )
-              ),
-              Container(
-                  child: Column(
-                      children: <Widget>[
-                        Container(
-                          decoration: BoxDecoration(
-                            color: c,
-                            borderRadius: BorderRadius.vertical(bottom: Radius.circular(30.0))
-                          ),
-                          height: 100,
-                          child: Row(
-                            children: <Widget>[
-                              SizedBox(
-                                width: 50,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: dark,
-                                    borderRadius: BorderRadius.all(Radius.circular(25.0))
-                                ),
-                                width: 45,
-                                height: 80,
-                                padding: EdgeInsets.only(right: 5),
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                child: Center(
-                                  child: Text(dateToText, style: title_rev.copyWith(fontSize: 18)),
-                                )
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+        appBar: AppBar(
+            title: Text('Intervento'),
+            leading: IconButton(icon:Icon(Icons.arrow_back, color: white),
+              onPressed:() => Navigator.pop(context, false),
+            )
+        ),
+        body: Material(
+            elevation: 12.0,
+            child: Stack(
+                children: <Widget>[
+                  Container(
+                      child: Column(
+                          children: <Widget>[Expanded(
+                            flex: 6,
+                            child: Row(
                                 children: <Widget>[
-                                  SizedBox(height: 20),
-                                  Text(widget.event.title.toUpperCase(), style: title),
-                                  Text(widget.event.category.toUpperCase(), style: subtitle.copyWith(color: dark)),
-                                ],
-                              )
-                            ],
-                          ),
-                      ),Expanded(
-                          child:Row(
-                            children: <Widget>[
-                              Expanded(
-                                child:Container(
-                                  decoration: BoxDecoration(
-                                      color: dark,
-                                      borderRadius: BorderRadius.all(Radius.circular(40.0))
+                                  Expanded(
+                                    flex: 5,
+                                    child: Container(color: dark),
                                   ),
-                                  child: Column(
-                                    children: <Widget>[
-                                      SizedBox(height: 20,),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          color: whitebackground,
-                                          borderRadius: BorderRadius.all(Radius.circular(30.0))
-                                      ),
-                                        child: new TabBar(
-                                          isScrollable: true,
-                                          unselectedLabelColor: Colors.grey,
-                                          labelColor: Colors.white,
-                                          indicatorSize: TabBarIndicatorSize.tab,
-                                          indicator: new BubbleTabIndicator(
-                                            indicatorHeight: 40.0,
-                                            indicatorColor: c,
-                                            tabBarIndicatorSize: TabBarIndicatorSize.tab,
-                                          ),
-                                          tabs: tabsHeaders,
-                                          controller: _tabController,
-                                        ),
-                                      ),Expanded(
-                                        child: new TabBarView(
-                                          controller: _tabController,
-                                          children: tabsContents.map((Widget tab) {
-                                            return tab;
-                                          }).toList(),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
+                                  Expanded(
+                                    flex: 5,
+                                    child: Container(color: c),
+                                  )
+                                ]
+                            ),
+                          ),Expanded(
+                            flex: 4,
+                            child: Container(color: grey),
+                          )
+                          ]
+                      )
+                  ),
+                  Container(
+                      child: Column(
+                          children: <Widget>[
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: c,
+                                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(30.0))
                               ),
-                              Container(
-                                width: 10,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                    color: c,
-                                    borderRadius: BorderRadius.all(Radius.circular(15.0))
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Container(
-                          height: 65,
-                          child: Row(
-                            children: <Widget>[
-                              SizedBox(width: 30,),
-                              Icon(Icons.notifications, size: 40,),
-                              Text("Avvisami (15m)", style: subtitle_rev),
-                              SizedBox(width: 30),
-                              Switch(value: true, activeColor: c, onChanged: (v){})
-                            ],
-                          ),
-                        )
-                      ]
-                  )
-              ),
-            ]
+                              height: 100,
+                              child: Row(
+                                children: <Widget>[
+                                  SizedBox(
+                                    width: 50,
+                                  ),
+                                  Container(
+                                      decoration: BoxDecoration(
+                                          color: dark,
+                                          borderRadius: BorderRadius.all(Radius.circular(25.0))
+                                      ),
+                                      width: 45,
+                                      height: 80,
+                                      padding: EdgeInsets.only(right: 5),
+                                      margin: EdgeInsets.symmetric(horizontal: 10),
+                                      child: Center(
+                                        child: Text(dateToText, style: title_rev.copyWith(fontSize: 18)),
+                                      )
+                                  ),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      SizedBox(height: 20),
+                                      Text(widget.event.title.toUpperCase(), style: title),
+                                      Text(widget.event.category.toUpperCase(), style: subtitle.copyWith(color: dark)),
+                                    ],
+                                  )
+                                ],
+                              ),
+                            ),Expanded(
+                              child:Row(
+                                children: <Widget>[
+                                  Expanded(
+                                    child:Container(
+                                      decoration: BoxDecoration(
+                                          color: dark,
+                                          borderRadius: BorderRadius.all(Radius.circular(40.0))
+                                      ),
+                                      child: Column(
+                                        children: <Widget>[
+                                          SizedBox(height: 20,),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                                color: whitebackground,
+                                                borderRadius: BorderRadius.all(Radius.circular(30.0))
+                                            ),
+                                            child: new TabBar(
+                                              isScrollable: true,
+                                              unselectedLabelColor: Colors.grey,
+                                              labelColor: Colors.white,
+                                              indicatorSize: TabBarIndicatorSize.tab,
+                                              indicator: new BubbleTabIndicator(
+                                                indicatorHeight: 40.0,
+                                                indicatorColor: c,
+                                                tabBarIndicatorSize: TabBarIndicatorSize.tab,
+                                              ),
+                                              tabs: tabsHeaders,
+                                              controller: _tabController,
+                                            ),
+                                          ),Expanded(
+                                            child: new TabBarView(
+                                              controller: _tabController,
+                                              children: tabsContents.map((Widget tab) {
+                                                return tab;
+                                              }).toList(),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 10,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                        color: c,
+                                        borderRadius: BorderRadius.all(Radius.circular(15.0))
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            Container(
+                              height: 65,
+                              child: Row(
+                                children: <Widget>[
+                                  SizedBox(width: 30,),
+                                  Icon(Icons.notifications, size: 40,),
+                                  Text("Avvisami (15m)", style: subtitle_rev),
+                                  SizedBox(width: 30),
+                                  Switch(value: true, activeColor: c, onChanged: (v){})
+                                ],
+                              ),
+                            )
+                          ]
+                      )
+                  ),
+                ]
+            )
         )
     );
   }

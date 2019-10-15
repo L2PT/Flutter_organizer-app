@@ -10,7 +10,7 @@ class Event {
   String _category="";
   String _color="";
   String _op="";
-  List<String> _subops = new List();
+  List<dynamic> _subops = new List();
 
   Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._op, this._subops);
   Event.empty();
