@@ -12,14 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import 'dart:async';
-
-import 'package:fb_auth/fb_auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:bloc/bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
@@ -30,11 +23,8 @@ import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
-import 'package:loading/loading.dart';
-import 'package:loading/indicator/ball_pulse_indicator.dart';
 import 'package:meta/meta.dart';
 import 'package:venturiautospurghi/view/waiting_event_view.dart';
-import '../models/event.dart';
 import '../utils/theme.dart';
 import 'form_event_creator_view.dart';
 import 'monthly_calendar_view.dart';

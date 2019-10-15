@@ -11,6 +11,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/view/widget/persistenNotification_widget.dart';
 
 final _auth = FBAuth();
 
@@ -29,7 +30,7 @@ class _waitingEventState extends State<waitingEvent> {
   void initState()  {
     super.initState();
     user = BlocProvider.of<BackdropBloc>(context).user;
-    BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(Utils.formatDate(DateTime.now())));
+    BlocProvider.of<EventsBloc>(context).dispatch(LoadEventsOnce(Utils.formatDate(DateTime.now())));
   }
 
   @override
@@ -37,6 +38,7 @@ class _waitingEventState extends State<waitingEvent> {
     return BlocBuilder<EventsBloc, EventsState>(
         builder: (context, state) {
           if (state is Loaded) {
+            dataCorrente = null;
             return Material(
               elevation: 12.0,
               borderRadius: new BorderRadius.only(

@@ -17,6 +17,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
+import 'package:venturiautospurghi/view/widget/persistenNotification_widget.dart';
 import '../utils/theme.dart';
 import '../models/event.dart';
 
@@ -68,7 +69,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EventsBloc, EventsState>(
+    /*return BlocBuilder<EventsBloc, EventsState>(
     builder: (context, state) {
       if (state is Loaded) {
         _events[state.selectedDay] = state.events;
@@ -92,7 +93,8 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       }
       return SplashScreen();
     }
-  );
+  ); */
+    return persistenNotification();
   }
 
   //--CALENDAR
