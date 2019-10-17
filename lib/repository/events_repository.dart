@@ -51,4 +51,13 @@ class EventsRepository {
         .document(update.id)
         .updateData(update.toDocument());
   }
+
+  @override
+  Stream<List<Event>> eventsWating() {
+    return collection.snapshots().map((snapshot) {
+      return snapshot.documents
+          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .toList();
+    });
+  }
 }

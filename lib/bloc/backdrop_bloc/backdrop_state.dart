@@ -22,6 +22,15 @@ class NotReady extends BackdropState {
   List<Object> get props => [];
 }
 
+class NotificationWatingEvent extends BackdropState {
+  final List<Event> watingEvent;
+
+  NotificationWatingEvent(this.watingEvent) : super(watingEvent);
+
+  @override
+  List<Object> get props => [watingEvent];
+}
+
 
 
 

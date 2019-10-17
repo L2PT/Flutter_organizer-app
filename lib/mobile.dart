@@ -37,7 +37,7 @@ class _MyAppState extends State<MyApp> {
                 return BlocProvider(
                     builder: (context) {
                       firebaseCloudMessaging_Listeners(state.user);
-                      return BackdropBloc(state.user, state.isSupervisor)..dispatch(NavigateEvent(global.Constants.homeRoute,null));
+                      return BackdropBloc(state.user, state.isSupervisor)..dispatch(InitAppEvent());//dispatch(NavigateEvent(global.Constants.homeRoute,null));
                       },
                     child: Backdrop()
                 );

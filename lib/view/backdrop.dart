@@ -28,6 +28,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:venturiautospurghi/view/waiting_event_view.dart';
+import 'package:venturiautospurghi/view/widget/persistenNotification_widget.dart';
 import '../models/event.dart';
 import '../utils/theme.dart';
 import 'form_event_creator_view.dart';
@@ -131,7 +132,17 @@ class _BackdropState extends State<Backdrop>
               )
             );
           }
-          return Container(
+          if(state is  NotificationWatingEvent){
+            return Scaffold(
+                appBar: AppBar(
+                  leading: new IconButton(
+                    icon: Icon(Icons.dehaze)
+                  ),
+                ),
+                body: persistenNotification()
+            );
+          }
+            return Container(
             child: SplashScreen(),
           );
         }

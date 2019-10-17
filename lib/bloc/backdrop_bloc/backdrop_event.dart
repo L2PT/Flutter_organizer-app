@@ -14,3 +14,17 @@ class NavigateEvent extends BackdropEvent {
   @override
   List<Object> get props => [route,arg];
 }
+
+class InitAppEvent extends BackdropEvent {
+  @override
+  List<Object> get props => [];
+}
+
+class CreateNoficationEvent extends BackdropEvent {
+  final List<Event> watingEvent;
+
+  CreateNoficationEvent(this.watingEvent) : super(watingEvent);
+
+  @override
+  List<Object> get props => [watingEvent];
+}

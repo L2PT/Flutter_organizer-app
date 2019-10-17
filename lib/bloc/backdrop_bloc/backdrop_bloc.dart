@@ -32,6 +32,13 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
     if (event is NavigateEvent) {
       yield* _mapUpdateViewToState(event);
     }
+    if(event is InitAppEvent) {
+      yield* _mapInitAppToState(event);
+    }
+    if(event is CreateNoficationEvent) {
+      yield* _mapCreateNoficationEvent(event);
+    }
+
   }
 
   Stream<BackdropState> _mapUpdateViewToState(NavigateEvent event) async* {
@@ -92,4 +99,14 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
 
   }
 
+  Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
+    eventsRepository.eventsWating().listen((events) =>
+        CreateNoficationEvent(events)
+    );
+    dispatch(NavigateEvent(global.Constants.homeRoute,null));
+  }
+
+  Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
+    yield NotificationWatingEvent(event.watingEvent);
+  }
 }

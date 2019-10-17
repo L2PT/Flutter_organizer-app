@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class cardEvent extends StatelessWidget {
   final Event e;
@@ -50,7 +50,7 @@ class cardEvent extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
-                        color: Color(global.Constants().category[e.category])),
+                        color: HexColor(e.color)),
                     width: 6,
                     height: heightBar,
                     margin: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -69,8 +69,7 @@ class cardEvent extends StatelessWidget {
                         ),
                         Text(e.category,
                             style: subtitle_rev.copyWith(
-                                color: Color(
-                                    global.Constants().category[e.category]))),
+                                color: HexColor(e.color))),
                       ],
                     ),
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -85,7 +84,7 @@ class cardEvent extends StatelessWidget {
                       child: new Text('RIFIUTA', style: button_card),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                      color: Color(global.Constants().category[e.category]),
+                      color: HexColor(e.color),
                       elevation: 15,
                       onPressed: () => _actionRifiuta(),
                     ),
@@ -96,7 +95,7 @@ class cardEvent extends StatelessWidget {
                       child: new Text('CONFERMA', style: button_card),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                      color: Color(global.Constants().category[e.category]),
+                      color: HexColor(e.color),
                       elevation: 15,
                       onPressed: () => _actionConferma(),
                     ),
@@ -129,7 +128,7 @@ class cardEvent extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
-                        color: Color(global.Constants().category[e.category])),
+                        color: HexColor(e.color)),
                     width: 6,
                     height: heightBar,
                     margin: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -144,8 +143,7 @@ class cardEvent extends StatelessWidget {
                         ),
                         Text(e.category,
                             style: subtitle_rev.copyWith(
-                                color: Color(
-                                    global.Constants().category[e.category]))),
+                                color: HexColor(e.color))),
                       ],
                     ),
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
