@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
+import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:datetime_picker_formfield/time_picker_formfield.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
 
 class OperatorList extends StatefulWidget {
   OperatorList({ Key key }) : super(key: key);
@@ -13,134 +18,70 @@ class OperatorList extends StatefulWidget {
 }
 
 class _OperatorListState extends State<OperatorList>{
-  final dateFormat = DateFormat("dd MM yy");
+  final dateFormat = DateFormat("dd-MM-yy");
   final timeFormat = DateFormat("h:mm a");
   final _filtersKey = new GlobalKey<FormState>();
-  final TextEditingController _searchQuery = new TextEditingController();
-  List<String> _list;
-  bool _IsSearching;
-  bool _filters;
-  DateTime _filterDate;
-  DateTime _filterTime;
-  String _searchText = "";
+  final TextEditingController _stringFilter = new TextEditingController();
+  DateTime _dateFilter = Utils.formatDate(DateTime.now(), "day");
+  bool _filters = false;
+  bool ready = false;
 
   _SearchListState() {
-    _searchQuery.addListener(() {
-      if (_searchQuery.text.isEmpty) {
-        setState(() {
-          _IsSearching = false;
-          _searchText = "";
-        });
+    _stringFilter.addListener(() {
+      if (_stringFilter.text.isEmpty) {
+        BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterString(null));
       }
       else {
-        setState(() {
-          _IsSearching = true;
-          _searchText = _searchQuery.text;
-        });
+        BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterString(_stringFilter.text));
       }
     });
   }
 
   @override
   void initState() {
-    super.initState();
-    _IsSearching = false;
-    _filters = false;
-    init();
+    _SearchListState();
   }
-
-  void init() {
-    _list = List();
-    _list.add("Google");
-    _list.add("IOS");
-    _list.add("Android");
-    _list.add("Dart");
-    _list.add("Flutter");
-    _list.add("Python");
-    _list.add("React");
-    _list.add("Xamarin");
-    _list.add("Kotlin");
-    _list.add("Java");
-    _list.add("RxAndroid");
-  }
-  /*
-  /////////////////////////////////////////////////////////////////
-  CHESSIFA QUI?
-  1.Firebase fa UNA richiesta e lavoriamo su un array dato filtrando a posteriori
-  2.Firebase fa TANTE richieste quindi i dati arrivano già filtrati e non ci resta che mostrare l'array
-
-  ////////////////////////////////////////////////////////////////
-  */
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      color: whitebackground,
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 8.0),
-            logo,
-            Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: searchBar()
-            ),
-            Visibility(
-              child: filtersBox(),
-              visible: _filters,
-            ),
-            resultList(1)
-          ],
-        ),
-    );
-  }
-
-
-  Widget resultList(int mode) {
-    if(mode==1){
-      return Expanded(
-        child: ListView(
-          padding: new EdgeInsets.symmetric(vertical: 8.0),
-          children: _IsSearching ? _buildSearchList() : _buildList(),
-        ),
-      );
-    }else if(mode == 2){
-      return Expanded(
-        child: ListView.builder(
-          shrinkWrap: true,
-          itemCount: _list.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text('${_list[index]}'),
-            );
-          },
-        ),
-      );
-    }
-  }
-
-////METODI PER METODO 1
-  List<ChildItem> _buildList() {
-    return _list.map((contact) => new ChildItem(contact)).toList();
-  }
-
-  List<ChildItem> _buildSearchList() {
-    if (_searchText.isEmpty) {
-      return _list.map((contact) => new ChildItem(contact))
-          .toList();
-    }
-    else {
-      List<String> _searchList = List();
-      for (int i = 0; i < _list.length; i++) {
-        String  name = _list.elementAt(i);
-        if (name.toLowerCase().contains(_searchText.toLowerCase())) {
-          _searchList.add(name);
+    return BlocBuilder<OperatorsBloc, OperatorsState>(
+      builder: (context, state) {
+        if (state is Loaded) {
+          //get data
+          BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilters(null,null));
+          ready = true;
+        }else if(state is Filtered && ready){
+          return Material(
+            elevation: 12.0,
+            borderRadius: new BorderRadius.only(
+                topLeft: new Radius.circular(16.0),
+                topRight: new Radius.circular(16.0)),
+            child: Column(
+              children: <Widget>[
+                SizedBox(height: 8.0),
+                logo,
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: searchBar()
+                ),
+                Visibility(
+                  child: filtersBox(),
+                  visible: _filters,
+                ),
+                Expanded(
+                  child: ListView(
+                    padding: new EdgeInsets.symmetric(vertical: 8.0),
+                    children: state.operators.map((contact) => new ChildItem(contact)).toList(),
+                  ),
+                )
+              ],
+          )
+          );
         }
+        return SplashScreen();
       }
-      return _searchList.map((contact) => new ChildItem(contact))
-          .toList();
-    }
+  );
   }
-////END
 
   Widget searchBar() {
     return DecoratedBox(
@@ -148,20 +89,27 @@ class _OperatorListState extends State<OperatorList>{
             color: dark,
             borderRadius: BorderRadius.all(Radius.circular(15.0))
         ),
-        child: TextField(
-          style: new TextStyle(color: white),
-          controller: _searchQuery,
-          decoration: InputDecoration(
-            prefixIcon: new Icon(Icons.search, color: white,),
-            suffixIcon: IconButton(
+        child: Row(
+          children: <Widget>[
+            Expanded(
+              child: TextField(
+                style: new TextStyle(color: white),
+                controller: _stringFilter,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  prefixIcon: new Icon(Icons.search, color: white,),
+                  hintText: "Cerca un operatore",
+                ),
+              ),
+            ), IconButton(
               icon: new Icon((!_filters)?Icons.tune:Icons.keyboard_arrow_up, color: white),
               onPressed: (){setState(() {
                 _filters = !_filters;
               });},
             ),
-            hintText: "Cerca un operatore",
-          ),
+          ],
         )
+
     );
   }
 
@@ -188,39 +136,52 @@ class _OperatorListState extends State<OperatorList>{
                     children: <Widget>[
                       Icon(Icons.calendar_today),
                       Container(
-                        width: 120,
-                        child: DateTimePickerFormField(
+                        width: 140,
+                        child: DateTimeField(
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
+                              border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
                           ),
-                          initialDate: DateTime.now(),
-                          initialValue: DateTime.now(),
-                          keyboardType: TextInputType.datetime,
                           style: subtitle_rev,
-                          inputType: InputType.date,
                           format: dateFormat,
-                          resetIcon: null,
-                          onSaved: (DateTime value)=>setState((){_filterDate = value;}),
+                          initialValue: _dateFilter,
+                          enabled: true,
+                          readOnly: true,
+                          onShowPicker: (context, currentValue) {
+                            return showDatePicker(
+                                context: context,
+                                firstDate: Utils.formatDate(DateTime.now(), "day"),
+                                initialDate: currentValue!=null?currentValue.year>2000?currentValue:
+                                DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
+                                    :Utils.formatDate(DateTime.now(), "day"),
+                                lastDate: DateTime(3000)
+                            );
+                          },
+                          onSaved: (DateTime value) => _dateFilter = value!=null?value.year>2000?value:
+                          DateTime(2000+value.year, value.month, value.day, value.hour, value.minute):Utils.formatDate(DateTime.now(), "day"),
                         )
                       ),
                       Icon(Icons.access_time),
                       Container(
-                        width: 120,
-                        child: DateTimePickerFormField(
+                        width: 140,
+                        child: DateTimeField(
                           decoration: InputDecoration(
-                            border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
+                              border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
                           ),
-                          initialDate: DateTime.now(),
-                          initialValue: DateTime.now(),
-                          keyboardType: TextInputType.number,
                           style: subtitle_rev,
-                          inputType: InputType.time,
                           format: timeFormat,
-                          resetIcon: null,
-                          validator: this._validateFilter,
-                          onSaved: (DateTime value)=>setState((){_filterTime = value;}),
-                        )
-                      )
+                          initialValue: DateTime(0),
+                          enabled: true,
+                          readOnly: true,
+                          onShowPicker: (context, currentValue) async {
+                            final time = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                            );
+                            return DateTimeField.convert(time);
+                          },
+                          onSaved: (DateTime value) => _dateFilter = value!=null?_dateFilter.add(Duration(hours: value.hour, minutes: value.minute)):_dateFilter
+                          ),
+                      ),
                     ],
                   )
                 )
@@ -239,39 +200,46 @@ class _OperatorListState extends State<OperatorList>{
     );
   }
 
-
-  String _validateFilter(DateTime value) {
-    if (value == null) {
-      return 'Please enter a valid period';
-    } else {
-      return null;
-    }
-  }
-
   Future _applyFilters() async {
     if (this._filtersKey.currentState.validate()) {
       _filtersKey.currentState.save();
-      print("Internal logic stuff(meotdo 1) or Firebase stuff(Metodo 2)");
-      //All in _filterDate e _filterTime
-      setState(() {
-        _filters = false;
-      });
-      Navigator.maybePop(context);
+      _filters = false;
+      print(_dateFilter);
+      BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterDate(_dateFilter));
     }
   }
-
-
-
-
 }
 
-//TODO stile del ChildItem
 class ChildItem extends StatelessWidget {
-  final String name;
-  ChildItem(this.name);
+  final Account operator;
+  ChildItem(this.operator);
   @override
   Widget build(BuildContext context) {
-    return new ListTile(title: new Text(this.name));
+    //TODO add icons by account's properties
+    return GestureDetector(
+      onTap: ()=>BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[operator,null])),
+      child: Container(
+        height: 50,
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(right: 10.0),
+              padding: EdgeInsets.all(2.0),
+              child: Icon(Icons.work, color: yellow,),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                color: dark,
+              ),
+            ),
+            Text(operator.surname.toUpperCase()+" ", style: title),
+            Text(operator.name, style: subtitle),
+            Expanded(child: Container(),),
+            Icon(Icons.local_shipping, color: dark,)
+          ],
+        ),
+      ),
+    );
   }
 
 }

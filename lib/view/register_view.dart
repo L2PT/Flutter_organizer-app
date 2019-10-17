@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import '../models/user.dart';
 
 final _auth = FBAuth();
 
@@ -266,8 +266,8 @@ class RegisterState extends State<Register> {
 
   }
 
-  Future<Utente> createUser(String uid, String nome, String cognome, String email, String telefono, String codFiscale, bool responsabile) async {
-      Firestore.instance.collection("Utenti").document(uid).setData(Utente(uid,nome,cognome,email,telefono,codFiscale,false,responsabile).toMap());
+  Future<Account> createUser(String uid, String nome, String cognome, String email, String telefono, String codFiscale, bool responsabile) async {
+      Firestore.instance.collection("Utenti").document(uid).setData(Account(uid,nome,cognome,email,telefono,codFiscale,[],"",false,responsabile).toMap());
       var dataMap = new Map<String, dynamic>();
       dataMap['CodiceFiscale'] = codFiscale;
       dataMap['Cognome'] = cognome;

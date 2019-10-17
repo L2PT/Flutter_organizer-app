@@ -51,5 +51,10 @@ class Constants {
     static const String tabellaEventi_subOpe = 'SubOperatori';
     static const String tabellaEventi_titolo = 'Titolo';
 
+    static const int EVENTS_SUB = 0;
+    static const int OPERATORS_SUB = 1;
+
+    static const String DELETE_SIGNAL = "delete_event_signal";
+    static const String MODIFY_SIGNAL = "modify_event_signal";
 
 }

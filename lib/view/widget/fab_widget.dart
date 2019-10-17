@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 
 class Fab{
   final context;
@@ -22,9 +24,16 @@ Widget FabChooser(String route, bool isSupervisor){
         backgroundColor: dark,
       );
     }
-  }else{
-    return null;
+  }else if(route == global.Constants.dailyCalendarRoute){
+    if(isSupervisor) {
+      return FloatingActionButton(
+        child: Icon(FontAwesomeIcons.plus),
+        onPressed: ()=>Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new EventCreator(null))),
+        backgroundColor: dark,
+      );
+    }
   }
+  return null;
 }
 
 void _showDialogFabSupervisor() {
@@ -47,7 +56,7 @@ void _showDialogFabSupervisor() {
                       Text("Cancella", style: customLightTheme.textTheme.title.copyWith(color: white)),
                       SizedBox(width: 10,),
                       GestureDetector(
-                        onTap: (){},
+                        onTap: (){Navigator.pop(context);Navigator.pop(context, global.Constants.DELETE_SIGNAL);},
                         child: Container(
                           height: 50,
                           width: 50,
@@ -69,7 +78,7 @@ void _showDialogFabSupervisor() {
                       Text("Modifica", style: customLightTheme.textTheme.title.copyWith(color: white)),
                       SizedBox(width: 10,),
                       GestureDetector(
-                        onTap: (){},
+                        onTap: (){Navigator.pop(context);Navigator.pop(context, global.Constants.MODIFY_SIGNAL);},
                         child: Container(
                           height: 50,
                           width: 50,
@@ -111,7 +120,7 @@ void _showDialogFabOperator() {
                       Text("Responsabile", style: customLightTheme.textTheme.title.copyWith(color: white)),
                       SizedBox(width: 10,),
                       GestureDetector(
-                        onTap: (){},
+                        onTap: (){Navigator.pop(context);},//TODO _showDialogFabOperator
                         child: Container(
                           height: 50,
                           width: 50,
@@ -133,7 +142,7 @@ void _showDialogFabOperator() {
                       Text("Ufficio", style: customLightTheme.textTheme.title.copyWith(color: white)),
                       SizedBox(width: 10,),
                       GestureDetector(
-                        onTap: (){},
+                        onTap: (){Navigator.pop(context);},//TODO _showDialogFabOperator
                         child: Container(
                           height: 50,
                           width: 50,

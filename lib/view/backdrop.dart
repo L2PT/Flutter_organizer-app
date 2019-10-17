@@ -19,6 +19,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
+import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/linkMenu.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
@@ -85,17 +86,30 @@ class _BackdropState extends State<Backdrop>
   @override
   Widget build(BuildContext context) {
     final backdropBloc = BlocProvider.of<BackdropBloc>(context);
-    return BlocProvider(
-        builder: (context) {
-        return EventsBloc(eventsRepository: backdropBloc.eventsRepository);
-      },
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<EventsBloc>(
+          builder: (context) {
+            return EventsBloc(eventsRepository: backdropBloc.eventsRepository);
+          },
+        ),BlocProvider<OperatorsBloc>(
+          builder: (context) {
+            return OperatorsBloc(eventsRepository: backdropBloc.eventsRepository);
+          },
+
+        ),
+      ],
       child: BlocBuilder<BackdropBloc, BackdropState>(
         builder: (context, state) {
           if (state is Ready) {
             //in the state there is the subscription to the data to ear for realtime changes
-            BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription));
+            if(state.subtype==global.Constants.EVENTS_SUB)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription));
+            else if(state.subtype==global.Constants.OPERATORS_SUB)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription));
             _toggleBackdropLayerVisibility(false);
-            return Scaffold(
+            return WillPopScope(
+                onWillPop: _onBackPressed,
+                child: Scaffold(
                 appBar: AppBar(
                   title: new Text(
                       (backdropBloc.isSupervisor
@@ -114,7 +128,8 @@ class _BackdropState extends State<Backdrop>
                 ),
                 floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.isSupervisor),
                 body: _buildStack(state.route, state.content)
-              );
+              )
+            );
           }
           return Container(
             child: SplashScreen(),
@@ -181,66 +196,27 @@ class _BackdropState extends State<Backdrop>
           velocity: _frontLayerVisible ? -_kFlingVelocity : _kFlingVelocity);
     }
   }
-}
 
-//////THIS CLASS IS CUSTOM POSSIAMO ELIMINARLA SE NON SERVE//////
-class _CustomTitle extends AnimatedWidget {
-  final Widget frontTitle;
-  final Widget backTitle;
-
-  const _CustomTitle({
-    Key key,
-    Listenable listenable,
-    @required this.frontTitle,
-    @required this.backTitle,
-  })  : assert(frontTitle != null),
-        assert(backTitle != null),
-        super(key: key, listenable: listenable);
-
-  @override
-  Widget build(BuildContext context) {
-    final Animation<double> animation = this.listenable;
-
-    return Stack(
-      children: <Widget>[
-        Opacity(
-          opacity: CurvedAnimation(
-            parent: ReverseAnimation(animation),
-            curve: Interval(0.5, 1.0),
-          ).value,
-          child: FractionalTranslation(
-            translation: Tween<Offset>(
-              begin: Offset.zero,
-              end: Offset(0.5, 0.0),
-            ).evaluate(animation),
-            child: Semantics(
-                label: 'hide categories menu',
-                child: ExcludeSemantics(child: backTitle)),
+  Future<bool> _onBackPressed() {
+    return showDialog(
+      context: context,
+      builder: (context) => new AlertDialog(
+        title: new Text('Sei sicuro?'),
+        content: new Text('Vuoi uscire dall''app?'),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("No"),
           ),
-        ),
-        Opacity(
-          opacity: CurvedAnimation(
-            parent: animation,
-            curve: Interval(0.5, 1.0),
-          ).value,
-          child: FractionalTranslation(
-            translation: Tween<Offset>(
-              begin: Offset(-0.25, 0.0),
-              end: Offset.zero,
-            ).evaluate(animation),
-            child: Semantics(
-                label: 'show categories menu',
-                child: ExcludeSemantics(child: frontTitle)),
+          FlatButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text("Si"),
           ),
-        ),
-      ],
-    );
+        ],
+      ),
+    ) ?? false;
   }
 }
-/////////////////////////////////////////////////////////////////
-
-
-
 
 /// Builds a BackLayer.
 ///

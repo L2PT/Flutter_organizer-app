@@ -15,6 +15,7 @@ import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
+import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import '../utils/theme.dart';
@@ -292,6 +293,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   List<Widget> _buildFront(){
+    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
     DateTime base = new DateTime(1990,1,1,6,0,0);
@@ -315,7 +317,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                   e:e,
                   hourSpan:_gridHourSpan,
                   hourHeight:_gridHourHeight,
-                  actionEvent: _onCardClicked,
+                  actionEvent: (ev)=>_onCardClicked(ev, arg),
                   buttonArea: false,
                 )
             ),
@@ -335,8 +337,15 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {}
 
-  void _onCardClicked(Event ev) {
-    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-    => new DetailsEvent(ev)));
+  void _onCardClicked(Event ev, arg) async {
+    final result = await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+    => new DetailsEvent(ev, arg)));
+    if(result == global.Constants.DELETE_SIGNAL) {
+      //TODO delete
+    }
+    if(result == global.Constants.MODIFY_SIGNAL) {
+      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+      => new EventCreator(ev)));
+    }
   }
 }

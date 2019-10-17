@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import '../utils/theme.dart';
 import '../models/event.dart';
 
 class DetailsEvent extends StatefulWidget {
   final Event event;
+  final bool isSupervisor;
 
-  DetailsEvent(@required this.event,{Key key,})  : assert(event != null),
+  DetailsEvent(@required this.event, @required this.isSupervisor, {Key key,})  : assert(event != null),
         super(key: key);
 
   @override
@@ -198,6 +202,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
               onPressed:() => Navigator.pop(context, false),
             )
         ),
+        floatingActionButton: Fab(context).FabChooser(global.Constants.detailsEventViewRoute, widget.isSupervisor),
         body: Material(
             elevation: 12.0,
             child: Stack(

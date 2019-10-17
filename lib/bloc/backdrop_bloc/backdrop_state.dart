@@ -9,11 +9,12 @@ class Ready extends BackdropState {
   final String route;
   final dynamic content;
   final dynamic subscription;
+  final int subtype;
 
-  Ready([this.route, this.content, this.subscription]) : super([route,content,subscription]);
+  Ready([this.route, this.content, this.subscription, this.subtype]) : super([route,content,subscription,subtype]);
 
   @override
-  List<Object> get props => [route,content,subscription];
+  List<Object> get props => [route,content,subscription,subtype];
 }
 
 class NotReady extends BackdropState {

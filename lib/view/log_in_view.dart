@@ -4,8 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/view/widget/responsive_widget.dart';
 
 final _auth = FBAuth();
 
@@ -39,12 +39,12 @@ class _LogInState extends State<LogIn> {
   }
 
   void _navigateToReset() {
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.resetCodeRoute, null));
+    BlocProvider.of<BackdropBloc>(context).dispatch(
+        NavigateEvent(global.Constants.resetCodeRoute, null));
   }
 
   @override
   Widget build(BuildContext context) {
-
     final emailWidget = new Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -115,7 +115,7 @@ class _LogInState extends State<LogIn> {
             child: TextFormField(
               controller: _passwordController,
               textInputAction: TextInputAction.done,
-              onFieldSubmitted: (term)=>{this._signInWithEmailAndPassword()},
+              onFieldSubmitted: (term) => {this._signInWithEmailAndPassword()},
               obscureText: true,
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -137,7 +137,7 @@ class _LogInState extends State<LogIn> {
               shape: new RoundedRectangleBorder(
                   borderRadius: new BorderRadius.circular(30.0)),
               splashColor: Colors.white,
-              color: Colors.black,
+              color: dark,
               child: new Row(
                 children: <Widget>[
                   new Padding(
@@ -158,11 +158,11 @@ class _LogInState extends State<LogIn> {
                         shape: new RoundedRectangleBorder(
                             borderRadius:
                             new BorderRadius.circular(45.0)),
-                        splashColor: Colors.black,
-                        color: Colors.white,
+                        splashColor: dark,
+                        color: white,
                         child: Icon(
                           Icons.arrow_forward,
-                          color: Colors.black,
+                          color: dark,
                         ),
                         onPressed: () => {this._signInWithEmailAndPassword()},
                       ),
@@ -228,55 +228,61 @@ class _LogInState extends State<LogIn> {
       child: new CircularProgressIndicator(),
     );
 
-    return new Scaffold(
-        backgroundColor: Colors.white,
-        appBar: new AppBar(
-          title: new Text('LOGIN'),
-          backgroundColor: Colors.black,
-        ),
-        body: Container(
-            child: Column(
+    Widget content = Padding(
+      padding: EdgeInsets.only(left: 24.0, right: 24.0),
+      child: Column(
+        children: <Widget>[
+          logo,
+          new Form(
+            key: this._formKey,
+            child: new Column(
               children: <Widget>[
-                new ClipPath(
-                  clipper: MyClipper(),
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.black,
-                      ),
-                      alignment: Alignment.center,
-                      padding: EdgeInsets.only(top: 10.0, bottom: 100.0)
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: 24.0, right: 24.0),
-                  child: Column(
-                    children: <Widget>[
-                      logo,
-                      new Form(
-                        key: this._formKey,
-                        child: new Column(
-                          children: <Widget>[
-                            emailWidget,
-                            SizedBox(height: 8.0),
-                            passwordWidget,
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 08.0),
-                      _isLoading || _success ? loadingSpinner :
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: <Widget>[
-                          loginButton,
-                        ],
-                      ),
-                      SizedBox(height: 30.0),
-                      resetPasswordText,
-                    ],
-                  ),
-                ),
+                emailWidget,
+                SizedBox(height: 8.0),
+                passwordWidget,
               ],
-            )
+            ),
+          ),
+          SizedBox(height: 08.0),
+          _isLoading || _success ? loadingSpinner :
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              loginButton,
+            ],
+          ),
+          SizedBox(height: 30.0),
+          resetPasswordText,
+        ],
+      ),
+    );
+
+    return new Scaffold(
+        backgroundColor: white,
+        body: Container(
+          child: Column(
+            children: <Widget>[
+              Container(
+                height: MediaQuery
+                    .of(context)
+                    .size
+                    .height / 8,
+                width: double.infinity,
+                color: dark,
+                child: CustomPaint(
+                    painter: PathPainter(),
+                    child: Container()
+                ),
+              ),SizedBox(height: 10.0,), ResponsiveWidget(
+                  largeScreen: Align(alignment: Alignment.topCenter,
+                    child: Container(
+                      width: 1000,
+                      child: content,
+                    ),),
+                  smallScreen: content
+              )
+            ],
+          ),
         )
     );
   }
@@ -287,7 +293,7 @@ class _LogInState extends State<LogIn> {
     setState(() {
       _isLoading = true;
     });
-  final AuthUser user = (await _auth.login(
+    final AuthUser user = (await _auth.login(
         _emailController.text, _passwordController.text));
     if (user != null) {
       //enable loading
@@ -307,24 +313,21 @@ class _LogInState extends State<LogIn> {
   }
 }
 
-class MyClipper extends CustomClipper<Path> {
+class PathPainter extends CustomPainter {
+  int span = -1;
   @override
-  Path getClip(Size size) {
-    Path p = new Path();
-    p.lineTo(size.width, 0.0);
-    p.lineTo(size.width, size.height * 0.45);
-    p.arcToPoint(
-      Offset(0.0, size.height * 0.45),
-      radius: const Radius.elliptical(50.0, 10.0),
-      rotation: 0.0,
-    );
-    p.lineTo(0.0, 0.0);
-    p.close();
-    return p;
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = white
+      ..style = PaintingStyle.fill;
+
+    Path path = Path();
+    path.moveTo(0,size.height-span);
+    path.quadraticBezierTo(size.width / 2, 0, size.width, size.height-span);
+    canvas.drawPath(path, paint);
+    if(span>0)canvas.drawRect(Rect.fromLTRB(0, size.height-span, size.width, size.height), paint);
   }
 
   @override
-  bool shouldReclip(CustomClipper oldClipper) {
-    return true;
-  }
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

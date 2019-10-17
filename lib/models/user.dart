@@ -1,47 +1,108 @@
-class Utente {
-  String _id;
-  String _nome;
-  String _cognome;
-  String _email;
-  String _telefono;
-  String _codFiscale;
-  bool _occupato;
-  bool _responsabile;
+class Account {
+  String _id="";
+  String _name="";
+  String _surname="";
+  String _email="";
+  String _phone="";
+  String _codFiscale="";
+  List<dynamic> _webops = new List();
+  String _token="";
+  bool _busy=false;
+  bool _supervisor=false;
 
-  Utente(this._id, this._nome, this._cognome, this._email, this._telefono, this._codFiscale, this._occupato, this._responsabile);
-
-  String get id => _id;
-  String get nome => _nome;
-  String get cognome => _cognome;
-  String get email => _email;
-  String get telefono => _telefono;
-  String get codFiscale => _codFiscale;
-  bool get occupato => _occupato;
-  bool get responsabile => _responsabile;
+  Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._token, this._busy, this._supervisor);
+  Account.empty();
+  Account.fromMap(String id, dynamic json) {
+    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
+    _name = json['Nome'];
+    _surname = json['Cognome'];
+    _email = json['Email'];
+    _phone = json['Telefono'];
+    _codFiscale = json['CodiceFiscale'];
+    _webops = json['OperatoriWeb'];
+    _token = json['Token'];
+    _busy = json['Occupato'];
+    _supervisor = json['Responsabile'];
+  }
 
   Map<String, dynamic> toMap() {
-    var map = new Map<String, dynamic>();
-    if (_id != null) {
-      map['id'] = _id;
-    }
-    map['Nome'] = _nome;
-    map['Cognome'] = _cognome;
-    map['Email'] = _email;
-    map['Telefono'] = _telefono;
-    map['CodiceFiscale'] = _codFiscale;
-    map['Occupato'] = _occupato;
-    map['Responsabile'] = _responsabile;
-    return map;
+    return Map<String, dynamic>.of({
+      "id":this.id,
+      "Nome":this.name,
+      "Cognome":this.surname,
+      "Email":this.email,
+      "Telefono":this.phone,
+      "CodiceFiscale":this.codFiscale,
+      "OperatoriWeb":this.webops,
+      "Token":this.token,
+      "Occupato":this.busy,
+      "Responsabile":this.supervisor
+    });
   }
 
-  Utente.fromMap(Map<String, dynamic> map) {
-    this._id = map['id'];
-    this._nome = map['Nome'];
-    this._cognome = map['Cognome'];
-    this._email = map['Email'];
-    this._telefono = map['Telefono'];
-    this._codFiscale = map['CodiceFiscale'];
-    this._occupato = map['Occupato'];
-    this._responsabile = map['Responsabile'];
+  Map<String, dynamic> toDocument() {
+    return Map<String, dynamic>.of({
+      "Nome":this.name,
+      "Cognome":this.surname,
+      "Email":this.email,
+      "Telefono":this.phone,
+      "OperatoriWeb":this.webops,
+      "Token":this.token,
+      "CodiceFiscale":this.codFiscale,
+      "Occupato":this.busy,
+      "Responsabile":this.supervisor
+    });
   }
+
+  String get id => _id;
+  String get name => _name;
+  String get surname => _surname;
+  String get email => _email;
+  String get phone => _phone;
+  String get codFiscale => _codFiscale;
+  List<dynamic> get webops => _webops;
+  String get token => _token;
+  bool get busy => _busy;
+  bool get supervisor => _supervisor;
+
+  set supervisor(bool value) {
+    _supervisor = value;
+  }
+
+  set busy(bool value) {
+    _busy = value;
+  }
+
+  set codFiscale(String value) {
+    _codFiscale = value;
+  }
+
+  set phone(String value) {
+    _phone = value;
+  }
+
+  set email(String value) {
+    _email = value;
+  }
+
+  set surname(String value) {
+    _surname = value;
+  }
+
+  set name(String value) {
+    _name = value;
+  }
+
+  set id(String value) {
+    _id = value;
+  }
+
+  set token(String value) {
+    _token = value;
+  }
+
+  set webops(List<dynamic> value) {
+    _webops = value;
+  }
+
 }
