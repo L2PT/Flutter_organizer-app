@@ -5,14 +5,13 @@
 import 'dart:async';
 
 //import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
 
 class EventsRepository {
-  final collection = Firestore.instance.collection('Eventi');
+  final collection = PlatformUtils.fire.collection('Eventi');
   Map<String,dynamic> categories;
   EventsRepository(){init();}
   void init() async {
@@ -31,25 +30,18 @@ class EventsRepository {
 
   @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
-    var docs = await collection.getDocuments();
-    return docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
+    var docs = await collection.where("days",isGreaterThanOrEqualTo:new DateTime.now().day).getDocuments();
+    List a = docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
           .toList();
+    print(a.length);
+    return a;
   }
   
   @override
   Stream<List<Event>> events() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
-          .toList();
-    });
-  }
-
-  @override
-  Stream<List<Event>> eventsWating() {
-    return collection.snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
+          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
           .toList();
     });
   }
@@ -59,5 +51,14 @@ class EventsRepository {
     return collection
         .document(update.id)
         .updateData(update.toDocument());
+  }
+
+  @override
+  Stream<List<Event>> eventsWating() {
+    return collection.snapshots().map((snapshot) {
+      return snapshot.documents
+          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .toList();
+    });
   }
 }

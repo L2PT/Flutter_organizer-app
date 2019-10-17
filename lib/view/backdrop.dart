@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
@@ -25,6 +27,8 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:venturiautospurghi/view/waiting_event_view.dart';
+import 'package:venturiautospurghi/view/widget/persistenNotification_widget.dart';
+import '../models/event.dart';
 import '../utils/theme.dart';
 import 'form_event_creator_view.dart';
 import 'monthly_calendar_view.dart';
@@ -38,42 +42,17 @@ const double _kFlingVelocity = 2.0;
 
 final Map<String, LinkMenu> _menuOperatore = const {
   global.Constants.homeRoute:
-  const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
-  global.Constants.waitingEventListRoute: const LinkMenu(Icons.visibility_off,
-      Colors.white, 30, "Incarichi in sospeso", title_rev),
-  global.Constants.monthlyCalendarRoute: const LinkMenu(
-      FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
+    const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  global.Constants.waitingEventListRoute:
+    const LinkMenu(Icons.visibility_off, Colors.white, 30, "Incarichi in sospeso", title_rev),
+  global.Constants.monthlyCalendarRoute:
+    const LinkMenu(FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
 };
 
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
-  const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+    const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
 };
-
-router(route, isSupervisor, arg){
-  switch(route) {
-    case global.Constants.homeRoute: {
-      if(isSupervisor) return OperatorList;
-      else return DailyCalendar(null);}
-    break;
-    case global.Constants.monthlyCalendarRoute: {return MonthlyCalendar;}
-    break;
-    case global.Constants.dailyCalendarRoute: {return DailyCalendar(null);}
-    break;
-    case global.Constants.profileRoute: {return Profile;}
-    break;
-    case global.Constants.operatorListRoute: {return OperatorList;}
-    break;
-    case global.Constants.detailsEventViewRoute: {DetailsEvent;}
-    break;
-    case global.Constants.formEventCreatorRoute: {return EventCreator;}
-    break;
-    case global.Constants.waitingEventListRoute: {return waitingEvent();}
-    break;
-    default: {return DailyCalendar(null);}
-    break;
-  }
-}
 
 /// Builds a Backdrop.
 ///
@@ -107,16 +86,23 @@ class _BackdropState extends State<Backdrop>
   @override
   Widget build(BuildContext context) {
     final backdropBloc = BlocProvider.of<BackdropBloc>(context);
-    return BlocBuilder<BackdropBloc, BackdropState>(
+    return BlocProvider(
+        builder: (context) {
+        return EventsBloc(eventsRepository: backdropBloc.eventsRepository);
+      },
+      child: BlocBuilder<BackdropBloc, BackdropState>(
         builder: (context, state) {
           if (state is Ready) {
+            //in the state there is the subscription to the data to ear for realtime changes
+            BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription));
             _toggleBackdropLayerVisibility(false);
             return Scaffold(
                 appBar: AppBar(
                   title: new Text(
                       (backdropBloc.isSupervisor
-                          ? _menuResponsabile[state.route]
-                          : _menuOperatore[state.route]).textLink.toUpperCase(),
+                          ? _menuResponsabile[state.route]!=null?_menuResponsabile[state.route]:_menuResponsabile[global.Constants.homeRoute]
+                          : _menuOperatore[state.route]!=null?_menuOperatore[state.route]:_menuOperatore[global.Constants.homeRoute])
+                          .textLink.toUpperCase(),
                       style: title_rev),
                   elevation: 0.0,
                   leading: new IconButton(
@@ -128,17 +114,28 @@ class _BackdropState extends State<Backdrop>
                   ),
                 ),
                 floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.isSupervisor),
-                body:_buildStack(state.route, state.arg, backdropBloc.isSupervisor)
+                body: _buildStack(state.route, state.content)
+              );
+          }
+          if(state is  NotificationWatingEvent){
+            return Scaffold(
+                appBar: AppBar(
+                  leading: new IconButton(
+                    icon: Icon(Icons.dehaze)
+                  ),
+                ),
+                body: persistenNotification()
             );
           }
-          return Container(
+            return Container(
             child: SplashScreen(),
           );
         }
+      )
     );
   }
 
-  Widget _buildStack(String frontLayerRoute, dynamic frontLayerArg, bool isSupervisor) {
+  Widget _buildStack(String frontLayerRoute, dynamic content) {
     const double layerTitleHeight = 64.0;
     final Size layerSize = MediaQuery.of(context).size;
     final double layerTop = layerSize.height - layerTitleHeight;
@@ -165,9 +162,7 @@ class _BackdropState extends State<Backdrop>
           ),
           PositionedTransition(
             rect: layerAnimation,
-            child:  _FrontLayer(
-              content: router(frontLayerRoute, isSupervisor, frontLayerArg),
-            ),
+            child:  content
           ),
           PositionedTransition(
             rect: overLayerAnimation,
@@ -381,38 +376,5 @@ class _BackLayer extends StatelessWidget {
             ),
           ),
         ));
-  }
-}
-
-
-
-
-
-/// Builds a FrontLayer.
-///
-/// The frontlayer contains the page associated with the selected route.
-/// and the UI specific for the role of the user.
-/// L'onTap chiude il menu a discesa
-/// La route viene gestita in modo da caricare la classe corretta in base
-/// al rouolo dell' utente
-class _FrontLayer extends StatelessWidget {
-  const _FrontLayer({
-    Key key,
-    this.content}) : super(key: key);
-
-  final Widget content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        BlocProvider(
-              builder: (context) {
-                return EventsBloc(eventsRepository: EventsRepository());
-              },
-          child: content,
-        ),
-      ],
-    );
   }
 }

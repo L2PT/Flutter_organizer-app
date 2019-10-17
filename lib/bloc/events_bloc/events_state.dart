@@ -5,20 +5,20 @@ abstract class EventsState extends Equatable {
   EventsState([List props = const []]);
 }
 
-class Loaded extends EventsState {
+class Filtered extends EventsState {
   final List<Event> events;
   final DateTime selectedDay;
 
-  Loaded([this.events, this.selectedDay]) : super([events,selectedDay]);
+  Filtered([this.events, this.selectedDay]) : super([events,selectedDay]);
 
   @override
   List<Object> get props => [events, selectedDay];
 }
 
-//class Loaded extends EventsState {
-//  @override
-//  List<Object> get props => [];
-//}
+class Loaded extends EventsState {
+  @override
+  List<Object> get props => [];
+}
 
 class NotLoaded extends EventsState {
   @override

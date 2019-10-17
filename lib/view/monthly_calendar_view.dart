@@ -8,19 +8,17 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'dart:math';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
 import '../utils/theme.dart';
-import '../models/event.dart';
-import 'form_event_creator_view.dart';
 
 class MonthlyCalendar extends StatefulWidget {
-  MonthlyCalendar({Key key}) : super(key: key);
+  final DateTime month;
+  MonthlyCalendar(this.month, {Key key}) : super(key: key);
 
   @override
   _MonthlyCalendarState createState() => _MonthlyCalendarState();
@@ -28,27 +26,16 @@ class MonthlyCalendar extends StatefulWidget {
 
 class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderStateMixin {
   Map<DateTime, List> _events;
-  List _selectedEvents;
+  DateTime _selectedMonth;
   AnimationController _animationController;
   CalendarController _calendarController;
+  bool ready = false;
 
   @override
   void initState() {
     super.initState();
-    final _selectedDay = DateTime.now();
-    //Firebase getter events - TODO for all the month
-    PlatformUtils.fire.collection("Eventi").getDocuments().then((documents) {
-      for (var document in documents.documents) {
-        if (document != null && document.exists) {
-          _events[Utils.formatDate(_selectedDay)] = [
-            ..._events[Utils.formatDate(_selectedDay)],
-//            Event.fromMap(document.documentID, document.data)
-          ];
-        }
-      }
-    });
-    ///////////////
-    _selectedEvents = _events[_selectedDay] ?? [];
+    _selectedMonth = widget.month!=null?widget.month:Utils.formatDate(DateTime.now(), "month");
+    _events = Map();
     _calendarController = CalendarController();
     _animationController = AnimationController(
       vsync: this,
@@ -67,12 +54,26 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
       //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
-    return new Material(
-      elevation: 12.0,
-      borderRadius: new BorderRadius.only(
-          topLeft: new Radius.circular(16.0),
-          topRight: new Radius.circular(16.0)),
-      child: _buildTableCalendarWithBuilders(),
+    return BlocBuilder<EventsBloc, EventsState>(
+        builder: (context, state) {
+          if (state is Loaded) {
+            //get data
+            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(_selectedMonth));
+            ready = true;
+          }else if(state is Filtered && ready){
+            if (state.events.length > 0) _events[state.selectedDay] = state.events;
+            return new Material(
+              elevation: 12.0,
+              borderRadius: new BorderRadius.only(
+                  topLeft: new Radius.circular(16.0),
+                  topRight: new Radius.circular(16.0)),
+                child: Stack(children: <Widget>[
+                  Positioned.fill( child:_buildTableCalendarWithBuilders(),),
+                ],)
+            );
+          }
+          return SplashScreen();
+        }
     );
   }
 
@@ -88,6 +89,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
       startingDayOfWeek: StartingDayOfWeek.monday,
       availableGestures: AvailableGestures.horizontalSwipe,
       availableCalendarFormats: {CalendarFormat.month: ''},
+      initialSelectedDay: _selectedMonth,
       headerStyle: HeaderStyle(
         rightChevronIcon: Icon(null)
       ),
@@ -129,7 +131,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
         },
         markersBuilder: (context, date, events, holidays) {
           final children = <Widget>[];
-          if (events.isNotEmpty && false) {
+          if (events.isNotEmpty) {
             children.add(
               Positioned(
                 right: 1,
@@ -192,38 +194,11 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
 
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    setState(() {
-      _selectedEvents = events;
-    });
     BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,day));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-    _readEvents(first.month);
-  }
-  void _onCardClicked(Event ev) {
-    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-    => new EventCreator(ev)));
-  }
-
-  void _deleteEvent(Event ev) {
-    PlatformUtils.fire.collection("Eventi").document(ev.id).delete();
-  }
-
-  void _readEvents(int month){
-    //TODO query
-//    DateTime parsedDate = Utils.formatDate();
-//    _events[parsedDate] = [];
-//    PlatformUtils.fire.collection("Eventi").getDocuments().then((documents) {
-//      for (var document in documents.documents) {
-//        if (document != null && document.exists) {
-//          _events[parsedDate] = [
-//            ..._events[parsedDate],
-//            Event.fromMap(document.documentID, document.data)
-//          ];
-//        }
-//      }
-//    });
+    BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(Utils.formatDate(first,"month")));
   }
 
 }

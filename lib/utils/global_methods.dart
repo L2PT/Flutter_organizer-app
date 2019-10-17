@@ -34,15 +34,15 @@ class Utils {
         : categories['default']);
   }
 
-  static String formatDateString(DateTime date) {
-    int day = date.day;
-    int month = date.month;
-    int year = date.year;
+  static String formatDateString(DateTime date, String format) {
+    int year = date.year, month = 1, day = 1;
+    if(format == "month" || format == "day") month = date.month;
+    if(format == "day") day = date.day;
 
     return year.toString() + '-' + ((month/10<1)?"0"+month.toString():month.toString()) + '-' + ((day/10<1)?"0"+day.toString():day.toString());
   }
-  static DateTime formatDate(DateTime date) {
-    return DateTime.parse(formatDateString(date));
+  static DateTime formatDate(DateTime date, String format) {
+    return DateTime.parse(formatDateString(date, format));
   }
   static bool isNumeric(String str) {
     if(str == null) {

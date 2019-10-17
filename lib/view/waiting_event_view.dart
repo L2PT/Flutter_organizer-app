@@ -11,7 +11,6 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:venturiautospurghi/view/widget/persistenNotification_widget.dart';
 
 final _auth = FBAuth();
 
@@ -25,12 +24,12 @@ class waitingEvent extends StatefulWidget {
 class _waitingEventState extends State<waitingEvent> {
   AuthUser user;
   DateTime dataCorrente;
+  bool ready = false;
 
   @override
   void initState()  {
     super.initState();
     user = BlocProvider.of<BackdropBloc>(context).user;
-    BlocProvider.of<EventsBloc>(context).dispatch(LoadEventsOnce(Utils.formatDate(DateTime.now())));
   }
 
   @override
@@ -38,7 +37,10 @@ class _waitingEventState extends State<waitingEvent> {
     return BlocBuilder<EventsBloc, EventsState>(
         builder: (context, state) {
           if (state is Loaded) {
-            dataCorrente = null;
+            //get data
+            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByWaiting());
+            ready = true;
+          }else if(state is Filtered && ready){
             return Material(
               elevation: 12.0,
               borderRadius: new BorderRadius.only(
@@ -81,7 +83,7 @@ class _waitingEventState extends State<waitingEvent> {
   }
 
 void _onDaySelected(DateTime day) {
-  BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,Utils.formatDate(day)));
+  BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,Utils.formatDate(day, "day")));
 }
 
 Widget _viewEvent(Event e) {

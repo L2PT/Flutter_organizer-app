@@ -11,6 +11,7 @@ part 'events_event.dart';
 part 'events_state.dart';
 
 class EventsBloc extends Bloc<EventsEvent, EventsState> {
+  List<Event> _events = [];
   final EventsRepository _eventsRepository;
   StreamSubscription _eventsSubscription;
 
@@ -18,15 +19,20 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
       : assert(eventsRepository != null),
         _eventsRepository = eventsRepository;
 
+
   @override
   EventsState get initialState => NotLoaded();
 
   @override
   Stream<EventsState> mapEventToState(EventsEvent event) async* {
-    if (event is LoadEventsOnce) {
-      yield* _mapLoadEventOnceToState(event);
-    } else if (event is LoadEvents) {
-      yield* _mapLoadEventToState();
+    if (event is LoadEvents) {
+      yield* _initState(event);
+    } else if (event is FilterEventsByDay) {
+      yield* _mapLoadEventFilteredByDayToState(event);
+    } else if (event is FilterEventsByMonth) {
+      yield* _mapLoadEventFilteredByMonthToState(event);
+    } else if (event is FilterEventsByWaiting) {
+      yield* _mapLoadEventFilteredByWaitingToState(event);
     } else if (event is AddEvent) {
       yield* _mapAddEventToState(event);
     } else if (event is UpdateEvent) {
@@ -36,25 +42,36 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     } else if (event is EventsUpdated) {
       yield* _mapEventsUpdateToState(event);
     } else if (event is Done) {
-      yield* _mapDoneToState();
+      yield* _mapDoneToState(event);
     }
   }
 
-  Stream<EventsState> _mapLoadEventOnceToState(LoadEventsOnce event) async* {
-    _eventsRepository.getEvents(event.selectedDay).then((events){
-        dispatch(EventsUpdated(events,event.selectedDay));
-      }
-    );
+  Stream<EventsState> _initState(LoadEvents event) async* {
+    //use it as initializer
+    //yield NotLoaded(); almost useless
+    _eventsSubscription?.cancel();
+    //subscribe and do dispatch of interested events
+    _eventsSubscription = event.subscription().listen((events) {
+      dispatch(
+        EventsUpdated(events), //crea l'evento
+      );
+    });
+    //data ready to be fetched
   }
 
-  Stream<EventsState> _mapLoadEventToState() async* {
-    _eventsSubscription?.cancel();
-    _eventsSubscription = _eventsRepository.events().listen((events) {
-        dispatch(
-          EventsUpdated(events,null), //crea l'evento
-        );
-      },
-    );
+  Stream<EventsState> _mapLoadEventFilteredByDayToState(FilterEventsByDay event) async* {
+    //filter the _events end return them
+    dispatch(Done(_events,event.selectedDay));
+  }
+
+  Stream<EventsState> _mapLoadEventFilteredByMonthToState(FilterEventsByMonth event) async* {
+    //filter the _events end return them
+    dispatch(Done(_events,event.selectedDay));
+  }
+
+  Stream<EventsState> _mapLoadEventFilteredByWaitingToState(FilterEventsByWaiting event) async* {
+    //filter the _events end return them
+    dispatch(Done(_events,null));
   }
 
   Stream<EventsState> _mapAddEventToState(AddEvent event) async* {
@@ -70,11 +87,12 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
   }
 
   Stream<EventsState> _mapEventsUpdateToState(EventsUpdated event) async* {
-    yield Loaded(event.events, event.selectedDay); //cambia lo stato
+    _events = event.events;
+    yield Loaded();
   }
 
-  Stream<EventsState> _mapDoneToState() async* {
-    yield Loaded();
+  Stream<EventsState> _mapDoneToState(Done event) async* {
+    yield Filtered(event.events, event.selectedDay);  //cambia lo stato
   }
 
   @override
@@ -82,5 +100,6 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     _eventsSubscription?.cancel();
     super.dispose();
   }
+
 
 }

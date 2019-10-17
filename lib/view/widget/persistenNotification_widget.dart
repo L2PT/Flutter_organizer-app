@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 
 class persistenNotification extends StatefulWidget {
   @override
@@ -242,7 +244,9 @@ class _persistenNotificationState extends State<persistenNotification> {
 
   void _actionRifiuta() {}
 
-  void _actionVisualizza() {}
+  void _actionVisualizza() {
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.waitingEventListRoute,null));
+  }
 
   void _setMapWaitingEvent(Event event) {
     if (mapWaitingEvent[event.color] == null) {
