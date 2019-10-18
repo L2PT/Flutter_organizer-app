@@ -305,7 +305,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     var dialogContainer;
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param));}break;
+      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param),true);}break;
       case "new_event":{dialogContainer = EventCreator(null);}break;
     }
     showDialog(

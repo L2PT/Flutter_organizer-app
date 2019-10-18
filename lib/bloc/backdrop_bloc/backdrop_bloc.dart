@@ -4,10 +4,10 @@ import 'package:equatable/equatable.dart';
 import 'package:fb_auth/fb_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/view/daily_calendar_view.dart';
-import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/view/operator_list_view.dart';
@@ -78,11 +78,14 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       }
       break;
       case global.Constants.operatorListRoute: {
-        content = OperatorList;
+        content = OperatorList();
+        subscription = eventsRepository.events;
+        subtype = global.Constants.OPERATORS_SUB;
       }
       break;
       case global.Constants.formEventCreatorRoute: {
         content = EventCreator(event.arg);
+        //no sub
       }
       break;
       case global.Constants.waitingEventListRoute: {
@@ -100,13 +103,16 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   }
 
   Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
-    eventsRepository.eventsWating().listen((events) =>
-        CreateNoficationEvent(events)
-    );
+    await eventsRepository.init();
     dispatch(NavigateEvent(global.Constants.homeRoute,null));
+    eventsRepository.eventsWating().listen((events) =>
+      dispatch(
+        CreateNoficationEvent(events)
+      )
+    );
   }
 
   Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
-    yield NotificationWatingEvent(event.watingEvent);
+    //yield NotificationWatingEvent(event.watingEvent);
   }
 }

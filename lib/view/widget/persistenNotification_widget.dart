@@ -25,6 +25,7 @@ class _persistenNotificationState extends State<persistenNotification> {
         'Intervento',
         '#7B9A4B',
         null,
+        null,
         null),
     /*new Event(
         '2',

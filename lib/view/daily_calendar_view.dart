@@ -60,8 +60,8 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
 
   @override
   void dispose() {
-    _animationController.dispose();
-    _calendarController.dispose();
+    _animationController?.dispose();
+    _calendarController?.dispose();
     super.dispose();
   }
 

@@ -12,9 +12,9 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 class EventsRepository {
   final collection = PlatformUtils.fire.collection('Eventi');
   Map<String,dynamic> categories;
-  EventsRepository(){init();}
-  void init() async {
+  Future init() async {
     categories = await Utils.getCategories();
+    return;
   }
 
   @override

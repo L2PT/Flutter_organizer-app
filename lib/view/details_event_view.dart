@@ -328,7 +328,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                                   Icon(Icons.notifications, size: 40,),
                                   Text("Avvisami (15m)", style: subtitle_rev),
                                   SizedBox(width: 30),
-                                  Switch(value: true, activeColor: c, onChanged: (v){})
+                                  Switch(value: true, activeColor: c, onChanged: (v){})//TODO
                                 ],
                               ),
                             )

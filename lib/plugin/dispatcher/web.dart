@@ -33,7 +33,10 @@ class PlatformUtils {
 
   static dynamic fireDocument(collection,document) => fire.collection(collection).doc(document).get();
 
-  static dynamic getFireDocumentField(document, field) => document.get(field);
+  static dynamic getFireDocumentField(document, field){
+    if(field != null) return document.get(field);
+    else return document.data();
+  }
 
 
 }

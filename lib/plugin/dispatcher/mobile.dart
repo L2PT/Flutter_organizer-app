@@ -61,6 +61,9 @@ abstract class PlatformUtils {
 
   static dynamic fireDocument(collection,document) => fire.collection(collection).document(document).get();
 
-  static dynamic getFireDocumentField(document, field) => document.data[field];
+  static dynamic getFireDocumentField(document, field){
+    if(field != null) return document.data[field];
+    else return document.data;
+  }
 
 }

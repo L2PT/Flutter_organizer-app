@@ -213,7 +213,7 @@ class _BackdropState extends State<Backdrop>
       context: context,
       builder: (context) => new AlertDialog(
         title: new Text('Sei sicuro?'),
-        content: new Text('Vuoi uscire dall''app?'),
+        content: new Text('Vuoi uscire dall\'app?'),
         actions: <Widget>[
           FlatButton(
             onPressed: () => Navigator.of(context).pop(false),
