@@ -34,6 +34,9 @@ $(function() { // document ready
 
   });
 
+//TODO call att right time
+//TODO add resource
+//TODO query remove resource
 function initCalendar(){
      $('#calendar').fullCalendar({
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
@@ -109,7 +112,7 @@ function readResources(callback){
 }
 function readEvents(start, end, timezone, callback){
    //var date = calendar.getDate().format();
-   var docRef = db.collection("Eventi").where("DataInizio","<=",firebase.firestore.Timestamp.fromDate(new Date()))  ; //TODO ADD QUERY FOR RESOURCES ID
+   var docRef = db.collection("Eventi").where("DataInizio","<=",firebase.firestore.Timestamp.fromDate(new Date()))  ; //TODO add query for resource ID
    var evs = [];
    docRef.get().then(function(querySnapshot) {
        querySnapshot.forEach(function(doc) {

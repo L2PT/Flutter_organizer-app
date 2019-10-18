@@ -1,8 +1,10 @@
 //custom import for mobile
 
+import 'package:flutter/material.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:venturiautospurghi/view/operator_selection_view.dart';
 
 
 abstract class PlatformUtils {
@@ -64,6 +66,10 @@ abstract class PlatformUtils {
   static dynamic getFireDocumentField(document, field){
     if(field != null) return document.data[field];
     else return document.data;
+  }
+
+  static dynamic navigator(context, content){
+    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => content ));
   }
 
 }

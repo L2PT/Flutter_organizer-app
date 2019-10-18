@@ -8,6 +8,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
+import 'package:venturiautospurghi/view/widget/switch.dart';
 import '../utils/theme.dart';
 import '../models/event.dart';
 
@@ -53,6 +54,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
     double padding = 10.0; //HANDLE
     List<Widget> t = List();
 
+    //TODO fill all field with right content
     Widget detailsContet = Container(
       padding: EdgeInsets.symmetric(vertical: 15.0, horizontal:40.0),
       child: Column(

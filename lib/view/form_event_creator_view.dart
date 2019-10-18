@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
@@ -7,6 +8,7 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import '../models/event.dart';
 
 
@@ -27,6 +29,7 @@ class EventCreatorState extends State<EventCreator> {
   final dateFormat = DateFormat("EEE d MMM y");
   final timeFormat = DateFormat("HH:mm");
   final _formKey = GlobalKey<FormState>();
+  final _formDateKey = GlobalKey<FormState>();
   bool _allDayFlag = false;
   int _radioValue = 0;
   List<String> _categoriesN = List();
@@ -61,279 +64,290 @@ class EventCreatorState extends State<EventCreator> {
           )
         ],
       ),
-      body: new Form(
-          key: this._formKey,
-          child: new Container(
-              padding: EdgeInsets.all(10.0),
-              child: new Column(
-                  children: <Widget>[
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 40.0),
-                      child: TextFormField(
-                        keyboardType: TextInputType.text,
-                        decoration: InputDecoration(
-                          hintText: 'Titolo',
-                          hintStyle: subtitle,
-                          border: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2.0,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                        ),
-                        initialValue: widget._event.title,
-                        validator: (String value) {
-                          if (value.isEmpty) {
-                            return 'Il campo \'Titolo\' è obbligatorio';
-                          }
-                          return null;
-                        },
-                        onSaved: (String value) => widget._event.title = value,
-                      ),
-                    ),
-                    Divider(height: 40, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 4),
-                      child:Row(
-                        children: <Widget>[
-                          Container(
-                            width: iconspace,
-                            margin: EdgeInsets.only(right: 20.0),
-                            child: Icon(FontAwesomeIcons.clock, color: dark, size: iconspace,),
-                          ),
-                          Expanded(
-                            child: Text("Tutto il giorno", style: label),
-                          ),
-                          Container(
-                            alignment: Alignment.centerRight,
-                            child: Switch(value: _allDayFlag, activeColor: dark, onChanged: (v){
-                              setState(() {
-                                _allDayFlag = v;
-                              });
-                            }),
-                          )
-                        ],
-                      ),
-                    ),
-                    Row(
-                        children: <Widget>[
-                          Container(
-                            width: iconspace,
-                            margin: EdgeInsets.only(right: 20.0),
-                          ),
-                          Expanded(
-                            child: DateTimeField(
-                              decoration: InputDecoration(
-                                  hintText: 'Mon 1 Sep 2019',
-                                  hintStyle: label,
-                                  border: InputBorder.none
-                              ),
-                              style: label,
-                              format: dateFormat,
-                              initialValue: widget._event.start,
-                              readOnly: true,
-                              onShowPicker: (context, currentValue) {
-                                return showDatePicker(
-                                    context: context,
-                                    firstDate: Utils.formatDate(DateTime.now(), "day"),
-                                    initialDate: currentValue!=null?currentValue.year>2000?currentValue:
-                                    DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
-                                        :Utils.formatDate(DateTime.now(), "day"),
-                                    lastDate: DateTime(3000)
-                                );
-                              },
-                              validator: (val){
-                                if (val != null){
-                                  return null;
-                                } else {
-                                  return 'Please enter a valid hour';
-                                }
-                              },
-                              onSaved: (DateTime value) => widget._event.start = value,
-                            ),
-                          ),
-                          Expanded(
-                            child:
-                            new DateTimeField(
-                                decoration: InputDecoration(
-                                    hintText: '10:00',
-                                    hintStyle: label,
-                                    border: InputBorder.none
-                                ),
-                                textAlign: TextAlign.right,
-                                style: label,
-                                format: timeFormat,
-                                initialValue: DateTime(0),
-                                enabled: !_allDayFlag,
-                                readOnly: true,
-                                onShowPicker: (context, currentValue) async {
-                                  final time = await showTimePicker(
-                                    context: context,
-                                    initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
-                                  );
-                                  return DateTimeField.convert(time);
-                                },
-                                validator: (val){
-                                  if (val != null){
-                                    return null;
-                                  } else {
-                                    return 'Please enter a valid hour';
-                                  }
-                                },
-                                onSaved: (DateTime value) => widget._event.start = value!=null?widget._event.start.add(Duration(hours: value.hour, minutes: value.minute)):widget._event.start
-                            ),
-                          ),
-                        ]),
-                    Row(
-                      children: <Widget>[
-                        Container(
-                          width: iconspace,
-                          margin: EdgeInsets.only(right: 20.0),
-                        ),
-                        Expanded(
-                          child: DateTimeField(
-                            decoration: InputDecoration(
-                                hintText: 'Mon 1 Sep 2019',
-                                hintStyle: label,
-                                border: InputBorder.none
-                            ),
-                            style: label,
-                            format: dateFormat,
-                            initialValue: widget._event.end,
-                            enabled: !_allDayFlag,
-                            readOnly: true,
-                            onShowPicker: (context, currentValue) {
-                              return showDatePicker(
-                                  context: context,
-                                  firstDate: Utils.formatDate(DateTime.now(), "day"),
-                                  initialDate: currentValue!=null?currentValue.year>2000?currentValue:
-                                  DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
-                                      :Utils.formatDate(DateTime.now(), "day"),
-                                  lastDate: DateTime(3000)
-                              );
-                            },
-                            validator: (val){
-                              if(_allDayFlag)return null;
-                              if ((val != null) && (val.year >= 2015 && val.year <= 3000) && widget._event.start.isBefore(val.add(Duration(days: 1)))) {
-                                widget._event.end = val;
-                                return null;
-                              } else {
-                                return 'Please enter a valid date';
-                              }
-                            },
-                            onSaved: (DateTime value) => widget._event.end = value,
-                          ),
-                        ),
-                        Expanded(
-                          child:
-                          new DateTimeField(
-                              decoration: InputDecoration(
-                                  hintText: '10:00',
-                                  hintStyle: label,
-                                  border: InputBorder.none
-                              ),
-                              textAlign: TextAlign.right,
-                              style: label,
-                              format: timeFormat,
-                              initialValue: DateTime(0),
-                              enabled: !_allDayFlag,
-                              readOnly: true,
-                              onShowPicker: (context, currentValue) async {
-                                final time = await showTimePicker(
-                                  context: context,
-                                  initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
-                                );
-                                return DateTimeField.convert(time);
-                              },
-                              onSaved: (DateTime value) => widget._event.end = value!=null?widget._event.end.add(Duration(hours: value.hour, minutes: value.minute)):widget._event.end
-                          ),
-                        )
-                      ],
-                    ),
-                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                    Row(children: <Widget>[
+      body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: new Form(
+            key: this._formKey,
+            child: new Container(
+                padding: EdgeInsets.all(10.0),
+                child: new Column(
+                    children: <Widget>[
                       Container(
-                        width: iconspace,
-                        margin: EdgeInsets.only(right: 20.0),
-                        child: Icon(FontAwesomeIcons.hardHat, color: dark, size: iconspace,),
-                      ),
-                      Expanded(
-                          child: Text("Aggiungi operatore", style: label)
-                      ),
-                      IconButton(
-                        onPressed: (){},//TODO
-                        alignment: Alignment.centerRight,
-                        icon: Icon(FontAwesomeIcons.plus, color: dark),
-                      )
-                    ]),
-                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                    Row(children: <Widget>[
-                      Container(
-                        width: iconspace,
-                        margin: EdgeInsets.only(right: 20.0),
-                        child: Icon(FontAwesomeIcons.map, color: dark, size: iconspace,),
-                      ),
-                      Expanded(
+                        padding: EdgeInsets.symmetric(horizontal: 40.0),
                         child: TextFormField(
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
-                            hintText: 'Aggiungi posizione',
+                            hintText: 'Titolo',
                             hintStyle: subtitle,
-                            border: InputBorder.none,
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                width: 2.0,
+                                style: BorderStyle.solid,
+                              ),
+                            ),
                           ),
                           initialValue: widget._event.title,
-                          validator: (value)=>null,
-                          onSaved: (String value) => widget._event.address = value,
+                          validator: (String value) {
+                            if (value.isEmpty) {
+                              return 'Il campo \'Titolo\' è obbligatorio';
+                            }
+                            return null;
+                          },
+                          onSaved: (String value) => widget._event.title = value,
                         ),
                       ),
-                    ]),
-                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),Expanded(
-                      child:Row(
-                        children: <Widget>[
-                          Container(
-                              alignment: Alignment.topLeft,
-                              margin: EdgeInsets.only(top: 5.0, right: 20.0),
-                              child: Text("Tipologia", style: title)
+                      Divider(height: 40, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                      Row(children: <Widget>[
+                        Container(
+                          width: iconspace,
+                          margin: EdgeInsets.only(right: 20.0),
+                          child: Icon(Icons.note, color: dark, size: iconspace,),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            maxLines: 3,
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              hintText: 'Aggiungi note',
+                              hintStyle: subtitle,
+                              border: InputBorder.none,
+                            ),
+                            initialValue: widget._event.title,
+                            validator: (value)=>null,
+                            onSaved: (String value) => widget._event.address = value,
                           ),
-                          Expanded(
-                              child:
-                              ListView.builder(
-                                itemCount: _categoriesN.length,
-                                itemBuilder: (context, index) {
-                                  return Container(
-                                      margin: EdgeInsets.symmetric(vertical: 5),
-                                      decoration: BoxDecoration(
-                                          color: (_radioValue==index)?dark:white,
-                                          borderRadius: BorderRadius.circular(10.0),
-                                          border: Border.all(color: dark)
+                        ),
+                      ]),
+                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                      Row(children: <Widget>[
+                        Container(
+                          width: iconspace,
+                          margin: EdgeInsets.only(right: 20.0),
+                          child: Icon(Icons.map, color: dark, size: iconspace,),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              hintText: 'Aggiungi posizione',
+                              hintStyle: subtitle,
+                              border: InputBorder.none,
+                            ),
+                            initialValue: widget._event.title,
+                            validator: (value)=>null,
+                            onSaved: (String value) => widget._event.address = value,
+                          ),
+                        ),
+                      ]),
+                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: 4),
+                        child:Row(
+                          children: <Widget>[
+                            Container(
+                              width: iconspace,
+                              margin: EdgeInsets.only(right: 20.0),
+                              child: Icon(Icons.access_time, color: dark, size: iconspace,),
+                            ),
+                            Expanded(
+                              child: Text("Tutto il giorno", style: label),
+                            ),
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Switch(value: _allDayFlag, activeColor: dark, onChanged: (v){
+                                setState(() {
+                                  _allDayFlag = v;
+                                });
+                              }),
+                            )
+                          ],
+                        ),
+                      ),
+                      Form(
+                        key: _formDateKey,
+                        child: Column(children: <Widget>[
+                          Row(
+                              children: <Widget>[
+                                Container(
+                                  width: iconspace,
+                                  margin: EdgeInsets.only(right: 20.0),
+                                ),
+                                Expanded(
+                                  child: DateTimeField(
+                                    decoration: InputDecoration(
+                                        hintText: 'Mon 1 Sep 2019',
+                                        hintStyle: label,
+                                        border: InputBorder.none
+                                    ),
+                                    style: label,
+                                    format: dateFormat,
+                                    initialValue: widget._event.start,
+                                    readOnly: true,
+                                    resetIcon: null,
+                                    onShowPicker: (context, currentValue) {
+                                      return showDatePicker(
+                                          context: context,
+                                          firstDate: Utils.formatDate(DateTime.now(), "day"),
+                                          initialDate: currentValue!=null?currentValue.year>2000?currentValue:
+                                          DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
+                                              :Utils.formatDate(DateTime.now(), "day"),
+                                          lastDate: DateTime(3000)
+                                      );
+                                    },
+                                    validator: (val){
+                                      if (val != null){
+                                        widget._event.start = val;
+                                        return null;
+                                      } else {
+                                        return 'Inserisci una data valida';
+                                      }
+                                    },
+                                    onSaved: (DateTime value) => widget._event.start = value,
+                                  ),
+                                ),
+                                Expanded(
+                                  child:
+                                  new DateTimeField(
+                                      decoration: InputDecoration(
+                                          hintText: '10:00',
+                                          hintStyle: label,
+                                          border: InputBorder.none
                                       ),
-                                      child: Row(
-                                          children: <Widget>[
-                                            new Radio(
-                                              value: index,
-                                              activeColor: almost_dark,
-                                              groupValue: _radioValue,
-                                              onChanged: _handleRadioValueChange,
-                                            ),
-                                            Container(
-                                              width: 30,
-                                              height: 30,
-                                              margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                                                  color: HexColor(_categoriesC[index])
-                                              ),
-                                            ),
-                                            new Text(_categoriesN[index], style: (_radioValue==index)?subtitle_rev:subtitle.copyWith(color: dark)),
-                                          ]
-                                      )
-                                  );
-                                },))
-                        ],
-                      )
-                      ,),
-                  ])
-          )
+                                      textAlign: TextAlign.right,
+                                      style: label,
+                                      format: timeFormat,
+                                      initialValue: DateTime(0),
+                                      enabled: !_allDayFlag,
+                                      readOnly: true,
+                                      resetIcon: null,
+                                      onShowPicker: (context, currentValue) async {
+                                        final time = await showTimePicker(
+                                          context: context,
+                                          initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                        );
+                                        return DateTimeField.convert(time);
+                                      },
+                                      validator: (val){
+                                        if(_allDayFlag)return null;
+                                        if (val != null){
+                                          return null;
+                                        } else {
+                                          return 'Inserisci un orario valido';
+                                        }
+                                      },
+                                      onSaved: (DateTime value) => widget._event.start = value!=null?widget._event.start.add(Duration(hours: value.hour, minutes: value.minute)):widget._event.start
+                                  ),
+                                ),
+                              ]),
+                          Row(
+                            children: <Widget>[
+                              Container(
+                                width: iconspace,
+                                margin: EdgeInsets.only(right: 20.0),
+                              ),
+                              Expanded(
+                                child: DateTimeField(
+                                  decoration: InputDecoration(
+                                      hintText: 'Mon 1 Sep 2019',
+                                      hintStyle: label,
+                                      border: InputBorder.none
+                                  ),
+                                  style: label,
+                                  format: dateFormat,
+                                  initialValue: widget._event.end,
+                                  enabled: !_allDayFlag,
+                                  readOnly: true,
+                                  resetIcon: null,
+                                  onShowPicker: (context, currentValue) {
+                                    return showDatePicker(
+                                        context: context,
+                                        firstDate: Utils.formatDate(DateTime.now(), "day"),
+                                        initialDate: currentValue!=null?currentValue.year>2000?currentValue:
+                                        DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
+                                            :Utils.formatDate(DateTime.now(), "day"),
+                                        lastDate: DateTime(3000)
+                                    );
+                                  },
+                                  validator: (val){
+                                    if(_allDayFlag)return null;
+                                    if ((val != null) && (val.year >= 2015 && val.year <= 3000) && widget._event.start.isBefore(val.add(Duration(days: 1)))) {
+                                      widget._event.end = val;
+                                      return null;
+                                    } else {
+                                      return 'Inserisci una data valida';
+                                    }
+                                  },
+                                  onSaved: (DateTime value) => widget._event.end = value,
+                                ),
+                              ),
+                              Expanded(
+                                child:
+                                new DateTimeField(
+                                    decoration: InputDecoration(
+                                        hintText: '10:00',
+                                        hintStyle: label,
+                                        border: InputBorder.none
+                                    ),
+                                    textAlign: TextAlign.right,
+                                    style: label,
+                                    format: timeFormat,
+                                    initialValue: DateTime(0),
+                                    enabled: !_allDayFlag,
+                                    readOnly: true,
+                                    resetIcon: null,
+                                    onShowPicker: (context, currentValue) async {
+                                      final time = await showTimePicker(
+                                        context: context,
+                                        initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                      );
+                                      return DateTimeField.convert(time);
+                                    },
+                                    validator: (val){
+                                      if(_allDayFlag)return null;
+                                      if (widget._event.start.isBefore(widget._event.end.add(Duration(hours: val.hour, minutes: val.minute)))) {
+                                        return null;
+                                      } else {
+                                        return 'Inserisci un orario valido';
+                                      }
+                                    },
+                                    onSaved: (DateTime value) => widget._event.end = value!=null?widget._event.end.add(Duration(hours: value.hour, minutes: value.minute)):widget._event.end
+                                ),
+                              )
+                            ],
+                          ),
+                        ],),
+                      ),
+                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                      Row(children: <Widget>[
+                        Container(
+                          width: iconspace,
+                          margin: EdgeInsets.only(right: 20.0),
+                          child: Icon(Icons.work, color: dark, size: iconspace,),
+                        ),
+                        Expanded(
+                            child: Text("Aggiungi operatore", style: label)
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add, color: dark),
+                          onPressed: () async {
+                            if(!_formDateKey.currentState.validate()) return Fluttertoast.showToast(
+                                msg: "Inserisci un intervallo temporale valido",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.CENTER,
+                                timeInSecForIos: 1,
+                                backgroundColor: Colors.red,
+                                textColor: Colors.white,
+                                fontSize: 16.0
+                            );
+                            var result = await PlatformUtils.navigator(context, new OperatorSelection(widget._event.start, widget._event.end));
+                            print(result);//TODO
+                          },
+                        )
+                      ]),
+                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                    ])
+            )
+        ),
       ),
     );
   }
@@ -358,8 +372,12 @@ class EventCreatorState extends State<EventCreator> {
 
 
   Future _saveNewEvent(BuildContext context) async {
-    if (this._formKey.currentState.validate()) {
+    if (this._formDateKey.currentState.validate() && this._formKey.currentState.validate()) {
+      _formDateKey.currentState.save();
       _formKey.currentState.save();
+      //TODO controllo sugli operatori
+      print( widget._event.start);
+      print( widget._event.end);
       print("Firebase save");
       widget._event.category = _categoriesN[_radioValue];
       widget._event.color = _categoriesC[_radioValue];

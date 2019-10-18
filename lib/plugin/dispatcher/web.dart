@@ -1,6 +1,7 @@
 //custom import
 import 'package:firebase/firebase.dart';
 import 'package:firebase/firestore.dart' as fs;
+import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/web.dart';
 
 
@@ -38,5 +39,15 @@ class PlatformUtils {
     else return document.data();
   }
 
+  static dynamic navigator(context, content){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:600, width:400, child: content),
+        );
+      },
+    );
+  }
 
 }

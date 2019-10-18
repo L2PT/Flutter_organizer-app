@@ -55,7 +55,7 @@ class Utils {
     String url = "https://fcm.googleapis.com/fcm/send";
     String json = "";
     Map<String,String> not = new Map<String,String>();
-    json = "{\"to\":\"fIyuHzH7gzQ:APA91bGA_qRjV4XGlAm8ToYQbd3jbEwsj0gABsng0WUOyhm1uNjtDXVty3pwwpdurWO7Yb43GYWTlD-b4bS5E5ZWOTYnN9wNaXTiWvdd_6qtvgDtIc3zFjBpVigYYJ7QpLfSzbVyLoNE\",";
+    json = "{\"to\":\"ck8kAtvOi9Y:APA91bFhG2-GpsSLu1I0JGAAH4yx1-IPocnqCWpOAlyCcHzZsr9GYpEub1SMvLbiwqecGzPus1EUtEZXgCQZurZQAM0GXerI-hrvgMx5FXN8ttNkZCRz34-CrlACXZEysqpsakMRquIu:APA91bFhG2\",";
     not['title'] = "It's time to work";
     not['body'] = "Hey, hai un nuovo lavoro.";
     json += "\"notification\":"+jsonEncode(not)+"}";

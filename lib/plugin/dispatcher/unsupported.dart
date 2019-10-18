@@ -24,4 +24,7 @@ abstract class PlatformUtils {
   static dynamic fireDocument(collection, document) => null;
 
   static dynamic getFireDocumentField(document, field) => null;
+
+  static dynamic navigator(context, content) => null;
+
 }

@@ -340,5 +340,4 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString();
     });
   }
-
 }
