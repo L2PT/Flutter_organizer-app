@@ -8,6 +8,8 @@ import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/view/details_event_view.dart';
+import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -55,6 +57,7 @@ class _waitingEventState extends State<waitingEvent> {
 
                         child:
                         state.events.length!=0?ListView.builder(
+                          physics: BouncingScrollPhysics(),
                           itemCount: state.events.length,
                           itemBuilder: (context, index) =>
                               _buildWaitingEvent(state.events[index]),):Container()
@@ -82,19 +85,22 @@ class _waitingEventState extends State<waitingEvent> {
     );
   }
 
-void _onDaySelected(DateTime day) {
-  BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,Utils.formatDate(day, "day")));
+void _onDaySelected(DateTime date) {
+  BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,date));
 }
 
 Widget _viewEvent(Event e) {
+    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
   return
           Row(children: <Widget>[
             Expanded(
               flex: 9,
               child: cardEvent(
                 e: e,
+                dateView: false,
                 hourHeight: 140,
                 buttonArea: true,
+                actionEvent: (ev)=> Utils.onCardClickedDetails(ev, context, arg),
               ),
             ),
             SizedBox(height: 15)
@@ -157,5 +163,6 @@ List<Widget> _viewDateHeader(DateTime dateEvent) {
   return r;
 
 }
+
 
 }

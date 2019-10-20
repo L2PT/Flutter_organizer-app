@@ -6,6 +6,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 
 class persistenNotification extends StatefulWidget {
   @override
@@ -27,7 +28,7 @@ class _persistenNotificationState extends State<persistenNotification> {
         null,
         null,
         null),
-    /*new Event(
+    new Event(
         '2',
         'evento prova 2',
         'descriozione evento 2',
@@ -38,7 +39,8 @@ class _persistenNotificationState extends State<persistenNotification> {
         'Intervento',
         '#F8AD09',
         null,
-        null),*/
+        null,
+        null),
   ];
   bool checkMultiEvent;
   Map<String, int> mapWaitingEvent;
@@ -62,15 +64,6 @@ class _persistenNotificationState extends State<persistenNotification> {
           ? viewPersistentMultiEvent()
           : viewPersistentSingleEvent(),
     );
-    /*showBottomSheet(
-        context: context,
-        builder: (BuildContext context) {
-          if (checkMultiEvent) {
-            return viewPersistentMultiEvent();
-          } else {
-            return viewPersistentSingleEvent();
-          }
-        });*/
   }
 
   Widget viewPersistentMultiEvent() {
@@ -139,89 +132,16 @@ class _persistenNotificationState extends State<persistenNotification> {
   }
 
   Widget viewPersistentSingleEvent() {
+    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
     var formatter = new DateFormat('Hm', 'it_IT');
     String oraInizio = formatter.format(listEvent[0].start);
     String oraFine = formatter.format(listEvent[0].end);
-    return Card(
-      child: Container(
-          height: 150,
-          child: Padding(
-            padding: EdgeInsets.all(10),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          color: HexColor(listEvent[0].color)),
-                      width: 6,
-                      height: 70,
-                      margin: const EdgeInsets.symmetric(horizontal: 15.0),
-                    ),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            oraInizio + " - " + oraFine,
-                            style: button_card,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            listEvent[0].title.toUpperCase(),
-                            style: button_card,
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            listEvent[0].category.toUpperCase(),
-                            style: TextStyle(
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13,
-                                color: HexColor(listEvent[0].color)),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(child: Column(
-
-                    )),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Container(
-                      child: RaisedButton(
-                        child: new Text('RIFIUTA', style: button_card),
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0))),
-                        color: HexColor(listEvent[0].color),
-                        elevation: 5,
-                        onPressed: () => _actionRifiuta(),
-                      ),
-                      margin: EdgeInsets.only(right: 10),
-                    ),
-                    Container(
-                      child: RaisedButton(
-                        child: new Text('CONFERMA', style: button_card),
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(15.0))),
-                        color: HexColor(listEvent[0].color),
-                        elevation: 5,
-                        onPressed: () => _actionConferma(),
-                      ),
-                      margin: EdgeInsets.only(right: 10),
-                    )
-                  ],
-                )
-              ],
-            ),
-          )),
-      elevation: 5,
-      color: dark,
+    return cardEvent(
+      buttonArea: true,
+      dateView: true,
+      e: listEvent[0],
+      hourHeight: 160,
+      actionEvent: (ev)=> Utils.onCardClickedDetails(listEvent[0], context, arg),
     );
     /* */
   }

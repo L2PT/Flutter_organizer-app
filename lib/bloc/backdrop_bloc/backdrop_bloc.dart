@@ -67,7 +67,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       case global.Constants.dailyCalendarRoute: {
         //arg 1: operator
         //arg 2: day
-        content = DailyCalendar(event.arg[1]);
+        content = DailyCalendar(event.arg);
         //TODO use here arg 1
         subscription = eventsRepository.events;
         subtype = global.Constants.EVENTS_SUB;
@@ -113,6 +113,8 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   }
 
   Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
-    //yield NotificationWatingEvent(event.watingEvent);
+    yield NotificationWatingEvent(event.watingEvent);
+
+
   }
 }

@@ -3,7 +3,7 @@
 body {  min-width:600px; }
 
 #wrap {
-    margin: 0 40px;
+    margin: 0 0 0 40px;
     z-index: 1;
     position: relative;
     color: #333;

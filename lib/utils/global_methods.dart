@@ -3,9 +3,12 @@ library App.utils;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:http/http.dart' as http;
+import 'package:venturiautospurghi/view/details_event_view.dart';
+import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 
 class Utils {
   static Future<Map<String,dynamic>> getCategories() async {
@@ -62,6 +65,18 @@ class Utils {
     var response = await http.post(url, body: json, headers: {"Authorization": "key=AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk","Content-Type": "application/json"},encoding: Encoding.getByName('utf-8'));
     print("response: "+jsonEncode(json));
     print("response: "+response.body);
+  }
+
+  static void onCardClickedDetails(Event ev, BuildContext context, arg) async {
+    final result = await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+    => new DetailsEvent(ev, arg)));
+    if(result == global.Constants.DELETE_SIGNAL) {
+      //TODO delete
+    }
+    if(result == global.Constants.MODIFY_SIGNAL) {
+      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
+      => new EventCreator(ev)));
+    }
   }
 }
 class HexColor extends Color {

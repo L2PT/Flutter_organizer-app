@@ -14,6 +14,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
@@ -43,16 +44,16 @@ const double _kFlingVelocity = 2.0;
 
 final Map<String, LinkMenu> _menuOperatore = const {
   global.Constants.homeRoute:
-    const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
-  global.Constants.waitingEventListRoute:
-    const LinkMenu(Icons.visibility_off, Colors.white, 30, "Incarichi in sospeso", title_rev),
-  global.Constants.monthlyCalendarRoute:
-    const LinkMenu(FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
+      const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  global.Constants.waitingEventListRoute: const LinkMenu(Icons.visibility_off,
+      Colors.white, 30, "Incarichi in sospeso", title_rev),
+  global.Constants.monthlyCalendarRoute: const LinkMenu(
+      FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
 };
 
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
-    const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+      const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -73,11 +74,12 @@ class _BackdropState extends State<Backdrop>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
+    _controller = AnimationController(
+        duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
   @override
-  void dispose(){
+  void dispose() {
     _controller.dispose();
     super.dispose();
   }
@@ -89,65 +91,96 @@ class _BackdropState extends State<Backdrop>
     final backdropBloc = BlocProvider.of<BackdropBloc>(context);
 
     return MultiBlocProvider(
-      providers: [
-        BlocProvider<EventsBloc>(
-          builder: (context) {
-            return EventsBloc(eventsRepository: backdropBloc.eventsRepository);
-          },
-        ),BlocProvider<OperatorsBloc>(
-          builder: (context) {
-            return OperatorsBloc(eventsRepository: backdropBloc.eventsRepository);
-          },
-
-        ),
-      ],
-      child: BlocBuilder<BackdropBloc, BackdropState>(
-        builder: (context, state) {
+        providers: [
+          BlocProvider<EventsBloc>(
+            builder: (context) {
+              return EventsBloc(
+                  eventsRepository: backdropBloc.eventsRepository);
+            },
+          ),
+          BlocProvider<OperatorsBloc>(
+            builder: (context) {
+              return OperatorsBloc(
+                  eventsRepository: backdropBloc.eventsRepository);
+            },
+          ),
+        ],
+        child:
+            BlocBuilder<BackdropBloc, BackdropState>(builder: (context, state) {
           if (state is Ready) {
             //in the state there is the subscription to the data to ear for realtime changes
-            if(state.subtype==global.Constants.EVENTS_SUB)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription));
-            else if(state.subtype==global.Constants.OPERATORS_SUB)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription));
+            if (state.subtype == global.Constants.EVENTS_SUB)
+              BlocProvider.of<EventsBloc>(context)
+                  .dispatch(LoadEvents(state.subscription));
+            else if (state.subtype == global.Constants.OPERATORS_SUB)
+              BlocProvider.of<OperatorsBloc>(context)
+                  .dispatch(LoadOperators(state.subscription));
             _toggleBackdropLayerVisibility(false);
             return WillPopScope(
                 onWillPop: _onBackPressed,
                 child: Scaffold(
-                appBar: AppBar(
-                  title: new Text(
-                      (backdropBloc.isSupervisor
-                          ? _menuResponsabile[state.route]!=null?_menuResponsabile[state.route]:_menuResponsabile[global.Constants.homeRoute]
-                          : _menuOperatore[state.route]!=null?_menuOperatore[state.route]:_menuOperatore[global.Constants.homeRoute])
-                          .textLink.toUpperCase(),
-                      style: title_rev),
-                  elevation: 0.0,
-                  leading: new IconButton(
-                    onPressed: () => _toggleBackdropLayerVisibility(true),
-                    icon: new AnimatedIcon(
-                      icon: AnimatedIcons.close_menu,
-                      progress: _controller.view,
+                    appBar: AppBar(
+                      title: new Text(
+                          (backdropBloc.isSupervisor
+                                  ? _menuResponsabile[state.route] != null
+                                      ? _menuResponsabile[state.route]
+                                      : _menuResponsabile[
+                                          global.Constants.homeRoute]
+                                  : _menuOperatore[state.route] != null
+                                      ? _menuOperatore[state.route]
+                                      : _menuOperatore[
+                                          global.Constants.homeRoute])
+                              .textLink
+                              .toUpperCase(),
+                          style: title_rev),
+                      elevation: 0.0,
+                      leading: new IconButton(
+                        onPressed: () => _toggleBackdropLayerVisibility(true),
+                        icon: new AnimatedIcon(
+                          icon: AnimatedIcons.close_menu,
+                          progress: _controller.view,
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.isSupervisor),
-                body: _buildStack(state.route, state.content)
-              )
-            );
+                    floatingActionButton: Fab(context)
+                        .FabChooser(state.route, backdropBloc.isSupervisor),
+                    body: _buildStack(state.route, state.content)));
           }
-          if(state is  NotificationWatingEvent){
+          if (state is NotificationWatingEvent) {
             return Scaffold(
                 appBar: AppBar(
                   leading: new IconButton(
-                    icon: Icon(Icons.dehaze)
-                  ),
+                      icon: Icon(
+                    Icons.dehaze,
+                    color: white,
+                  )),
+                  title:new Text(
+                      "HOME",
+                      style: title_rev) ,
                 ),
-                body: persistenNotification()
-            );
+                body: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    _buildStack(global.Constants.dailyCalendarRoute, DailyCalendar(null)),
+                    Container(
+                        decoration:
+                        BoxDecoration(color: dark.withOpacity(0.2)),
+                        child:
+                        Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          persistenNotification()
+                        ],
+                      ),
+                    )
+
+                  ],
+                ));
           }
-            return Container(
+          return Container(
             child: SplashScreen(),
           );
-        }
-      )
-    );
+        }));
   }
 
   Widget _buildStack(String frontLayerRoute, dynamic content) {
@@ -156,17 +189,17 @@ class _BackdropState extends State<Backdrop>
     final double layerTop = layerSize.height - layerTitleHeight;
 
     Animation<RelativeRect> layerAnimation = new RelativeRectTween(
-        begin: new RelativeRect.fromLTRB(
-            0.0, layerTop-layerTitleHeight, 0.0, -(layerTop-layerTitleHeight)),
-        end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
+            begin: new RelativeRect.fromLTRB(0.0, layerTop - layerTitleHeight,
+                0.0, -(layerTop - layerTitleHeight)),
+            end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
         .animate(
-        new CurvedAnimation(parent: _controller, curve: Curves.linear));
+            new CurvedAnimation(parent: _controller, curve: Curves.linear));
     Animation<RelativeRect> overLayerAnimation = new RelativeRectTween(
-        begin: new RelativeRect.fromLTRB(
-            0.0, layerTop-layerTitleHeight, 0.0, 0.0),
-        end: new RelativeRect.fromLTRB(0.0, layerTop, 0.0, 0.0))
+            begin: new RelativeRect.fromLTRB(
+                0.0, layerTop - layerTitleHeight, 0.0, 0.0),
+            end: new RelativeRect.fromLTRB(0.0, layerTop, 0.0, 0.0))
         .animate(
-        new CurvedAnimation(parent: _controller, curve: Curves.linear));
+            new CurvedAnimation(parent: _controller, curve: Curves.linear));
 
     return Container(
       child: Stack(
@@ -175,20 +208,16 @@ class _BackdropState extends State<Backdrop>
             child: _BackLayer(currentViewRoute: frontLayerRoute),
             excluding: _frontLayerVisible,
           ),
+          PositionedTransition(rect: layerAnimation, child: content),
           PositionedTransition(
-            rect: layerAnimation,
-            child:  content
-          ),
-          PositionedTransition(
-            rect: overLayerAnimation,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: ()=>_toggleBackdropLayerVisibility(false),
-              child: Container(
-                height: 40.0,
-              ),
-            )
-          ),
+              rect: overLayerAnimation,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _toggleBackdropLayerVisibility(false),
+                child: Container(
+                  height: 40.0,
+                ),
+              )),
         ],
       ),
     );
@@ -210,22 +239,23 @@ class _BackdropState extends State<Backdrop>
 
   Future<bool> _onBackPressed() {
     return showDialog(
-      context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Sei sicuro?'),
-        content: new Text('Vuoi uscire dall\'app?'),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text("No"),
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Sei sicuro?'),
+            content: new Text('Vuoi uscire dall\'app?'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text("No"),
+              ),
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text("Si"),
+              ),
+            ],
           ),
-          FlatButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text("Si"),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 }
 
@@ -246,7 +276,6 @@ class _BackLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
         color: dark,
         child: Column(
@@ -254,16 +283,19 @@ class _BackLayer extends StatelessWidget {
             Expanded(
               child: new ListView(
                   physics: new BouncingScrollPhysics(),
-                  children: (BlocProvider.of<BackdropBloc>(context).isSupervisor ? _menuResponsabile : _menuOperatore)
+                  children: (BlocProvider.of<BackdropBloc>(context).isSupervisor
+                          ? _menuResponsabile
+                          : _menuOperatore)
                       .map((route, linkMenu) =>
-                      _buildMenu(linkMenu, route, context))
+                          _buildMenu(linkMenu, route, context))
                       .values
                       .toList()),
             ),
             Expanded(
               child: Container(
                 child: GestureDetector(
-                  onTap: ()=>BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedOut()),
+                  onTap: () => BlocProvider.of<AuthenticationBloc>(context)
+                      .dispatch(LoggedOut()),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -291,66 +323,63 @@ class _BackLayer extends StatelessWidget {
     return new MapEntry(
         route,
         GestureDetector(
-          onTap: () => b.dispatch(NavigateEvent(route,null)),
+          onTap: () => b.dispatch(NavigateEvent(route, null)),
           child: currentViewRoute == route
               ? Column(
-            children: <Widget>[
-              SizedBox(height: 16.0),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-
-                        Icon(
-                          view.iconLink,
-                          color: view.colorIcon,
-                          size: view.sizeIcon,
-                          semanticLabel: 'Icon menu',
-                        ),
-                        SizedBox(width: 15.0),
-                        Container(
-                            child: Padding(
-                              padding: EdgeInsets.only(bottom: 5.0),
-                              child: Text(
-                                view.textLink,
-                                style: title_rev,
+                    SizedBox(height: 16.0),
+                    Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(
+                                view.iconLink,
+                                color: view.colorIcon,
+                                size: view.sizeIcon,
+                                semanticLabel: 'Icon menu',
                               ),
-                            ),
-                            decoration: BoxDecoration(
-                                border: Border(
-                                    bottom: BorderSide(
-                                      color: yellow,
-                                      width: 2.0,
-                                    )))
-                        ),
-
-                      ],
+                              SizedBox(width: 15.0),
+                              Container(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 5.0),
+                                    child: Text(
+                                      view.textLink,
+                                      style: title_rev,
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          bottom: BorderSide(
+                                    color: yellow,
+                                    width: 2.0,
+                                  )))),
+                            ],
+                          ),
+                          SizedBox(height: 8.0),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 8.0),
                   ],
-                ),
-              ),
-            ],
-          )
+                )
               : Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  view.iconLink,
-                  color: view.colorIcon,
-                  size: view.sizeIcon,
-                  semanticLabel: 'Icon menu',
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        view.iconLink,
+                        color: view.colorIcon,
+                        size: view.sizeIcon,
+                        semanticLabel: 'Icon menu',
+                      ),
+                      SizedBox(width: 15.0),
+                      Text(view.textLink, style: title_rev),
+                    ],
+                  ),
                 ),
-                SizedBox(width: 15.0),
-                Text(view.textLink, style: title_rev),
-              ],
-            ),
-          ),
         ));
   }
 }

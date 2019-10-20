@@ -10,8 +10,15 @@ class cardEvent extends StatelessWidget {
   final double hourHeight;
   final bool buttonArea;
   final void Function(Event) actionEvent;
+  final bool dateView;
 
-  cardEvent({this.e, this.hourSpan, this.hourHeight, this.actionEvent, this.buttonArea});
+  cardEvent(
+      {this.e,
+      this.hourSpan,
+      this.hourHeight,
+      this.actionEvent,
+      this.buttonArea,
+      this.dateView});
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +35,8 @@ class cardEvent extends StatelessWidget {
   Widget _buildCardEvent() {
     Widget r = null;
     var formatter = new DateFormat('HH : mm', 'it_IT');
+    DateFormat formatterMese = new DateFormat('MMM', "it_IT");
+    DateFormat formatterSett = new DateFormat('E', "it_IT");
     String oraInizio = formatter.format(e.start);
     String oraFine = formatter.format(e.end);
     double hour;
@@ -45,7 +54,6 @@ class cardEvent extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Row(
-
                 children: <Widget>[
                   Container(
                     decoration: BoxDecoration(
@@ -55,25 +63,78 @@ class cardEvent extends StatelessWidget {
                     height: heightBar,
                     margin: const EdgeInsets.symmetric(horizontal: 15.0),
                   ),
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(
-                          oraInizio + '  -  ' + oraFine,
-                          style: orario_card,
-                        ),
-                        Text(
-                          e.title,
-                          style: title_rev,
-                        ),
-                        Text(e.category,
-                            style: subtitle_rev.copyWith(
-                                color: HexColor(e.color))),
-                      ],
+                  Expanded(
+                    flex: 5,
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            oraInizio + '  -  ' + oraFine,
+                            style: orario_card,
+                          ),
+                          Text(
+                            e.title.toUpperCase(),
+                            style: title_rev,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                          Text(e.category.toUpperCase(),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: subtitle_rev.copyWith(
+                                  color: HexColor(e.color),
+                                  fontWeight: FontWeight.normal)),
+                        ],
+                      ),
+                      margin: const EdgeInsets.symmetric(vertical: 4.0),
                     ),
-                    margin: const EdgeInsets.symmetric(vertical: 4.0),
-                  )
+                  ),
+                  dateView
+                      ? Expanded(
+                          flex: 3,
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            margin: EdgeInsets.only(right: 15),
+                            child: Container(
+                              alignment: Alignment.centerRight,
+                              decoration: BoxDecoration(
+                                  color: HexColor(e.color),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(25.0))),
+                              width: 55,
+                              height: 90,
+                              padding: EdgeInsets.all(10),
+                              margin: EdgeInsets.only(bottom: 5),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: <Widget>[
+                                  Center(
+                                    child: Text(
+                                        formatterMese
+                                            .format(e.start)
+                                            .toUpperCase(),
+                                        style:
+                                            title_rev.copyWith(fontSize: 16)),
+                                  ),
+                                  Center(
+                                    child: Text("${e.start.day}",
+                                        style:
+                                            title_rev.copyWith(fontSize: 16)),
+                                  ),
+                                  Center(
+                                    child: Text(formatterSett.format(e.start),
+                                        style: title_rev.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal)),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        )
+                      : Container(),
                 ],
               ),
               Row(
@@ -83,7 +144,8 @@ class cardEvent extends StatelessWidget {
                     child: RaisedButton(
                       child: new Text('RIFIUTA', style: button_card),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(15.0))),
                       color: HexColor(e.color),
                       elevation: 15,
                       onPressed: () => _actionRifiuta(),
@@ -94,7 +156,8 @@ class cardEvent extends StatelessWidget {
                     child: RaisedButton(
                       child: new Text('CONFERMA', style: button_card),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                          borderRadius:
+                              BorderRadius.all(Radius.circular(15.0))),
                       color: HexColor(e.color),
                       elevation: 15,
                       onPressed: () => _actionConferma(),
@@ -112,10 +175,10 @@ class cardEvent extends StatelessWidget {
       );
     } else {
       hour = (((e.end.hour * 60 + e.end.minute) -
-          (e.start.hour * 60 + e.start.minute)) /
+              (e.start.hour * 60 + e.start.minute)) /
           60);
       containerHeight = hour / this.hourSpan * this.hourHeight;
-      paddingContainer = 5 * hour;
+      paddingContainer = 5 * hour / this.hourSpan;
       heightBar = 40;
       r = Card(
         child: Container(
@@ -138,12 +201,17 @@ class cardEvent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          e.title,
+                          e.title.toUpperCase(),
                           style: title_rev,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                        Text(e.category,
+                        Text(e.category.toUpperCase(),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             style: subtitle_rev.copyWith(
-                                color: HexColor(e.color))),
+                                color: HexColor(e.color),
+                                fontWeight: FontWeight.normal)),
                       ],
                     ),
                     margin: const EdgeInsets.symmetric(vertical: 4.0),
