@@ -45,6 +45,68 @@ class EventCreatorState extends State<EventCreator> {
 
     double iconspace = 30.0;//handle
 
+    List<Widget> listCat = _categoriesN.map((n){
+      int index = _categoriesN.indexOf(n);
+      return Container(
+          margin: EdgeInsets.symmetric(vertical: 5),
+          decoration: BoxDecoration(
+              color: (_radioValue==index)?dark:white,
+              borderRadius: BorderRadius.circular(10.0),
+              border: Border.all(color: dark)
+          ),
+          child: Row(
+              children: <Widget>[
+                new Radio(
+                  value: index,
+                  activeColor: almost_dark,
+                  groupValue: _radioValue,
+                  onChanged: _handleRadioValueChange,
+                ),
+                Container(
+                  width: 30,
+                  height: 30,
+                  margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                      color: HexColor(_categoriesC[index])
+                  ),
+                ),
+                new Text(_categoriesN[index], style: (_radioValue==index)?subtitle_rev:subtitle.copyWith(color: dark)),
+              ]
+          )
+      );
+    }).toList();
+
+    List<Widget> listOp = widget._event.suboperators.map((op){
+      return Container(
+        height: 50,
+        padding: EdgeInsets.symmetric(horizontal: 20),
+        child: Row(
+          children: <Widget>[
+            Container(
+              margin: EdgeInsets.only(right: 10.0),
+              padding: EdgeInsets.all(2.0),
+              child: Icon(Icons.work, color: yellow,),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                color: dark,
+              ),
+            ),
+            Text(op.toUpperCase()+" ", style: title),
+            Text(op, style: subtitle),
+            Expanded(child: Container(),),
+            IconButton(
+
+              icon: Icon(Icons.close, color: dark),
+              onPressed: (){
+                widget._event.suboperators.remove(op);
+                setState((){});
+              })
+          ],
+        ),
+      );
+    }).toList();
+
     return new Scaffold(
       appBar: new AppBar(
         leading: new BackButton(),
@@ -196,13 +258,13 @@ class EventCreatorState extends State<EventCreator> {
                                     },
                                     validator: (val){
                                       if (val != null){
-                                        widget._event.start = val;
+                                        widget._event.start = Utils.formatDate(val, "day");
                                         return null;
                                       } else {
                                         return 'Inserisci una data valida';
                                       }
                                     },
-                                    onSaved: (DateTime value) => widget._event.start = value,
+                                    onSaved: (DateTime value) => widget._event.start = Utils.formatDate(value, "day"),
                                   ),
                                 ),
                                 Expanded(
@@ -235,8 +297,7 @@ class EventCreatorState extends State<EventCreator> {
                                           return 'Inserisci un orario valido';
                                         }
                                       },
-                                      onSaved: (DateTime value) => widget._event.start = value!=null?widget._event.start.add(Duration(hours: value.hour, minutes: value.minute)):widget._event.start
-                                  ),
+                                      onSaved: (DateTime value) => widget._event.start = value != null ?widget._event.start.add(Duration(hours: value.hour,minutes: value.minute)): widget._event.start),
                                 ),
                               ]),
                           Row(
@@ -271,13 +332,13 @@ class EventCreatorState extends State<EventCreator> {
                                   validator: (val){
                                     if(_allDayFlag)return null;
                                     if ((val != null) && (val.year >= 2015 && val.year <= 3000) && widget._event.start.isBefore(val.add(Duration(days: 1)))) {
-                                      widget._event.end = val;
+                                      widget._event.end = Utils.formatDate(val, "day");
                                       return null;
                                     } else {
                                       return 'Inserisci una data valida';
                                     }
                                   },
-                                  onSaved: (DateTime value) => widget._event.end = value,
+                                  onSaved: (DateTime value) => widget._event.end = Utils.formatDate(value, "day"),
                                 ),
                               ),
                               Expanded(
@@ -339,17 +400,46 @@ class EventCreatorState extends State<EventCreator> {
                                 textColor: Colors.white,
                                 fontSize: 16.0
                             );
-                            var result = await PlatformUtils.navigator(context, new OperatorSelection(widget._event.start, widget._event.end));
-                            print(result);//TODO
+                            var result = await PlatformUtils.navigator(context, new OperatorSelection(widget._event.start, widget._event.end, true));
+                            print(result);
+                            widget._event.operator = result[0];
+                            widget._event.suboperators = result[1];
+                            setState((){});
                           },
                         )
                       ]),
+                      Container(
+                          child: Column(
+                              children: listOp
+                          )
+                      ),
+                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                      Container(
+                        child:
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                            Container(
+                                alignment: Alignment.topLeft,
+                                margin: EdgeInsets.only(top: 5.0, right: 20.0),
+                                child: Text("Tipologia", style: title)
+                            ),
+                            Expanded(
+                              child: Column(
+                                children: listCat
+                              )
+                            )
+                          ],
+                        ),
+                      ),
                       Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
                     ])
             )
         ),
       ),
     );
+
+
   }
 
   void _handleRadioValueChange(int value) {

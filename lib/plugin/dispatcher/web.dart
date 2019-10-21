@@ -2,6 +2,7 @@
 import 'package:firebase/firebase.dart';
 import 'package:firebase/firestore.dart' as fs;
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/web.dart';
 
 
@@ -39,8 +40,8 @@ class PlatformUtils {
     else return document.data();
   }
 
-  static dynamic navigator(context, content){
-    showDialog(
+  static dynamic navigator(context, content) async {
+    return await showDialog(
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
@@ -49,5 +50,7 @@ class PlatformUtils {
       },
     );
   }
+
+  static Event EventFromMap(id, color, json) => Event.fromMapWeb(id, color, json);
 
 }

@@ -11,12 +11,27 @@ class Event {
   int _status=Status.New;
   String _category="";
   String _color="";
-  dynamic _supervisor = new Account.empty();
-  dynamic _operator = new Account.empty();
+  String _supervisor = "";
+  String _operator = "";
   List<dynamic> _suboperators = new List();
 
   Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._supervisor, this._operator, this._suboperators);
   Event.empty();
+  Event.fromMapWeb(String id, String color, dynamic json){
+    _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
+    _title = json.Titolo;
+    _description = json.Descrizione;
+    _start = new DateTime.fromMillisecondsSinceEpoch(json.DataInizio.seconds*1000);
+    _end = new DateTime.fromMillisecondsSinceEpoch(json.DataFine.seconds*1000);
+    _address = json.Indirizzo;
+    _status = json.Stato;
+    _category = json.Categoria;
+    _color = (color!=null && color!="")?color:(json.color!=null)?json.color:"";
+    _supervisor = json.Responsabile;
+    _operator = json.Operatore;
+    _suboperators = json.SubOperatori;
+  }
+
   Event.fromMap(String id, String color, dynamic json){
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
     _title = json["Titolo"];
@@ -73,8 +88,8 @@ class Event {
   int get status => _status;
   String get category => _category;
   String get color => _color;
-  dynamic get supervisor => _supervisor;
-  dynamic get operator => _operator;
+  String get supervisor => _supervisor;
+  String get operator => _operator;
   List<dynamic> get suboperators => _suboperators;
 
   set id(String value) {
@@ -113,15 +128,15 @@ class Event {
     _color = value;
   }
 
-  set supervisor(dynamic value) {
+  set supervisor(String value) {
     _supervisor = value;
   }
 
-  set operator(dynamic value) {
+  set operator(String value) {
     _operator = value;
   }
 
-  set suboperators(List<String> value) {
+  set suboperators(List<dynamic> value) {
     _suboperators = value;
   }
 

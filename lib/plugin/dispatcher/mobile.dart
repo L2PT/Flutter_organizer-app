@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 
 
@@ -68,8 +69,10 @@ abstract class PlatformUtils {
     else return document.data;
   }
 
-  static dynamic navigator(context, content){
-    Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => content ));
+  static dynamic navigator(context, content) async {
+    return await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => content ));
   }
+
+  static Event EventFromMap(id, color, json) => Event.fromMap(id, color, json);
 
 }

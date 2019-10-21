@@ -8,12 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:js/js.dart';
+import 'package:venturiautospurghi/view/operator_selection_view.dart';
+import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 
 import 'bloc/authentication_bloc/authentication_bloc.dart';
@@ -37,6 +40,9 @@ external void initCalendar();
 @JS()
 external dynamic cookieJar(String cookie, String value);
 
+@JS()
+external dynamic addResource(dynamic data);
+
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
 //external String today();
@@ -55,7 +61,9 @@ class jQuery {
 @JS()
 @anonymous
 class FullCalendar {
-  external factory FullCalendar(String method, String date);
+  external factory FullCalendar({method, date});
+  external dynamic get method;
+  external dynamic get date;
 }
 
 @JS()
@@ -193,7 +201,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                             FlatButton(
                                 color: whiteoverlapbackground,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                                onPressed: (){},
+                                onPressed: ()=>showDialogWindow("new_user", null),
                                 child: Row(
                                   children: <Widget>[
                                     Icon(Icons.person_add, color: white,),
@@ -307,6 +315,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
       case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param),true);}break;
       case "new_event":{dialogContainer = EventCreator(null);}break;
+      case "new_user":{dialogContainer = Register();}break;
+      case "add_operator":{dialogContainer = OperatorSelection(DateTime(0), DateTime(9999), false);}break;
     }
     showDialog(
       context: context,
@@ -315,7 +325,14 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
         return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:600, width:400, child:dialogContainer),
         );
       },
-    ).then((onValue)=>jQuery('#wrap').css(CssOptions(zIndex: 1)));
+    ).then((onValue){
+      jQuery('#wrap').css(CssOptions(zIndex: 1));
+      if(onValue != null && onValue != false){
+        switch(opt) {
+          case "add_operator":{addResource(onValue[1]);}break;
+        }
+      }
+    });
   }
 
   Widget _buildTableCalendarWithBuilders(BuildContext context) {

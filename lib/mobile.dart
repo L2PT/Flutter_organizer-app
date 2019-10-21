@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'models/event.dart';
 import 'utils/theme.dart';
 import 'view/backdrop.dart';
 import 'view/log_in_view.dart';
@@ -21,8 +23,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,7 +36,6 @@ class _MyAppState extends State<MyApp> {
               }else if (state is Authenticated) {
                 return BlocProvider(
                     builder: (context) {
-                      firebaseCloudMessaging_Listeners(state.user);
                       return BackdropBloc(state.user, state.isSupervisor)..dispatch(InitAppEvent());//dispatch(NavigateEvent(global.Constants.homeRoute,null));
                       },
                     child: Backdrop()
@@ -46,46 +45,5 @@ class _MyAppState extends State<MyApp> {
             },
           ),
     );
-  }
-
-  void firebaseCloudMessaging_Listeners(AuthUser user){
-    if (Platform.isIOS) iOS_Permission();
-
-    _firebaseMessaging.getToken().then((token) async {
-      QuerySnapshot documents = (await Firestore.instance.collection(tabellaUtenti).getDocuments());
-      var e = user.email;
-      for (DocumentSnapshot document in documents.documents) {
-        if(document != null && document.data['Email'] == e) {
-          if(document.data['Token'] != token){
-            Firestore.instance.collection(tabellaUtenti).document(document.documentID).updateData(<String,dynamic>{"Token":token});
-          }
-          break;
-        }
-      }
-      print("token: "+token);
-    });
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print('on message $message');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
-      },
-    );
-  }
-
-  void iOS_Permission() {
-    _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(sound: true, badge: true, alert: true)
-    );
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings)
-    {
-      print("Settings registered: $settings");
-    });
   }
 }

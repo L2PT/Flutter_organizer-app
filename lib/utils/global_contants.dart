@@ -24,6 +24,7 @@ class Constants {
   static const String monthlyCalendarRoute = 'view/monthly_calendar';
   static const String dailyCalendarRoute = 'view/daily_calendar';
   static const String operatorListRoute = 'view/op_list';
+  static const String registerRoute = 'view/register';
   static const String detailsEventViewRoute = 'view/details_event';
   static const String formEventCreatorRoute = 'view/form_event_creator';
   static const String waitingEventListRoute = 'view/waiting_event_list';

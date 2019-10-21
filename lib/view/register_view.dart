@@ -1,15 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
+
 import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 final _auth = FBAuth();
 
 class Register extends StatefulWidget {
-  final String title = 'Registration';
   @override
   State<StatefulWidget> createState() => RegisterState();
 }
@@ -28,10 +32,8 @@ class RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Padding(
+        body: SingleChildScrollView(
+            child: Padding(
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
           child:Column(
               children:<Widget>[
@@ -222,6 +224,7 @@ class RegisterState extends State<Register> {
               ]
           ),
         )
+    ),
     );
   }
 
@@ -244,12 +247,14 @@ class RegisterState extends State<Register> {
         displayName: _cognomeController.text+" "+_nomeController.text,
     ).then((user){
       if (user != null) {
-        _auth.forgotPassword(_emailController.text);
         createUser(user.uid, _nomeController.text, _cognomeController.text, _emailController.text, _telefonoController.text, _codFiscaleController.text, (_radioValue==0)?false:true);
+        FBAuth a = FBAuth();
+        a.forgotPassword(_emailController.text);
         setState(() {
           _success = true;
           _userEmail = user.email;
           _errMsg = "";
+          Timer(Duration(seconds: 3),()=>BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.homeRoute,null)));
         });
       } else {
         setState(() {
@@ -267,7 +272,7 @@ class RegisterState extends State<Register> {
   }
 
   Future<Account> createUser(String uid, String nome, String cognome, String email, String telefono, String codFiscale, bool responsabile) async {
-      Firestore.instance.collection("Utenti").document(uid).setData(Account(uid,nome,cognome,email,telefono,codFiscale,[],"",false,responsabile).toMap());
+      PlatformUtils.fire.collection("Utenti").document(uid).setData(Account(uid,nome,cognome,email,telefono,codFiscale,[],"",false,responsabile).toDocument());
       var dataMap = new Map<String, dynamic>();
       dataMap['CodiceFiscale'] = codFiscale;
       dataMap['Cognome'] = cognome;

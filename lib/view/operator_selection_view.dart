@@ -8,8 +8,9 @@ import '../utils/theme.dart';
 class OperatorSelection extends StatefulWidget {
   final DateTime start;
   final DateTime end;
+  final bool tristate;
 
-  OperatorSelection(@required this.start, @required this.end, {Key key,})  :
+  OperatorSelection(@required this.start, @required this.end, this.tristate, {Key key,})  :
         assert(start != null),
         assert(end != null),
         super(key: key);
@@ -50,7 +51,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.check),
           backgroundColor: dark,
-          onPressed:(){if(superChecked)Navigator.pop(context, getOperatorsSelected());else
+          onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
             return Fluttertoast.showToast(
                 msg: "Selezione l' operatore principale, tappando due volte",
                 toastLength: Toast.LENGTH_SHORT,
@@ -72,7 +73,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
             Expanded(
               child: ListView(
                 padding: new EdgeInsets.symmetric(vertical: 8.0),
-                children: operators.map((operator) => new ChildItem(operator, sel[operator.id], onTap)).toList(),
+                children: operators.map((operator) => new ChildItem(operator, sel[operator.id], widget.tristate, onTap)).toList(),
               ),
             )
           ],
@@ -85,7 +86,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
     print(sel[op.id]);
     setState(() {
       if(sel[op.id]==false) sel[op.id]=true;
-      else if(sel[op.id]==true && !superChecked){
+      else if(sel[op.id]==true && !superChecked && widget.tristate){
         superChecked = true;
         sel[op.id]=null;
       }else{
@@ -100,7 +101,10 @@ class _OperatorSelectionState extends State<OperatorSelection>{
     String selectedOperator = null;
     sel.keys.forEach((k){
       if(sel[k] == true) selectedSubOperators.add(k);
-      else if(sel[k] == null) selectedOperator = k;
+      else if(sel[k] == null){
+        selectedSubOperators.add(k);
+        selectedOperator = k;
+      }
     });
     return [selectedOperator, selectedSubOperators];
   }
@@ -109,9 +113,10 @@ class _OperatorSelectionState extends State<OperatorSelection>{
 class ChildItem extends StatelessWidget {
   final Account operator;
   final bool checked;
+  final bool tristate;
   final dynamic onTap;
 
-  ChildItem(this.operator, this.checked, this.onTap);
+  ChildItem(this.operator, this.checked, this.tristate, this.onTap);
 
   @override
   Widget build(BuildContext context) {
@@ -132,8 +137,10 @@ class ChildItem extends StatelessWidget {
           Text(operator.surname.toUpperCase() + " ", style: title),
           Text(operator.name, style: subtitle),
           Expanded(child: Container(),),
-          CheckboxTriState(onChanged: (v)=>onTap(operator),
-            value: checked, tristate: true, activeColor: dark, checkColor: white, superColor: yellow,),
+          tristate?CheckboxTriState(onChanged: (v)=>onTap(operator),
+            value: checked, tristate: true, activeColor: dark, checkColor: white, superColor: yellow,):
+          Checkbox(onChanged: (v)=>onTap(operator),
+            value: checked, activeColor: dark, checkColor: white),
         ],
       ),
     );

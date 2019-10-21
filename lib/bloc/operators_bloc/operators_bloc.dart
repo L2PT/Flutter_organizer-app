@@ -48,7 +48,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
       yield* _mapDeleteOperatorToState(event);
     } else if (event is EventsUpdated) {
       yield* _mapOperatorsUpdateToState(event);
-    } else if (event is Dones) {
+    } else if (event is Done) {
       yield* _mapDoneToState(event);
     }
   }
@@ -89,7 +89,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   void filterAndDispatch(){
     List<Event> filteredEvents = _events;
     //filter them and return the operators
-    dispatch(Dones(operators));
+    dispatch(Done(operators));
   }
 
   Stream<OperatorsState> _mapAddOperatorToState(AddOperator event) async* {
@@ -109,7 +109,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
     yield Loaded();
   }
 
-  Stream<OperatorsState> _mapDoneToState(Dones event) async* {
+  Stream<OperatorsState> _mapDoneToState(Done event) async* {
     yield Filtered(event.operators);  //cambia lo stato
   }
 

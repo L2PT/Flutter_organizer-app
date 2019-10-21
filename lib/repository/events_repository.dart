@@ -30,7 +30,7 @@ class EventsRepository {
   @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
     var docs = await collection.where("days",isGreaterThanOrEqualTo:new DateTime.now().day).getDocuments();
-    List a = docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
+    List a = docs.documents.map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
           .toList();
     print(a.length);
     return a;
@@ -40,7 +40,12 @@ class EventsRepository {
   Stream<List<Event>> events() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .map((doc) {
+        return PlatformUtils.EventFromMap(doc.documentID,
+            categories[doc["Categoria"]] != null
+                ? categories[doc["Categoria"]]
+                : categories['default'], doc);
+      })
           .toList();
     });
   }
@@ -56,7 +61,7 @@ class EventsRepository {
   Stream<List<Event>> eventsWating() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
           .toList();
     });
   }

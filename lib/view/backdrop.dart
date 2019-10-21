@@ -22,6 +22,7 @@ import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/linkMenu.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
+import 'package:venturiautospurghi/utils/firebaseMessaging.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -53,6 +54,8 @@ final Map<String, LinkMenu> _menuOperatore = const {
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
     const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+  global.Constants.registerRoute:
+    const LinkMenu(Icons.person_add, Colors.white, 16, "Crea utente", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -73,6 +76,7 @@ class _BackdropState extends State<Backdrop>
   @override
   void initState() {
     super.initState();
+    firebaseCloudMessaging_Listeners(BlocProvider.of<BackdropBloc>(context).user, context);
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 

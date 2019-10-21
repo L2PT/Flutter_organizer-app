@@ -11,6 +11,7 @@ import 'package:venturiautospurghi/view/daily_calendar_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/view/operator_list_view.dart';
+import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/waiting_event_view.dart';
 
 part 'backdrop_event.dart';
@@ -75,6 +76,10 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       break;
       case global.Constants.profileRoute: {
         //content = Profile;
+      }
+      break;
+      case global.Constants.registerRoute: {
+        content = Register();
       }
       break;
       case global.Constants.operatorListRoute: {
