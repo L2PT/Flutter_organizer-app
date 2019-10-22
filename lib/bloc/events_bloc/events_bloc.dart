@@ -14,7 +14,6 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
   List<Event> _events = [];
   final EventsRepository _eventsRepository;
   StreamSubscription _eventsSubscription;
-  DateTime day;
 
   EventsBloc({@required EventsRepository eventsRepository})
       : assert(eventsRepository != null),
