@@ -14,6 +14,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
@@ -23,6 +24,7 @@ import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/linkMenu.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/firebaseMessaging.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -44,18 +46,16 @@ const double _kFlingVelocity = 2.0;
 
 final Map<String, LinkMenu> _menuOperatore = const {
   global.Constants.homeRoute:
-    const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
-  global.Constants.waitingEventListRoute:
-    const LinkMenu(Icons.visibility_off, Colors.white, 30, "Incarichi in sospeso", title_rev),
-  global.Constants.monthlyCalendarRoute:
-    const LinkMenu(FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
+      const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  global.Constants.waitingEventListRoute: const LinkMenu(Icons.visibility_off,
+      Colors.white, 30, "Incarichi in sospeso", title_rev),
+  global.Constants.monthlyCalendarRoute: const LinkMenu(
+      FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
 };
 
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
     const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
-  global.Constants.registerRoute:
-    const LinkMenu(Icons.person_add, Colors.white, 16, "Crea utente", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -76,7 +76,7 @@ class _BackdropState extends State<Backdrop>
   @override
   void initState() {
     super.initState();
-    firebaseCloudMessaging_Listeners(BlocProvider.of<BackdropBloc>(context).user, context);
+    firebaseCloudMessaging_Listeners(BlocProvider.of<BackdropBloc>(context).user.email, context);
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
@@ -131,27 +131,45 @@ class _BackdropState extends State<Backdrop>
                     ),
                   ),
                 ),
-                floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.isSupervisor),
+                floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.user),
                 body: _buildStack(state.route, state.content)
               )
             );
           }
-          if(state is  NotificationWatingEvent){
+          if (state is NotificationWatingEvent) {
             return Scaffold(
                 appBar: AppBar(
                   leading: new IconButton(
-                    icon: Icon(Icons.dehaze)
-                  ),
+                      icon: Icon(
+                    Icons.dehaze,
+                    color: white,
+                  )),
+                  title:new Text(
+                      "HOME",
+                      style: title_rev) ,
                 ),
-                body: persistenNotification()
-            );
+                body: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    Container(
+                        decoration:
+                        BoxDecoration(color: dark.withOpacity(0.2)),
+                        child:
+                        Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: <Widget>[
+                          persistenNotification()
+                        ],
+                      ),
+                    )
+
+                  ],
+                ));
           }
-            return Container(
+          return Container(
             child: SplashScreen(),
           );
-        }
-      )
-    );
+        }));
   }
 
   Widget _buildStack(String frontLayerRoute, dynamic content) {
@@ -160,17 +178,17 @@ class _BackdropState extends State<Backdrop>
     final double layerTop = layerSize.height - layerTitleHeight;
 
     Animation<RelativeRect> layerAnimation = new RelativeRectTween(
-        begin: new RelativeRect.fromLTRB(
-            0.0, layerTop-layerTitleHeight, 0.0, -(layerTop-layerTitleHeight)),
-        end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
+            begin: new RelativeRect.fromLTRB(0.0, layerTop - layerTitleHeight,
+                0.0, -(layerTop - layerTitleHeight)),
+            end: new RelativeRect.fromLTRB(0.0, 0.0, 0.0, 0.0))
         .animate(
-        new CurvedAnimation(parent: _controller, curve: Curves.linear));
+            new CurvedAnimation(parent: _controller, curve: Curves.linear));
     Animation<RelativeRect> overLayerAnimation = new RelativeRectTween(
-        begin: new RelativeRect.fromLTRB(
-            0.0, layerTop-layerTitleHeight, 0.0, 0.0),
-        end: new RelativeRect.fromLTRB(0.0, layerTop, 0.0, 0.0))
+            begin: new RelativeRect.fromLTRB(
+                0.0, layerTop - layerTitleHeight, 0.0, 0.0),
+            end: new RelativeRect.fromLTRB(0.0, layerTop, 0.0, 0.0))
         .animate(
-        new CurvedAnimation(parent: _controller, curve: Curves.linear));
+            new CurvedAnimation(parent: _controller, curve: Curves.linear));
 
     return Container(
       child: Stack(
@@ -179,20 +197,16 @@ class _BackdropState extends State<Backdrop>
             child: _BackLayer(currentViewRoute: frontLayerRoute),
             excluding: _frontLayerVisible,
           ),
+          PositionedTransition(rect: layerAnimation, child: content),
           PositionedTransition(
-            rect: layerAnimation,
-            child:  content
-          ),
-          PositionedTransition(
-            rect: overLayerAnimation,
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: ()=>_toggleBackdropLayerVisibility(false),
-              child: Container(
-                height: 40.0,
-              ),
-            )
-          ),
+              rect: overLayerAnimation,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _toggleBackdropLayerVisibility(false),
+                child: Container(
+                  height: 40.0,
+                ),
+              )),
         ],
       ),
     );
@@ -214,22 +228,23 @@ class _BackdropState extends State<Backdrop>
 
   Future<bool> _onBackPressed() {
     return showDialog(
-      context: context,
-      builder: (context) => new AlertDialog(
-        title: new Text('Sei sicuro?'),
-        content: new Text('Vuoi uscire dall\'app?'),
-        actions: <Widget>[
-          FlatButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text("No"),
+          context: context,
+          builder: (context) => new AlertDialog(
+            title: new Text('Sei sicuro?'),
+            content: new Text('Vuoi uscire dall\'app?'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text("No"),
+              ),
+              FlatButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text("Si"),
+              ),
+            ],
           ),
-          FlatButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text("Si"),
-          ),
-        ],
-      ),
-    ) ?? false;
+        ) ??
+        false;
   }
 }
 
@@ -250,7 +265,6 @@ class _BackLayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
         color: dark,
         child: Column(
@@ -260,7 +274,7 @@ class _BackLayer extends StatelessWidget {
                   physics: new BouncingScrollPhysics(),
                   children: (BlocProvider.of<BackdropBloc>(context).isSupervisor ? _menuResponsabile : _menuOperatore)
                       .map((route, linkMenu) =>
-                      _buildMenu(linkMenu, route, context))
+                          _buildMenu(linkMenu, route, context))
                       .values
                       .toList()),
             ),
@@ -291,70 +305,66 @@ class _BackLayer extends StatelessWidget {
   MapEntry<String, Widget> _buildMenu(
       LinkMenu view, String route, BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final b = BlocProvider.of<BackdropBloc>(context);
     return new MapEntry(
         route,
         GestureDetector(
-          onTap: () => b.dispatch(NavigateEvent(route,null)),
+          onTap: () => Utils.NavigateTo(context,route,null),
           child: currentViewRoute == route
               ? Column(
-            children: <Widget>[
-              SizedBox(height: 16.0),
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-
-                        Icon(
-                          view.iconLink,
-                          color: view.colorIcon,
-                          size: view.sizeIcon,
-                          semanticLabel: 'Icon menu',
-                        ),
-                        SizedBox(width: 15.0),
-                        Container(
-                            child: Padding(
-                              padding: EdgeInsets.only(bottom: 5.0),
-                              child: Text(
-                                view.textLink,
-                                style: title_rev,
+                    SizedBox(height: 16.0),
+                    Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Icon(
+                                view.iconLink,
+                                color: view.colorIcon,
+                                size: view.sizeIcon,
+                                semanticLabel: 'Icon menu',
                               ),
-                            ),
-                            decoration: BoxDecoration(
-                                border: Border(
-                                    bottom: BorderSide(
-                                      color: yellow,
-                                      width: 2.0,
-                                    )))
-                        ),
-
-                      ],
+                              SizedBox(width: 15.0),
+                              Container(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 5.0),
+                                    child: Text(
+                                      view.textLink,
+                                      style: title_rev,
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          bottom: BorderSide(
+                                    color: yellow,
+                                    width: 2.0,
+                                  )))),
+                            ],
+                          ),
+                          SizedBox(height: 8.0),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 8.0),
                   ],
-                ),
-              ),
-            ],
-          )
+                )
               : Padding(
-            padding: EdgeInsets.symmetric(vertical: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(
-                  view.iconLink,
-                  color: view.colorIcon,
-                  size: view.sizeIcon,
-                  semanticLabel: 'Icon menu',
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        view.iconLink,
+                        color: view.colorIcon,
+                        size: view.sizeIcon,
+                        semanticLabel: 'Icon menu',
+                      ),
+                      SizedBox(width: 15.0),
+                      Text(view.textLink, style: title_rev),
+                    ],
+                  ),
                 ),
-                SizedBox(width: 15.0),
-                Text(view.textLink, style: title_rev),
-              ],
-            ),
-          ),
         ));
   }
 }

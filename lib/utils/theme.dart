@@ -6,7 +6,7 @@ final ThemeData customLightTheme = _buildTheme();
 final title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: dark, );
 final subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
 const title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: white, );
-final subtitle_rev = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_light);
+final subtitle_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey_light);
 final error = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: red);
 final label = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: dark);
 final label_rev = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: white);
@@ -19,7 +19,7 @@ final Text12WhiteNormal = TextStyle(fontWeight: FontWeight.normal, fontSize: 12,
 ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
-    accentColor: Color(0xFFC5032B), //Colore secondario <-- da sistemare quando compare
+    accentColor: Color(0xFFA3A3A3), //Colore secondario <-- da sistemare quando compare
     primaryColor: dark, //appBar
     scaffoldBackgroundColor: whitebackground, //ok
     cardColor: Color(0x00000000),
@@ -75,9 +75,11 @@ const almost_dark = const Color(0xFF4b4b4b);
 const grey_dark = const Color(0xFFA8A8A8);
 const grey = const Color(0xFFA3A3A3);
 const grey_light = const Color(0xFFF4F4F4);
+const greyToday = const Color(0xFFDDDDDD);
 const white = const Color(0xFFFFFFFF);
 const whitebackground = const Color(0xFFFFFFFF);
 const whiteoverlapbackground = const Color(0x99FFFFFF);
 const red = const Color(0xFFC5032B);
 const yellow = const Color(0xFFF8AD09);
 const blue = const Color(0xFF119DD1);
+const greenholiday = const Color(0xFF00664D);

@@ -136,12 +136,26 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
           return Container(
             margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
             decoration: BoxDecoration(
-              color: grey_light,
+              color: greyToday,
               borderRadius: BorderRadius.circular(10.0),
             ),
             child: Center(child:Text(
                 '${date.day}',
                 style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
+            ),
+            ),
+          );
+        },
+        holidayDayBuilder: (context, date, _) {
+          return Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+            decoration: BoxDecoration(
+              color: greenholiday,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Center(child:Text(
+                '${date.day}',
+                style: const TextStyle(fontWeight: FontWeight.bold, color: white,fontSize: 18)
             ),
             ),
           );
@@ -174,8 +188,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
       selectNext: () {
-        BlocProvider.of<BackdropBloc>(context).dispatch(
-            NavigateEvent(global.Constants.monthlyCalendarRoute, Utils.formatDate(_selectedDay, "month")));
+        Utils.NavigateTo(context,global.Constants.monthlyCalendarRoute, Utils.formatDate(_selectedDay, "month"));
       },
       selectPrevious: (){},
     );
@@ -293,7 +306,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   List<Widget> _buildFront(){
-    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
+    var account = BlocProvider.of<BackdropBloc>(context).user;
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
     DateTime base = new DateTime(1990,1,1,6,0,0); //-2UTC
@@ -317,8 +330,9 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                   e:e,
                   hourSpan:_gridHourSpan,
                   hourHeight:_gridHourHeight,
-                  actionEvent: (ev)=>_onCardClicked(ev, arg),
+                  actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev, account),
                   buttonArea: false,
+                  dateView: false,
                 )
             ),
           ])
@@ -332,20 +346,11 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
     _selectedDay = Utils.formatDate(day, "day");
+    BlocProvider.of<BackdropBloc>(context).day = Utils.formatDate(day, "day");
     BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(Utils.formatDate(day, "day")));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {}
 
-  void _onCardClicked(Event ev, arg) async {
-    final result = await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-    => new DetailsEvent(ev, arg)));
-    if(result == global.Constants.DELETE_SIGNAL) {
-      //TODO delete
-    }
-    if(result == global.Constants.MODIFY_SIGNAL) {
-      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-      => new EventCreator(ev)));
-    }
-  }
+
 }

@@ -2,23 +2,23 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:fb_auth/fb_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
-void firebaseCloudMessaging_Listeners(AuthUser user, BuildContext context){
+void firebaseCloudMessaging_Listeners(String email, BuildContext context){
   if (Platform.isIOS) iOS_Permission();
 
+  //check if token is up to date
   _firebaseMessaging.getToken().then((token) async {
     QuerySnapshot documents = (await Firestore.instance.collection(global.Constants.tabellaUtenti).getDocuments());
-    var e = user.email;
     for (DocumentSnapshot document in documents.documents) {
-      if(document != null && document.data['Email'] == e) {
+      if(document != null && document.data['Email'] == email) {
         if(document.data['Token'] != token){
           Firestore.instance.collection(global.Constants.tabellaUtenti).document(document.documentID).updateData(<String,dynamic>{"Token":token});
         }
@@ -36,12 +36,12 @@ void firebaseCloudMessaging_Listeners(AuthUser user, BuildContext context){
     onResume: (Map<String, dynamic> message) async {
       print('on resume $message');
       //TODO quando salvo l'evento
-      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty(),false)));
+      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty(),Account.empty())));
     },
     onLaunch: (Map<String, dynamic> message) async {
       print('on launch $message');
       //TODO quando salvo l'evento
-      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty(),false)));
+      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty(),Account.empty())));
     },
   );
 }

@@ -1,6 +1,4 @@
 import 'dart:io' show Platform;
-import 'package:fb_auth/fb_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;

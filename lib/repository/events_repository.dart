@@ -18,13 +18,8 @@ class EventsRepository {
   }
 
   @override
-  Future<void> addNewEvent(Event e) {
-    return collection.add(e.toDocument());
-  }
-
-  @override
-  Future<void> deleteEvent(Event todo) async {
-    return collection.document(todo.id).delete();
+  Future<void> deleteEvent(Event ev) async {
+    return collection.document(ev.id).delete();
   }
 
   @override

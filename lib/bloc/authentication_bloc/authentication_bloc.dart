@@ -1,7 +1,10 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fb_auth/fb_auth.dart';
+import 'package:html/dom.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +16,7 @@ class AuthenticationBloc
     extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FBAuth _userRepository = FBAuth();
   AuthUser user = null;
+  Account account = null;
   bool isSupervisor = false;
 
   AuthenticationBloc();
@@ -37,8 +41,9 @@ class AuthenticationBloc
     try {
       user = await _userRepository.currentUser();
       if (user != null) {
-        isSupervisor = await getSupervisorFlag(user.email);
-        yield Authenticated(user, isSupervisor);
+        account = await getAccount(user.email);
+        isSupervisor = account.supervisor;
+        yield Authenticated(account, isSupervisor);
       } else {
         yield Unauthenticated();
       }
@@ -49,8 +54,9 @@ class AuthenticationBloc
 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
     user = event.user;
-    isSupervisor = await getSupervisorFlag(user.email);
-    yield Authenticated(user, isSupervisor);
+    account = await getAccount(user.email);
+    isSupervisor = account.supervisor;
+    yield Authenticated(account, isSupervisor);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
@@ -58,11 +64,11 @@ class AuthenticationBloc
     _userRepository.logout();
   }
 
-  Future<bool> getSupervisorFlag(String email) async {
+  Future<Account> getAccount(String email) async {
     var docs = await PlatformUtils.waitFireCollection("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
     for (var doc in docs) {
       if(doc != null) {
-        return PlatformUtils.getFireDocumentField(doc,'Responsabile');
+        return Account.fromMap(doc.documentID, doc);
       }
     }
   }

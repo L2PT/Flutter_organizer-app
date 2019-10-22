@@ -24,4 +24,11 @@ class OperatorsRepository {
     return a;
   }
 
+  @override
+  Future<List<Account>> getOperatorsFiltered() async {
+    var docs = await collection.getDocuments();
+    List a = docs.documents.map((doc) => Account.fromMap(doc.documentID, doc)).toList();
+    return a;
+  }
+
 }

@@ -7,6 +7,7 @@ import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
@@ -18,6 +19,7 @@ import 'package:js/js.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
+import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/backdrop_bloc/backdrop_bloc.dart';
@@ -103,7 +105,8 @@ class _MyAppState extends State<MyApp> {
             jQuery("#calendar").html("");
             return LogIn();
           }else if (state is Authenticated) {
-            cookieJar("user", '{"uid":"${state.user.uid}","email":"${state.user.email}","displayName":"${state.user.displayName}","isAnonymous":"${state.user.isAnonymous}","isEmailVerified":"${state.user.isEmailVerified}"}');
+            //TODOfill rightly
+            cookieJar("user", '{"uid":"${state.user.id}","email":"${state.user.email}","displayName":"${state.user.name}","isAnonymous":"${state.user}","isEmailVerified":"${state.user}"}');
             return MyAppWeb(state.user, state.isSupervisor);
           }
           return SplashScreen();
@@ -114,7 +117,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class MyAppWeb extends StatefulWidget {
-  final AuthUser user;
+  final Account user;
   final bool isSupervisor;
   const MyAppWeb(this.user, this.isSupervisor, {Key key}) : super(key: key);
 
@@ -157,9 +160,10 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
         );
   }
   Widget navbar() {
+    //TODO
     String n = "",c ="";
-    if(widget.user!=null && widget.user.displayName!=null){
-      var s = widget.user.displayName.toString().split(" ");
+    if(widget.user!=null && widget.user.name!=null){
+      var s = widget.user.name.toString().split(" ");
       c = s[0].toString().toUpperCase();
       if(s.length>1){
         n = s[1].toString();
@@ -230,7 +234,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           Container(
             margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
             child: RaisedButton(
-                onPressed: ()=>showDialogWindow("new_event", null),
+                onPressed: ()=>showDialogWindow("new_event", BlocProvider.of<AuthenticationBloc>(context).user),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
                   children: <Widget>[
@@ -311,10 +315,11 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     // flutter defined function
     jQuery('#wrap').css(CssOptions(zIndex: -1));
     var dialogContainer;
+    var fab;//TODO
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param),true);}break;
-      case "new_event":{dialogContainer = EventCreator(null);}break;
+      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param), Account.empty());}break;
+      case "new_event":{dialogContainer = EventCreator(null, param);}break;
       case "new_user":{dialogContainer = Register();}break;
       case "add_operator":{dialogContainer = OperatorSelection(DateTime(0), DateTime(9999), false);}break;
     }
@@ -322,7 +327,15 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
-        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:600, width:400, child:dialogContainer),
+        return AlertDialog(
+          contentPadding: EdgeInsets.all(0),
+          content: Container(
+            height:600, width:400,
+            child: Scaffold(
+              //floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.user),
+                body: dialogContainer
+            )
+          ),
         );
       },
     ).then((onValue){

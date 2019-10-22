@@ -34,7 +34,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _selectedMonth = widget.month!=null?widget.month:Utils.formatDate(DateTime.now(), "month");
+    _selectedMonth = widget.month!=null?widget.month:DateTime.now();
     _events = Map();
     _calendarController = CalendarController();
     _animationController = AnimationController(
@@ -58,7 +58,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
         builder: (context, state) {
           if (state is Loaded) {
             //get data
-            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(_selectedMonth));
+            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(Utils.formatDate(_selectedMonth, "month")));
             ready = true;
           }else if(state is Filtered && ready){
             if (state.events.length > 0) _events[state.selectedDay] = state.events;
@@ -80,6 +80,10 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
         //--CALENDAR
   Widget _buildTableCalendarWithBuilders() {
     return TableCalendar(
+      rowHeight: 85,
+      calendarStyle: CalendarStyle(
+
+      ),
       locale: 'it_IT',
       calendarController: _calendarController,
       events: _events,
@@ -98,18 +102,15 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
           return FadeTransition(
             opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
             child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 5),
               decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                      color: dark,
-                      width: 3
-                  )
-                )
+                color: dark,
+                borderRadius: BorderRadius.circular(15.0),
               ),
               child: Center(
                 child:Text(
                   '${date.day}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: white,fontSize: 18)
               ),
               ),
             ),
@@ -117,10 +118,10 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
         },
         todayDayBuilder: (context, date, _) {
           return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+            margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 20),
             decoration: BoxDecoration(
-              color: grey_light,
-              borderRadius: BorderRadius.circular(10.0),
+              color: greyToday,
+              borderRadius: BorderRadius.circular(100.0),
           ),
             child: Center(child:Text(
               '${date.day}',
@@ -134,10 +135,13 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
           if (events.isNotEmpty) {
             children.add(
               Positioned(
+                top: 1,
                 right: 1,
-                bottom: 1,
                 child: _buildEventsMarker(date, events),
-              ),
+              )
+
+
+              
             );
           }
           if (holidays.isNotEmpty && false) {
@@ -166,21 +170,22 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
       duration: const Duration(milliseconds: 300),
       decoration: BoxDecoration(
         shape: BoxShape.rectangle,
-        color: _calendarController.isSelected(date)
-            ? Colors.brown[500]
-            : _calendarController.isToday(date) ? Colors.brown[300] : Colors.blue[400],
+        borderRadius: BorderRadius.circular(20),
+        color: dark,
       ),
-      width: 16.0,
-      height: 16.0,
-      child: Center(
-        child: Text(
-          '${events.length}',
-          style: TextStyle().copyWith(
-            color: Colors.white,
-            fontSize: 12.0,
-          ),
-        ),
-      ),
+      width: 25,
+      height: 25,
+      margin: EdgeInsets.only(top: 5),
+      child:
+          Center(
+            child: Text(
+              '${events.length}',
+              style: TextStyle().copyWith(
+                color: Colors.white,
+                fontSize: 16.0,
+              ),
+            ),
+          )
     );
   }
 
@@ -194,7 +199,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
 
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,day));
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[null,day]));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

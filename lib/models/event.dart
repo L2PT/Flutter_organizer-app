@@ -5,17 +5,21 @@ class Event {
   String _id="";
   String _title="";
   String _description="";
-  DateTime _start=DateTime.now();
-  DateTime _end=DateTime.now();
+  DateTime _start=DateTime.now().add(Duration(hours:2));
+  DateTime _end=DateTime.now().add(Duration(hours:2));
   String _address="";
-  int _status=Status.New;
+  int _status= Status.New;
   String _category="";
   String _color="";
-  String _supervisor = "";
-  String _operator = "";
+  String _idSupervisor = "";
+  String _idOperator = "";
+  List<dynamic> _idOperators = new List();
+  dynamic _supervisor = null;
+  dynamic _operator = null;
   List<dynamic> _suboperators = new List();
 
-  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._supervisor, this._operator, this._suboperators);
+
+  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators);
   Event.empty();
   Event.fromMapWeb(String id, String color, dynamic json){
     _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
@@ -27,6 +31,9 @@ class Event {
     _status = json.Stato;
     _category = json.Categoria;
     _color = (color!=null && color!="")?color:(json.color!=null)?json.color:"";
+    _idSupervisor = json.IdResponsabile;
+    _idOperator = json.IdOperatore;
+    _idOperators = json.IdOperatori;
     _supervisor = json.Responsabile;
     _operator = json.Operatore;
     _suboperators = json.SubOperatori;
@@ -42,27 +49,31 @@ class Event {
     _status = json["Stato"];
     _category = json["Categoria"];
     _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
+    _idSupervisor = json["IdResponsabile"];
+    _idOperator = json["IdOperatore"];
+    _idOperators = json["IdOperatori"];
     _supervisor = json["Responsabile"];
     _operator = json["Operatore"];
     _suboperators = json["SubOperatori"];
+
   }
 
-  Map<String, dynamic> toMap(){
-    return Map<String, dynamic>.of({
-      "id":this.id,
-      "Titolo":this.title,
-      "Descrizione":this.description,
-      "DataInizio":this.start,
-      "DataFine":this.end,
-      "Indirizzo":this.address,
-      "Stato":this.status,
-      "Categoria":this.category,
-      "color":this.color,
-      "Responsabile":this.supervisor,
-      "Operatore":this.operator,
-      "SubOperatori":this.suboperators
-    });
-  }
+//  Map<String, dynamic> toMap(){
+//    return Map<String, dynamic>.of({
+//      "id":this.id,
+//      "Titolo":this.title,
+//      "Descrizione":this.description,
+//      "DataInizio":this.start,
+//      "DataFine":this.end,
+//      "Indirizzo":this.address,
+//      "Stato":this.status,
+//      "Categoria":this.category,
+//      "color":this.color,
+//      "Responsabile":this.supervisor,
+//      "Operatore":this.operator,
+//      "SubOperatori":this.suboperators
+//    });
+//  }
 
   Map<String, dynamic> toDocument(){
     return Map<String, dynamic>.of({
@@ -73,6 +84,9 @@ class Event {
       "Indirizzo":this.address,
       "Stato":this.status,
       "Categoria":this.category,
+      "IdResponsabile":this.idSupervisor,
+      "IdOperatore":this.idOperator,
+      "IdOperatori":this.idOperators,
       "Responsabile":this.supervisor,
       "Operatore":this.operator,
       "SubOperatori":this.suboperators
@@ -88,9 +102,13 @@ class Event {
   int get status => _status;
   String get category => _category;
   String get color => _color;
-  String get supervisor => _supervisor;
-  String get operator => _operator;
+  String get idSupervisor => _idSupervisor;
+  String get idOperator => _idOperator;
+  List<dynamic> get idOperators => _idOperators;
+  dynamic get supervisor => _supervisor;
+  dynamic get operator => _operator;
   List<dynamic> get suboperators => _suboperators;
+
 
   set id(String value) {
     _id = value;
@@ -128,11 +146,23 @@ class Event {
     _color = value;
   }
 
-  set supervisor(String value) {
+  set idSupervisor(String value) {
+    _idSupervisor = value;
+  }
+
+  set idOperator(String value) {
+    _idOperator = value;
+  }
+
+  set idOperators(List<dynamic> value) {
+    _idOperators = value;
+  }
+
+  set supervisor(dynamic value) {
     _supervisor = value;
   }
 
-  set operator(String value) {
+  set operator(dynamic value) {
     _operator = value;
   }
 

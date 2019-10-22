@@ -5,8 +5,10 @@ import 'package:fb_auth/fb_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/daily_calendar_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/monthly_calendar_view.dart';
@@ -19,9 +21,11 @@ part 'backdrop_event.dart';
 part 'backdrop_state.dart';
 
 class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
-  AuthUser user;
+  Account user;
   bool isSupervisor;
   final EventsRepository eventsRepository = EventsRepository();
+  Account operator;
+  DateTime day;
 
   BackdropBloc(this.user, this.isSupervisor);
 
@@ -61,6 +65,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       break;
       case global.Constants.monthlyCalendarRoute: {
         content = MonthlyCalendar(event.arg);
+        //TODO use here {operator}
         subscription = eventsRepository.events;
         subtype = global.Constants.EVENTS_SUB;
       }
@@ -68,8 +73,15 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       case global.Constants.dailyCalendarRoute: {
         //arg 1: operator
         //arg 2: day
+        if(event.arg[0]!=null)
+          operator = event.arg[0];
+        if(event.arg[1]!=null)
+          day = event.arg[1];
+        else
+          day=Utils.formatDate(DateTime.now(),"day");
         content = DailyCalendar(event.arg[1]);
-        //TODO use here arg 1
+
+        //TODO use here {operator}
         subscription = eventsRepository.events;
         subtype = global.Constants.EVENTS_SUB;
       }
@@ -89,7 +101,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       }
       break;
       case global.Constants.formEventCreatorRoute: {
-        content = EventCreator(event.arg);
+        content = EventCreator(event.arg, user);
         //no sub
       }
       break;
@@ -119,5 +131,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
 
   Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
     //yield NotificationWatingEvent(event.watingEvent);
+
+
   }
 }
