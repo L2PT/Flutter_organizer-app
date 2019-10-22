@@ -146,7 +146,7 @@ class _BackdropState extends State<Backdrop>
                         .FabChooser(state.route, backdropBloc.isSupervisor),
                     body: _buildStack(state.route, state.content)));
           }
-          if (state is NotificationWatingEvent) {
+          if (state is NotificationWatingState) {
             return Scaffold(
                 appBar: AppBar(
                   leading: new IconButton(

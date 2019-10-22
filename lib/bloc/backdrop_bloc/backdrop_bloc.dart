@@ -113,7 +113,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   }
 
   Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
-    yield NotificationWatingEvent(event.watingEvent);
+    //yield NotificationWatingState(event.watingEvent);
 
 
   }

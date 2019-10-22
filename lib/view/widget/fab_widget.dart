@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
@@ -155,8 +156,8 @@ class Fab {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context);
-                          }, //TODO _showDialogFabOperator
+                            _actionOperatoreCall(true);
+                          },
                           child: Container(
                             height: 50,
                             width: 50,
@@ -183,8 +184,8 @@ class Fab {
                         ),
                         GestureDetector(
                           onTap: () {
-                            Navigator.pop(context);
-                          }, //TODO _showDialogFabOperator
+                            _actionOperatoreCall(false);
+                          },
                           child: Container(
                             height: 50,
                             width: 50,
@@ -204,5 +205,17 @@ class Fab {
                 ],
               ));
         });
+  }
+  _actionOperatoreCall(bool callResponsabile) async*{
+    Navigator.pop(context);
+    String url = "tel:";
+    if(callResponsabile){
+      url = url+"3333333333";
+    }else{
+      url = url+"4444444444";
+    }
+    if(await canLaunch(url)){
+      launch(url);
+    }
   }
 }

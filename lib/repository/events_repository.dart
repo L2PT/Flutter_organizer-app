@@ -4,13 +4,14 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
 
 class EventsRepository {
-  final collection = PlatformUtils.fire.collection('Eventi');
+  final collection = Firestore.instance.collection('Eventi');
   Map<String,dynamic> categories;
   Future init() async {
     categories = await Utils.getCategories();
@@ -38,7 +39,7 @@ class EventsRepository {
   
   @override
   Stream<List<Event>> events() {
-    return collection.snapshots().map((snapshot) {
+    return collection.where("SubOperatori", arrayContains: "nfdjdfdsjfndjsfdsf").snapshots().map((snapshot) {
       return snapshot.documents
           .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
           .toList();
