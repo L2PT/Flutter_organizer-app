@@ -7,11 +7,12 @@ abstract class EventsEvent extends Equatable {
 
 class LoadEvents extends EventsEvent {
   final dynamic subscription;
+  final dynamic subscriptionArgs;
 
-  LoadEvents(this.subscription) : super([subscription]);
+  LoadEvents(this.subscription, this.subscriptionArgs) : super([subscription,subscriptionArgs]);
 
   @override
-  List<Object> get props => [subscription];
+  List<Object> get props => [subscription,subscriptionArgs];
 }
 
 class FilterEventsByDay extends EventsEvent {

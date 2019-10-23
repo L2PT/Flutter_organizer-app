@@ -17,11 +17,16 @@ class EventsRepository {
     return;
   }
 
-  @override
-  Future<void> deleteEvent(Event ev) async {
-    return collection.document(ev.id).delete();
-  }
+  //TODO TURRO
+  //Snapshot per eventi in dailycalendar, quindi dato un operatore prendi gli eventi di tutte le date(gli stati non lo so, se da operatore a responsabile cambia qualcosa fai due snapshot diverse eventualmente)
+  //Snapshot per eventi in waitingevent
+  //Snapshot per eventi eliminati(?sono due sezioni diverse questa e quella sotto?)
+  //Snapshot per eventi terminati(?sono due sezioni diverse questa e quella sopra?)
+  //Query per eliminare un evento, quindi cambiargli stato oppure spostarlo di collection non lo so
+  //Query per terminare un evento, quindi cambiargli stato oppure spostarlo di collection non lo so
+  //Query per cambiare lo stato dell'evento, per accettato e rifiutato (forse una singola dove ri-setti l'intero evento può andare)
 
+  //Questa va bene
   @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
     var docs = await collection.where("days",isGreaterThanOrEqualTo:new DateTime.now().day).getDocuments();
@@ -31,33 +36,26 @@ class EventsRepository {
     return a;
   }
   
-  @override
-  Stream<List<Event>> events() {
-    return collection.snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) {
-        return PlatformUtils.EventFromMap(doc.documentID,
-            categories[doc["Categoria"]] != null
-                ? categories[doc["Categoria"]]
-                : categories['default'], doc);
-      })
-          .toList();
-    });
-  }
-
-  @override
-  Future<void> updateEvent(Event update) {
-    return collection
-        .document(update.id)
-        .updateData(update.toDocument());
-  }
-
-  @override
-  Stream<List<Event>> eventsWating() {
-    return collection.snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
-          .toList();
-    });
-  }
+//  @override
+//  Stream<List<Event>> events() {
+//    return collection.snapshots().map((snapshot) {
+//      return snapshot.documents
+//          .map((doc) {
+//        return PlatformUtils.EventFromMap(doc.documentID,
+//            categories[doc["Categoria"]] != null
+//                ? categories[doc["Categoria"]]
+//                : categories['default'], doc);
+//      })
+//          .toList();
+//    });
+//  }
+//
+//  @override
+//  Stream<List<Event>> eventsWating() {
+//    return collection.snapshots().map((snapshot) {
+//      return snapshot.documents
+//          .map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+//          .toList();
+//    });
+//  }
 }

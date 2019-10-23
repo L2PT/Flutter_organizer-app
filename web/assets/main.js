@@ -150,9 +150,11 @@ function removeResource(res){
     });
 }
 function addResource(res){
+    //TODO right fields
     console.log(res);
-    res.forEach(function(o){
-        calendar.addResource({id:o,title:o});
+    res.operator.id = res.idOperator;
+    res.subOperators.forEach(function(o,i){
+        calendar.addResource({id:res.idOperators[i],title:o.name+o.surname});
     });
     var docRef = db.collection("Utenti").doc(loggedId);
     docRef.get().then(function(doc) {

@@ -321,7 +321,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param), Account.empty());}break;
       case "new_event":{dialogContainer = EventCreator(null, param);}break;
       case "new_user":{dialogContainer = Register();}break;
-      case "add_operator":{dialogContainer = OperatorSelection(DateTime(0), DateTime(9999), false);}break;
+      case "add_operator":{dialogContainer = OperatorSelection(getMaxEv(), false);}break;
     }
     showDialog(
       context: context,
@@ -342,7 +342,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       jQuery('#wrap').css(CssOptions(zIndex: 1));
       if(onValue != null && onValue != false){
         switch(opt) {
-          case "add_operator":{addResource(onValue[1]);}break;
+          case "add_operator":{addResource(onValue);}break;
         }
       }
     });
@@ -370,4 +370,5 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString();
     });
   }
+  getMaxEv(){Event e = Event.empty(); e.start = DateTime(0);  e.end = DateTime(9999); return e;}
 }

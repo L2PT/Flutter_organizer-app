@@ -269,6 +269,7 @@ class EventCreatorState extends State<EventCreator> {
                                           lastDate: DateTime(3000)
                                       );
                                     },
+                                    onChanged: (newValue)=>resetOperatorsFields(),
                                     validator: (val){
                                       if (val != null){
                                         widget._event.start = Utils.formatDate(val, "day");
@@ -302,6 +303,7 @@ class EventCreatorState extends State<EventCreator> {
                                         );
                                         return DateTimeField.convert(time);
                                       },
+                                      onChanged: (newValue)=>resetOperatorsFields(),
                                       validator: (val){
                                         if(_allDayFlag)return null;
                                         if (val != null && (val.hour>=6) && (Utils.formatDate(widget._event.start,"day")==Utils.formatDate(now,"day")?
@@ -344,6 +346,7 @@ class EventCreatorState extends State<EventCreator> {
                                         lastDate: DateTime(3000)
                                     );
                                   },
+                                  onChanged: (newValue)=>resetOperatorsFields(),
                                   validator: (val){
                                     if(_allDayFlag)return null;
                                     if ((val != null) && (val.year >= 2015 && val.year <= 3000) && widget._event.start.isBefore(val.add(Duration(days: 1)))) {
@@ -378,6 +381,7 @@ class EventCreatorState extends State<EventCreator> {
                                       );
                                       return DateTimeField.convert(time);
                                     },
+                                    onChanged: (newValue)=>resetOperatorsFields(),
                                     validator: (val){
                                       if(_allDayFlag)return null;
                                       if(val != null && (widget._event.start.isBefore(widget._event.end.add(Duration(hours: val.hour, minutes: val.minute-29))))
@@ -419,13 +423,8 @@ class EventCreatorState extends State<EventCreator> {
                                 textColor: Colors.white,
                                 fontSize: 16.0
                             );
-                            var result = await PlatformUtils.navigator(context, new OperatorSelection(widget._event.start, widget._event.end, true));
-                            print(result);
-                            //[[[IdOperatore,[IdOperatori]],[Operatore,[SubOperatori]]]
-                            widget._event.idOperator = result[0][0];
-                            widget._event.idOperators = result[0][1];
-                            widget._event.operator = result[1][0];
-                            widget._event.suboperators = result[1][1];
+                            var result = await PlatformUtils.navigator(context, new OperatorSelection(widget._event, true));
+                            widget._event = result;
                             setState((){});
                           }:null,
                         ):Container()
@@ -482,6 +481,14 @@ class EventCreatorState extends State<EventCreator> {
     });
   }
 
+  resetOperatorsFields(){
+    setState(() {
+      widget._event.idOperator = "";
+      widget._event.idOperators = [];
+      widget._event.operator = null;
+      widget._event.suboperators = [];
+    });
+  }
 
   Future _saveNewEvent(BuildContext context) async {
     if (widget._event.operator==null) setState((){colorValidator = red;}); else setState((){colorValidator = dark;});

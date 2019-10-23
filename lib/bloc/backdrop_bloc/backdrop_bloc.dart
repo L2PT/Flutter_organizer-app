@@ -50,6 +50,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
     //TODO all queries
     dynamic content;
     var subscription;
+    var subscriptionArgs;
     int subtype;
     switch(event.route) {
       case global.Constants.homeRoute: {
@@ -60,6 +61,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
         }else{
           content = DailyCalendar(null);
           subscription = eventsRepository.events;
+          subscriptionArgs = user.id;
           subtype = global.Constants.EVENTS_SUB;
         }};
       break;
@@ -115,7 +117,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       default: {content = DailyCalendar(null);}
       break;
     }
-    yield Ready(event.route, content, subscription, subtype); //cambia lo stato
+    yield Ready(event.route, content, subscription, subscriptionArgs, subtype); //cambia lo stato
 
   }
 

@@ -51,7 +51,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     //yield NotLoaded(); almost useless
     _eventsSubscription?.cancel();
     //subscribe and do dispatch of interested events
-    _eventsSubscription = event.subscription().listen((events) {
+    _eventsSubscription = event.subscription(event.subscriptionArgs).listen((events) {
       dispatch(
         EventsUpdated(events), //crea l'evento
       );
@@ -83,7 +83,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
   }
 
   Stream<EventsState> _mapDeleteEventToState(DeleteEvent event) async* {
-    _eventsRepository.deleteEvent(event.event);
+    //_eventsRepository.deleteEvent(event.event);
   }
 
   Stream<EventsState> _mapEventsUpdateToState(EventsUpdated event) async* {

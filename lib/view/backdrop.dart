@@ -109,8 +109,8 @@ class _BackdropState extends State<Backdrop>
         builder: (context, state) {
           if (state is Ready) {
             //in the state there is the subscription to the data to ear for realtime changes
-            if(state.subtype==global.Constants.EVENTS_SUB)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription));
-            else if(state.subtype==global.Constants.OPERATORS_SUB)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription));
+            if(state.subtype==global.Constants.EVENTS_SUB)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription,state.subscriptionArgs));
+            else if(state.subtype==global.Constants.OPERATORS_SUB)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription,state.subscriptionArgs));
             _toggleBackdropLayerVisibility(false);
             return WillPopScope(
                 onWillPop: _onBackPressed,
