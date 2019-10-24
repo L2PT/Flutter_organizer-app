@@ -3,6 +3,7 @@ import 'package:fb_auth/data/services/auth/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -32,7 +33,7 @@ class _waitingEventState extends State<waitingEvent> {
   @override
   void initState()  {
     super.initState();
-    account = BlocProvider.of<BackdropBloc>(context).user;
+    account = BlocProvider.of<AuthenticationBloc>(context).account;
   }
 
   @override
@@ -99,7 +100,7 @@ Widget _viewEvent(Event e) {
         dateView: false,
         hourHeight: 140,
         buttonArea: true,
-        actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev, account),
+        actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
       ),
     ),
     SizedBox(height: 15)

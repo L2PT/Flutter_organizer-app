@@ -98,14 +98,16 @@ class _OperatorSelectionState extends State<OperatorSelection>{
       if(sel[k] == true){
         selectedOperatorsId.add(k.id);
         selectedSubOperators.add(k.toDocument());
-      }else if(sel[k] == null){
+      }else if(widget.tristate && sel[k] == null){
         selectedOperatorsId.add(k.id);
         selectedOperator = k;
       }
     });
-    widget.event.idOperator = selectedOperator.id;
+    if(widget.tristate) {
+      widget.event.idOperator = selectedOperator.id;
+      widget.event.operator = selectedOperator.toDocument();
+    }
     widget.event.idOperators = selectedOperatorsId;
-    widget.event.operator = selectedOperator.toDocument();
     widget.event.suboperators = selectedSubOperators;
     return widget.event;
   }
@@ -116,12 +118,14 @@ class _OperatorSelectionState extends State<OperatorSelection>{
     OperatorsRepository repo = OperatorsRepository();
     operators = await repo.getOperatorsFiltered();//by DataInizio DataFine
     operators.forEach((a){
-      if(widget.event.idOperator == a.id)
-        sel[a] = null;
-      else if(widget.event.idOperators.contains(a.id))
-        sel[a] = true;
-      else
-        sel[a] = false;
+      if(a!=null) {
+        if (widget.event.idOperator == a.id)
+          sel[a] = null;
+        else if (widget.event.idOperators.contains(a.id))
+          sel[a] = true;
+        else
+          sel[a] = false;
+      }
     });
     setState(() {});
   }

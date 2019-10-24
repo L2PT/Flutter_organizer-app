@@ -8,14 +8,13 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'dart:math';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
-import 'package:venturiautospurghi/view/details_event_view.dart';
-import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 import '../utils/theme.dart';
@@ -306,7 +305,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   List<Widget> _buildFront(){
-    var account = BlocProvider.of<BackdropBloc>(context).user;
+    var account = BlocProvider.of<AuthenticationBloc>(context).account;
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
     DateTime base = new DateTime(1990,1,1,6,0,0); //-2UTC
@@ -330,7 +329,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                   e:e,
                   hourSpan:_gridHourSpan,
                   hourHeight:_gridHourHeight,
-                  actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev, account),
+                  actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
                   buttonArea: false,
                   dateView: false,
                 )

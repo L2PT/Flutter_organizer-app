@@ -76,15 +76,13 @@ class Utils {
     print("response: "+response.body);
   }
 
-  static void PushViewDetailsEvent(BuildContext context, Event ev, Account account) async {
-    final result = await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-    => new DetailsEvent(ev, account)));
+  static void PushViewDetailsEvent(BuildContext context, Event ev) async {
+    final result = await Navigator.pushNamed(context, global.Constants.detailsEventViewRoute, arguments: ev);
     if(result == global.Constants.DELETE_SIGNAL) {
       BlocProvider.of<EventsBloc>(context).dispatch(DeleteEvent(ev));
     }
     if(result == global.Constants.MODIFY_SIGNAL) {
-      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context)
-      => new EventCreator(ev, account)));
+      Navigator.pushNamed(context, global.Constants.formEventCreatorRoute, arguments: ev);
     }
   }
 

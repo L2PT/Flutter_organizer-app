@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -136,7 +137,6 @@ class _persistenNotificationState extends State<persistenNotification> {
   }
 
   Widget viewPersistentSingleEvent() {
-    var account = BlocProvider.of<BackdropBloc>(context).user;
     var formatter = new DateFormat('Hm', 'it_IT');
     String oraInizio = formatter.format(listEvent[0].start);
     String oraFine = formatter.format(listEvent[0].end);
@@ -145,7 +145,7 @@ class _persistenNotificationState extends State<persistenNotification> {
       dateView: true,
       e: listEvent[0],
       hourHeight: 160,
-      actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, listEvent[0], account),
+      actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, listEvent[0]),
     );
     /* */
   }

@@ -36,26 +36,26 @@ class EventsRepository {
     return a;
   }
   
-//  @override
-//  Stream<List<Event>> events() {
-//    return collection.snapshots().map((snapshot) {
-//      return snapshot.documents
-//          .map((doc) {
-//        return PlatformUtils.EventFromMap(doc.documentID,
-//            categories[doc["Categoria"]] != null
-//                ? categories[doc["Categoria"]]
-//                : categories['default'], doc);
-//      })
-//          .toList();
-//    });
-//  }
-//
-//  @override
-//  Stream<List<Event>> eventsWating() {
-//    return collection.snapshots().map((snapshot) {
-//      return snapshot.documents
-//          .map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
-//          .toList();
-//    });
-//  }
+  @override
+  Stream<List<Event>> events() {
+    return collection.snapshots().map((snapshot) {
+      return snapshot.documents
+          .map((doc) {
+        return PlatformUtils.EventFromMap(doc.documentID,
+            categories[doc["Categoria"]] != null
+                ? categories[doc["Categoria"]]
+                : categories['default'], doc);
+      })
+          .toList();
+    });
+  }
+
+  @override
+  Stream<List<Event>> eventsWating() {
+    return collection.snapshots().map((snapshot) {
+      return snapshot.documents
+          .map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .toList();
+    });
+  }
 }

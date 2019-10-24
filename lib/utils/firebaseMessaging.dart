@@ -36,12 +36,12 @@ void firebaseCloudMessaging_Listeners(String email, BuildContext context){
     onResume: (Map<String, dynamic> message) async {
       print('on resume $message');
       //TODO quando salvo l'evento
-      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty(),Account.empty())));
+      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty())));
     },
     onLaunch: (Map<String, dynamic> message) async {
       print('on launch $message');
       //TODO quando salvo l'evento
-      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty(),Account.empty())));
+      Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => new DetailsEvent(Event.empty())));
     },
   );
 }

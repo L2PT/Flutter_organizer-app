@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -17,18 +17,17 @@ import '../models/event.dart';
 
 class EventCreator extends StatefulWidget {
   Event _event;
-  Account _supervisor;
 
   @override
   State<StatefulWidget> createState() {
     return new EventCreatorState();
   }
 
-  EventCreator(this._event, this._supervisor) {
+  EventCreator(this._event) {
     if(this._event == null){
       _event=new Event.empty();
-      _event.start.add(Duration(hours:2, minutes: 10));
-      _event.end.add(Duration(hours:2, minutes: 15));
+      _event.start = Utils.formatDate(_event.start, "day").add(Duration(hours:6));
+      _event.end =_event.start.add(Duration(minutes:30));
     }
   }
 }
@@ -45,16 +44,19 @@ class EventCreatorState extends State<EventCreator> {
   DateTime now = DateTime.now().add(Duration(hours:2));
   Color colorValidator = dark;
   bool enabledField = false;
+  Account _supervisor;
+
 
   @override
   void initState() {
+    super.initState();
+    _supervisor = BlocProvider.of<AuthenticationBloc>(context).account;
     enabledField = widget._event.id!=null&&widget._event.id!=""?!widget._event.start.isBefore(now.subtract(Duration(minutes:5))):true;
     getCategories();
   }
 
   @override
   Widget build(BuildContext context) {
-
     double iconspace = 30.0;//handle
 
     List<Widget> listCat = _categoriesN.map((n){
@@ -470,9 +472,9 @@ class EventCreatorState extends State<EventCreator> {
   }
 
   getCategories() async {
-    PlatformUtils.fireDocument("Costanti","Categorie").then((doc){
+    PlatformUtils.fireDocument("Costanti","Categorie").get().then((doc){
       if(doc.exists && doc != null){
-        dynamic data = PlatformUtils.getFireDocumentField(doc, null);
+        dynamic data = PlatformUtils.extractFieldFromDocument(null,doc);
         setState(() {
           _categoriesN = data.keys.toList();
           _categoriesC = data.values.toList();
@@ -490,6 +492,7 @@ class EventCreatorState extends State<EventCreator> {
     });
   }
 
+  //TODO
   Future _saveNewEvent(BuildContext context) async {
     if (widget._event.operator==null) setState((){colorValidator = red;}); else setState((){colorValidator = dark;});
     if ((this._formDateKey.currentState.validate()||!enabledField) && this._formKey.currentState.validate() && widget._event.operator!=null) {
@@ -498,8 +501,8 @@ class EventCreatorState extends State<EventCreator> {
       print( widget._event.start);
       print( widget._event.end);
       print("Firebase save");
-      widget._event.idSupervisor = widget._supervisor.id;
-      widget._event.supervisor = widget._supervisor.toDocument();
+      widget._event.idSupervisor = _supervisor.id;
+      widget._event.supervisor = _supervisor.toDocument();
       widget._event.category = _categoriesN[_radioValue];
       widget._event.color = _categoriesC[_radioValue];
       widget._event.status = Status.New;
@@ -514,7 +517,7 @@ class EventCreatorState extends State<EventCreator> {
           docRef = widget._event.id;
         }else{
           docRef = await PlatformUtils.fire.collection(global.Constants.tabellaEventi).add(widget._event.toDocument());
-          docRef = docRef.documentID;
+          docRef = PlatformUtils.extractFieldFromDocument("id", docRef);
         }
         Utils.notify(token: widget._event.operator["Token"], evento: docRef);
         Navigator.pop(context);

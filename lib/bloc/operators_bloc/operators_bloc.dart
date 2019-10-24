@@ -58,7 +58,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
     //yield NotLoaded(); almost useless
     _eventsSubscription?.cancel();
     //subscribe and do dispatch of interested events
-    _eventsSubscription = event.subscription(event.subscriptionArgs).listen((events) {
+    _eventsSubscription = event.subscription().listen((events) {
       dispatch(
         EventsUpdated(events), //crea l'evento
       );
@@ -93,7 +93,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   }
 
   Stream<OperatorsState> _mapAddOperatorToState(AddOperator event) async* {
-    _operatorsRepository.addNewOperator(event.user);
+    _operatorsRepository.addOperator(event.user);
   }
 
   Stream<OperatorsState> _mapUpdateOperatorToState(UpdateOperator event) async* {

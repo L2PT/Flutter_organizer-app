@@ -23,6 +23,7 @@ part 'backdrop_state.dart';
 class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   Account user;
   bool isSupervisor;
+
   final EventsRepository eventsRepository = EventsRepository();
   Account operator;
   DateTime day;
@@ -103,7 +104,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       }
       break;
       case global.Constants.formEventCreatorRoute: {
-        content = EventCreator(event.arg, user);
+        content = EventCreator(event.arg);
         //no sub
       }
       break;

@@ -51,7 +51,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     //yield NotLoaded(); almost useless
     _eventsSubscription?.cancel();
     //subscribe and do dispatch of interested events
-    _eventsSubscription = event.subscription(event.subscriptionArgs).listen((events) {
+    _eventsSubscription = event.subscription().listen((events) {
       dispatch(
         EventsUpdated(events), //crea l'evento
       );

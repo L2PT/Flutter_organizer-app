@@ -6,34 +6,51 @@ import 'dart:async';
 
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+
 
 class OperatorsRepository {
-  final collection = PlatformUtils.fire.collection('Utenti');
+  final collection = PlatformUtils.fire.collection(global.Constants.tabellaUtenti);
   Map<String,dynamic> categories;
 
   //TODO TURRO
-  //Snapshot per prendere tutti gli operatori
-  //Query per prendere tutti gli operatori
   //Query per prendere gli operatori liberi dato un intervallo di tempo, DataInizio DataFine (per operatori liberi devi controllare gli eventi. Gli eventi non ce li hai in input quindi li prendi da Firestore)
 
-  //Questa va bene
   @override
-  Future<void> addNewOperator(Account u) {
+  Future<List<Account>> getOperators() async {
+    var docs = await collection.getDocuments();
+    List a = docs.documents.map((doc) => Account.fromMap(doc.documentID, doc)).toList();
+    return a;
+  }
+
+  @override
+  Future<List<Account>> getOperatorsFiltered() async {
+    var docs = await PlatformUtils.waitFireCollection(global.Constants.tabellaUtenti);
+    //la versione breve cioè map(()=> ).toList() non funziona sul web
+    List<Account> b = [];
+    for(dynamic a in docs){
+      if(a!=null){
+        b.add(Account.fromMap(PlatformUtils.extractFieldFromDocument("id", a), PlatformUtils.extractFieldFromDocument(null, a)));
+      }
+    }
+    return b;
+  }
+
+  @override
+  Future<void> addOperator(Account u) {
     return collection.add(u.toDocument());
   }
 
-//  @override
-//  Future<List<Account>> getOperators() async {
-//    var docs = await collection.getDocuments();
-//    List a = docs.documents.map((doc) => Account.fromMap(doc.documentID, doc)).toList();
-//    return a;
-//  }
-//
-//  @override
-//  Future<List<Account>> getOperatorsFiltered() async {
-//    var docs = await collection.getDocuments();
-//    List a = docs.documents.map((doc) => Account.fromMap(doc.documentID, doc)).toList();
-//    return a;
-//  }
+  @override
+  void updateOperator(String doc, dynamic data) {
+    PlatformUtils.fireDocument(global.Constants.tabellaUtenti,doc).update(data:Map.of({"OperatoriWeb":data}));
+  }
+
+  @override
+  void deleteOperator(String doc) {
+    PlatformUtils.fireDocument(global.Constants.tabellaUtenti,doc).delete();
+  }
+
+
 
 }

@@ -33,7 +33,6 @@ class Account {
       "Email":this.email,
       "Telefono":this.phone,
       "CodiceFiscale":this.codFiscale,
-      "OperatoriWeb":this.webops,
       "Token":this.token,
       "Occupato":this.busy,
       "Responsabile":this.supervisor

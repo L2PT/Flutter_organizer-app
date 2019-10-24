@@ -76,7 +76,7 @@ class _BackdropState extends State<Backdrop>
   @override
   void initState() {
     super.initState();
-    firebaseCloudMessaging_Listeners(BlocProvider.of<BackdropBloc>(context).user.email, context);
+    firebaseCloudMessaging_Listeners(BlocProvider.of<AuthenticationBloc>(context).account.email, context);
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
@@ -90,17 +90,18 @@ class _BackdropState extends State<Backdrop>
   //--APPBAR DELLA BACKDROP
   @override
   Widget build(BuildContext context) {
-    final backdropBloc = BlocProvider.of<BackdropBloc>(context);
+    final repo = BlocProvider.of<BackdropBloc>(context).eventsRepository;
+    final account = BlocProvider.of<AuthenticationBloc>(context).account;
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<EventsBloc>(
           builder: (context) {
-            return EventsBloc(eventsRepository: backdropBloc.eventsRepository);
+            return EventsBloc(eventsRepository: repo);
           },
         ),BlocProvider<OperatorsBloc>(
           builder: (context) {
-            return OperatorsBloc(eventsRepository: backdropBloc.eventsRepository);
+            return OperatorsBloc(eventsRepository: repo);
           },
 
         ),
@@ -117,7 +118,7 @@ class _BackdropState extends State<Backdrop>
                 child: Scaffold(
                 appBar: AppBar(
                   title: new Text(
-                      (backdropBloc.isSupervisor
+                      (account.supervisor
                           ? _menuResponsabile[state.route]!=null?_menuResponsabile[state.route]:_menuResponsabile[global.Constants.homeRoute]
                           : _menuOperatore[state.route]!=null?_menuOperatore[state.route]:_menuOperatore[global.Constants.homeRoute])
                           .textLink.toUpperCase(),
@@ -131,7 +132,7 @@ class _BackdropState extends State<Backdrop>
                     ),
                   ),
                 ),
-                floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.user),
+                floatingActionButton: Fab(context).FabChooser(state.route),
                 body: _buildStack(state.route, state.content)
               )
             );
@@ -272,7 +273,7 @@ class _BackLayer extends StatelessWidget {
             Expanded(
               child: new ListView(
                   physics: new BouncingScrollPhysics(),
-                  children: (BlocProvider.of<BackdropBloc>(context).isSupervisor ? _menuResponsabile : _menuOperatore)
+                  children: (BlocProvider.of<AuthenticationBloc>(context).account.supervisor ? _menuResponsabile : _menuOperatore)
                       .map((route, linkMenu) =>
                           _buildMenu(linkMenu, route, context))
                       .values

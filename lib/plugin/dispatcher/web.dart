@@ -1,6 +1,5 @@
 //custom import
 import 'package:firebase/firebase.dart';
-import 'package:firebase/firestore.dart' as fs;
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/web.dart';
@@ -33,10 +32,15 @@ class PlatformUtils {
     return a.docs;
   }
 
-  static dynamic fireDocument(collection,document) => fire.collection(collection).doc(document).get();
+  static dynamic fireDocument(collection,document) => fire.collection(collection).doc(document);
 
-  static dynamic getFireDocumentField(document, field){
-    if(field != null) return document.get(field);
+  static dynamic extractFieldFromDocument(field, document){
+    if(field != null){
+      if(field == "id")
+        return document.id;
+      else
+        return document.get(field);
+    }
     else return document.data();
   }
 

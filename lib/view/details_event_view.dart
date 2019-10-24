@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -9,12 +11,11 @@ import '../utils/theme.dart';
 import '../models/event.dart';
 
 class DetailsEvent extends StatefulWidget {
+  final route = global.Constants.detailsEventViewRoute;
   final Event event;
-  final Account account;
 
   DetailsEvent(
-      @required this.event,
-      @required this.account, {
+      @required this.event,{
         Key key,
       })  : assert(event != null),
         super(key: key);
@@ -38,11 +39,12 @@ class _DetailsEventState extends State<DetailsEvent>
   List<Widget> tabsContents = List();
   TabController _tabController;
   Color color = Color(global.Constants.fallbackColor);
-  String operators;
+  Account account;
 
   @override
   void initState() {
     super.initState();
+    account = BlocProvider.of<AuthenticationBloc>(context).account;
     tabsContents = _buildTabsContents();
     _tabController = new TabController(vsync: this, length: tabsHeaders.length);
     getColor();
@@ -154,7 +156,7 @@ class _DetailsEventState extends State<DetailsEvent>
                 indent: 35,
                 color: almost_dark,
               ),
-              widget.account.supervisor ? _viewStateWidget(3) : Container(),
+              account.supervisor ? _viewStateWidget(3) : Container(),
               Container(
                 alignment: Alignment.topLeft,
                 padding: EdgeInsets.symmetric(vertical: 15.0),
@@ -298,7 +300,7 @@ class _DetailsEventState extends State<DetailsEvent>
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => Navigator.pop(context, false),
             )),
-        floatingActionButton: widget.event.end.isBefore(DateTime.now().add(Duration(hours: 2)))&&widget.account.supervisor?Container(
+        floatingActionButton: widget.event.end.isBefore(DateTime.now().add(Duration(hours: 2)))&&account.supervisor?Container(
             decoration: BoxDecoration(
                 color: grey, borderRadius: BorderRadius.circular(100)),
             child: Padding(
@@ -310,8 +312,7 @@ class _DetailsEventState extends State<DetailsEvent>
                   },
                   backgroundColor: dark,
                   elevation: 6,
-                ))):Fab(context).FabChooser(
-            global.Constants.detailsEventViewRoute, widget.account),
+                ))):Fab(context).FabChooser(widget.route),
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
@@ -469,7 +470,6 @@ class _DetailsEventState extends State<DetailsEvent>
                       Text("Avvisami (15m)", style: subtitle_rev),
                       SizedBox(width: 30),
                       Switch(value: true, activeColor: c, onChanged: (v) {})
-                      //TODO
                     ],
                   ),*/
                     )
