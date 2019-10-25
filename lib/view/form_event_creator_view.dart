@@ -12,7 +12,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
-import '../models/event.dart';
+import 'package:venturiautospurghi/models/event.dart';
 
 
 class EventCreator extends StatefulWidget {

@@ -350,7 +350,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                 widget.account.webops.add(a.toMap());
               }
             //update firestore
-            OperatorsRepository().updateOperator(widget.account.id, widget.account.webops);
+            OperatorsRepository().updateOperator(widget.account.id, "OperatoriWeb", widget.account.webops);
             //update calendar js
             i = 0;
             addResource(e.suboperators.map((o){Account a=Account.fromMap(e.idOperators[i++], o);a.webops=[];return a;}).toList());
@@ -374,7 +374,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       if(Account.fromMap(null, o).id == res) j=o;
     }
     if(j!=null) widget.account.webops.remove(j);
-    OperatorsRepository().updateOperator(widget.account.id, widget.account.webops);
+    OperatorsRepository().updateOperator(widget.account.id, "OperatoriWeb", widget.account.webops);
   }
 
   Widget _buildTableCalendarWithBuilders(BuildContext context) {

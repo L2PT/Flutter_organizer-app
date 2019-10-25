@@ -27,7 +27,6 @@ class EventsRepository {
   //Query per cambiare lo stato dell'evento, per accettato e rifiutato (forse una singola dove ri-setti l'intero evento può andare)
 
   //Questa va bene
-  @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
     var docs = await collection.where("days",isGreaterThanOrEqualTo:new DateTime.now().day).getDocuments();
     List a = docs.documents.map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
@@ -36,7 +35,6 @@ class EventsRepository {
     return a;
   }
   
-  @override
   Stream<List<Event>> events() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
@@ -50,7 +48,6 @@ class EventsRepository {
     });
   }
 
-  @override
   Stream<List<Event>> eventsWating() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
@@ -58,4 +55,9 @@ class EventsRepository {
           .toList();
     });
   }
+
+  static void changeState(Event e, String field, dynamic data){
+
+  }
+
 }

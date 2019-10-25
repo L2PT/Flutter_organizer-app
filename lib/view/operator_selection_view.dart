@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/view/widget/switch.dart';
-import '../utils/theme.dart';
 
 class OperatorSelection extends StatefulWidget {
   final Event event;
@@ -45,7 +45,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
           backgroundColor: dark,
           onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
             return Fluttertoast.showToast(
-                msg: "Selezione l' operatore principale, tappando due volte",
+                msg: "Seleziona l' operatore principale, tappando due volte",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.CENTER,
                 timeInSecForIos: 1,

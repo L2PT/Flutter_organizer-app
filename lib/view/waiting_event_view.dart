@@ -1,22 +1,14 @@
-import 'package:fb_auth/data/classes/auth_user.dart';
-import 'package:fb_auth/data/services/auth/auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
-import 'package:venturiautospurghi/view/details_event_view.dart';
-import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
-import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-
-final _auth = FBAuth();
 
 class waitingEvent extends StatefulWidget {
   waitingEvent({Key key}) : super(key: key);
@@ -56,9 +48,8 @@ class _waitingEventState extends State<waitingEvent> {
                   mainAxisSize: MainAxisSize.max,
                   children: <Widget>[
                     Expanded(
-
                         child:
-                        state.events.length!=0?ListView.builder(
+                        state.events.length>0?ListView.builder(
                           physics: BouncingScrollPhysics(),
                           itemCount: state.events.length,
                           itemBuilder: (context, index) =>
@@ -87,82 +78,78 @@ class _waitingEventState extends State<waitingEvent> {
     );
   }
 
-void _onDaySelected(DateTime date) {
-  BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,date));
-}
+  void _onDaySelected(DateTime date) {
+    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, date);
+  }
 
-Widget _viewEvent(Event e) {
-  return Row(children: <Widget>[
-    Expanded(
-      flex: 9,
-      child: cardEvent(
-        e: e,
-        dateView: false,
-        hourHeight: 140,
-        buttonArea: true,
-        actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
+  Widget _viewEvent(Event e) {
+    return Row(children: <Widget>[
+      Expanded(
+        flex: 9,
+        child: cardEvent(
+          e: e,
+          dateView: false,
+          hourHeight: 140,
+          buttonArea: true,
+          actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
+        ),
       ),
-    ),
-    SizedBox(height: 15)
-  ]);
-}
+      SizedBox(height: 15)
+    ]);
+  }
 
-List<Widget> _viewDateHeader(DateTime dateEvent) {
-  int day = dateEvent.day;
-  var formatter = new DateFormat('MMMM yyyy', 'it_IT');
-  String meseAnno = formatter.format(dateEvent);
-  List<Widget> r = new List<Widget>();
-  r.add(
-        Row(
-          children: <Widget>[
-            Expanded(
-              flex: 1,
-              child: Text(
-                '$day',
-                style: dayWaitingEvent,
-              ),
+  List<Widget> _viewDateHeader(DateTime dateEvent) {
+    int day = dateEvent.day;
+    var formatter = new DateFormat('MMMM yyyy', 'it_IT');
+    String meseAnno = formatter.format(dateEvent);
+    List<Widget> r = new List<Widget>();
+    r.add(
+      Row(
+        children: <Widget>[
+          Expanded(
+            flex: 1,
+            child: Text(
+              '$day',
+              style: dayWaitingEvent,
             ),
-            Expanded(
-              flex: 10,
-              child: Text(
-                meseAnno.toUpperCase(),
-                style: datWaitingEvent,
-              ),
+          ),
+          Expanded(
+            flex: 10,
+            child: Text(
+              meseAnno.toUpperCase(),
+              style: datWaitingEvent,
             ),
-            Expanded(
-              flex: 1,
-              child: IconButton(
-                  icon: new Icon(Icons.today),
-                  alignment: Alignment.centerRight,
-                  color: Colors.grey,
-                  onPressed: () => _onDaySelected(dateEvent)),
+          ),
+          Expanded(
+            flex: 1,
+            child: IconButton(
+                icon: new Icon(Icons.today),
+                alignment: Alignment.centerRight,
+                color: Colors.grey,
+                onPressed: () => _onDaySelected(dateEvent)),
+          ),
+        ],
+      ),
+    );
+    r.add(
+      Row(
+        children: <Widget>[
+          Expanded(
+            flex: 9,
+            child: Center(
+              child: new Container(
+                  margin: const EdgeInsets.only(
+                      left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
+                  child: Divider(
+                    color: Colors.grey,
+                    height: 0,
+                  )),
             ),
-          ],
-        ),
-  );
-  r.add(
-        Row(
-          children: <Widget>[
-            Expanded(
-              flex: 9,
-              child: Center(
-                child: new Container(
-                    margin: const EdgeInsets.only(
-                        left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
-                    child: Divider(
-                      color: Colors.grey,
-                      height: 0,
-                    )),
-              ),
-            ),
-          ],
-        ),
-
-
-  );
-  return r;
-
-}
-
+          ),
+        ],
+      ),
+    );
+    return r;
+  }
 
 }

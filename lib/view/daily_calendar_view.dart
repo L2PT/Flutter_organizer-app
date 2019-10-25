@@ -6,19 +6,17 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 -(O)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
-import 'dart:math';
-import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
-import '../utils/theme.dart';
-import '../models/event.dart';
 
 //HANDLE cambia questa costante per modifcare la grandezza degli eventi
 const double minEventHeight = 60.0;
@@ -44,7 +42,6 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   @override
   void initState() {
     super.initState();
-    //carica gli eventi
     _selectedDay = widget.day!=null?widget.day:Utils.formatDate(DateTime.now(), "day");
     _events = Map();
     _calendarController = CalendarController();
@@ -91,7 +88,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
               ),
             );
           }
-          return SplashScreen();
+          return LoadingScreen();
         }
     );
   }
@@ -243,10 +240,12 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     );
   }
 
+  //This function initialize the variables to show properly the grid behind the events
   void initList() {
+    //TODO improve with support for multidays's events
     _selectedEvents = _events[_selectedDay] ?? [];
     if(_selectedEvents.length>0) {
-      //order by start date
+      //order by start date probably useless since firestore order date automatically
       _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
       //identify minimum duration's event
       int md = 4;
@@ -305,11 +304,10 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   List<Widget> _buildFront(){
-    var account = BlocProvider.of<AuthenticationBloc>(context).account;
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
-    DateTime base = new DateTime(1990,1,1,6,0,0); //-2UTC
-    DateTime top = new DateTime(1990,1,1,21,0,0); //-2UTC
+    DateTime base = new DateTime(1990,1,1,6,0,0);
+    DateTime top = new DateTime(1990,1,1,21,0,0);
     r.add(SizedBox(height: barHourHeight));
     _selectedEvents.forEach((e){
       r.add(SizedBox(height: (((e.start.hour*60+e.start.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:fb_auth/fb_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -46,6 +45,17 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
     }
 
   }
+
+
+  /// All incoming events of navigation mapped to state ready filling properly
+  /// the content: with the page to be visualized in the front layer of the backdrop class
+  /// the subscription: the snapshot STILL TO BE EXECUTED to retrieve the data for the choosen page
+  ///   *Input* an event with the rout and the argument for that route
+  ///           NOTE: the argument for the navigation from the backdrop menu is null as default
+  ///   *Output* a state Ready with the content, the subscription and the argument to execute
+  ///           the subscription with and the subtype that choose the bloc to submit the event
+  ///           in the backdrop
+  ///
 
   Stream<BackdropState> _mapUpdateViewToState(NavigateEvent event) async* {
     //TODO all queries
@@ -122,6 +132,10 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
 
   }
 
+
+
+  /// First method to be called after the login
+  /// it initialize the bloc and start the subscription for the notification events
   Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
     await eventsRepository.init();
     dispatch(NavigateEvent(global.Constants.homeRoute,null));
@@ -132,9 +146,10 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
     );
   }
 
+  /// Function that force the backdrop to switch state to show the user the
+  /// notifications on top of the screen
   Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
     //yield NotificationWatingEvent(event.watingEvent);
-
-
   }
+
 }

@@ -1,13 +1,12 @@
 
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
-import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/view/details_event_view.dart';
 
 FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 

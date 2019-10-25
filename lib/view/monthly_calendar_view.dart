@@ -8,13 +8,12 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
-import '../utils/theme.dart';
 
 class MonthlyCalendar extends StatefulWidget {
   final DateTime month;
@@ -34,7 +33,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _selectedMonth = widget.month!=null?widget.month:DateTime.now();
+    _selectedMonth = widget.month!=null?widget.month:Utils.formatDate(DateTime.now(), "month");
     _events = Map();
     _calendarController = CalendarController();
     _animationController = AnimationController(
@@ -61,7 +60,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
             BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(Utils.formatDate(_selectedMonth, "month")));
             ready = true;
           }else if(state is Filtered && ready){
-            if (state.events.length > 0) _events[state.selectedDay] = state.events;
+            if (state.events.length > 0) _events[state.selectedDay] = state.events; //TODO spread the days in the month
             return new Material(
               elevation: 12.0,
               borderRadius: new BorderRadius.only(
@@ -72,7 +71,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
                 ],)
             );
           }
-          return SplashScreen();
+          return LoadingScreen();
         }
     );
   }
@@ -81,9 +80,6 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   Widget _buildTableCalendarWithBuilders() {
     return TableCalendar(
       rowHeight: 85,
-      calendarStyle: CalendarStyle(
-
-      ),
       locale: 'it_IT',
       calendarController: _calendarController,
       events: _events,
@@ -199,7 +195,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
 
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[null,day]));
+    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, [null,day]);
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

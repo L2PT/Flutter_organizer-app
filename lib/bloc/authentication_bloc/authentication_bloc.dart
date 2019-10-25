@@ -61,6 +61,10 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     _userRepository.logout();
   }
 
+  /// Function to retrieve from the database the information associated with the
+  /// user logged in. The Firebase AuthUser uid must be the same as the id of the
+  /// document in the "Utenti"(Constants.tabellaUtenti) collection.
+  /// However the mail is an unique field.
   Future<Account> getAccount(String email) async {
     var docs = await PlatformUtils.waitFireCollection("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
     for (var doc in docs) {

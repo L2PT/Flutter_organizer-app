@@ -37,13 +37,13 @@ class OperatorsRepository {
   }
 
   @override
-  Future<void> addOperator(Account u) {
-    return collection.add(u.toDocument());
+  void addOperator(Account u) {
+    PlatformUtils.setDocument(global.Constants.tabellaUtenti, u.id, u.toDocument());
   }
 
   @override
-  void updateOperator(String doc, dynamic data) {
-    PlatformUtils.fireDocument(global.Constants.tabellaUtenti,doc).update(data:Map.of({"OperatoriWeb":data}));
+  void updateOperator(String doc, String field, dynamic data) {
+    PlatformUtils.fireDocument(global.Constants.tabellaUtenti,doc).update(data:Map.of({field:data}));
   }
 
   @override

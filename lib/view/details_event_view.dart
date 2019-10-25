@@ -3,12 +3,14 @@ import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
-import '../utils/theme.dart';
-import '../models/event.dart';
 
 class DetailsEvent extends StatefulWidget {
   final route = global.Constants.detailsEventViewRoute;
@@ -48,7 +50,10 @@ class _DetailsEventState extends State<DetailsEvent>
     tabsContents = _buildTabsContents();
     _tabController = new TabController(vsync: this, length: tabsHeaders.length);
     getColor();
-    //getDate(widget.event.start);
+    if(widget.event.idOperator == account.id && widget.event.status < Status.Seen){
+      EventsRepository.changeState(widget.event, "Stato", Status.Seen);
+      widget.event.status = Status.Seen;
+    }
   }
 
   @override
@@ -58,12 +63,11 @@ class _DetailsEventState extends State<DetailsEvent>
   }
 
   List<Widget> _buildTabsContents() {
-    //HANDLE
     List<Widget> t = List();
     DateFormat format = new DateFormat.Hm();
     String orarioStart = format.format(widget.event.start);
     String orarioEnd = format.format(widget.event.end);
-    Widget detailsContet = ListView(
+    Widget detailsContent = ListView(
       physics: BouncingScrollPhysics(),
       children: <Widget>[
         Container(
@@ -123,9 +127,8 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
-
-                    //Text(widget.event.supervisor.surname, style: subtitle_rev),
-                    //Text(widget.event.supervisor.name, style: subtitle_rev),
+                    Text(widget.event.supervisor.surname, style: subtitle_rev),
+                    Text(widget.event.supervisor.name, style: subtitle_rev),
                   ],
                 ),
               ),
@@ -284,7 +287,7 @@ class _DetailsEventState extends State<DetailsEvent>
           ],
         ));
 
-    t.add(detailsContet);
+    t.add(detailsContent);
     t.add(detailsDocument);
     t.add(detailsNote);
     return t;
@@ -479,7 +482,7 @@ class _DetailsEventState extends State<DetailsEvent>
 
   Widget _viewStateWidget(int status) {
     switch (status) {
-      case 0:
+      case Status.New:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -495,7 +498,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 1:
+      case Status.Delivered:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -511,7 +514,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 2:
+      case Status.Seen:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -527,7 +530,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 3:
+      case Status.Accepted:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -543,7 +546,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 4:
+      case Status.Rejected:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -559,7 +562,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 5:
+      case Status.Ended:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -594,4 +597,5 @@ class _DetailsEventState extends State<DetailsEvent>
       });
     }
   }
+
 }

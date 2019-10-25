@@ -1,18 +1,14 @@
 library App.utils;
 
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:http/http.dart' as http;
-import 'package:venturiautospurghi/view/details_event_view.dart';
-import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 
 class Utils {
   static Future<Map<String,dynamic>> getCategories() async {
