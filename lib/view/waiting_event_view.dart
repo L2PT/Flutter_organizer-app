@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
@@ -24,14 +25,14 @@ class waitingEvent extends StatefulWidget {
 }
 
 class _waitingEventState extends State<waitingEvent> {
-  AuthUser user;
+  Account account;
   DateTime dataCorrente;
   bool ready = false;
 
   @override
   void initState()  {
     super.initState();
-    user = BlocProvider.of<BackdropBloc>(context).user;
+    account = BlocProvider.of<BackdropBloc>(context).user;
   }
 
   @override
@@ -90,21 +91,19 @@ void _onDaySelected(DateTime date) {
 }
 
 Widget _viewEvent(Event e) {
-    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
-  return
-          Row(children: <Widget>[
-            Expanded(
-              flex: 9,
-              child: cardEvent(
-                e: e,
-                dateView: false,
-                hourHeight: 140,
-                buttonArea: true,
-                actionEvent: (ev)=> Utils.onCardClickedDetails(ev, context, arg),
-              ),
-            ),
-            SizedBox(height: 15)
-          ]);
+  return Row(children: <Widget>[
+    Expanded(
+      flex: 9,
+      child: cardEvent(
+        e: e,
+        dateView: false,
+        hourHeight: 140,
+        buttonArea: true,
+        actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev, account),
+      ),
+    ),
+    SizedBox(height: 15)
+  ]);
 }
 
 List<Widget> _viewDateHeader(DateTime dateEvent) {

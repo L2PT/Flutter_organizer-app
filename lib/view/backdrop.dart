@@ -23,6 +23,8 @@ import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/linkMenu.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
+import 'package:venturiautospurghi/utils/firebaseMessaging.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -53,7 +55,7 @@ final Map<String, LinkMenu> _menuOperatore = const {
 
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
-      const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+    const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -74,12 +76,12 @@ class _BackdropState extends State<Backdrop>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-        duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
+    firebaseCloudMessaging_Listeners(BlocProvider.of<BackdropBloc>(context).user.email, context);
+    _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
   @override
-  void dispose() {
+  void dispose(){
     _controller.dispose();
     super.dispose();
   }
@@ -91,60 +93,48 @@ class _BackdropState extends State<Backdrop>
     final backdropBloc = BlocProvider.of<BackdropBloc>(context);
 
     return MultiBlocProvider(
-        providers: [
-          BlocProvider<EventsBloc>(
-            builder: (context) {
-              return EventsBloc(
-                  eventsRepository: backdropBloc.eventsRepository);
-            },
-          ),
-          BlocProvider<OperatorsBloc>(
-            builder: (context) {
-              return OperatorsBloc(
-                  eventsRepository: backdropBloc.eventsRepository);
-            },
-          ),
-        ],
-        child:
-            BlocBuilder<BackdropBloc, BackdropState>(builder: (context, state) {
+      providers: [
+        BlocProvider<EventsBloc>(
+          builder: (context) {
+            return EventsBloc(eventsRepository: backdropBloc.eventsRepository);
+          },
+        ),BlocProvider<OperatorsBloc>(
+          builder: (context) {
+            return OperatorsBloc(eventsRepository: backdropBloc.eventsRepository);
+          },
+
+        ),
+      ],
+      child: BlocBuilder<BackdropBloc, BackdropState>(
+        builder: (context, state) {
           if (state is Ready) {
             //in the state there is the subscription to the data to ear for realtime changes
-            if (state.subtype == global.Constants.EVENTS_SUB)
-              BlocProvider.of<EventsBloc>(context)
-                  .dispatch(LoadEvents(state.subscription));
-            else if (state.subtype == global.Constants.OPERATORS_SUB)
-              BlocProvider.of<OperatorsBloc>(context)
-                  .dispatch(LoadOperators(state.subscription));
+            if(state.subtype==global.Constants.EVENTS_SUB)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription));
+            else if(state.subtype==global.Constants.OPERATORS_SUB)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription));
             _toggleBackdropLayerVisibility(false);
             return WillPopScope(
                 onWillPop: _onBackPressed,
                 child: Scaffold(
-                    appBar: AppBar(
-                      title: new Text(
-                          (backdropBloc.isSupervisor
-                                  ? _menuResponsabile[state.route] != null
-                                      ? _menuResponsabile[state.route]
-                                      : _menuResponsabile[
-                                          global.Constants.homeRoute]
-                                  : _menuOperatore[state.route] != null
-                                      ? _menuOperatore[state.route]
-                                      : _menuOperatore[
-                                          global.Constants.homeRoute])
-                              .textLink
-                              .toUpperCase(),
-                          style: title_rev),
-                      elevation: 0.0,
-                      leading: new IconButton(
-                        onPressed: () => _toggleBackdropLayerVisibility(true),
-                        icon: new AnimatedIcon(
-                          icon: AnimatedIcons.close_menu,
-                          progress: _controller.view,
-                        ),
-                      ),
+                appBar: AppBar(
+                  title: new Text(
+                      (backdropBloc.isSupervisor
+                          ? _menuResponsabile[state.route]!=null?_menuResponsabile[state.route]:_menuResponsabile[global.Constants.homeRoute]
+                          : _menuOperatore[state.route]!=null?_menuOperatore[state.route]:_menuOperatore[global.Constants.homeRoute])
+                          .textLink.toUpperCase(),
+                      style: title_rev),
+                  elevation: 0.0,
+                  leading: new IconButton(
+                    onPressed: () => _toggleBackdropLayerVisibility(true),
+                    icon: new AnimatedIcon(
+                      icon: AnimatedIcons.close_menu,
+                      progress: _controller.view,
                     ),
-                    floatingActionButton: Fab(context)
-                        .FabChooser(state.route, backdropBloc.isSupervisor),
-                    body: _buildStack(state.route, state.content)));
+                  ),
+                ),
+                floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.user),
+                body: _buildStack(state.route, state.content)
+              )
+            );
           }
           if (state is NotificationWatingState) {
             return Scaffold(
@@ -161,7 +151,6 @@ class _BackdropState extends State<Backdrop>
                 body: Stack(
                   fit: StackFit.expand,
                   children: <Widget>[
-                    _buildStack(global.Constants.dailyCalendarRoute, DailyCalendar(null)),
                     Container(
                         decoration:
                         BoxDecoration(color: dark.withOpacity(0.2)),
@@ -283,9 +272,7 @@ class _BackLayer extends StatelessWidget {
             Expanded(
               child: new ListView(
                   physics: new BouncingScrollPhysics(),
-                  children: (BlocProvider.of<BackdropBloc>(context).isSupervisor
-                          ? _menuResponsabile
-                          : _menuOperatore)
+                  children: (BlocProvider.of<BackdropBloc>(context).isSupervisor ? _menuResponsabile : _menuOperatore)
                       .map((route, linkMenu) =>
                           _buildMenu(linkMenu, route, context))
                       .values
@@ -294,8 +281,7 @@ class _BackLayer extends StatelessWidget {
             Expanded(
               child: Container(
                 child: GestureDetector(
-                  onTap: () => BlocProvider.of<AuthenticationBloc>(context)
-                      .dispatch(LoggedOut()),
+                  onTap: ()=>BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedOut()),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
@@ -319,11 +305,10 @@ class _BackLayer extends StatelessWidget {
   MapEntry<String, Widget> _buildMenu(
       LinkMenu view, String route, BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final b = BlocProvider.of<BackdropBloc>(context);
     return new MapEntry(
         route,
         GestureDetector(
-          onTap: () => b.dispatch(NavigateEvent(route, null)),
+          onTap: () => Utils.NavigateTo(context,route,null),
           child: currentViewRoute == route
               ? Column(
                   children: <Widget>[

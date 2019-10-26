@@ -188,8 +188,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
       selectNext: () {
-        BlocProvider.of<BackdropBloc>(context).dispatch(
-            NavigateEvent(global.Constants.monthlyCalendarRoute, _selectedDay));
+        Utils.NavigateTo(context,global.Constants.monthlyCalendarRoute, Utils.formatDate(_selectedDay, "month"));
       },
       selectPrevious: (){},
     );
@@ -253,8 +252,8 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       //identify minimum duration's event
       int md = 4;
       _selectedEvents.forEach((e) => {
-        md = min(md.toInt(), (((e.end.hour * 60 + e.end.minute) -
-            (e.start.hour * 60 + e.start.minute)) / 60).toInt())
+        md = max(0,min(md.toInt(), (((e.end.hour * 60 + e.end.minute) -
+            (e.start.hour * 60 + e.start.minute)) / 60).toInt()))
       });
       if (md == 0) {
         _gridHourHeight = minEventHeight * 2;
@@ -307,11 +306,11 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   List<Widget> _buildFront(){
-    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
+    var account = BlocProvider.of<BackdropBloc>(context).user;
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
-    DateTime base = new DateTime(1990,1,1,4,0,0); //-2UTC
-    DateTime top = new DateTime(1990,1,1,19,0,0); //-2UTC
+    DateTime base = new DateTime(1990,1,1,6,0,0); //-2UTC
+    DateTime top = new DateTime(1990,1,1,21,0,0); //-2UTC
     r.add(SizedBox(height: barHourHeight));
     _selectedEvents.forEach((e){
       r.add(SizedBox(height: (((e.start.hour*60+e.start.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
@@ -331,7 +330,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                   e:e,
                   hourSpan:_gridHourSpan,
                   hourHeight:_gridHourHeight,
-                  actionEvent: (ev)=> Utils.onCardClickedDetails(ev,context, arg),
+                  actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev, account),
                   buttonArea: false,
                   dateView: false,
                 )
@@ -347,6 +346,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
     _selectedDay = Utils.formatDate(day, "day");
+    BlocProvider.of<BackdropBloc>(context).day = Utils.formatDate(day, "day");
     BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(Utils.formatDate(day, "day")));
   }
 

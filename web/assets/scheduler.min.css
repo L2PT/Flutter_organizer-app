@@ -442,6 +442,13 @@ span.fc-resource-postfix {
     pointer-events: all;
 }
 
+span.fc-resource-header-postfix {
+    float: right;
+    margin: 0 10px;
+    font-size: 20px;
+    pointer-events: all;
+}
+
 .fc-timeline-event.fc-selected .fc-bg {
     display: none
 }

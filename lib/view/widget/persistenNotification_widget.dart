@@ -27,7 +27,9 @@ class _persistenNotificationState extends State<persistenNotification> {
         '#7B9A4B',
         null,
         null,
-        null),
+        null,null,
+      null,
+      null,),
     new Event(
         '2',
         'evento prova 2',
@@ -40,7 +42,9 @@ class _persistenNotificationState extends State<persistenNotification> {
         '#F8AD09',
         null,
         null,
-        null),
+        null,null,
+      null,
+      null,),
   ];
   bool checkMultiEvent;
   Map<String, int> mapWaitingEvent;
@@ -132,7 +136,7 @@ class _persistenNotificationState extends State<persistenNotification> {
   }
 
   Widget viewPersistentSingleEvent() {
-    var arg = BlocProvider.of<BackdropBloc>(context).isSupervisor;
+    var account = BlocProvider.of<BackdropBloc>(context).user;
     var formatter = new DateFormat('Hm', 'it_IT');
     String oraInizio = formatter.format(listEvent[0].start);
     String oraFine = formatter.format(listEvent[0].end);
@@ -141,7 +145,7 @@ class _persistenNotificationState extends State<persistenNotification> {
       dateView: true,
       e: listEvent[0],
       hourHeight: 160,
-      actionEvent: (ev)=> Utils.onCardClickedDetails(listEvent[0], context, arg),
+      actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, listEvent[0], account),
     );
     /* */
   }
@@ -166,7 +170,7 @@ class _persistenNotificationState extends State<persistenNotification> {
   void _actionRifiuta() {}
 
   void _actionVisualizza() {
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.waitingEventListRoute,null));
+    Utils.NavigateTo(context,global.Constants.waitingEventListRoute,null);
   }
 
   void _setMapWaitingEvent(Event event) {

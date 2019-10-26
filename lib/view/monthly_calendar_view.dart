@@ -199,7 +199,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
 
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,day));
+    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[null,day]));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

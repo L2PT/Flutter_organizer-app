@@ -81,4 +81,5 @@ const whitebackground = const Color(0xFFFFFFFF);
 const whiteoverlapbackground = const Color(0x99FFFFFF);
 const red = const Color(0xFFC5032B);
 const yellow = const Color(0xFFF8AD09);
+const blue = const Color(0xFF119DD1);
 const greenholiday = const Color(0xFF00664D);

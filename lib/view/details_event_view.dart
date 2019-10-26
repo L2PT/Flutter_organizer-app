@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
@@ -9,13 +10,13 @@ import '../models/event.dart';
 
 class DetailsEvent extends StatefulWidget {
   final Event event;
-  final bool isSupervisor;
+  final Account account;
 
   DetailsEvent(
-    @required this.event,
-    @required this.isSupervisor, {
-    Key key,
-  })  : assert(event != null),
+      @required this.event,
+      @required this.account, {
+        Key key,
+      })  : assert(event != null),
         super(key: key);
 
   @override
@@ -153,7 +154,7 @@ class _DetailsEventState extends State<DetailsEvent>
                 indent: 35,
                 color: almost_dark,
               ),
-              widget.isSupervisor ? _viewStateWidget(3) : Container(),
+              widget.account.supervisor ? _viewStateWidget(3) : Container(),
               Container(
                 alignment: Alignment.topLeft,
                 padding: EdgeInsets.symmetric(vertical: 15.0),
@@ -185,18 +186,18 @@ class _DetailsEventState extends State<DetailsEvent>
                                   decoration: BoxDecoration(
                                     color: HexColor(widget.event.color),
                                     borderRadius:
-                                        BorderRadius.all(Radius.circular(15.0)),
+                                    BorderRadius.all(Radius.circular(15.0)),
                                   ),
                                   child: Center(
                                       child: Padding(
-                                    padding: EdgeInsets.only(
-                                        top: 3, bottom: 3, left: 20, right: 20),
-                                    child: Text(
-                                      "LEGGI",
-                                      style: subtitle_rev.copyWith(
-                                          color: white),
-                                    ),
-                                  ))),
+                                        padding: EdgeInsets.only(
+                                            top: 3, bottom: 3, left: 20, right: 20),
+                                        child: Text(
+                                          "LEGGI",
+                                          style: subtitle_rev.copyWith(
+                                              color: white),
+                                        ),
+                                      ))),
                               onTap: () => _tabController.animateTo(2),
                             )
                           ],
@@ -233,16 +234,16 @@ class _DetailsEventState extends State<DetailsEvent>
               Container(
                 child: Flexible(
                     child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      "file Mappa tizio caio semproniofdfdsfdsfdsfdsfd.pdf",
-                      style: subtitle.copyWith(
-                          color: dark, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.visible,
-                    )
-                  ],
-                )),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          "file Mappa tizio caio semproniofdfdsfdsfdsfdsfd.pdf",
+                          style: subtitle.copyWith(
+                              color: dark, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.visible,
+                        )
+                      ],
+                    )),
               )
             ]),
           )
@@ -272,7 +273,7 @@ class _DetailsEventState extends State<DetailsEvent>
                         scrollDirection: Axis.vertical,
                         child: new Text(
                             "riautospurgh(26111): Accessing hidden method Ljava/security/spec/ECParameterSpec;->setCurveName(Ljava/lang/String;)V (greylist, reflection, allowed)"
-                            "W/turiautospurgh(26111):",
+                                "W/turiautospurgh(26111):",
                             style: subtitle_rev),
                       ))
                 ],
@@ -297,154 +298,166 @@ class _DetailsEventState extends State<DetailsEvent>
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => Navigator.pop(context, false),
             )),
-        floatingActionButton: Fab(context).FabChooser(
-            global.Constants.detailsEventViewRoute, widget.isSupervisor),
+        floatingActionButton: widget.event.end.isBefore(DateTime.now().add(Duration(hours: 2)))&&widget.account.supervisor?Container(
+            decoration: BoxDecoration(
+                color: grey, borderRadius: BorderRadius.circular(100)),
+            child: Padding(
+                padding: EdgeInsets.all(2),
+                child: FloatingActionButton(
+                  child: Icon(Icons.delete),
+                  onPressed: (){
+                    Navigator.pop(context, global.Constants.DELETE_SIGNAL);
+                  },
+                  backgroundColor: dark,
+                  elevation: 6,
+                ))):Fab(context).FabChooser(
+            global.Constants.detailsEventViewRoute, widget.account),
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
               Container(
                   child: Column(children: <Widget>[
-                Expanded(
-                  flex: 6,
-                  child: Row(children: <Widget>[
                     Expanded(
-                      flex: 5,
-                      child: Container(color: dark),
+                      flex: 6,
+                      child: Row(children: <Widget>[
+                        Expanded(
+                          flex: 5,
+                          child: Container(color: dark),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Container(color: HexColor(widget.event.color)),
+                        )
+                      ]),
                     ),
                     Expanded(
-                      flex: 5,
-                      child: Container(color: HexColor(widget.event.color)),
+                      flex: 4,
+                      child: Container(color: grey),
                     )
-                  ]),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: Container(color: grey),
-                )
-              ])),
+                  ])),
               Container(
                   child: Column(children: <Widget>[
-                Container(
-                  decoration: BoxDecoration(
-                      color: HexColor(widget.event.color),
-                      borderRadius:
+                    Container(
+                      decoration: BoxDecoration(
+                          color: HexColor(widget.event.color),
+                          borderRadius:
                           BorderRadius.vertical(bottom: Radius.circular(30.0))),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 20),
-                    child: Row(
-                      children: <Widget>[
-                        SizedBox(
-                          width: 50,
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                              color: dark,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(25.0))),
-                          width: 55,
-                          height: 100,
-                          padding: EdgeInsets.all(10),
-                          margin: EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Center(
-                                child: Text(
-                                    formatterMese
-                                        .format(widget.event.start)
-                                        .toUpperCase(),
-                                    style: title_rev.copyWith(fontSize: 16)),
-                              ),
-                              Center(
-                                child: Text("${widget.event.start.day}",
-                                    style: title_rev.copyWith(
-                                        fontSize: 16)),
-                              ),
-                              Center(
-                                child: Text(
-                                    formatterSett.format(widget.event.start),
-                                    style: title_rev.copyWith(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.normal)),
-                              )
-                            ],
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 20, bottom: 20),
+                        child: Row(
                           children: <Widget>[
-                            Text(widget.event.title.toUpperCase(),
-                                style: title),
-                            Text(widget.event.category.toUpperCase(),
-                                style: subtitle.copyWith(color: dark)),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: dark,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(40.0))),
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(
-                                height: 20,
-                              ),
-                              Container(
-                                decoration: BoxDecoration(
-                                    color: whitebackground,
-                                    borderRadius: BorderRadius.all(
-                                        Radius.circular(30.0))),
-                                child: new TabBar(
-                                  isScrollable: true,
-                                  unselectedLabelColor: dark,
-                                  labelStyle: title.copyWith(fontSize: 16),
-                                  labelColor: dark,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  indicator: new BubbleTabIndicator(
-                                    indicatorHeight: 40.0,
-                                    indicatorColor:
-                                        HexColor(widget.event.color),
-                                    tabBarIndicatorSize:
-                                        TabBarIndicatorSize.tab,
+                            SizedBox(
+                              width: 50,
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: dark,
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(25.0))),
+                              width: 55,
+                              height: 100,
+                              padding: EdgeInsets.all(10),
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Center(
+                                    child: Text(
+                                        formatterMese
+                                            .format(widget.event.start)
+                                            .toUpperCase(),
+                                        style: title_rev.copyWith(fontSize: 16)),
                                   ),
-                                  tabs: tabsHeaders,
-                                  controller: _tabController,
-                                ),
+                                  Center(
+                                    child: Text("${widget.event.start.day}",
+                                        style: title_rev.copyWith(
+                                            fontSize: 16)),
+                                  ),
+                                  Center(
+                                    child: Text(
+                                        formatterSett.format(widget.event.start),
+                                        style: title_rev.copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal)),
+                                  )
+                                ],
                               ),
-                              Expanded(
-                                child: new TabBarView(
-                                  controller: _tabController,
-                                  children: tabsContents.map((Widget tab) {
-                                    return tab;
-                                  }).toList(),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(widget.event.title.toUpperCase(),
+                                    style: title),
+                                Text(widget.event.category.toUpperCase(),
+                                    style: subtitle.copyWith(color: dark)),
+                              ],
+                            )
+                          ],
                         ),
                       ),
-                      Container(
-                        width: 10,
-                        height: 150,
-                        decoration: BoxDecoration(
-                            color: HexColor(widget.event.color),
-                            borderRadius:
+                    ),
+                    Expanded(
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  color: dark,
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(40.0))),
+                              child: Column(
+                                children: <Widget>[
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: whitebackground,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(30.0))),
+                                    child: new TabBar(
+                                      isScrollable: true,
+                                      unselectedLabelColor: dark,
+                                      labelStyle: title.copyWith(fontSize: 16),
+                                      labelColor: dark,
+                                      indicatorSize: TabBarIndicatorSize.tab,
+                                      indicator: new BubbleTabIndicator(
+                                        indicatorHeight: 40.0,
+                                        indicatorColor:
+                                        HexColor(widget.event.color),
+                                        tabBarIndicatorSize:
+                                        TabBarIndicatorSize.tab,
+                                      ),
+                                      tabs: tabsHeaders,
+                                      controller: _tabController,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: new TabBarView(
+                                      controller: _tabController,
+                                      children: tabsContents.map((Widget tab) {
+                                        return tab;
+                                      }).toList(),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 10,
+                            height: 150,
+                            decoration: BoxDecoration(
+                                color: HexColor(widget.event.color),
+                                borderRadius:
                                 BorderRadius.all(Radius.circular(15.0))),
-                      )
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 30,
-                  /*child: Row(
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      height: 30,
+                      /*child: Row(
                     children: <Widget>[
                       SizedBox(
                         width: 30,
@@ -459,8 +472,8 @@ class _DetailsEventState extends State<DetailsEvent>
                       //TODO
                     ],
                   ),*/
-                )
-              ])),
+                    )
+                  ])),
             ])));
   }
 

@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -11,15 +16,15 @@ class Fab {
 
   const Fab(this.context);
 
-  Widget FabChooser(String route, bool isSupervisor) {
+  Widget FabChooser(String route, Account account) {
     if (route == global.Constants.detailsEventViewRoute) {
-      if (isSupervisor) {
+      if (account.supervisor) {
         return Container(
             decoration: BoxDecoration(color: grey, shape: BoxShape.circle),
             child: Padding(
               padding: EdgeInsets.all(2),
               child: FloatingActionButton(
-                child: Icon(FontAwesomeIcons.clipboardList),
+                child: Icon(Icons.event_note,size: 40),
                 onPressed: () => _showDialogFabSupervisor(),
                 backgroundColor: dark,
                 elevation: 6,
@@ -32,20 +37,26 @@ class Fab {
             child: Padding(
                 padding: EdgeInsets.all(2),
                 child: FloatingActionButton(
-                  child: Icon(FontAwesomeIcons.phone),
+                  child: Icon(Icons.phone,size: 40,),
                   onPressed: () => _showDialogFabOperator(),
                   backgroundColor: dark,
                   elevation: 6,
                 )));
       }
     } else if (route == global.Constants.dailyCalendarRoute) {
-      if (isSupervisor) {
+      if (account.supervisor) {
+
         return FloatingActionButton(
-          child: Icon(FontAwesomeIcons.plus),
-          onPressed: () => Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (BuildContext context) => new EventCreator(null))),
+          child: Icon(Icons.add),
+          onPressed: (){
+            DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day").add(Duration(hours: 6));
+            Event e = Event.empty();
+            e.start = day;
+            e.end = day;
+            Navigator.push(
+                context, new MaterialPageRoute(
+                    builder: (BuildContext context) => new EventCreator(e, account)));
+          },
           backgroundColor: dark,
         );
       }
@@ -78,8 +89,7 @@ class Fab {
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.pop(
-                                context, global.Constants.DELETE_SIGNAL);
+                            Navigator.pop(context, global.Constants.DELETE_SIGNAL);
                           },
                           child: Container(
                             height: 50,
@@ -88,7 +98,7 @@ class Fab {
                               shape: BoxShape.circle,
                               color: dark,
                             ),
-                            child: Icon(FontAwesomeIcons.trashAlt),
+                            child: Icon(Icons.delete),
                           ),
                         )
                       ],
@@ -108,8 +118,7 @@ class Fab {
                         GestureDetector(
                           onTap: () {
                             Navigator.pop(context);
-                            Navigator.pop(
-                                context, global.Constants.MODIFY_SIGNAL);
+                            Navigator.pop(context, global.Constants.MODIFY_SIGNAL);
                           },
                           child: Container(
                             height: 50,
@@ -118,7 +127,7 @@ class Fab {
                               shape: BoxShape.circle,
                               color: dark,
                             ),
-                            child: Icon(FontAwesomeIcons.pencilAlt),
+                            child: Icon(Icons.edit),
                           ),
                         )
                       ],
@@ -165,7 +174,7 @@ class Fab {
                               shape: BoxShape.circle,
                               color: dark,
                             ),
-                            child: Icon(FontAwesomeIcons.userTie),
+                            child: Icon(Icons.supervised_user_circle),
                           ),
                         )
                       ],
@@ -193,7 +202,7 @@ class Fab {
                               shape: BoxShape.circle,
                               color: dark,
                             ),
-                            child: Icon(FontAwesomeIcons.building),
+                            child: Icon(Icons.business),
                           ),
                         )
                       ],

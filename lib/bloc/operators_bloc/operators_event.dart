@@ -78,10 +78,10 @@ class EventsUpdated extends OperatorsEvent {
   List<Object> get props => [events];
 }
 
-class Dones extends OperatorsEvent {
+class Done extends OperatorsEvent {
   final List<Account> operators;
 
-  Dones(this.operators);
+  Done(this.operators);
 
   @override
   List<Object> get props => [operators];

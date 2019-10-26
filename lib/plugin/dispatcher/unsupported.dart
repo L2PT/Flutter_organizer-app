@@ -1,3 +1,5 @@
+import 'package:venturiautospurghi/models/event.dart';
+
 abstract class PlatformUtils {
   PlatformUtils._();
 
@@ -26,5 +28,7 @@ abstract class PlatformUtils {
   static dynamic getFireDocumentField(document, field) => null;
 
   static dynamic navigator(context, content) => null;
+
+  static Event EventFromMap(id, color, json) => null;
 
 }

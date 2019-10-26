@@ -25,9 +25,12 @@ $(function() { // document ready
 //              $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matto', eventColor: 'orange' },);
 //              $('#calendar').fullCalendar('today');
 
+    $(document).on('click',".fc-resource-header-postfix",function(){
+        dart.showDialogWindow("add_operator",null);
+    });
+
     $(document).on('click',".fc-resource-postfix",function(){
         var id = $(this).closest('tr').data("resource-id")
-        calendar.removeResource(id);
         removeResource(id)
     });
 
@@ -127,19 +130,44 @@ function readEvents(start, end, timezone, callback){
    });
 }
 function removeResource(res){
+    calendar.removeResource(res);
     var docRef = db.collection("Utenti").doc(loggedId);
     docRef.get().then(function(doc) {
-        if (doc.exists){
-           var arr = doc.data().OperatoriWeb;
-           for( var i = 0; i < arr.length; i++){
-              if (arr[i].id === res) {
-                arr.splice(i, 1);
-              }
-           }
-           db.collection("Utenti").doc(loggedId).update({OperatoriWeb:arr})
-        } else {
-           console.log("No user found on the db table!");
-        }
+    //TODO
+//        if (doc.exists){
+//           var arr = doc.data().OperatoriWeb;
+//           for( var i = 0; i < arr.length; i++){
+//              if (arr[i].id === res) {
+//                arr.splice(i, 1);
+//              }
+//           }
+//           db.collection("Utenti").doc(loggedId).update({OperatoriWeb:arr})
+//        } else {
+//           console.log("No user found on the db table!");
+//        }
+    }).catch(function(error) {
+        console.log("Error getting user:", error);
+    });
+}
+function addResource(res){
+    console.log(res);
+    res.forEach(function(o){
+        calendar.addResource({id:o,title:o});
+    });
+    var docRef = db.collection("Utenti").doc(loggedId);
+    docRef.get().then(function(doc) {
+    //TODO
+//        if (doc.exists){
+//           var arr = doc.data().OperatoriWeb;
+//           for( var i = 0; i < arr.length; i++){
+//              if (arr[i].id === res) {
+//                arr.splice(i, 1);
+//              }
+//           }
+//           db.collection("Utenti").doc(loggedId).update({OperatoriWeb:arr})
+//        } else {
+//           console.log("No user found on the db table!");
+//        }
     }).catch(function(error) {
         console.log("Error getting user:", error);
     });

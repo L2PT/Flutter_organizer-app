@@ -11,7 +11,7 @@ class Uninitialized extends AuthenticationState {
 }
 
 class Authenticated extends AuthenticationState {
-  final AuthUser user;
+  final Account user;
   final bool isSupervisor;
 
   Authenticated([this.user,this.isSupervisor]) : super([user,isSupervisor]);

@@ -19,19 +19,14 @@ class EventsRepository {
   }
 
   @override
-  Future<void> addNewEvent(Event e) {
-    return collection.add(e.toDocument());
-  }
-
-  @override
-  Future<void> deleteEvent(Event todo) async {
-    return collection.document(todo.id).delete();
+  Future<void> deleteEvent(Event ev) async {
+    return collection.document(ev.id).delete();
   }
 
   @override
   Future<List<Event>> getEvents(DateTime selectedDay) async {
     var docs = await collection.where("days",isGreaterThanOrEqualTo:new DateTime.now().day).getDocuments();
-    List a = docs.documents.map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
+    List a = docs.documents.map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]??categories['default'],doc))
           .toList();
     print(a.length);
     return a;
@@ -39,9 +34,14 @@ class EventsRepository {
   
   @override
   Stream<List<Event>> events() {
-    return collection.where("SubOperatori", arrayContains: "nfdjdfdsjfndjsfdsf").snapshots().map((snapshot) {
+    return collection.snapshots().map((snapshot) {
       return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .map((doc) {
+        return PlatformUtils.EventFromMap(doc.documentID,
+            categories[doc["Categoria"]] != null
+                ? categories[doc["Categoria"]]
+                : categories['default'], doc);
+      })
           .toList();
     });
   }
@@ -57,7 +57,7 @@ class EventsRepository {
   Stream<List<Event>> eventsWating() {
     return collection.snapshots().map((snapshot) {
       return snapshot.documents
-          .map((doc) => Event.fromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
+          .map((doc) => PlatformUtils.EventFromMap(doc.documentID, categories[doc["Categoria"]]!=null?categories[doc["Categoria"]]:categories['default'],doc))
           .toList();
     });
   }
