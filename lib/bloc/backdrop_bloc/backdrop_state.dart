@@ -23,13 +23,13 @@ class NotReady extends BackdropState {
   List<Object> get props => [];
 }
 
-class NotificationWatingState extends BackdropState {
-  final List<Event> watingEvent;
+class NotificationWaitingState extends BackdropState {
+  final List<Event> waitingEvent;
 
-  NotificationWatingState(this.watingEvent) : super(watingEvent);
+  NotificationWaitingState(this.waitingEvent) : super(waitingEvent);
 
   @override
-  List<Object> get props => [watingEvent];
+  List<Object> get props => [waitingEvent];
 }
 
 

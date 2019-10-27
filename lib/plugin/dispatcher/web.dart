@@ -2,6 +2,7 @@
 import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/web.dart';
 
 
@@ -21,7 +22,7 @@ class PlatformUtils {
   static const dynamic Dir = null;
   static dynamic fire = firestore();
 
-  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
+  static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
     if(whereOp!=null) {
       query = fire.collection(collection).where(whereCondFirst,whereOp,whereCondSecond);
@@ -58,5 +59,7 @@ class PlatformUtils {
   }
 
   static Event EventFromMap(id, color, json) => Event.fromMapWeb(id, color, json);
+
+  static Account AccountFromMap(id, color, json) => Account.fromMapWeb(id, json);
 
 }

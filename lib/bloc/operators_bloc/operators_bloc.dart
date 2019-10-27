@@ -42,10 +42,6 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
       yield* _mapLoadOperatorsFilteredByDateToState(event);
     } else if (event is AddOperator) {
       yield* _mapAddOperatorToState(event);
-    } else if (event is UpdateOperator) {
-      yield* _mapUpdateOperatorToState(event);
-    } else if (event is DeleteOperator) {
-      yield* _mapDeleteOperatorToState(event);
     } else if (event is EventsUpdated) {
       yield* _mapOperatorsUpdateToState(event);
     } else if (event is Done) {
@@ -87,21 +83,34 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   }
 
   void filterAndDispatch(){
-    List<Event> filteredEvents = _events;
+    List<Account> filteredOperators = operators;
     //filter them and return the operators
-    dispatch(Done(operators));
+    if(_dateQuery!=null){
+      _events.forEach((event) {
+        if (event.isBetweenDate(_dateQuery, _dateQuery)) {
+          event.idOperators.forEach((idOperator) {
+            bool checkDelete = false;
+            for (int i = 0; i < filteredOperators.length && !checkDelete; i++) {
+              if (filteredOperators.elementAt(i).id == idOperator) {
+                checkDelete = true;
+                filteredOperators.removeAt(i);
+              }
+            }
+          });
+        }
+      });
+    }
+    if(_stringQuery!=null && _stringQuery!=""){
+      for (int i = 0; i < filteredOperators.length; i++) {
+        if(!filteredOperators.elementAt(i).name.contains(_stringQuery) && !filteredOperators.elementAt(i).surname.contains(_stringQuery))
+          filteredOperators.removeAt(i);
+        }
+    }
+    dispatch(Done(filteredOperators));
   }
 
   Stream<OperatorsState> _mapAddOperatorToState(AddOperator event) async* {
     _operatorsRepository.addOperator(event.user);
-  }
-
-  Stream<OperatorsState> _mapUpdateOperatorToState(UpdateOperator event) async* {
-    //_operatorsRepository.update(event.user);
-  }
-
-  Stream<OperatorsState> _mapDeleteOperatorToState(DeleteOperator event) async* {
-    //_operatorsRepository.delete(event.user);
   }
 
   Stream<OperatorsState> _mapOperatorsUpdateToState(EventsUpdated event) async* {

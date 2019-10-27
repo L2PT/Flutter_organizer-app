@@ -22,7 +22,6 @@ part 'backdrop_state.dart';
 class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   Account user;
   bool isSupervisor;
-
   final EventsRepository eventsRepository = EventsRepository();
   Account operator;
   DateTime day;
@@ -40,10 +39,9 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
     if(event is InitAppEvent) {
       yield* _mapInitAppToState(event);
     }
-    if(event is CreateNoficationEvent) {
+    if(event is CreateNotificationEvent) {
       yield* _mapCreateNoficationEvent(event);
     }
-
   }
 
 
@@ -58,29 +56,32 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   ///
 
   Stream<BackdropState> _mapUpdateViewToState(NavigateEvent event) async* {
-    //TODO all queries
     dynamic content;
     var subscription;
     var subscriptionArgs;
-    int subtype;
+    int bloctype;
     switch(event.route) {
       case global.Constants.homeRoute: {
         if(isSupervisor) {
           content = OperatorList();
           subscription = eventsRepository.events;
-          subtype = global.Constants.OPERATORS_SUB;
+          bloctype = global.Constants.OPERATORS_BLOC;
         }else{
           content = DailyCalendar(null);
-          subscription = eventsRepository.events;
+          subscription = eventsRepository.eventsOperator;
           subscriptionArgs = user.id;
-          subtype = global.Constants.EVENTS_SUB;
-        }};
+          bloctype = global.Constants.EVENTS_BLOC;
+        }
+      }
       break;
       case global.Constants.monthlyCalendarRoute: {
         content = MonthlyCalendar(event.arg);
-        //TODO use here {operator}
-        subscription = eventsRepository.events;
-        subtype = global.Constants.EVENTS_SUB;
+        if(operator != null){
+          subscription = eventsRepository.eventsOperator;
+          subscriptionArgs = operator.id;
+        }else
+          subscription = eventsRepository.events;
+        bloctype = global.Constants.EVENTS_BLOC;
       }
       break;
       case global.Constants.dailyCalendarRoute: {
@@ -93,10 +94,9 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
         else
           day=Utils.formatDate(DateTime.now(),"day");
         content = DailyCalendar(event.arg[1]);
-
-        //TODO use here {operator}
-        subscription = eventsRepository.events;
-        subtype = global.Constants.EVENTS_SUB;
+        subscription = eventsRepository.eventsOperator;
+        subscriptionArgs = operator.id;
+        bloctype = global.Constants.EVENTS_BLOC;
       }
       break;
       case global.Constants.profileRoute: {
@@ -105,12 +105,13 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       break;
       case global.Constants.registerRoute: {
         content = Register();
+        //no sub
       }
       break;
       case global.Constants.operatorListRoute: {
         content = OperatorList();
         subscription = eventsRepository.events;
-        subtype = global.Constants.OPERATORS_SUB;
+        bloctype = global.Constants.OPERATORS_BLOC;
       }
       break;
       case global.Constants.formEventCreatorRoute: {
@@ -119,36 +120,35 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       }
       break;
       case global.Constants.waitingEventListRoute: {
+        //pay attention this works only for Operators
         content = waitingEvent();
-        //choose the query
-        subscription = eventsRepository.events;
-        subtype = global.Constants.EVENTS_SUB;
+        subscription = eventsRepository.eventsWaitingOpe;
+        subscriptionArgs = user.id;
+        bloctype = global.Constants.EVENTS_BLOC;
       }
       break;
       default: {content = DailyCalendar(null);}
       break;
     }
-    yield Ready(event.route, content, subscription, subscriptionArgs, subtype); //cambia lo stato
+    yield Ready(event.route, content, subscription, subscriptionArgs, bloctype); //cambia lo stato
 
   }
-
-
 
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
     await eventsRepository.init();
     dispatch(NavigateEvent(global.Constants.homeRoute,null));
-    eventsRepository.eventsWatingOpe(user.id).listen((events) =>
+    eventsRepository.eventsWaitingOpe(user.id).listen((events) =>
       dispatch(
-        CreateNoficationEvent(events)
+        CreateNotificationEvent(events)
       )
     );
   }
 
   /// Function that force the backdrop to switch state to show the user the
   /// notifications on top of the screen
-  Stream<BackdropState> _mapCreateNoficationEvent(CreateNoficationEvent event) async* {
+  Stream<BackdropState> _mapCreateNoficationEvent(CreateNotificationEvent event) async* {
     //yield NotificationWatingEvent(event.watingEvent);
   }
 

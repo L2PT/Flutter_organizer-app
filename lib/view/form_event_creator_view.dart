@@ -388,12 +388,12 @@ class EventCreatorState extends State<EventCreator> {
                                       if(_allDayFlag)return null;
                                       if(val != null && (widget._event.start.isBefore(widget._event.end.add(Duration(hours: val.hour, minutes: val.minute-29))))
                                           && (val.hour<21 || (val.hour==21 && val.minute==0))) {
-                                        return null;
+                                        widget._event.end = val!=null?Utils.formatDate(widget._event.end,"day").add(Duration(hours: val.hour, minutes: val.minute)):widget._event.end;
                                       } else {
                                         return 'Inserisci un orario valido';
                                       }
                                     },
-                                    onSaved: (DateTime value) => widget._event.end = value!=null?widget._event.end.add(Duration(hours: value.hour, minutes: value.minute)):widget._event.end
+                                  onSaved: (DateTime value) => widget._event.end = value!=null?Utils.formatDate(widget._event.end,"day").add(Duration(hours: value.hour, minutes: value.minute)):widget._event.end
                                 ),
                               )
                             ],

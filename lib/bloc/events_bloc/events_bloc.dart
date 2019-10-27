@@ -33,12 +33,6 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
       yield* _mapLoadEventFilteredByMonthToState(event);
     } else if (event is FilterEventsByWaiting) {
       yield* _mapLoadEventFilteredByWaitingToState(event);
-    } else if (event is AddEvent) {
-      yield* _mapAddEventToState(event);
-    } else if (event is UpdateEvent) {
-      yield* _mapUpdateEventToState(event);
-    } else if (event is DeleteEvent) {
-      yield* _mapDeleteEventToState(event);
     } else if (event is EventsUpdated) {
       yield* _mapEventsUpdateToState(event);
     } else if (event is Done) {
@@ -51,39 +45,45 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     //yield NotLoaded(); almost useless
     _eventsSubscription?.cancel();
     //subscribe and do dispatch of interested events
-    _eventsSubscription = event.subscription().listen((events) {
-      dispatch(
-        EventsUpdated(events), //crea l'evento
-      );
-    });
+    if(event.subscriptionArgs!=null) {
+      _eventsSubscription = event.subscription(event.subscriptionArgs).listen((events) {
+            dispatch(
+              EventsUpdated(events), //crea l'evento
+            );
+          });
+    }else{
+      _eventsSubscription = event.subscription().listen((events) {
+            dispatch(
+              EventsUpdated(events), //crea l'evento
+            );
+          });
+    }
     //data ready to be fetched
   }
 
   Stream<EventsState> _mapLoadEventFilteredByDayToState(FilterEventsByDay event) async* {
     //filter the _events end return them
-    dispatch(Done(_events,event.selectedDay));
+    List<Event> eventsFiltered = List();
+    _events.forEach((singleEvent){
+      if(singleEvent.isBetweenDate(event.selectedDay, event.selectedDay.add(Duration(days: 1))))
+        eventsFiltered.add(singleEvent);
+    });
+    dispatch(Done(eventsFiltered,event.selectedDay));
   }
 
   Stream<EventsState> _mapLoadEventFilteredByMonthToState(FilterEventsByMonth event) async* {
     //filter the _events end return them
-    dispatch(Done(_events,event.selectedDay));
+    List<Event> eventsFiltered = List();
+    _events.forEach((singleEvent){
+      if(singleEvent.isBetweenDate(event.selectedDay, DateTime(event.selectedDay.year+event.selectedDay.month==12?1:0,event.selectedDay.month==12?1:event.selectedDay.month+1)))
+        eventsFiltered.add(singleEvent);
+    });
+    dispatch(Done(eventsFiltered,event.selectedDay));
   }
 
   Stream<EventsState> _mapLoadEventFilteredByWaitingToState(FilterEventsByWaiting event) async* {
     //filter the _events end return them
     dispatch(Done(_events,null));
-  }
-
-  Stream<EventsState> _mapAddEventToState(AddEvent event) async* {
-    //_eventsRepository.addNewEvent(event.event);
-  }
-
-  Stream<EventsState> _mapUpdateEventToState(UpdateEvent event) async* {
-    //_eventsRepository.updateEvent(event.event);
-  }
-
-  Stream<EventsState> _mapDeleteEventToState(DeleteEvent event) async* {
-    //_eventsRepository.deleteEvent(event.event);
   }
 
   Stream<EventsState> _mapEventsUpdateToState(EventsUpdated event) async* {

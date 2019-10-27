@@ -47,8 +47,8 @@ class Constants {
   static const String tabellaEventi_titolo = 'Titolo';
 
   // INSIDE EVENTS SWITCHES
-  static const int EVENTS_SUB = 0;
-  static const int OPERATORS_SUB = 1;
+  static const int EVENTS_BLOC = 0;
+  static const int OPERATORS_BLOC = 1;
 
   static const String DELETE_SIGNAL = "delete_event_signal";
   static const String MODIFY_SIGNAL = "modify_event_signal";

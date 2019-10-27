@@ -47,6 +47,8 @@ final Map<String, LinkMenu> _menuResponsabile = const {
   const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
   global.Constants.formEventCreatorRoute:
   const LinkMenu(Icons.edit, Colors.white, 16, "Crea evento", title_rev),
+  global.Constants.registerRoute:
+  const LinkMenu(Icons.person_add, Colors.white, 16, "Registra utente", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -101,8 +103,8 @@ class _BackdropState extends State<Backdrop>
             builder: (context, state) {
               if (state is Ready) {
                 //in the state there is the subscription to the data to ear for realtime changes
-                if(state.subtype==global.Constants.EVENTS_SUB)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription,state.subscriptionArgs));
-                else if(state.subtype==global.Constants.OPERATORS_SUB)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription,state.subscriptionArgs));
+                if(state.subtype==global.Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription,state.subscriptionArgs));
+                else if(state.subtype==global.Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription,state.subscriptionArgs));
                 _toggleBackdropLayerVisibility(false);
                 return WillPopScope(
                     onWillPop: _onBackPressed,
@@ -128,7 +130,7 @@ class _BackdropState extends State<Backdrop>
                     )
                 );
               }
-              if (state is NotificationWatingState) {
+              if (state is NotificationWaitingState) {
                 return Scaffold(
                     appBar: AppBar(
                       leading: new IconButton(

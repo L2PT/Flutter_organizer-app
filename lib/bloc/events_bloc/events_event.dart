@@ -38,33 +38,6 @@ class FilterEventsByWaiting extends EventsEvent {
   List<Object> get props => [];
 }
 
-class AddEvent extends EventsEvent {
-  final Event event;
-
-  AddEvent(this.event) : super([event]);
-
-  @override
-  List<Object> get props => [event];
-}
-
-class UpdateEvent extends EventsEvent {
-  final Event event;
-
-  UpdateEvent(this.event) : super([event]);
-
-  @override
-  List<Object> get props => [event];
-}
-
-class DeleteEvent extends EventsEvent {
-  final Event event;
-
-  DeleteEvent(this.event) : super([event]);
-
-  @override
-  List<Object> get props => [event];
-}
-
 class EventsUpdated extends EventsEvent {
   final List<Event> events;
 

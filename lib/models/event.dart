@@ -1,6 +1,3 @@
-
-import 'package:venturiautospurghi/models/user.dart';
-
 class Event {
   String _id="";
   String _title="";
@@ -170,11 +167,11 @@ class Event {
     _suboperators = value;
   }
 
-  Event isBetweenDate(DateTime dataInizio,DateTime dataFine){
-    if(this.start.isAfter(dataInizio) && this.end.isBefore(dataFine)){
-      return this;
+  bool isBetweenDate(DateTime dataInizio,DateTime dataFine){
+    if(((this.start.isAfter(dataInizio) || this.start.isAtSameMomentAs(dataInizio)) && this.start.isBefore(dataFine)) || (this.end.isAfter(dataInizio) && (this.end.isBefore(dataFine)) || this.end.isAtSameMomentAs(dataFine)) || (this.start.isBefore(dataInizio) && this.end.isAfter(dataFine)) || (this.start.isAtSameMomentAs(dataInizio) && this.end.isAtSameMomentAs(dataFine))){
+      return true;
     }else{
-      return null;
+      return false;
     }
   }
 

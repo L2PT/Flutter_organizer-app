@@ -4,6 +4,7 @@ import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -127,8 +128,9 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
-                    Text(widget.event.supervisor.surname, style: subtitle_rev),
-                    Text(widget.event.supervisor.name, style: subtitle_rev),
+                    Text(PlatformUtils.AccountFromMap(widget.event.idSupervisor, widget.event.supervisor).surname, style: subtitle_rev),
+                    SizedBox(width: 5,),
+                    Text(PlatformUtils.AccountFromMap(widget.event.idSupervisor, widget.event.supervisor).name, style: subtitle_rev),
                   ],
                 ),
               ),

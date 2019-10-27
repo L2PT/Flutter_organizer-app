@@ -52,24 +52,6 @@ class AddOperator extends OperatorsEvent {
   List<Object> get props => [user];
 }
 
-class UpdateOperator extends OperatorsEvent {
-  final Account user;
-
-  UpdateOperator (this.user) : super([user]);
-
-  @override
-  List<Object> get props => [user];
-}
-
-class DeleteOperator extends OperatorsEvent {
-  final Account user;
-
-  DeleteOperator (this.user) : super([user]);
-
-  @override
-  List<Object> get props => [user];
-}
-
 class EventsUpdated extends OperatorsEvent {
   final List<Event> events;
 

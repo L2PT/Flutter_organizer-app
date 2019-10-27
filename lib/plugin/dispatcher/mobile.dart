@@ -5,8 +5,7 @@ import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/view/operator_selection_view.dart';
-
+import 'package:venturiautospurghi/models/user.dart';
 
 abstract class PlatformUtils {
   PlatformUtils._();
@@ -36,7 +35,7 @@ abstract class PlatformUtils {
   static const dynamic Dir = SwipeDirection.up;
   static Firestore fire = new Firestore();
 
-  static dynamic waitFireCollection(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
+  static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
     if(whereOp!=null) {
       switch(whereOp){
@@ -59,7 +58,8 @@ abstract class PlatformUtils {
     }else{
       query = fire.collection(collection);
     }
-    return (await query.getDocuments()).documents;
+    var a = await query.getDocuments();
+    return a.documents;
   }
 
   static dynamic setDocument(collection, documentId, data) => fire.collection(collection).document(documentId).setData(data);
@@ -81,5 +81,7 @@ abstract class PlatformUtils {
   }
 
   static Event EventFromMap(id, color, json) => Event.fromMap(id, color, json);
+
+  static Account AccountFromMap(id, json) => Account.fromMap(id, json);
 
 }

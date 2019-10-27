@@ -8,6 +8,7 @@ import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class Utils {
@@ -75,7 +76,7 @@ class Utils {
   static void PushViewDetailsEvent(BuildContext context, Event ev) async {
     final result = await Navigator.pushNamed(context, global.Constants.detailsEventViewRoute, arguments: ev);
     if(result == global.Constants.DELETE_SIGNAL) {
-      BlocProvider.of<EventsBloc>(context).dispatch(DeleteEvent(ev));
+      EventsRepository().deleteEvent(ev);
     }
     if(result == global.Constants.MODIFY_SIGNAL) {
       Navigator.pushNamed(context, global.Constants.formEventCreatorRoute, arguments: ev);

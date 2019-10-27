@@ -116,7 +116,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
     //Input Object Account
     //Output Object Map
     OperatorsRepository repo = OperatorsRepository();
-    operators = await repo.getOperatorsFiltered();//by DataInizio DataFine
+    operators = await repo.getOperatorsFree(widget.event.start, widget.event.end);
     operators.forEach((a){
       if(a!=null) {
         if (widget.event.idOperator == a.id)

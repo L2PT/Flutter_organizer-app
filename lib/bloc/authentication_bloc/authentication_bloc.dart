@@ -66,7 +66,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   /// document in the "Utenti"(Constants.tabellaUtenti) collection.
   /// However the mail is an unique field.
   Future<Account> getAccount(String email) async {
-    var docs = await PlatformUtils.waitFireCollection("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
+    var docs = await PlatformUtils.fireDocuments("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
     for (var doc in docs) {
       if(doc != null) {
         return Account.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), PlatformUtils.extractFieldFromDocument(null, doc));

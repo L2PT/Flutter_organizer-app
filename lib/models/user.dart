@@ -12,6 +12,19 @@ class Account {
 
   Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._token, this._busy, this._supervisor);
   Account.empty();
+  Account.fromMapWeb(String id, dynamic json) {
+    _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
+    _name = json.Nome;
+    _surname = json.Cognome;
+    _email = json.Email;
+    _phone = json.Telefono;
+    _codFiscale = json.CodiceFiscale;
+    _webops = json.OperatoriWeb;
+    _token = json.Token;
+    _busy = json.Occupato;
+    _supervisor = json.Responsabile;
+  }
+
   Account.fromMap(String id, dynamic json) {
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
     _name = json['Nome'];

@@ -1,4 +1,5 @@
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 
 abstract class PlatformUtils {
   PlatformUtils._();
@@ -20,7 +21,7 @@ abstract class PlatformUtils {
   static const dynamic Dir = null;
   static const dynamic fire = null;
 
-  static dynamic waitFireCollection(collection,
+  static dynamic fireDocuments(collection,
       {whereCondFirst, whereOp, whereCondSecond}) async => null;
 
   static dynamic setDocument(collection, documentId, data) => null;
@@ -32,5 +33,7 @@ abstract class PlatformUtils {
   static dynamic navigator(context, content) => null;
 
   static Event EventFromMap(id, color, json) => null;
+
+  static Account AccountFromMap(id, json) => null;
 
 }
