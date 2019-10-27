@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:fb_auth/fb_auth.dart';
-import 'package:html/dom.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +10,7 @@ part 'authentication_event.dart';
 
 part 'authentication_state.dart';
 
-class AuthenticationBloc
-    extends Bloc<AuthenticationEvent, AuthenticationState> {
+class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FBAuth _userRepository = FBAuth();
   AuthUser user = null;
   Account account = null;
@@ -64,11 +61,15 @@ class AuthenticationBloc
     _userRepository.logout();
   }
 
+  /// Function to retrieve from the database the information associated with the
+  /// user logged in. The Firebase AuthUser uid must be the same as the id of the
+  /// document in the "Utenti"(Constants.tabellaUtenti) collection.
+  /// However the mail is an unique field.
   Future<Account> getAccount(String email) async {
     var docs = await PlatformUtils.waitFireCollection("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
     for (var doc in docs) {
       if(doc != null) {
-        return Account.fromMap(doc.documentID, doc);
+        return Account.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), PlatformUtils.extractFieldFromDocument(null, doc));
       }
     }
   }

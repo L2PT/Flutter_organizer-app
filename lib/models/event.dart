@@ -5,8 +5,8 @@ class Event {
   String _id="";
   String _title="";
   String _description="";
-  DateTime _start=DateTime.now().add(Duration(hours:2));
-  DateTime _end=DateTime.now().add(Duration(hours:2));
+  DateTime _start=DateTime.now();
+  DateTime _end=DateTime.now();
   String _address="";
   int _status= Status.New;
   String _category="";
@@ -170,6 +170,14 @@ class Event {
     _suboperators = value;
   }
 
+  Event isBetweenDate(DateTime dataInizio,DateTime dataFine){
+    if(this.start.isAfter(dataInizio) && this.end.isBefore(dataFine)){
+      return this;
+    }else{
+      return null;
+    }
+  }
+
 }
 
 class Status {
@@ -178,5 +186,4 @@ class Status {
   static const int Seen = 2;
   static const int Accepted = 3;
   static const int Rejected = 4;
-  static const int Ended = 5;
 }

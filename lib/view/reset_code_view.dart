@@ -46,7 +46,7 @@ class _ResetCodeState extends State<ResetCode> {
       _signature = await SmsAutoFill().getAppSignature;
       setState((){});
       if(widget.code == code || Constants.debug){
-        BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,Utils.formatDate(DateTime.now())));
+        //BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[operator,null]));
       }
   }
   void sendMail(){int a=4;}

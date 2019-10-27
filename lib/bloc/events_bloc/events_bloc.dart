@@ -83,7 +83,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
   }
 
   Stream<EventsState> _mapDeleteEventToState(DeleteEvent event) async* {
-    _eventsRepository.deleteEvent(event.event);
+    //_eventsRepository.deleteEvent(event.event);
   }
 
   Stream<EventsState> _mapEventsUpdateToState(EventsUpdated event) async* {

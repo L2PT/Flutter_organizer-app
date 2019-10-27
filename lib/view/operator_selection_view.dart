@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/view/widget/switch.dart';
-import '../utils/theme.dart';
 
 class OperatorSelection extends StatefulWidget {
-  final DateTime start;
-  final DateTime end;
+  final Event event;
   final bool tristate;
 
-  OperatorSelection(@required this.start, @required this.end, this.tristate, {Key key,})  :
-        assert(start != null),
-        assert(end != null),
+
+  OperatorSelection(@required this.event, this.tristate, {Key key,})  :
+        assert(event != null),
         super(key: key);
 
   @override
@@ -28,7 +28,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
   @override
   void initState() {
     super.initState();
-    getOperators();
+    getOperatorsDB();
   }
 
   @override
@@ -45,7 +45,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
           backgroundColor: dark,
           onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
             return Fluttertoast.showToast(
-                msg: "Selezione l' operatore principale, tappando due volte",
+                msg: "Seleziona l' operatore principale, tappando due volte",
                 toastLength: Toast.LENGTH_SHORT,
                 gravity: ToastGravity.CENTER,
                 timeInSecForIos: 1,
@@ -88,7 +88,9 @@ class _OperatorSelectionState extends State<OperatorSelection>{
     });
   }
 
-  List<dynamic> getOperatorsSelected(){
+  Event getOperatorsSelected(){
+    //Input Object Account
+    //Output Object Map
     List<String> selectedOperatorsId = [];
     List<dynamic> selectedSubOperators = [];
     Account selectedOperator = null;
@@ -96,19 +98,34 @@ class _OperatorSelectionState extends State<OperatorSelection>{
       if(sel[k] == true){
         selectedOperatorsId.add(k.id);
         selectedSubOperators.add(k.toDocument());
-      }else if(sel[k] == null){
+      }else if(widget.tristate && sel[k] == null){
         selectedOperatorsId.add(k.id);
         selectedOperator = k;
       }
     });
-    return [[selectedOperator.id, selectedOperatorsId],[selectedOperator.toDocument(), selectedSubOperators]];
+    if(widget.tristate) {
+      widget.event.idOperator = selectedOperator.id;
+      widget.event.operator = selectedOperator.toDocument();
+    }
+    widget.event.idOperators = selectedOperatorsId;
+    widget.event.suboperators = selectedSubOperators;
+    return widget.event;
   }
 
-  void getOperators() async {
+  void getOperatorsDB() async {
+    //Input Object Account
+    //Output Object Map
     OperatorsRepository repo = OperatorsRepository();
     operators = await repo.getOperatorsFiltered();//by DataInizio DataFine
     operators.forEach((a){
-      sel[a] = false;
+      if(a!=null) {
+        if (widget.event.idOperator == a.id)
+          sel[a] = null;
+        else if (widget.event.idOperators.contains(a.id))
+          sel[a] = true;
+        else
+          sel[a] = false;
+      }
     });
     setState(() {});
   }

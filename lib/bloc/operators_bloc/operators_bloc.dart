@@ -93,7 +93,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   }
 
   Stream<OperatorsState> _mapAddOperatorToState(AddOperator event) async* {
-    _operatorsRepository.addNewOperator(event.user);
+    _operatorsRepository.addOperator(event.user);
   }
 
   Stream<OperatorsState> _mapUpdateOperatorToState(UpdateOperator event) async* {

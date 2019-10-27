@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
-import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:venturiautospurghi/view/form_event_creator_view.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 
 class Fab {
   final context;
-
   const Fab(this.context);
 
-  Widget FabChooser(String route, Account account) {
+  Widget FabChooser(String route) {
+    Account account = BlocProvider.of<AuthenticationBloc>(context).account;
     if (route == global.Constants.detailsEventViewRoute) {
       if (account.supervisor) {
         return Container(
@@ -45,17 +43,14 @@ class Fab {
       }
     } else if (route == global.Constants.dailyCalendarRoute) {
       if (account.supervisor) {
-
         return FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: (){
             DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day").add(Duration(hours: 6));
-            Event e = Event.empty();
-            e.start = day;
-            e.end = day;
-            Navigator.push(
-                context, new MaterialPageRoute(
-                    builder: (BuildContext context) => new EventCreator(e, account)));
+            Event ev = Event.empty();
+            ev.start = day;
+            ev.end = day.add(Duration(minutes: 30));
+            Navigator.pushNamed(context, global.Constants.formEventCreatorRoute, arguments: ev);
           },
           backgroundColor: dark,
         );

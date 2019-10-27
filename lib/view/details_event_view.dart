@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
-import '../utils/theme.dart';
-import '../models/event.dart';
 
 class DetailsEvent extends StatefulWidget {
+  final route = global.Constants.detailsEventViewRoute;
   final Event event;
-  final Account account;
 
   DetailsEvent(
-      @required this.event,
-      @required this.account, {
+      @required this.event,{
         Key key,
       })  : assert(event != null),
         super(key: key);
@@ -38,15 +41,19 @@ class _DetailsEventState extends State<DetailsEvent>
   List<Widget> tabsContents = List();
   TabController _tabController;
   Color color = Color(global.Constants.fallbackColor);
-  String operators;
+  Account account;
 
   @override
   void initState() {
     super.initState();
+    account = BlocProvider.of<AuthenticationBloc>(context).account;
     tabsContents = _buildTabsContents();
     _tabController = new TabController(vsync: this, length: tabsHeaders.length);
     getColor();
-    //getDate(widget.event.start);
+    if(widget.event.idOperator == account.id && widget.event.status < Status.Seen){
+      //EventsRepository.updateEvent(widget.event, "Stato", Status.Seen);
+      widget.event.status = Status.Seen;
+    }
   }
 
   @override
@@ -56,12 +63,11 @@ class _DetailsEventState extends State<DetailsEvent>
   }
 
   List<Widget> _buildTabsContents() {
-    //HANDLE
     List<Widget> t = List();
     DateFormat format = new DateFormat.Hm();
     String orarioStart = format.format(widget.event.start);
     String orarioEnd = format.format(widget.event.end);
-    Widget detailsContet = ListView(
+    Widget detailsContent = ListView(
       physics: BouncingScrollPhysics(),
       children: <Widget>[
         Container(
@@ -121,9 +127,8 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
-
-                    //Text(widget.event.supervisor.surname, style: subtitle_rev),
-                    //Text(widget.event.supervisor.name, style: subtitle_rev),
+                    Text(widget.event.supervisor.surname, style: subtitle_rev),
+                    Text(widget.event.supervisor.name, style: subtitle_rev),
                   ],
                 ),
               ),
@@ -154,7 +159,7 @@ class _DetailsEventState extends State<DetailsEvent>
                 indent: 35,
                 color: almost_dark,
               ),
-              widget.account.supervisor ? _viewStateWidget(3) : Container(),
+              account.supervisor ? _viewStateWidget(3) : Container(),
               Container(
                 alignment: Alignment.topLeft,
                 padding: EdgeInsets.symmetric(vertical: 15.0),
@@ -282,7 +287,7 @@ class _DetailsEventState extends State<DetailsEvent>
           ],
         ));
 
-    t.add(detailsContet);
+    t.add(detailsContent);
     t.add(detailsDocument);
     t.add(detailsNote);
     return t;
@@ -298,7 +303,7 @@ class _DetailsEventState extends State<DetailsEvent>
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => Navigator.pop(context, false),
             )),
-        floatingActionButton: widget.event.end.isBefore(DateTime.now().add(Duration(hours: 2)))&&widget.account.supervisor?Container(
+        floatingActionButton: widget.event.end.isBefore(DateTime.now().add(Duration(hours: 2)))&&account.supervisor?Container(
             decoration: BoxDecoration(
                 color: grey, borderRadius: BorderRadius.circular(100)),
             child: Padding(
@@ -310,8 +315,7 @@ class _DetailsEventState extends State<DetailsEvent>
                   },
                   backgroundColor: dark,
                   elevation: 6,
-                ))):Fab(context).FabChooser(
-            global.Constants.detailsEventViewRoute, widget.account),
+                ))):Fab(context).FabChooser(widget.route),
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
@@ -469,7 +473,6 @@ class _DetailsEventState extends State<DetailsEvent>
                       Text("Avvisami (15m)", style: subtitle_rev),
                       SizedBox(width: 30),
                       Switch(value: true, activeColor: c, onChanged: (v) {})
-                      //TODO
                     ],
                   ),*/
                     )
@@ -479,7 +482,7 @@ class _DetailsEventState extends State<DetailsEvent>
 
   Widget _viewStateWidget(int status) {
     switch (status) {
-      case 0:
+      case Status.New:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -495,7 +498,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 1:
+      case Status.Delivered:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -511,7 +514,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 2:
+      case Status.Seen:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -527,7 +530,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 3:
+      case Status.Accepted:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -543,7 +546,7 @@ class _DetailsEventState extends State<DetailsEvent>
             ],
           ),
         );
-      case 4:
+      case Status.Rejected:
         return Container(
           padding: EdgeInsets.symmetric(vertical: 15.0),
           child: Row(
@@ -556,22 +559,6 @@ class _DetailsEventState extends State<DetailsEvent>
                 width: padding,
               ),
               Text("Rifiutato", style: subtitle_rev)
-            ],
-          ),
-        );
-      case 5:
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.work,
-                size: sizeIcon,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Text("Terminato", style: subtitle_rev)
             ],
           ),
         );
@@ -594,4 +581,5 @@ class _DetailsEventState extends State<DetailsEvent>
       });
     }
   }
+
 }

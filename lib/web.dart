@@ -4,25 +4,25 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:fb_auth/fb_auth.dart';
+import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
-import 'package:venturiautospurghi/view/widget/fab_widget.dart';
-
 import 'bloc/authentication_bloc/authentication_bloc.dart';
-import 'bloc/backdrop_bloc/backdrop_bloc.dart';
 
 final _auth = FBAuth();
 final tabellaUtenti = 'Utenti';
@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp(//TOMAYBEDO inverti l'ordine del builder e del MaterialApp come in mobile.dart
       debugShowCheckedModeBanner: false,
       theme: customLightTheme,
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
@@ -105,7 +105,6 @@ class _MyAppState extends State<MyApp> {
             jQuery("#calendar").html("");
             return LogIn();
           }else if (state is Authenticated) {
-            //TODOfill rightly
             cookieJar("user", '{"uid":"${state.user.id}","email":"${state.user.email}","displayName":"${state.user.name}","isAnonymous":"${state.user}","isEmailVerified":"${state.user}"}');
             return MyAppWeb(state.user, state.isSupervisor);
           }
@@ -115,11 +114,10 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
 class MyAppWeb extends StatefulWidget {
-  final Account user;
+  final Account account;
   final bool isSupervisor;
-  const MyAppWeb(this.user, this.isSupervisor, {Key key}) : super(key: key);
+  const MyAppWeb(this.account, this.isSupervisor, {Key key}) : super(key: key);
 
   @override
   _MyAppWebState createState() => _MyAppWebState();
@@ -160,13 +158,13 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
         );
   }
   Widget navbar() {
-    //TODO
     String n = "",c ="";
-    if(widget.user!=null && widget.user.name!=null){
-      var s = widget.user.name.toString().split(" ");
-      c = s[0].toString().toUpperCase();
-      if(s.length>1){
-        n = s[1].toString();
+    if(widget.account!=null){
+      if(widget.account.name!=null) {
+        n = widget.account.name.toString();
+      }
+      if(widget.account.surname!=null) {
+        c = widget.account.surname.toString().toUpperCase();
       }
     }
     return Container(
@@ -200,6 +198,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                               },
                             ),
                             Text(c, textAlign: TextAlign.right,style: title_rev),
+                            SizedBox(width: 5,),
                             Text(n, textAlign: TextAlign.right,style: subtitle_rev),
                             SizedBox(width: 30),
                             FlatButton(
@@ -315,13 +314,13 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     // flutter defined function
     jQuery('#wrap').css(CssOptions(zIndex: -1));
     var dialogContainer;
-    var fab;//TODO
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param), Account.empty());}break;
-      case "new_event":{dialogContainer = EventCreator(null, param);}break;
+      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param));}break;
+      case "new_event":{dialogContainer = EventCreator(Event.empty());}break;
+      case "modify_event":{dialogContainer = EventCreator(param);}break;
       case "new_user":{dialogContainer = Register();}break;
-      case "add_operator":{dialogContainer = OperatorSelection(DateTime(0), DateTime(9999), false);}break;
+      case "add_operator":{dialogContainer = OperatorSelection(getMaxEv(), false);}break;
     }
     showDialog(
       context: context,
@@ -330,9 +329,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
         return AlertDialog(
           contentPadding: EdgeInsets.all(0),
           content: Container(
-            height:600, width:400,
+            height:650, width:400,
             child: Scaffold(
-              //floatingActionButton: Fab(context).FabChooser(state.route, backdropBloc.user),
                 body: dialogContainer
             )
           ),
@@ -342,10 +340,41 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       jQuery('#wrap').css(CssOptions(zIndex: 1));
       if(onValue != null && onValue != false){
         switch(opt) {
-          case "add_operator":{addResource(onValue[1]);}break;
+          case "add_operator":{
+            Event e = onValue as Event;
+            //update local
+            int i = 0;
+            for(dynamic o in e.suboperators)
+              if (!widget.account.webops.contains(o)){
+                Account a=Account.fromMap(e.idOperators[i++], o);a.webops=[];
+                widget.account.webops.add(a.toMap());
+              }
+            //update firestore
+            OperatorsRepository().updateOperator(widget.account.id, "OperatoriWeb", widget.account.webops);
+            //update calendar js
+            i = 0;
+            addResource(e.suboperators.map((o){Account a=Account.fromMap(e.idOperators[i++], o);a.webops=[];return a;}).toList());
+          }break;
+          case "event":{
+            if(onValue == global.Constants.DELETE_SIGNAL) {
+              PlatformUtils.fireDocument(global.Constants.tabellaEventi, param.id).delete();
+            }
+            if(onValue == global.Constants.MODIFY_SIGNAL) {
+              showDialogWindow("modify_event",Event.fromMap(param.id, param.color, param));
+            }
+          }break;
         }
       }
     });
+  }
+
+  void removeResource(dynamic res){
+    dynamic j = null;
+    for(dynamic o in widget.account.webops){
+      if(Account.fromMap(null, o).id == res) j=o;
+    }
+    if(j!=null) widget.account.webops.remove(j);
+    OperatorsRepository().updateOperator(widget.account.id, "OperatoriWeb", widget.account.webops);
   }
 
   Widget _buildTableCalendarWithBuilders(BuildContext context) {
@@ -370,4 +399,5 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString();
     });
   }
+  getMaxEv(){Event e = Event.empty(); e.start = DateTime(0);  e.end = DateTime(9999); return e;}
 }

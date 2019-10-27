@@ -62,10 +62,17 @@ abstract class PlatformUtils {
     return (await query.getDocuments()).documents;
   }
 
-  static dynamic fireDocument(collection,document) => fire.collection(collection).document(document).get();
+  static dynamic setDocument(collection, documentId, data) => fire.collection(collection).document(documentId).setData(data);
 
-  static dynamic getFireDocumentField(document, field){
-    if(field != null) return document.data[field];
+  static dynamic fireDocument(collection, documentId) => fire.collection(collection).document(documentId);
+
+  static dynamic extractFieldFromDocument(field, document){
+    if(field != null){
+      if(field == "id")
+        return document.documentID;
+      else
+        return document.data[field];
+    }
     else return document.data;
   }
 

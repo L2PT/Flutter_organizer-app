@@ -7,11 +7,12 @@ abstract class OperatorsEvent extends Equatable {
 
 class LoadOperators extends OperatorsEvent {
   final dynamic subscription;
+  final dynamic subscriptionArgs;
 
-  LoadOperators (this.subscription) : super([subscription]);
+  LoadOperators (this.subscription, this.subscriptionArgs) : super([subscription,subscriptionArgs]);
 
   @override
-  List<Object> get props => [subscription];
+  List<Object> get props => [subscription,subscriptionArgs];
 }
 
 class ApplyOperatorFilters extends OperatorsEvent {

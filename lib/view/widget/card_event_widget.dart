@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
-class cardEvent extends StatelessWidget {
+class cardEvent extends StatefulWidget {
   final Event e;
   final int hourSpan;
   final double hourHeight;
@@ -14,18 +15,24 @@ class cardEvent extends StatelessWidget {
 
   cardEvent(
       {this.e,
-      this.hourSpan,
-      this.hourHeight,
-      this.actionEvent,
-      this.buttonArea,
-      this.dateView});
+        this.hourSpan,
+        this.hourHeight,
+        this.actionEvent,
+        this.buttonArea,
+        this.dateView, Key key}) : super(key: key);
+
+  @override
+  _cardEventState createState() => _cardEventState();
+}
+
+class _cardEventState extends State<cardEvent> {
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         if (_actionEvent != null) {
-          return _actionEvent(e);
+          return _actionEvent(widget.e);
         }
       },
       child: _buildCardEvent(),
@@ -37,14 +44,14 @@ class cardEvent extends StatelessWidget {
     var formatter = new DateFormat('HH : mm', 'it_IT');
     DateFormat formatterMese = new DateFormat('MMM', "it_IT");
     DateFormat formatterSett = new DateFormat('E', "it_IT");
-    String oraInizio = formatter.format(e.start);
-    String oraFine = formatter.format(e.end);
+    String oraInizio = formatter.format(widget.e.start);
+    String oraFine = formatter.format(widget.e.end);
     double hour;
     double containerHeight;
     double paddingContainer;
     double heightBar;
-    if (buttonArea) {
-      containerHeight = this.hourHeight;
+    if (widget.buttonArea) {
+      containerHeight = widget.hourHeight;
       paddingContainer = 15;
       heightBar = 60;
       r = Card(
@@ -58,7 +65,7 @@ class cardEvent extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
-                        color: HexColor(e.color)),
+                        color: HexColor(widget.e.color)),
                     width: 6,
                     height: heightBar,
                     margin: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -74,23 +81,23 @@ class cardEvent extends StatelessWidget {
                             style: orario_card,
                           ),
                           Text(
-                            e.title.toUpperCase(),
+                            widget.e.title.toUpperCase(),
                             style: title_rev,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
-                          Text(e.category.toUpperCase(),
+                          Text(widget.e.category.toUpperCase(),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                               style: subtitle_rev.copyWith(
-                                  color: HexColor(e.color),
+                                  color: HexColor(widget.e.color),
                                   fontWeight: FontWeight.normal)),
                         ],
                       ),
                       margin: const EdgeInsets.symmetric(vertical: 4.0),
                     ),
                   ),
-                  dateView
+                  widget.dateView
                       ? Expanded(
                           flex: 3,
                           child: Container(
@@ -99,7 +106,7 @@ class cardEvent extends StatelessWidget {
                             child: Container(
                               alignment: Alignment.centerRight,
                               decoration: BoxDecoration(
-                                  color: HexColor(e.color),
+                                  color: HexColor(widget.e.color),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(25.0))),
                               width: 55,
@@ -113,18 +120,18 @@ class cardEvent extends StatelessWidget {
                                   Center(
                                     child: Text(
                                         formatterMese
-                                            .format(e.start)
+                                            .format(widget.e.start)
                                             .toUpperCase(),
                                         style:
                                             title_rev.copyWith(fontSize: 16)),
                                   ),
                                   Center(
-                                    child: Text("${e.start.day}",
+                                    child: Text("${widget.e.start.day}",
                                         style:
                                             title_rev.copyWith(fontSize: 16)),
                                   ),
                                   Center(
-                                    child: Text(formatterSett.format(e.start),
+                                    child: Text(formatterSett.format(widget.e.start),
                                         style: title_rev.copyWith(
                                             fontSize: 16,
                                             fontWeight: FontWeight.normal)),
@@ -146,7 +153,7 @@ class cardEvent extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.all(Radius.circular(15.0))),
-                      color: HexColor(e.color),
+                      color: HexColor(widget.e.color),
                       elevation: 15,
                       onPressed: () => _actionRifiuta(),
                     ),
@@ -158,7 +165,7 @@ class cardEvent extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               BorderRadius.all(Radius.circular(15.0))),
-                      color: HexColor(e.color),
+                      color: HexColor(widget.e.color),
                       elevation: 15,
                       onPressed: () => _actionConferma(),
                     ),
@@ -174,11 +181,11 @@ class cardEvent extends StatelessWidget {
         color: dark,
       );
     } else {
-      hour = (((e.end.hour * 60 + e.end.minute) -
-              (e.start.hour * 60 + e.start.minute)) /
+      hour = (((widget.e.end.hour * 60 + widget.e.end.minute) -
+              (widget.e.start.hour * 60 + widget.e.start.minute)) /
           60);
-      containerHeight = hour / this.hourSpan * this.hourHeight;
-      paddingContainer = 5 * hour / this.hourSpan;
+      containerHeight = hour / widget.hourSpan * widget.hourHeight;
+      paddingContainer = 5 * hour / widget.hourSpan;
       heightBar = 40;
       r = Card(
         child: Container(
@@ -191,7 +198,7 @@ class cardEvent extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
-                        color: HexColor(e.color)),
+                        color: HexColor(widget.e.color)),
                     width: 6,
                     height: heightBar,
                     margin: const EdgeInsets.symmetric(horizontal: 15.0),
@@ -201,16 +208,16 @@ class cardEvent extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          e.title.toUpperCase(),
+                          widget.e.title.toUpperCase(),
                           style: title_rev,
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
-                        Text(e.category.toUpperCase(),
+                        Text(widget.e.category.toUpperCase(),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: subtitle_rev.copyWith(
-                                color: HexColor(e.color),
+                                color: HexColor(widget.e.color),
                                 fontWeight: FontWeight.normal)),
                       ],
                     ),
@@ -230,10 +237,17 @@ class cardEvent extends StatelessWidget {
   }
 
   void _actionEvent(Event e) {
-    this.actionEvent(e);
+    widget.actionEvent(e);
   }
 
-  void _actionRifiuta() {}
+  void _actionRifiuta() {
+    //EventsRepository.changeState(widget.e, "Stato", Status.Rejected);
+    widget.e.status = Status.Rejected;
+  }
 
-  void _actionConferma() {}
+  void _actionConferma() {
+    //EventsRepository.changeState(widget.e, "Stato", Status.Accepted);
+    widget.e.status = Status.Accepted;
+  }
+
 }

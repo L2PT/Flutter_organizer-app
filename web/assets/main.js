@@ -97,13 +97,16 @@ function initCategories(){
 }
 
 function readResources(callback){
-    var docRef = db.collection("Utenti").doc(dart.widget.user.uid);
+    var docRef = db.collection("Utenti").doc(dart.widget.account.id);
     docRef.get().then(function(doc) {
         if (doc.exists) {
             var arr = doc.data().OperatoriWeb
             var res = [];
             for( var i = 0; i < arr.length; i++){
-               res.push(arr[i]);
+                if(typeof(arr[i].title) == 'undefined'){
+                    arr[i].title = arr[i]["Cognome"]+" "+arr[i]["Nome"];
+                }
+                res.push(arr[i]);
             }
             callback(res);
         } else {
@@ -129,48 +132,18 @@ function readEvents(start, end, timezone, callback){
        callback(evs);
    });
 }
+
 function removeResource(res){
-    calendar.removeResource(res);
-    var docRef = db.collection("Utenti").doc(loggedId);
-    docRef.get().then(function(doc) {
-    //TODO
-//        if (doc.exists){
-//           var arr = doc.data().OperatoriWeb;
-//           for( var i = 0; i < arr.length; i++){
-//              if (arr[i].id === res) {
-//                arr.splice(i, 1);
-//              }
-//           }
-//           db.collection("Utenti").doc(loggedId).update({OperatoriWeb:arr})
-//        } else {
-//           console.log("No user found on the db table!");
-//        }
-    }).catch(function(error) {
-        console.log("Error getting user:", error);
+    calendar.removeResource(res).then(function(value){
+        dart.removeResource(res);
     });
 }
+
 function addResource(res){
-    console.log(res);
-    res.forEach(function(o){
-        calendar.addResource({id:o,title:o});
-    });
-    var docRef = db.collection("Utenti").doc(loggedId);
-    docRef.get().then(function(doc) {
-    //TODO
-//        if (doc.exists){
-//           var arr = doc.data().OperatoriWeb;
-//           for( var i = 0; i < arr.length; i++){
-//              if (arr[i].id === res) {
-//                arr.splice(i, 1);
-//              }
-//           }
-//           db.collection("Utenti").doc(loggedId).update({OperatoriWeb:arr})
-//        } else {
-//           console.log("No user found on the db table!");
-//        }
-    }).catch(function(error) {
-        console.log("Error getting user:", error);
-    });
+    res.forEach(function(i){
+        i.title = i["surname"]+" "+i["name"];
+        calendar.addResource(i);
+    })
 }
 
 function mapEventObj(eventData){
@@ -190,7 +163,7 @@ function mapEventObj(eventData){
 /*-------------------------------------------------------------------*/
                         /*--UTILITIES--*/
 function getColor(arg){
-    return (arg != null && categories[arg] != null)?categories[arg]:categories['default'];
+    return (arg != null && typeof(a) != 'undefined' && categories[arg] != null)?categories[arg]:categories['default'];
 }
 
 function formatDate(date) {

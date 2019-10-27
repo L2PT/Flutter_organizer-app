@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 
 class OperatorList extends StatefulWidget {
@@ -78,7 +78,7 @@ class _OperatorListState extends State<OperatorList>{
           )
           );
         }
-        return SplashScreen();
+        return LoadingScreen();
       }
   );
   }
@@ -109,7 +109,6 @@ class _OperatorListState extends State<OperatorList>{
             ),
           ],
         )
-
     );
   }
 
@@ -126,7 +125,6 @@ class _OperatorListState extends State<OperatorList>{
               Row(children: <Widget>[
                 Icon(Icons.tune),
                 Text("FILTRA PER OPEARATORI LIBERI",style: subtitle_rev),
-                //Align(alignment: Alignment.topRight, child: Icon(Icons.keyboard_arrow_up))
               ],),
               Padding(
                 padding: EdgeInsets.all(5.0),
@@ -215,7 +213,7 @@ class ChildItem extends StatelessWidget {
   ChildItem(this.operator);
   @override
   Widget build(BuildContext context) {
-    //TODO add icons by account's properties
+    //TOMAYBEDO add icons by account's properties
     return GestureDetector(
       onTap: ()=>BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[operator,null])),
       child: Container(

@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/widget/responsive_widget.dart';
 
@@ -27,20 +28,14 @@ class _LogInState extends State<LogIn> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _success = false;
-  String _userEmail;
   LoginData _data = new LoginData();
   bool _isLoading = false;
 
   String validateEmail(String value) {
     if (value.isEmpty || !value.contains('@')) {
-      return 'The E-mail Address must be a valid email address.';
+      return 'L\'indirizzo email inserito non è valido';
     }
     return null;
-  }
-
-  void _navigateToReset() {
-    BlocProvider.of<BackdropBloc>(context).dispatch(
-        NavigateEvent(global.Constants.resetCodeRoute, null));
   }
 
   @override
@@ -76,7 +71,7 @@ class _LogInState extends State<LogIn> {
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Enter your email',
+                hintText: 'Inserisci l\'indirizzo email',
                 hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
@@ -119,7 +114,7 @@ class _LogInState extends State<LogIn> {
               obscureText: true,
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: 'Enter your password',
+                hintText: 'Inserisci la password',
                 hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
@@ -182,9 +177,9 @@ class _LogInState extends State<LogIn> {
         _formKey.currentState.save();
         String resetMessage;
         if (_data.email.isEmpty) {
-          resetMessage = 'Please enter an email address.';
+          resetMessage = 'Inserisci un indirizzo email';
         } else {
-          resetMessage = 'Reset password for ' + _data.email;
+          resetMessage = 'Reset password per ' + _data.email;
           resetMessage +=
           ". Manda all'altra view o un identificativo dell'utente o già mail e telefono in modo che i campi siano già compilati";
         }
@@ -200,7 +195,7 @@ class _LogInState extends State<LogIn> {
                   new FlatButton(
                       onPressed: () {
                         if (_data.email.isNotEmpty) {
-                          _navigateToReset();
+                          Utils.NavigateTo(context, global.Constants.resetCodeRoute, null);
                         }
                         Navigator.of(context).pop(false);
                       },
@@ -210,7 +205,7 @@ class _LogInState extends State<LogIn> {
                     onPressed: () {
                       Navigator.of(context).pop(true);
                     },
-                    child: new Text("CANCEL"),
+                    child: new Text("ANNULLA"),
                   )
                 ],
               );
