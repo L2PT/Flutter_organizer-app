@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -71,7 +72,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
             BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(_selectedDay));
             ready = true;
           }else if(state is Filtered && ready){
-            if(state.events.length>0)_events[state.selectedDay] = state.events;
+            _events[state.selectedDay] = state.events;
             initList();
             return Material(
               elevation: 12.0,
@@ -318,7 +319,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                 child: Container(
                     padding: EdgeInsets.only(right: 40),
                     height: (((e.end.hour*60+e.end.minute)-(e.start.hour*60+e.start.minute))/60)/_gridHourSpan*_gridHourHeight,
-                    child: Icon(Icons.notification_important,color: red)
+                    child: e.status<=Status.Seen?Icon(Icons.notification_important,color: red):Container(),
                 )
             ),
             Expanded(

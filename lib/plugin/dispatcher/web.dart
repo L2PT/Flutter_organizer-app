@@ -1,5 +1,6 @@
 //custom import
-import 'package:firebase/firebase.dart';
+import 'package:firebase/firebase.dart' as fb;
+import 'package:firebase/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
@@ -20,7 +21,7 @@ class PlatformUtils {
   }
   static const dynamic simpleSwipeConfig = null;
   static const dynamic Dir = null;
-  static dynamic fire = firestore();
+  static dynamic fire = fb.firestore();
 
   static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
@@ -33,7 +34,11 @@ class PlatformUtils {
     return a.docs;
   }
 
+  static List documents(querySnapshot) => querySnapshot.docs;
+
   static dynamic setDocument(collection, documentId, data) => fire.collection(collection).doc(documentId).set(data);
+
+  static dynamic updateDocument(collection, documentId, data) => fire.collection(collection).doc(documentId).update( data: data);
 
   static dynamic fireDocument(collection,documentId) => fire.collection(collection).doc(documentId);
 
@@ -52,7 +57,7 @@ class PlatformUtils {
       context: context,
       builder: (BuildContext context) {
         // return object of type Dialog
-        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:600, width:400, child: content),
+        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:650, width:400, child: content),
         );
       },
     );
@@ -60,6 +65,6 @@ class PlatformUtils {
 
   static Event EventFromMap(id, color, json) => Event.fromMapWeb(id, color, json);
 
-  static Account AccountFromMap(id, color, json) => Account.fromMapWeb(id, json);
+  static Account AccountFromMap(id, json) => Account.fromMapWeb(id, json);
 
 }

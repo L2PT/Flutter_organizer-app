@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
+import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/backdrop_bloc/backdrop_bloc.dart';
@@ -49,6 +50,9 @@ class _MyAppState extends State<MyApp> {
                 global.Constants.formEventCreatorRoute: (context){
                   final dynamic args = ModalRoute.of(context).settings.arguments;
                   return EventCreator(args);
+                },
+                global.Constants.registerRoute: (context){
+                  return Register();
                 },
               }
           );

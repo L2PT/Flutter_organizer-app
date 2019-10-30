@@ -18,9 +18,9 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   final EventsRepository _eventsRepository;
   StreamSubscription _eventsSubscription;
   List<Event> _events = [];
-  List<Account> operators = [];
-  String _stringQuery = null;
-  DateTime _dateQuery = null;
+  List<Account> operators = new List();
+  String stringQuery = null;
+  DateTime dateQuery = null;
 
   OperatorsBloc({@required EventsRepository eventsRepository})
       : assert(eventsRepository != null),
@@ -66,28 +66,28 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   Stream<OperatorsState> _mapLoadOperatorsFilteredToState(ApplyOperatorFilters event) async* {
     //if both null it's a refresh
     if(!(event.stringFilter == null && event.dateFilter == null)){
-      _stringQuery = event.stringFilter;
-      _dateQuery = event.dateFilter;
+      stringQuery = event.stringFilter;
+      dateQuery = event.dateFilter;
     }
     filterAndDispatch();
   }
 
   Stream<OperatorsState> _mapLoadOperatorsFilteredByStringToState(ApplyOperatorFilterString event) async* {
-    _stringQuery = event.stringFilter;
+    stringQuery = event.stringFilter;
     filterAndDispatch();
   }
 
   Stream<OperatorsState> _mapLoadOperatorsFilteredByDateToState(ApplyOperatorFilterDate event) async* {
-    _dateQuery = event.dateFilter;
+    dateQuery = event.dateFilter;
     filterAndDispatch();
   }
 
   void filterAndDispatch(){
-    List<Account> filteredOperators = operators;
+    List<Account> filteredOperators = List.from(operators);
     //filter them and return the operators
-    if(_dateQuery!=null){
+    if(dateQuery!=null){
       _events.forEach((event) {
-        if (event.isBetweenDate(_dateQuery, _dateQuery)) {
+        if (event.isBetweenDate(dateQuery, dateQuery)) {
           event.idOperators.forEach((idOperator) {
             bool checkDelete = false;
             for (int i = 0; i < filteredOperators.length && !checkDelete; i++) {
@@ -100,9 +100,9 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
         }
       });
     }
-    if(_stringQuery!=null && _stringQuery!=""){
-      for (int i = 0; i < filteredOperators.length; i++) {
-        if(!filteredOperators.elementAt(i).name.contains(_stringQuery) && !filteredOperators.elementAt(i).surname.contains(_stringQuery))
+    if(stringQuery!=null && stringQuery!=""){
+      for (int i = filteredOperators.length-1; i >= 0; i--) {
+        if(!filteredOperators.elementAt(i).name.toLowerCase().contains(stringQuery.toLowerCase(), ) && !filteredOperators.elementAt(i).surname.toLowerCase().contains(stringQuery.toLowerCase()))
           filteredOperators.removeAt(i);
         }
     }

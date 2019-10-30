@@ -8,6 +8,7 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -41,7 +42,7 @@ class EventCreatorState extends State<EventCreator> {
   int _radioValue = 0;
   List<String> _categoriesN = List();
   List<dynamic> _categoriesC = List();
-  DateTime now = DateTime.now().add(Duration(hours:2));
+  DateTime now = DateTime.now();
   Color colorValidator = dark;
   bool enabledField = false;
   Account _supervisor;
@@ -51,14 +52,13 @@ class EventCreatorState extends State<EventCreator> {
   void initState() {
     super.initState();
     _supervisor = BlocProvider.of<AuthenticationBloc>(context).account;
-    enabledField = widget._event.id!=null&&widget._event.id!=""?!widget._event.start.isBefore(now.subtract(Duration(minutes:5))):true;
+    enabledField = widget._event.id!=null&&widget._event.id!=""?!widget._event.start.isBefore(now.subtract(Duration(minutes:4))):true;
     getCategories();
   }
 
   @override
   Widget build(BuildContext context) {
     double iconspace = 30.0;//handle
-
     List<Widget> listCat = _categoriesN.map((n){
       int index = _categoriesN.indexOf(n);
       return Container(
@@ -111,358 +111,385 @@ class EventCreatorState extends State<EventCreator> {
             Text(entity.name, style: subtitle),
             Expanded(child: Container(),),
             op!=widget._event.operator&&enabledField?IconButton(
-              icon: Icon(Icons.close, color: dark),
-              onPressed: (){
-                widget._event.suboperators.remove(op);
-                setState((){});
-              }):Container()
+                icon: Icon(Icons.close, color: dark),
+                onPressed: (){
+                  List<String> tempRemovingList = new List.from(widget._event.idOperators);
+                  tempRemovingList.remove(widget._event.idOperator);
+                  tempRemovingList.removeAt(widget._event.suboperators.indexOf(op));
+                  widget._event.idOperators = tempRemovingList;
+                  List<dynamic> temp2RemovingList = new List.from(widget._event.suboperators);
+                  temp2RemovingList.remove(op);
+                  widget._event.suboperators = temp2RemovingList;
+                  setState((){});
+                }):Container()
           ],
         ),
       );
     }).toList();
 
-    return new Scaffold(
-      appBar: new AppBar(
-        leading: new BackButton(),
-        title: new Text('Create New Event'),
-        actions: <Widget>[
-          new Container(
-            alignment: Alignment.center,
-            padding: EdgeInsets.all(15.0),
-            child: new InkWell(
-              child: new Text(
-                'SAVE',
-                style: TextStyle(
-                    fontSize: 20.0),
-              ),
-              onTap: () => _saveNewEvent(context),
+    return WillPopScope(
+        onWillPop: (){_onBackPressed();},
+        child: new Scaffold(
+          appBar: new AppBar(
+            leading: new BackButton(
+              onPressed: _onBackPressed,
             ),
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: new Form(
-            key: this._formKey,
-            child: new Container(
-                padding: EdgeInsets.all(10.0),
-                child: new Column(
-                    children: <Widget>[
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 40.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            hintText: 'Titolo',
-                            hintStyle: subtitle,
-                            border: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                width: 2.0,
-                                style: BorderStyle.solid,
+            title: new Text('Crea nuovo evento'),
+            actions: <Widget>[
+              new Container(
+                alignment: Alignment.center,
+                padding: EdgeInsets.all(15.0),
+                child: new InkWell(
+                  child: new Text(
+                    'SAVE',
+                    style: TextStyle(
+                        fontSize: 20.0),
+                  ),
+                  onTap: () => _saveNewEvent(context),
+                ),
+              )
+            ],
+          ),
+          body: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: new Form(
+                key: this._formKey,
+                child: new Container(
+                    padding: EdgeInsets.all(10.0),
+                    child: new Column(
+                        children: <Widget>[
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 40.0),
+                            child: TextFormField(
+                              keyboardType: TextInputType.text,
+                              decoration: InputDecoration(
+                                hintText: 'Titolo',
+                                hintStyle: subtitle,
+                                border: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 2.0,
+                                    style: BorderStyle.solid,
+                                  ),
+                                ),
                               ),
+                              initialValue: widget._event.title,
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return 'Il campo \'Titolo\' è obbligatorio';
+                                }
+                                return null;
+                              },
+                              onSaved: (String value) => widget._event.title = value,
                             ),
                           ),
-                          initialValue: widget._event.title,
-                          validator: (String value) {
-                            if (value.isEmpty) {
-                              return 'Il campo \'Titolo\' è obbligatorio';
-                            }
-                            return null;
-                          },
-                          onSaved: (String value) => widget._event.title = value,
-                        ),
-                      ),
-                      Divider(height: 40, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                      Row(children: <Widget>[
-                        Container(
-                          width: iconspace,
-                          margin: EdgeInsets.only(right: 20.0),
-                          child: Icon(Icons.note, color: dark, size: iconspace,),
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            maxLines: 3,
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              hintText: 'Aggiungi note',
-                              hintStyle: subtitle,
-                              border: InputBorder.none,
-                            ),
-                            initialValue: widget._event.description,
-                            validator: (value)=>null,
-                            onSaved: (String value) => widget._event.description = value,
-                          ),
-                        ),
-                      ]),
-                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                      Row(children: <Widget>[
-                        Container(
-                          width: iconspace,
-                          margin: EdgeInsets.only(right: 20.0),
-                          child: Icon(Icons.map, color: dark, size: iconspace,),
-                        ),
-                        Expanded(
-                          child: TextFormField(
-                            keyboardType: TextInputType.text,
-                            decoration: InputDecoration(
-                              hintText: 'Aggiungi posizione',
-                              hintStyle: subtitle,
-                              border: InputBorder.none,
-                            ),
-                            initialValue: widget._event.address,
-                            validator: (value)=>null,
-                            onSaved: (String value) => widget._event.address = value,
-                          ),
-                        ),
-                      ]),
-                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                      Container(
-                        margin: EdgeInsets.symmetric(vertical: 4),
-                        child:Row(
-                          children: <Widget>[
+                          Divider(height: 40, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                          Row(children: <Widget>[
                             Container(
                               width: iconspace,
                               margin: EdgeInsets.only(right: 20.0),
-                              child: Icon(Icons.access_time, color: dark, size: iconspace,),
+                              child: Icon(Icons.note, color: dark, size: iconspace,),
                             ),
                             Expanded(
-                              child: Text(enabledField?"Tutto il giorno":"Orario", style: label),
+                              child: TextFormField(
+                                maxLines: 3,
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  hintText: 'Aggiungi note',
+                                  hintStyle: subtitle,
+                                  border: InputBorder.none,
+                                ),
+                                initialValue: widget._event.description,
+                                validator: (value)=>null,
+                                onSaved: (String value) => widget._event.description = value,
+                              ),
                             ),
-                            enabledField?Container(
-                              alignment: Alignment.centerRight,
-                              child: Switch(value: _allDayFlag, activeColor: dark, onChanged: (v){
-                                setState(() {
-                                  if(enabledField) _allDayFlag = v;
-                                });
-                              }),
-                            ):Container()
-                          ],
-                        ),
-                      ),
-                      Form(
-                        key: _formDateKey,
-                        child: Column(children: <Widget>[
-                          Row(
+                          ]),
+                          Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                          Row(children: <Widget>[
+                            Container(
+                              width: iconspace,
+                              margin: EdgeInsets.only(right: 20.0),
+                              child: Icon(Icons.map, color: dark, size: iconspace,),
+                            ),
+                            Expanded(
+                              child: TextFormField(
+                                keyboardType: TextInputType.text,
+                                decoration: InputDecoration(
+                                  hintText: 'Aggiungi posizione',
+                                  hintStyle: subtitle,
+                                  border: InputBorder.none,
+                                ),
+                                initialValue: widget._event.address,
+                                validator: (value)=>null,
+                                onSaved: (String value) => widget._event.address = value,
+                              ),
+                            ),
+                          ]),
+                          Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 4),
+                            child:Row(
                               children: <Widget>[
                                 Container(
                                   width: iconspace,
                                   margin: EdgeInsets.only(right: 20.0),
+                                  child: Icon(Icons.access_time, color: dark, size: iconspace,),
                                 ),
                                 Expanded(
-                                  child: DateTimeField(
-                                    decoration: InputDecoration(
-                                        hintText: 'Mon 1 Sep 2019',
-                                        hintStyle: label,
-                                        border: InputBorder.none
+                                  child: Text(enabledField?"Tutto il giorno":"Orario", style: label),
+                                ),
+                                enabledField?Container(
+                                  alignment: Alignment.centerRight,
+                                  child: Switch(value: _allDayFlag, activeColor: dark, onChanged: (v){
+                                    setState(() {
+                                      if(enabledField) _allDayFlag = v;
+                                    });
+                                  }),
+                                ):Container()
+                              ],
+                            ),
+                          ),
+                          Form(
+                            key: _formDateKey,
+                            child: Column(children: <Widget>[
+                              Row(
+                                  children: <Widget>[
+                                    Container(
+                                      width: iconspace,
+                                      margin: EdgeInsets.only(right: 20.0),
                                     ),
-                                    style: label,
-                                    format: dateFormat,
-                                    initialValue: widget._event.start,
-                                    readOnly: true,
-                                    enabled: enabledField,
-                                    resetIcon: null,
-                                    onShowPicker: (context, currentValue) {
-                                      return showDatePicker(
-                                          context: context,
-                                          firstDate: Utils.formatDate(now, "day"),
-                                          initialDate: currentValue!=null?currentValue.year>2000?currentValue:
-                                          DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
-                                              :Utils.formatDate(now, "day"),
-                                          lastDate: DateTime(3000)
-                                      );
-                                    },
-                                    onChanged: (newValue)=>resetOperatorsFields(),
-                                    validator: (val){
-                                      if (val != null){
-                                        widget._event.start = Utils.formatDate(val, "day");
-                                        return null;
-                                      } else {
-                                        return 'Inserisci una data valida';
-                                      }
-                                    },
-                                    onSaved: (DateTime value) => widget._event.start = Utils.formatDate(value, "day"),
+                                    Expanded(
+                                      child: DateTimeField(
+                                        decoration: InputDecoration(
+                                            hintText: 'Mon 1 Sep 2019',
+                                            hintStyle: label,
+                                            border: InputBorder.none
+                                        ),
+                                        style: label,
+                                        format: dateFormat,
+                                        initialValue: widget._event.start,
+                                        readOnly: true,
+                                        enabled: enabledField,
+                                        resetIcon: null,
+                                        onShowPicker: (context, currentValue) {
+                                          return showDatePicker(
+                                              context: context,
+                                              firstDate: Utils.formatDate(now, "day"),
+                                              initialDate: currentValue!=null?currentValue.year>2000?currentValue:
+                                              DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
+                                                  :Utils.formatDate(now, "day"),
+                                              lastDate: DateTime(3000)
+                                          );
+                                        },
+                                        onChanged: (newValue)=>resetOperatorsFields(),
+                                        validator: (val){
+                                          if (val != null){
+                                            widget._event.start = Utils.formatDate(val, "day");
+                                            return null;
+                                          } else {
+                                            return 'Inserisci una data valida';
+                                          }
+                                        },
+                                        onSaved: (DateTime value) => widget._event.start = Utils.formatDate(value, "day"),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child:
+                                      new DateTimeField(
+                                          decoration: InputDecoration(
+                                              hintText: '10:00',
+                                              hintStyle: label,
+                                              border: InputBorder.none
+                                          ),
+                                          textAlign: TextAlign.right,
+                                          style: label,
+                                          format: timeFormat,
+                                          initialValue: widget._event.start,
+                                          enabled: !_allDayFlag&&enabledField,
+                                          readOnly: true,
+                                          resetIcon: null,
+                                          onShowPicker: (context, currentValue) async {
+                                            final time = await showTimePicker(
+                                              context: context,
+                                              initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                            );
+                                            return DateTimeField.convert(time);
+                                          },
+                                          onChanged: (newValue)=>resetOperatorsFields(),
+                                          validator: (val){
+                                            if(_allDayFlag)return null;
+                                            if (val != null && (val.hour>=global.Constants.MIN_WORKHOUR_SPAN) && (Utils.formatDate(widget._event.start,"day")==Utils.formatDate(now,"day")?
+                                            val.hour>now.hour || (val.hour==now.hour && val.minute>now.minute):true)){
+                                              widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: val.hour,minutes: val.minute));
+                                              return null;
+                                            } else {
+                                              return 'Inserisci un orario valido';
+                                            }
+                                          },
+                                          onSaved: (DateTime value) => widget._event.start = value != null ? Utils.formatDate(widget._event.start,"day").add(Duration(hours: value.hour,minutes: value.minute)): widget._event.start),
+                                    ),
+                                  ]),
+                              Row(
+                                children: <Widget>[
+                                  Container(
+                                    width: iconspace,
+                                    margin: EdgeInsets.only(right: 20.0),
                                   ),
-                                ),
-                                Expanded(
-                                  child:
-                                  new DateTimeField(
+                                  Expanded(
+                                    child: DateTimeField(
                                       decoration: InputDecoration(
-                                          hintText: '10:00',
+                                          hintText: 'Mon 1 Sep 2019',
                                           hintStyle: label,
                                           border: InputBorder.none
                                       ),
-                                      textAlign: TextAlign.right,
                                       style: label,
-                                      format: timeFormat,
-                                      initialValue: widget._event.start,
+                                      format: dateFormat,
+                                      initialValue: widget._event.end,
                                       enabled: !_allDayFlag&&enabledField,
                                       readOnly: true,
                                       resetIcon: null,
-                                      onShowPicker: (context, currentValue) async {
-                                        final time = await showTimePicker(
-                                          context: context,
-                                          initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                      onShowPicker: (context, currentValue) {
+                                        return showDatePicker(
+                                            context: context,
+                                            firstDate: Utils.formatDate(now, "day"),
+                                            initialDate: currentValue!=null?currentValue.year>2000?currentValue:
+                                            DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
+                                                :Utils.formatDate(now, "day"),
+                                            lastDate: DateTime(3000)
                                         );
-                                        return DateTimeField.convert(time);
                                       },
                                       onChanged: (newValue)=>resetOperatorsFields(),
                                       validator: (val){
                                         if(_allDayFlag)return null;
-                                        if (val != null && (val.hour>=6) && (Utils.formatDate(widget._event.start,"day")==Utils.formatDate(now,"day")?
-                                          val.hour>now.hour || (val.hour==now.hour && val.minute>now.minute):true)){
-                                          widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: val.hour,minutes: val.minute));
+                                        if ((val != null) && (val.year >= 2015 && val.year <= 3000) && widget._event.start.isBefore(val.add(Duration(days: 1)))) {
+                                          widget._event.end = Utils.formatDate(val, "day");
                                           return null;
                                         } else {
-                                          return 'Inserisci un orario valido';
+                                          return 'Inserisci una data valida';
                                         }
                                       },
-                                      onSaved: (DateTime value) => widget._event.start = value != null ? Utils.formatDate(widget._event.start,"day").add(Duration(hours: value.hour,minutes: value.minute)): widget._event.start),
-                                ),
-                              ]),
-                          Row(
-                            children: <Widget>[
-                              Container(
-                                width: iconspace,
-                                margin: EdgeInsets.only(right: 20.0),
-                              ),
-                              Expanded(
-                                child: DateTimeField(
-                                  decoration: InputDecoration(
-                                      hintText: 'Mon 1 Sep 2019',
-                                      hintStyle: label,
-                                      border: InputBorder.none
-                                  ),
-                                  style: label,
-                                  format: dateFormat,
-                                  initialValue: widget._event.end,
-                                  enabled: !_allDayFlag&&enabledField,
-                                  readOnly: true,
-                                  resetIcon: null,
-                                  onShowPicker: (context, currentValue) {
-                                    return showDatePicker(
-                                        context: context,
-                                        firstDate: Utils.formatDate(now, "day"),
-                                        initialDate: currentValue!=null?currentValue.year>2000?currentValue:
-                                        DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
-                                            :Utils.formatDate(now, "day"),
-                                        lastDate: DateTime(3000)
-                                    );
-                                  },
-                                  onChanged: (newValue)=>resetOperatorsFields(),
-                                  validator: (val){
-                                    if(_allDayFlag)return null;
-                                    if ((val != null) && (val.year >= 2015 && val.year <= 3000) && widget._event.start.isBefore(val.add(Duration(days: 1)))) {
-                                      widget._event.end = Utils.formatDate(val, "day");
-                                      return null;
-                                    } else {
-                                      return 'Inserisci una data valida';
-                                    }
-                                  },
-                                  onSaved: (DateTime value) => widget._event.end = Utils.formatDate(value, "day"),
-                                ),
-                              ),
-                              Expanded(
-                                child:
-                                new DateTimeField(
-                                    decoration: InputDecoration(
-                                        hintText: '10:00',
-                                        hintStyle: label,
-                                        border: InputBorder.none
+                                      onSaved: (DateTime value) => widget._event.end = Utils.formatDate(value, "day"),
                                     ),
-                                    textAlign: TextAlign.right,
-                                    style: label,
-                                    format: timeFormat,
-                                    initialValue: widget._event.end,
-                                    enabled: !_allDayFlag&&enabledField,
-                                    readOnly: true,
-                                    resetIcon: null,
-                                    onShowPicker: (context, currentValue) async {
-                                      final time = await showTimePicker(
-                                        context: context,
-                                        initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
-                                      );
-                                      return DateTimeField.convert(time);
-                                    },
-                                    onChanged: (newValue)=>resetOperatorsFields(),
-                                    validator: (val){
-                                      if(_allDayFlag)return null;
-                                      if(val != null && (widget._event.start.isBefore(widget._event.end.add(Duration(hours: val.hour, minutes: val.minute-29))))
-                                          && (val.hour<21 || (val.hour==21 && val.minute==0))) {
-                                        widget._event.end = val!=null?Utils.formatDate(widget._event.end,"day").add(Duration(hours: val.hour, minutes: val.minute)):widget._event.end;
-                                      } else {
-                                        return 'Inserisci un orario valido';
-                                      }
-                                    },
-                                  onSaved: (DateTime value) => widget._event.end = value!=null?Utils.formatDate(widget._event.end,"day").add(Duration(hours: value.hour, minutes: value.minute)):widget._event.end
-                                ),
-                              )
-                            ],
+                                  ),
+                                  Expanded(
+                                    child:
+                                    new DateTimeField(
+                                        decoration: InputDecoration(
+                                            hintText: '10:00',
+                                            hintStyle: label,
+                                            border: InputBorder.none
+                                        ),
+                                        textAlign: TextAlign.right,
+                                        style: label,
+                                        format: timeFormat,
+                                        initialValue: widget._event.end,
+                                        enabled: !_allDayFlag&&enabledField,
+                                        readOnly: true,
+                                        resetIcon: null,
+                                        onShowPicker: (context, currentValue) async {
+                                          final time = await showTimePicker(
+                                            context: context,
+                                            initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                          );
+                                          return DateTimeField.convert(time);
+                                        },
+                                        onChanged: (newValue)=>resetOperatorsFields(),
+                                        validator: (val){
+                                          if(_allDayFlag)return null;
+                                          if(val != null && (widget._event.start.isBefore(widget._event.end.add(Duration(hours: val.hour, minutes: (val.minute+1)-global.Constants.WORKHOUR_SPAN))))
+                                              && (val.hour<global.Constants.MAX_WORKHOUR_SPAN || (val.hour==global.Constants.MAX_WORKHOUR_SPAN && val.minute==0))) {
+                                            widget._event.end = val!=null?Utils.formatDate(widget._event.end,"day").add(Duration(hours: val.hour, minutes: val.minute)):widget._event.end;
+                                          } else {
+                                            return 'Inserisci un orario valido';
+                                          }
+                                          return null;
+                                        },
+                                        onSaved: (DateTime value) => widget._event.end = value!=null?Utils.formatDate(widget._event.end,"day").add(Duration(hours: value.hour, minutes: value.minute)):widget._event.end
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],),
                           ),
-                        ],),
-                      ),
-                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                      Row(children: <Widget>[
-                        Container(
-                          width: iconspace,
-                          margin: EdgeInsets.only(right: 20.0),
-                          child: Icon(Icons.work, color: dark, size: iconspace,),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5.0),
-                            child: Text(enabledField?"Aggiungi operatore":"Operatori", style: label.copyWith(color: colorValidator))
-                          ),
-                        ),
-                        enabledField?IconButton(
-                          icon: Icon(Icons.add, color: colorValidator),
-                          onPressed: enabledField?() async {
-                            if(!_formDateKey.currentState.validate()) return Fluttertoast.showToast(
-                                msg: "Inserisci un intervallo temporale valido",
-                                toastLength: Toast.LENGTH_SHORT,
-                                gravity: ToastGravity.CENTER,
-                                timeInSecForIos: 1,
-                                backgroundColor: Colors.red,
-                                textColor: Colors.white,
-                                fontSize: 16.0
-                            );
-                            var result = await PlatformUtils.navigator(context, new OperatorSelection(widget._event, true));
-                            widget._event = result;
-                            setState((){});
-                          }:null,
-                        ):Container()
-                      ]),
-                      Container(
-                          child: Column(
-                              children: listOp
-                          )
-                      ),
-                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                      Container(
-                        child:
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
+                          Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                          Row(children: <Widget>[
                             Container(
-                                alignment: Alignment.topLeft,
-                                margin: EdgeInsets.only(top: 5.0, right: 20.0),
-                                child: Text("Tipologia", style: title)
+                              width: iconspace,
+                              margin: EdgeInsets.only(right: 20.0),
+                              child: Icon(Icons.work, color: dark, size: iconspace,),
                             ),
                             Expanded(
+                              child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 5.0),
+                                  child: Text(enabledField?"Aggiungi operatore":"Operatori", style: label.copyWith(color: colorValidator))
+                              ),
+                            ),
+                            enabledField?IconButton(
+                              icon: Icon(Icons.add, color: colorValidator),
+                              onPressed: enabledField?() async {
+                                if(!_formDateKey.currentState.validate()) return Fluttertoast.showToast(
+                                    msg: "Inserisci un intervallo temporale valido",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.CENTER,
+                                    timeInSecForIos: 1,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.white,
+                                    fontSize: 16.0
+                                );
+                                Event tempEvent = widget._event;
+                                if(_allDayFlag) {
+                                  tempEvent.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+                                  tempEvent.end = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN));
+                                }
+                                var result = await PlatformUtils.navigator(context, new OperatorSelection(tempEvent, true));
+                                if(!(result is bool)){
+                                  widget._event = result;
+                                  setState((){});
+                                }
+                                return null;
+                              }:null,
+                            ):Container()
+                          ]),
+                          Container(
                               child: Column(
-                                children: listCat
+                                  children: listOp
                               )
-                            )
-                          ],
-                        ),
-                      ),
-                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
-                    ])
-            )
-        ),
-      ),
+                          ),
+                          Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                          Container(
+                            child:
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                    alignment: Alignment.topLeft,
+                                    margin: EdgeInsets.only(top: 5.0, right: 20.0),
+                                    child: Text("Tipologia", style: title)
+                                ),
+                                Expanded(
+                                    child: Column(
+                                        children: listCat
+                                    )
+                                )
+                              ],
+                            ),
+                          ),
+                          Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                        ])
+                )
+            ),
+          ),
+        )
     );
 
+  }
 
+  void _onBackPressed(){
+    if(Navigator.canPop(context)){
+      Navigator.pop(context);
+    }else{
+      Utils.NavigateTo(context, global.Constants.homeRoute, null);
+    }
   }
 
   void _handleRadioValueChange(int value) {
@@ -492,7 +519,6 @@ class EventCreatorState extends State<EventCreator> {
     });
   }
 
-  //TODO
   Future _saveNewEvent(BuildContext context) async {
     if (widget._event.operator==null) setState((){colorValidator = red;}); else setState((){colorValidator = dark;});
     if ((this._formDateKey.currentState.validate()||!enabledField) && this._formKey.currentState.validate() && widget._event.operator!=null) {
@@ -507,19 +533,19 @@ class EventCreatorState extends State<EventCreator> {
       widget._event.color = _categoriesC[_radioValue];
       widget._event.status = Status.New;
       if(_allDayFlag) {
-        widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: 6));
-        widget._event.end = Utils.formatDate(widget._event.start,"day").add(Duration(hours: 21));
+        widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+        widget._event.end = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN));
       }
       dynamic docRef;
       try{
         if(widget._event.id!="" && widget._event.id!=null){
-          PlatformUtils.fire.collection(global.Constants.tabellaEventi).document(widget._event.id).updateData(widget._event.toDocument());
+          EventsRepository().updateEvent(widget._event, null, widget._event.toDocument());
           docRef = widget._event.id;
         }else{
-          docRef = await PlatformUtils.fire.collection(global.Constants.tabellaEventi).add(widget._event.toDocument());
+          docRef = await EventsRepository().addEvent(widget._event, widget._event.toDocument());
           docRef = PlatformUtils.extractFieldFromDocument("id", docRef);
         }
-        Utils.notify(token: widget._event.operator["Token"], evento: docRef);
+        Utils.notify(token: widget._event.operator["Token"], eventId: docRef);
         Navigator.pop(context);
       }catch(e){print(e);}
     }

@@ -46,10 +46,10 @@ class Fab {
         return FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: (){
-            DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day").add(Duration(hours: 6));
+            DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
             Event ev = Event.empty();
             ev.start = day;
-            ev.end = day.add(Duration(minutes: 30));
+            ev.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));
             Navigator.pushNamed(context, global.Constants.formEventCreatorRoute, arguments: ev);
           },
           backgroundColor: dark,
@@ -210,7 +210,7 @@ class Fab {
               ));
         });
   }
-  _actionOperatoreCall(bool callResponsabile) async*{
+  _actionOperatoreCall(bool callResponsabile) async {
     Navigator.pop(context);
     String url = "tel:";
     if(callResponsabile){

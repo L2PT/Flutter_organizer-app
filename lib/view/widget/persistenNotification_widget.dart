@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -7,62 +6,33 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 
 class persistenNotification extends StatefulWidget {
+  List<Event> events;
+  persistenNotification(this.events,{Key key}) : super(key: key);
+
   @override
   _persistenNotificationState createState() => _persistenNotificationState();
 }
 
 class _persistenNotificationState extends State<persistenNotification> {
-  final List<Event> listEvent = [
-    new Event(
-        '1',
-        'evento prova 1',
-        'descriozione evento 1',
-        DateTime(2019, 10, 12, 10, 0, 0),
-        DateTime(2019, 10, 12, 12, 0, 0),
-        null,
-        2,
-        'Intervento',
-        '#7B9A4B',
-        null,
-        null,
-        null,null,
-      null,
-      null,),
-    new Event(
-        '2',
-        'evento prova 2',
-        'descriozione evento 2',
-        DateTime(2019, 10, 13, 10, 0, 0),
-        DateTime(2019, 10, 13, 12, 0, 0),
-        null,
-        2,
-        'Intervento',
-        '#F8AD09',
-        null,
-        null,
-        null,null,
-      null,
-      null,),
-  ];
-  bool checkMultiEvent;
+  bool flagMultiEvent;
   Map<String, int> mapWaitingEvent;
 
   @override
   void initState() {
     super.initState();
     mapWaitingEvent = new Map<String, int>();
-    listEvent.forEach((event) => _setMapWaitingEvent(event));
-    if (listEvent.length > 1) {
-      checkMultiEvent = true;
+    widget.events.forEach((event) => _setMapWaitingEvent(event));
+    if (widget.events.length > 1) {
+      flagMultiEvent = true;
     } else {
-      checkMultiEvent = false;
+      flagMultiEvent = false;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: checkMultiEvent
+      child: flagMultiEvent
           ? viewPersistentMultiEvent()
           : viewPersistentSingleEvent(),
     );
@@ -100,7 +70,7 @@ class _persistenNotificationState extends State<persistenNotification> {
                             style: Text12WhiteNormal,
                           ),
                           Row(
-                            children: rectangleEvent(),
+                            children: viewPersistentEventContent(),
                           ),
                         ],
                       ),
@@ -134,20 +104,16 @@ class _persistenNotificationState extends State<persistenNotification> {
   }
 
   Widget viewPersistentSingleEvent() {
-    var formatter = new DateFormat('Hm', 'it_IT');
-    String oraInizio = formatter.format(listEvent[0].start);
-    String oraFine = formatter.format(listEvent[0].end);
     return cardEvent(
       buttonArea: true,
       dateView: true,
-      e: listEvent[0],
+      e: widget.events[0],
       hourHeight: 160,
-      actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, listEvent[0]),
+      actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, widget.events[0]),
     );
-    /* */
   }
 
-  List<Widget> rectangleEvent() {
+  List<Widget> viewPersistentEventContent() {
     List<Widget> r = new List<Widget>();
     mapWaitingEvent.forEach((color, text) => r.add(Container(
         width: 30,

@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 
 class LinkMenu {
 
-  final IconData iconLink;
-  final Color  colorIcon;
-  final double sizeIcon;
-  final String textLink;
-  final TextStyle styleText;
+  final IconData _icon;
+  final Color  _color;
+  final double _size;
+  final String _text;
+  final TextStyle _style;
 
-  const LinkMenu(this.iconLink, this.colorIcon, this.sizeIcon, this.textLink, this.styleText);
+  const LinkMenu(this._icon, this._color, this._size, this._text, this._style);
 
-  IconData get icon => iconLink;
-  String get text => textLink;
-  Color get color => colorIcon;
-  TextStyle get style => styleText;
-  double get size => sizeIcon;
+  IconData get iconLink => _icon;
+  String get textLink => _text;
+  Color get colorIcon => _color;
+  TextStyle get styleText => _style;
+  double get sizeIcon => _size;
 
 }

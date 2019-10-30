@@ -12,34 +12,44 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 
 class EventsRepository {
-  final collectionEventi = PlatformUtils.fire.collection('Eventi');
-  final collectionEliminati = PlatformUtils.fire.collection("EventiEliminati");
-  final collectionTerminati = PlatformUtils.fire.collection("EventiTermitati");
+  final collectionEventi = PlatformUtils.fire.collection(global.Constants.tabellaEventi);
+  final collectionEliminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiEliminati);
+  final collectionTerminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiTerminati);
   Map<String,dynamic> categories;
   Future init() async {
     categories = await Utils.getCategories();
     return;
   }
 
-  Future<List<Event>> getEvents() async {
-    var docs = await collectionEventi.getDocuments();
-    List a = docs.documents.map((doc) => PlatformUtils.EventFromMap(PlatformUtils.extractFieldFromDocument("id", doc),categories!=null?
-        categories[doc["Categoria"]] != null
+  Future<Event> getEvent(String id) async {
+    var doc = await PlatformUtils.fireDocument(global.Constants.tabellaEventi, id).get();
+    return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+    categories[doc["Categoria"]] != null
         ? categories[doc["Categoria"]]
-        : categories['default']:global.Constants.fallbackHexColor,doc))
-        .toList();
-    return a;
+        : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));
+  }
+
+  Future<List<Event>> getEvents() async {
+    var docs = await PlatformUtils.fireDocuments(global.Constants.tabellaEventi);
+    List<Event> events = List();
+    for(dynamic doc in docs){
+      if(doc!=null){
+        events.add(Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc)));
+      }
+    }
+    return events;
   }
 
   Stream<List<Event>> events() {
     return collectionEventi.snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) {
-        return PlatformUtils.EventFromMap(doc.documentID,
-            categories[doc["Categoria"]] != null
-                ? categories[doc["Categoria"]]
-                : categories['default'], doc);
-      })
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
           .toList();
     });
   }
@@ -47,13 +57,11 @@ class EventsRepository {
   //Snapshot - Eventi di un determinato operatore
   Stream<List<Event>> eventsOperator(String idOperator) {
     return collectionEventi.where("IdOperatori", arrayContains: idOperator).snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) {
-        return PlatformUtils.EventFromMap(doc.documentID,
-            categories[doc["Categoria"]] != null
-                ? categories[doc["Categoria"]]
-                : categories['default'], doc);
-      })
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
           .toList();
     });
     
@@ -61,48 +69,42 @@ class EventsRepository {
 
   //Snapshot per eventi in waitingevent
   Stream<List<Event>> eventsWaitingOpe(String idOperator) {
-    return collectionEventi.where("IdOperatori", arrayContains: idOperator).where("Stato", isLessThan: Status.Accepted).snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) {
-        return PlatformUtils.EventFromMap(doc.documentID,
-            categories[doc["Categoria"]] != null
-                ? categories[doc["Categoria"]]
-                : categories['default'], doc);
-      })
+    return collectionEventi.where("IdOperatore", isEqualTo: idOperator).where("Stato", isLessThanOrEqualTo: Status.Seen).snapshots().map((snapshot) {
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
           .toList();
     });
   }
 
   Stream<List<Event>> eventsDeleted() {
     return collectionEliminati.snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) {
-        return PlatformUtils.EventFromMap(doc.documentID,
-            categories[doc["Categoria"]] != null
-                ? categories[doc["Categoria"]]
-                : categories['default'], doc);
-      })
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
           .toList();
     });
   }
 
   Stream<List<Event>> eventsEnded() {
     return collectionTerminati.snapshots().map((snapshot) {
-      return snapshot.documents
-          .map((doc) {
-        return PlatformUtils.EventFromMap(doc.documentID,
-            categories[doc["Categoria"]] != null
-                ? categories[doc["Categoria"]]
-                : categories['default'], doc);
-      })
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
           .toList();
     });
   }
 
-  void deleteEvent(Event e) {//TODO to web
+  void deleteEvent(Event e) async {
     final dynamic createTransaction = (dynamic tx) async {
-      dynamic dc = collectionEventi.document(e.id);
-      await tx.set(collectionEliminati.document(e.id), e.toDocument());
+      dynamic dc = PlatformUtils.fireDocument(global.Constants.tabellaEventi, e.id);
+      await tx.set(PlatformUtils.fireDocument(global.Constants.tabellaEventiEliminati, e.id), e.toDocument());
       await tx.delete(dc);
     };
     PlatformUtils.fire.runTransaction(createTransaction);
@@ -110,15 +112,23 @@ class EventsRepository {
 
   void endEvent(Event e) {
     final dynamic createTransaction = (dynamic tx) async {
-      dynamic dc = collectionEventi.document(e.id);
-      await tx.set(collectionTerminati.document(e.id), e.toDocument());
+      dynamic dc = PlatformUtils.fireDocument(global.Constants.tabellaEventi, e.id);
+      await tx.set(PlatformUtils.fireDocument(global.Constants.tabellaEventiTerminati, e.id), e.toDocument());
       await tx.delete(dc);
     };
     PlatformUtils.fire.runTransaction(createTransaction);
   }
 
-  void updateEvent(Event e, String field, dynamic data){
-      collectionEventi.document(e.id).updateData(e.toDocument());
+  void updateEvent(Event e, String field, dynamic data) async {
+    if(field==null)
+      PlatformUtils.updateDocument(global.Constants.tabellaEventi, e.id, data);
+    else
+      PlatformUtils.updateDocument(global.Constants.tabellaEventi, e.id, {field:data});
+  }
+
+  Future<dynamic> addEvent(Event e, dynamic data) async {
+    var docRef = await collectionEventi.add(data);
+    return docRef;
   }
 
 }

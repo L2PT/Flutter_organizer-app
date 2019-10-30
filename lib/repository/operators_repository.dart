@@ -14,36 +14,45 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 class OperatorsRepository {
   final collectionUtenti = PlatformUtils.fire.collection(global.Constants.tabellaUtenti);
 
-  Future<List<Account>> getOperatorsFree(DateTime dataInizio, DateTime dataFine) async {
+  Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime dataInizio, DateTime dataFine) async {
     var docs = await PlatformUtils.fireDocuments(global.Constants.tabellaUtenti);
     //la versione breve cioè map(()=> ).toList() non funziona per problemi di casting dynamic to Account
     List<Account> accounts = List();
-    for(dynamic a in docs){
-      if(a!=null){
-        accounts.add(Account.fromMap(PlatformUtils.extractFieldFromDocument("id", a), PlatformUtils.extractFieldFromDocument(null, a)));
+    for(dynamic doc in docs){
+      if(doc!=null){
+        accounts.add(Account.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), PlatformUtils.extractFieldFromDocument(null, doc)));
       }
     }
     final List<Event> listEvent = await EventsRepository().getEvents();
     listEvent.forEach((event) {
-      if (event.isBetweenDate(dataInizio, dataFine)) {
-        event.idOperators.forEach((idOperator) {
-          bool checkDelete = false;
-          for (int i = 0; i < accounts.length && !checkDelete; i++) {
-            if (accounts.elementAt(i).id == idOperator) {
-              checkDelete = true;
-              accounts.removeAt(i);
+      if (event.id != eventIdToIgnore) {
+        if (event.isBetweenDate(dataInizio, dataFine)) {
+          event.idOperators.forEach((idOperator) {
+            bool checkDelete = false;
+            for (int i = 0; i < accounts.length && !checkDelete; i++) {
+              if (accounts
+                  .elementAt(i)
+                  .id == idOperator) {
+                checkDelete = true;
+                accounts.removeAt(i);
+              }
             }
-          }
-        });
+          });
+        }
       }
     });
     return accounts;
   }
 
   Future<List<Account>> getOperators() async {
-    var docs = await collectionUtenti.getDocuments();
-    List a = docs.documents.map((doc) => Account.fromMap(doc.documentID, doc)).toList();
-    return a;
+    var docs = await PlatformUtils.fireDocuments(global.Constants.tabellaUtenti);
+    List<Account> accounts = List();
+    for(dynamic doc in docs){
+      if(doc!=null){
+        accounts.add(Account.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), PlatformUtils.extractFieldFromDocument(null, doc)));
+      }
+    }
+    return accounts;
   }
 
   void addOperator(Account u) {

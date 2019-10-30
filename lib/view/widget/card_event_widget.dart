@@ -241,12 +241,12 @@ class _cardEventState extends State<cardEvent> {
   }
 
   void _actionRifiuta() {
-    //EventsRepository.changeState(widget.e, "Stato", Status.Rejected);
+    EventsRepository().updateEvent(widget.e, "Stato", Status.Rejected);
     widget.e.status = Status.Rejected;
   }
 
   void _actionConferma() {
-    //EventsRepository.changeState(widget.e, "Stato", Status.Accepted);
+    EventsRepository().updateEvent(widget.e, "Stato", Status.Accepted);
     widget.e.status = Status.Accepted;
   }
 

@@ -31,7 +31,15 @@ class RegisterState extends State<Register> {
   String _errMsg = "";
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: (){_onBackPressed();},
+        child: Scaffold(
+      appBar: AppBar(
+        leading: new BackButton(
+          onPressed: _onBackPressed,
+        ),
+        title: new Text('Crea nuovo utente'),
+      ),
       body: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
@@ -39,7 +47,7 @@ class RegisterState extends State<Register> {
                 children:<Widget>[
                   Container(
                     padding: EdgeInsets.all(8.0),
-                    child: Icon(FontAwesomeIcons.hardHat, color: yellow, size: 80,),
+                    child: Icon(Icons.work, color: yellow, size: 80,),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(5.0)),
                       color: dark,
@@ -223,6 +231,7 @@ class RegisterState extends State<Register> {
             ),
           )
       ),
+    )
     );
   }
 
@@ -231,6 +240,14 @@ class RegisterState extends State<Register> {
     // Clean up the controller when the Widget is disposed
     _emailController.dispose();
     super.dispose();
+  }
+
+  void _onBackPressed(){
+    if(Navigator.canPop(context)){
+      Navigator.pop(context);
+    }else{
+      Utils.NavigateTo(context, global.Constants.homeRoute, null);
+    }
   }
 
   void _handleRadioValueChange(int value) {

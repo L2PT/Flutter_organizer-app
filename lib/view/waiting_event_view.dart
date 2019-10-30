@@ -79,7 +79,8 @@ class _waitingEventState extends State<waitingEvent> {
   }
 
   void _onDaySelected(DateTime date) {
-    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, date);
+    date = Utils.formatDate(date, "day");
+    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, [null, date]);
   }
 
   Widget _viewEvent(Event e) {

@@ -34,6 +34,9 @@ class Constants {
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
   static const String tabellaEventi = 'Eventi';
+  static const String tabellaEventiEliminati = 'EventiEliminati';
+  static const String tabellaEventiTerminati = 'EventiTerminati';
+  static const String tabellaCostanti = 'Costanti';
   // TABLE EVENTI
   static const String tabellaEventi_categoria = 'Categoria';
   static const String tabellaEventi_dataFine = 'DataFine';
@@ -49,9 +52,14 @@ class Constants {
   // INSIDE EVENTS SWITCHES
   static const int EVENTS_BLOC = 0;
   static const int OPERATORS_BLOC = 1;
+  static const int OUT_OF_BLOC = 2;
 
   static const String DELETE_SIGNAL = "delete_event_signal";
   static const String MODIFY_SIGNAL = "modify_event_signal";
+
+  static const MIN_WORKHOUR_SPAN = 6;
+  static const MAX_WORKHOUR_SPAN = 21;
+  static const WORKHOUR_SPAN = 30;
 
 
 

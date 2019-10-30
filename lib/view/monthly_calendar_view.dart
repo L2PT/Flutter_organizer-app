@@ -6,8 +6,11 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 -(o)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -60,7 +63,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
             BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(Utils.formatDate(_selectedMonth, "month")));
             ready = true;
           }else if(state is Filtered && ready){
-            if (state.events.length > 0) _events[state.selectedDay] = state.events; //TODO spread the days in the month
+            spreadEventsInMonth(state.events);
             return new Material(
               elevation: 12.0,
               borderRadius: new BorderRadius.only(
@@ -74,6 +77,18 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
           return LoadingScreen();
         }
     );
+  }
+
+  void spreadEventsInMonth(List<Event> monthlyEvents){
+    _events = Map();
+    monthlyEvents.forEach((monthlyEvent){
+      for(int i in List<int>.generate(max(1,monthlyEvent.end.difference(monthlyEvent.start).inDays), (i) => i + 1)){
+        DateTime month = Utils.formatDate(monthlyEvent.start, "month");
+        DateTime dateIndex = month.toUtc().add(Duration(days:monthlyEvent.start.day+i-2)).add(month.timeZoneOffset);
+        if(_events[dateIndex]==null)_events[dateIndex]=List();
+        _events[dateIndex].add(monthlyEvent);
+      }
+    });
   }
 
         //--CALENDAR
@@ -195,7 +210,8 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
 
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
-    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, [null,day]);
+    //reformat since is a UTC
+    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, [null,Utils.formatDate(day,"day")]);
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

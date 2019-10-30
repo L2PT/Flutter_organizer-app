@@ -37,11 +37,9 @@ $(function() { // document ready
 
   });
 
-//TODO call att right time
-//TODO add resource
-//TODO query remove resource
 function initCalendar(){
      $('#calendar').fullCalendar({
+        timezone:'local',
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         now: formatDate(new Date()),
         editable: true, // enable draggable events
@@ -80,6 +78,9 @@ function initCalendar(){
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
+        db.collection("Eventi").onSnapshot(function(querySnapshot) {
+            calendar.refetchEvents();
+        });
 }
 
 function initCategories(){
@@ -118,7 +119,7 @@ function readResources(callback){
 }
 function readEvents(start, end, timezone, callback){
    //var date = calendar.getDate().format();
-   var docRef = db.collection("Eventi").where("DataInizio","<=",firebase.firestore.Timestamp.fromDate(new Date()))  ; //TODO add query for resource ID
+   var docRef = db.collection("Eventi");
    var evs = [];
    docRef.get().then(function(querySnapshot) {
        querySnapshot.forEach(function(doc) {
@@ -146,11 +147,22 @@ function addResource(res){
     })
 }
 
+function deleteEvent(id, event){
+    //here cause transactions in dart web give error
+    db.runTransaction(async function(transaction) {
+        var docRef = db.collection("Eventi").doc(id);
+        var a = await transaction.set(db.collection("EventiEliminati").doc(id), JSON.parse(event));
+        return await transaction.delete(docRef);
+    }).catch(function(error) {
+        console.log("Error in trasaction: deleteEvent - ", error);
+    });
+}
+
 function mapEventObj(eventData){
     if(eventData!=null){
         var e = eventData;
-        e.resourceId = e.Operatore;
-        e.resourceIds = e.SubOperatori;
+        e.resourceId = e.IdOperatore;
+        e.resourceIds = e.IdOperatori;
         e.title = e.Titolo;
         e.url = e.Categoria;
         e.color = getColor(e.Categoria);

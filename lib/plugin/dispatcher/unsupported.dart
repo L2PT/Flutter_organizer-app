@@ -21,10 +21,13 @@ abstract class PlatformUtils {
   static const dynamic Dir = null;
   static const dynamic fire = null;
 
-  static dynamic fireDocuments(collection,
-      {whereCondFirst, whereOp, whereCondSecond}) async => null;
+  static dynamic fireDocuments(collection, {whereCondFirst, whereOp, whereCondSecond}) async => null;
+
+  static List documents(querySnapshot) => null;
 
   static dynamic setDocument(collection, documentId, data) => null;
+  
+  static dynamic updateDocument(collection, documentId, data) => null;
   
   static dynamic fireDocument(collection, documentId) => null;
 

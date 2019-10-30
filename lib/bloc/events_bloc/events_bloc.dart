@@ -75,7 +75,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     //filter the _events end return them
     List<Event> eventsFiltered = List();
     _events.forEach((singleEvent){
-      if(singleEvent.isBetweenDate(event.selectedDay, DateTime(event.selectedDay.year+event.selectedDay.month==12?1:0,event.selectedDay.month==12?1:event.selectedDay.month+1)))
+      if(singleEvent.isBetweenDate(event.selectedDay, DateTime(event.selectedDay.year+(event.selectedDay.month+2>12?1:0),event.selectedDay.month+2>12?(event.selectedDay.month+2)-12:event.selectedDay.month+2)))
         eventsFiltered.add(singleEvent);
     });
     dispatch(Done(eventsFiltered,event.selectedDay));

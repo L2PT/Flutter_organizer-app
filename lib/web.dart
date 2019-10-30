@@ -1,16 +1,16 @@
 @JS()
 library jquery;
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:fb_auth/fb_auth.dart';
-import 'package:firebase/firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/view/details_event_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
@@ -44,6 +44,9 @@ external dynamic cookieJar(String cookie, String value);
 
 @JS()
 external dynamic addResource(dynamic data);
+
+@JS()
+external dynamic deleteEvent(String id, dynamic event);
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -131,7 +134,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     _calendarController = CalendarController();
-    _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString():"";
+    var formatter = new DateFormat('dddd D MMMM YYYY', 'it_IT');
+    _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString():formatter.format(DateTime.now()).toString();
     initJs2Dart(this);
     initCalendar();
     updateDateCalendar();
@@ -316,11 +320,11 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     var dialogContainer;
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(Event.fromMap(param.id, param.color, param));}break;
-      case "new_event":{dialogContainer = EventCreator(Event.empty());}break;
-      case "modify_event":{dialogContainer = EventCreator(param);}break;
+      case "event":{dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(param.id, param.color, param));}break;
+      case "new_event":{dialogContainer = EventCreator(getEventWithCurrentDay());}break;
+      case "modify_event":{dialogContainer = EventCreator(PlatformUtils.EventFromMap(param.id, param.color, param));}break;
       case "new_user":{dialogContainer = Register();}break;
-      case "add_operator":{dialogContainer = OperatorSelection(getMaxEv(), false);}break;
+      case "add_operator":{dialogContainer = OperatorSelection(Event.empty(), false);}break;
     }
     showDialog(
       context: context,
@@ -336,7 +340,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           ),
         );
       },
-    ).then((onValue){
+    ).then((onValue) async {
       jQuery('#wrap').css(CssOptions(zIndex: 1));
       if(onValue != null && onValue != false){
         switch(opt) {
@@ -357,10 +361,12 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           }break;
           case "event":{
             if(onValue == global.Constants.DELETE_SIGNAL) {
-              PlatformUtils.fireDocument(global.Constants.tabellaEventi, param.id).delete();
+              Event e = PlatformUtils.EventFromMap(param.id, param.color, param);
+              deleteEvent(e.id, json.encode(e.toDocument(), toEncodable: myEncode));
+//              jQuery('#calendar').fullCalendar('refetchEvents',null);
             }
             if(onValue == global.Constants.MODIFY_SIGNAL) {
-              showDialogWindow("modify_event",Event.fromMap(param.id, param.color, param));
+              showDialogWindow("modify_event", param);
             }
           }break;
         }
@@ -399,5 +405,21 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
       _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString();
     });
   }
-  getMaxEv(){Event e = Event.empty(); e.start = DateTime(0);  e.end = DateTime(9999); return e;}
+  Event getEventWithCurrentDay(){
+    DateTime day = DateTime.parse(jQuery('#calendar').fullCalendar('getDate', null).format('').toString()).add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+    Event event = Event.empty();
+    event.start = day;
+    event.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));
+    return event;
+  }
+
+  dynamic myEncode(dynamic item) {
+    if(item is DateTime) {
+      return item.toIso8601String();
+    }
+    if(item is Account) {
+      return json.encode(item, toEncodable: myEncode);
+    }
+    return item.toString();
+  }
 }

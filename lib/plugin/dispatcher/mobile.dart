@@ -62,7 +62,12 @@ abstract class PlatformUtils {
     return a.documents;
   }
 
+  static List<DocumentSnapshot> documents(querySnapshot) => querySnapshot.documents;
+
   static dynamic setDocument(collection, documentId, data) => fire.collection(collection).document(documentId).setData(data);
+
+  static dynamic updateDocument(collection, documentId, data) =>
+      fire.collection(collection).document(documentId).updateData(data);
 
   static dynamic fireDocument(collection, documentId) => fire.collection(collection).document(documentId);
 

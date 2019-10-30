@@ -48,7 +48,7 @@ final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.formEventCreatorRoute:
   const LinkMenu(Icons.edit, Colors.white, 16, "Crea evento", title_rev),
   global.Constants.registerRoute:
-  const LinkMenu(Icons.person_add, Colors.white, 16, "Registra utente", title_rev),
+  const LinkMenu(Icons.person_add, Colors.white, 16, "Crea utente", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -103,9 +103,10 @@ class _BackdropState extends State<Backdrop>
             builder: (context, state) {
               if (state is Ready) {
                 //in the state there is the subscription to the data to ear for realtime changes
+                _toggleBackdropLayerVisibility(false);
                 if(state.subtype==global.Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).dispatch(LoadEvents(state.subscription,state.subscriptionArgs));
                 else if(state.subtype==global.Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).dispatch(LoadOperators(state.subscription,state.subscriptionArgs));
-                _toggleBackdropLayerVisibility(false);
+                else if(state.subtype==global.Constants.OUT_OF_BLOC)return state.content;
                 return WillPopScope(
                     onWillPop: _onBackPressed,
                     child: Scaffold(
@@ -151,7 +152,7 @@ class _BackdropState extends State<Backdrop>
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
-                              persistenNotification()
+                              persistenNotification(state.waitingEvents)
                             ],
                           ),
                         )

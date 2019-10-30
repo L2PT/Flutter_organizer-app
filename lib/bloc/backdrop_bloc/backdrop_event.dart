@@ -21,10 +21,10 @@ class InitAppEvent extends BackdropEvent {
 }
 
 class CreateNotificationEvent extends BackdropEvent {
-  final List<Event> waitingEvent;
+  final List<Event> waitingEvents;
 
-  CreateNotificationEvent(this.waitingEvent) : super(waitingEvent);
+  CreateNotificationEvent(this.waitingEvents) : super(waitingEvents);
 
   @override
-  List<Object> get props => [waitingEvent];
+  List<Object> get props => [waitingEvents];
 }

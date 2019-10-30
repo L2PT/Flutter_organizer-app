@@ -1,3 +1,5 @@
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+
 class Event {
   String _id="";
   String _title="";
@@ -31,17 +33,17 @@ class Event {
     _idSupervisor = json.IdResponsabile;
     _idOperator = json.IdOperatore;
     _idOperators = json.IdOperatori;
-    _supervisor = json.Responsabile;
-    _operator = json.Operatore;
-    _suboperators = json.SubOperatori;
+    _supervisor = PlatformUtils.AccountFromMap("d", json.Responsabile).toDocument();
+    _operator = PlatformUtils.AccountFromMap("d", json.Operatore).toDocument();
+    _suboperators = json.SubOperatori.map((op)=>PlatformUtils.AccountFromMap("d", op).toDocument()).toList();
   }
 
   Event.fromMap(String id, String color, dynamic json){
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
     _title = json["Titolo"];
     _description = json["Descrizione"];
-    _start = new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
-    _end = new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000);
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
+    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000);
     _address = json["Indirizzo"];
     _status = json["Stato"];
     _category = json["Categoria"];

@@ -1,9 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -15,7 +16,7 @@ import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 
 class DetailsEvent extends StatefulWidget {
   final route = global.Constants.detailsEventViewRoute;
-  final Event event;
+  Event event;
 
   DetailsEvent(
       @required this.event,{
@@ -29,7 +30,8 @@ class DetailsEvent extends StatefulWidget {
 
 class _DetailsEventState extends State<DetailsEvent>
     with TickerProviderStateMixin {
-  String dateToText = "";
+  String textNamesOperators = "";
+  String textStatusEvent = "";
   final double sizeIcon = 30;
   final double padding = 15.0;
   DateFormat formatterMese = new DateFormat('MMM', "it_IT");
@@ -48,13 +50,32 @@ class _DetailsEventState extends State<DetailsEvent>
   void initState() {
     super.initState();
     account = BlocProvider.of<AuthenticationBloc>(context).account;
-    tabsContents = _buildTabsContents();
     _tabController = new TabController(vsync: this, length: tabsHeaders.length);
     getColor();
+    if(widget.event is String){
+      //event coming from notification
+
+    }
     if(widget.event.idOperator == account.id && widget.event.status < Status.Seen){
-      //EventsRepository.updateEvent(widget.event, "Stato", Status.Seen);
+      EventsRepository().updateEvent(widget.event, "Stato", Status.Seen);
       widget.event.status = Status.Seen;
     }
+    Account a = Account.fromMap(null, widget.event.operator);
+    textNamesOperators += a.name+" "+a.surname+", ";
+    widget.event.suboperators.forEach((operator){
+      Account a = Account.fromMap(null,operator);
+      textNamesOperators += a.name+" "+a.surname+", ";
+    });
+    textNamesOperators = textNamesOperators.trimRight();
+    textNamesOperators = textNamesOperators.replaceRange(textNamesOperators.length-1, textNamesOperators.length, "");
+    switch(widget.event.status) {
+      case Status.New: textStatusEvent = "Nuovo"; break;
+      case Status.Delivered: textStatusEvent = "Consegnato"; break;
+      case Status.Seen: textStatusEvent = "Visualizzato"; break;
+      case Status.Accepted: textStatusEvent = "Accettato"; break;
+      case Status.Rejected: textStatusEvent = "Rifiutato"; break;
+    }
+    tabsContents = _buildTabsContents();
   }
 
   @override
@@ -107,6 +128,7 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
+                    Text(widget.event.address, style: subtitle_rev),
                     //Text(widget.event.address, style: subtitle_rev)
                   ],
                 ),
@@ -128,9 +150,9 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
-                    Text(PlatformUtils.AccountFromMap(widget.event.idSupervisor, widget.event.supervisor).surname, style: subtitle_rev),
+                    Text(Account.fromMap(widget.event.idSupervisor, widget.event.supervisor).surname, style: subtitle_rev),
                     SizedBox(width: 5,),
-                    Text(PlatformUtils.AccountFromMap(widget.event.idSupervisor, widget.event.supervisor).name, style: subtitle_rev),
+                    Text(Account.fromMap(widget.event.idSupervisor, widget.event.supervisor).name, style: subtitle_rev),
                   ],
                 ),
               ),
@@ -151,7 +173,7 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
-                    Text("0-10", style: subtitle_rev)
+                    Text(textNamesOperators, style: subtitle_rev)
                   ],
                 ),
               ),
@@ -161,8 +183,24 @@ class _DetailsEventState extends State<DetailsEvent>
                 indent: 35,
                 color: almost_dark,
               ),
-              account.supervisor ? _viewStateWidget(3) : Container(),
-              Container(
+              account.supervisor ? Column(
+                  children: <Widget>[Container(
+                      padding: EdgeInsets.symmetric(vertical: 15.0),
+                      child: Row(
+                          children: <Widget>[
+                            Icon(
+                              Icons.work,
+                              size: sizeIcon,
+                            ),
+                            SizedBox(
+                              width: padding,
+                            ),Text(textStatusEvent, style: subtitle_rev),]
+                      )),Divider(
+                    height: 2,
+                    thickness: 2,
+                    indent: 35,
+                    color: almost_dark,
+                  )]): Container(),Container(
                 alignment: Alignment.topLeft,
                 padding: EdgeInsets.symmetric(vertical: 15.0),
                 child: Row(
@@ -180,8 +218,7 @@ class _DetailsEventState extends State<DetailsEvent>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(
-                              "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam",
+                            Text(widget.event.description.substring(0,min(widget.event.description.length,80)),
                               style: subtitle_rev,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 5,
@@ -243,8 +280,7 @@ class _DetailsEventState extends State<DetailsEvent>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text(
-                          "file Mappa tizio caio semproniofdfdsfdsfdsfdsfd.pdf",
+                        Text("Nessun documento allegato",
                           style: subtitle.copyWith(
                               color: dark, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.visible,
@@ -278,10 +314,7 @@ class _DetailsEventState extends State<DetailsEvent>
                       flex: 1,
                       child: new SingleChildScrollView(
                         scrollDirection: Axis.vertical,
-                        child: new Text(
-                            "riautospurgh(26111): Accessing hidden method Ljava/security/spec/ECParameterSpec;->setCurveName(Ljava/lang/String;)V (greylist, reflection, allowed)"
-                                "W/turiautospurgh(26111):",
-                            style: subtitle_rev),
+                        child: new Text(widget.event.description, style: subtitle_rev),
                       ))
                 ],
               ),
@@ -305,7 +338,7 @@ class _DetailsEventState extends State<DetailsEvent>
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => Navigator.pop(context, false),
             )),
-        floatingActionButton: widget.event.end.isBefore(DateTime.now().add(Duration(hours: 2)))&&account.supervisor?Container(
+        floatingActionButton: widget.event.end.isBefore(DateTime.now())&&account.supervisor?Container(
             decoration: BoxDecoration(
                 color: grey, borderRadius: BorderRadius.circular(100)),
             child: Padding(
@@ -480,99 +513,6 @@ class _DetailsEventState extends State<DetailsEvent>
                     )
                   ])),
             ])));
-  }
-
-  Widget _viewStateWidget(int status) {
-    switch (status) {
-      case Status.New:
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.work,
-                size: sizeIcon,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Text("Nuovo", style: subtitle_rev)
-            ],
-          ),
-        );
-      case Status.Delivered:
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.work,
-                size: sizeIcon,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Text("Consegnato", style: subtitle_rev)
-            ],
-          ),
-        );
-      case Status.Seen:
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.work,
-                size: sizeIcon,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Text("Visualizzato", style: subtitle_rev)
-            ],
-          ),
-        );
-      case Status.Accepted:
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.work,
-                size: sizeIcon,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Text("Accettato", style: subtitle_rev)
-            ],
-          ),
-        );
-      case Status.Rejected:
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 15.0),
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.work,
-                size: sizeIcon,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Text("Rifiutato", style: subtitle_rev)
-            ],
-          ),
-        );
-    }
-  }
-
-  void getDate(DateTime d) async {
-    var formatter = new DateFormat(' MMM\n  d\n E', "it_IT");
-    String formatted = formatter.format(d);
-    setState(() {
-      dateToText = formatted;
-    });
   }
 
   void getColor() async {

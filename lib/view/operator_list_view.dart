@@ -27,6 +27,7 @@ class _OperatorListState extends State<OperatorList>{
   bool ready = false;
 
   _SearchListState() {
+    _stringFilter.text = BlocProvider.of<OperatorsBloc>(context).stringQuery;
     _stringFilter.addListener(() {
       if (_stringFilter.text.isEmpty) {
         BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterString(null));
@@ -115,7 +116,7 @@ class _OperatorListState extends State<OperatorList>{
   Widget filtersBox() {
     return Container(
         margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
-        padding: const EdgeInsets.only(top:16.0, right:16.0, bottom:4.0, left:16.0),
+        padding: const EdgeInsets.only(top:16.0, right:14.0, bottom:4.0, left:14.0),
         decoration: BoxDecoration(
             color: dark,
             borderRadius: BorderRadius.all(Radius.circular(15.0))
@@ -127,14 +128,13 @@ class _OperatorListState extends State<OperatorList>{
                 Text("FILTRA PER OPEARATORI LIBERI",style: subtitle_rev),
               ],),
               Padding(
-                padding: EdgeInsets.all(5.0),
+                padding: EdgeInsets.symmetric(vertical: 5.0),
                 child: new Form(
                   key: this._filtersKey,
                   child: Row(
                     children: <Widget>[
                       Icon(Icons.calendar_today),
-                      Container(
-                        width: 140,
+                      Expanded(
                         child: DateTimeField(
                           decoration: InputDecoration(
                               border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
@@ -159,8 +159,7 @@ class _OperatorListState extends State<OperatorList>{
                         )
                       ),
                       Icon(Icons.access_time),
-                      Container(
-                        width: 140,
+                      Expanded(
                         child: DateTimeField(
                           decoration: InputDecoration(
                               border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))

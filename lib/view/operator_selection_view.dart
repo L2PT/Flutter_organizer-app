@@ -116,15 +116,19 @@ class _OperatorSelectionState extends State<OperatorSelection>{
     //Input Object Account
     //Output Object Map
     OperatorsRepository repo = OperatorsRepository();
-    operators = await repo.getOperatorsFree(widget.event.start, widget.event.end);
-    operators.forEach((a){
-      if(a!=null) {
-        if (widget.event.idOperator == a.id)
-          sel[a] = null;
-        else if (widget.event.idOperators.contains(a.id))
-          sel[a] = true;
+    if(widget.tristate)
+      operators = await repo.getOperatorsFree(widget.event.id, widget.event.start, widget.event.end);
+    else
+      operators = await repo.getOperators();
+    operators.forEach((operator){
+      if(operator!=null) {
+        if (widget.event.idOperator == operator.id) {
+          sel[operator] = null;
+          superChecked = true;
+        }else if (widget.event.idOperators.contains(operator.id))
+          sel[operator] = true;
         else
-          sel[a] = false;
+          sel[operator] = false;
       }
     });
     setState(() {});

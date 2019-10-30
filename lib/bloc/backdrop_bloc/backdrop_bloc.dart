@@ -25,6 +25,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   final EventsRepository eventsRepository = EventsRepository();
   Account operator;
   DateTime day;
+  String route;
 
   BackdropBloc(this.user, this.isSupervisor);
 
@@ -60,6 +61,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
     var subscription;
     var subscriptionArgs;
     int bloctype;
+    route = event.route;
     switch(event.route) {
       case global.Constants.homeRoute: {
         if(isSupervisor) {
@@ -76,9 +78,9 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       break;
       case global.Constants.monthlyCalendarRoute: {
         content = MonthlyCalendar(event.arg);
-        if(operator != null){
+        if(operator != null || !isSupervisor){
           subscription = eventsRepository.eventsOperator;
-          subscriptionArgs = operator.id;
+          subscriptionArgs = !isSupervisor?user.id:operator.id;
         }else
           subscription = eventsRepository.events;
         bloctype = global.Constants.EVENTS_BLOC;
@@ -87,15 +89,15 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       case global.Constants.dailyCalendarRoute: {
         //arg 1: operator
         //arg 2: day
-        if(event.arg[0]!=null)
+        if(event.arg!=null && event.arg[0]!=null)
           operator = event.arg[0];
-        if(event.arg[1]!=null)
+        if(event.arg!=null && event.arg[1]!=null)
           day = event.arg[1];
         else
           day=Utils.formatDate(DateTime.now(),"day");
         content = DailyCalendar(event.arg[1]);
         subscription = eventsRepository.eventsOperator;
-        subscriptionArgs = operator.id;
+        subscriptionArgs = !isSupervisor?user.id:operator.id;
         bloctype = global.Constants.EVENTS_BLOC;
       }
       break;
@@ -104,8 +106,8 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       }
       break;
       case global.Constants.registerRoute: {
+        bloctype = global.Constants.OUT_OF_BLOC;
         content = Register();
-        //no sub
       }
       break;
       case global.Constants.operatorListRoute: {
@@ -115,8 +117,8 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       }
       break;
       case global.Constants.formEventCreatorRoute: {
-        content = EventCreator(event.arg);
-        //no sub
+        bloctype = global.Constants.OUT_OF_BLOC;
+        content = EventCreator(null);
       }
       break;
       case global.Constants.waitingEventListRoute: {
@@ -139,17 +141,22 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
     await eventsRepository.init();
     dispatch(NavigateEvent(global.Constants.homeRoute,null));
-    eventsRepository.eventsWaitingOpe(user.id).listen((events) =>
-      dispatch(
-        CreateNotificationEvent(events)
-      )
+    eventsRepository.eventsWaitingOpe(user.id).listen((events) {
+      if(events.length>0 && route!=global.Constants.waitingEventListRoute){
+          dispatch(
+              CreateNotificationEvent(events)
+          );
+      }else{
+        if(currentState is NotificationWaitingState) dispatch(NavigateEvent(global.Constants.homeRoute,null));
+      }
+    }
     );
   }
 
   /// Function that force the backdrop to switch state to show the user the
   /// notifications on top of the screen
   Stream<BackdropState> _mapCreateNoficationEvent(CreateNotificationEvent event) async* {
-    //yield NotificationWatingEvent(event.watingEvent);
+    yield NotificationWaitingState(event.waitingEvents);
   }
 
 }
