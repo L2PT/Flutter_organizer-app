@@ -37,6 +37,7 @@ class _waitingEventState extends State<waitingEvent> {
             BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByWaiting());
             ready = true;
           }else if(state is Filtered && ready){
+            dataCorrente = null;
             return Material(
               elevation: 12.0,
               borderRadius: new BorderRadius.only(
@@ -67,11 +68,12 @@ class _waitingEventState extends State<waitingEvent> {
 
   Widget _buildWaitingEvent(Event evento) {
     List<Widget> r = new List<Widget>();
-    if (dataCorrente != evento.start) {
+    if (dataCorrente == null || Utils.formatDate(dataCorrente, "day") != Utils.formatDate(evento.start, "day")) {
       dataCorrente = evento.start;
       _viewDateHeader(dataCorrente).forEach((row) => r.add(row));
     }
     r.add(_viewEvent(evento));
+    r.add(SizedBox(height: 10,));
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: r

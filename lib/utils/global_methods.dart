@@ -55,15 +55,16 @@ class Utils {
   }
 
   static void notify({token="eGIwmXLpg_c:APA91bGkJI5Nargw6jjiuO9XHxJYcJRL1qfg0CjmnblAsZQ8k-kPQXCCkalundHtsdS21_clryRplzXaSgCj6PM1geEmXttijdSCWQuMQWUHpjPZ9nJOaNFqC6Yq6Oa5WixzyObXr8gt",
-                      descrizione="Clicca la notifica per vedere i dettagli",
-                      eventId="40OeLLC50mmRuS4DLdJU"}) async {
+                      title="Nuovo incarico assegnato",
+                      description="Clicca la notifica per vedere i dettagli",
+                      eventId=""}) async {
     String url = "https://fcm.googleapis.com/fcm/send";
     String json = "";
     Map<String,String> not = new Map<String,String>();
     Map<String,String> data = new Map<String,String>();
     json = "{\"to\":\"${token}\",";
-    not['title'] = "Nuovo incarico assegnato";
-    not['body'] = descrizione;
+    not['title'] = title;
+    not['body'] = description;
     not['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
     data['id'] = eventId;
     json += "\"notification\":"+jsonEncode(not)+", \"data\":"+jsonEncode(data)+"}";

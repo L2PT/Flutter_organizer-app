@@ -1,11 +1,13 @@
 //custom import for mobile
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 
 abstract class PlatformUtils {
   PlatformUtils._();
@@ -19,6 +21,7 @@ abstract class PlatformUtils {
 //      }
 //  }
 
+  static const String platform = Constants.mobile;
   static dynamic myApp = MyApp();
 
   static SimpleGestureDetector gestureDetector({dynamic child, Function onVerticalSwipe, SimpleSwipeConfig swipeConfig}){
@@ -83,6 +86,18 @@ abstract class PlatformUtils {
 
   static dynamic navigator(context, content) async {
     return await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => content ));
+  }
+
+  static dynamic onErrorMessage(msg) {
+    return Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIos: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
   }
 
   static Event EventFromMap(id, color, json) => Event.fromMap(id, color, json);

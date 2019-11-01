@@ -7,10 +7,9 @@ class Account {
   String _codFiscale="";
   List<dynamic> _webops = new List();
   String _token="";
-  bool _busy=false;
   bool _supervisor=false;
 
-  Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._token, this._busy, this._supervisor);
+  Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._token, this._supervisor);
   Account.empty();
   Account.fromMapWeb(String id, dynamic json) {
     _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
@@ -21,7 +20,6 @@ class Account {
     _codFiscale = json.CodiceFiscale;
     _webops = json.OperatoriWeb;
     _token = json.Token;
-    _busy = json.Occupato;
     _supervisor = json.Responsabile;
   }
 
@@ -34,7 +32,6 @@ class Account {
     _codFiscale = json['CodiceFiscale'];
     _webops = json['OperatoriWeb'];
     _token = json['Token'];
-    _busy = json['Occupato'];
     _supervisor = json['Responsabile'];
   }
 
@@ -47,7 +44,6 @@ class Account {
       "Telefono":this.phone,
       "CodiceFiscale":this.codFiscale,
       "Token":this.token,
-      "Occupato":this.busy,
       "Responsabile":this.supervisor
     });
   }
@@ -61,7 +57,6 @@ class Account {
       "OperatoriWeb":this.webops,
       "Token":this.token,
       "CodiceFiscale":this.codFiscale,
-      "Occupato":this.busy,
       "Responsabile":this.supervisor
     });
   }
@@ -74,15 +69,10 @@ class Account {
   String get codFiscale => _codFiscale;
   List<dynamic> get webops => _webops;
   String get token => _token;
-  bool get busy => _busy;
   bool get supervisor => _supervisor;
 
   set supervisor(bool value) {
     _supervisor = value;
-  }
-
-  set busy(bool value) {
-    _busy = value;
   }
 
   set codFiscale(String value) {

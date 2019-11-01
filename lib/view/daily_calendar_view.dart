@@ -229,8 +229,9 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
         children: <Widget>[
           Stack(
               children: <Widget>[
+                _gridHourSpan==0?Container():
                 Column(
-                    children: _buildBack((16/_gridHourSpan).toInt()) //16 sono le ore della griglia
+                    children: _buildBack(((global.Constants.MAX_WORKHOUR_SPAN-global.Constants.MIN_WORKHOUR_SPAN+1)/_gridHourSpan).toInt()) //16 sono le ore della griglia
                 )
                 ,Column(
                     children: _buildFront()
@@ -243,27 +244,33 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
 
   //This function initialize the variables to show properly the grid behind the events
   void initList() {
-    //TODO improve with support for multidays's events
     _selectedEvents = _events[_selectedDay] ?? [];
     if(_selectedEvents.length>0) {
-      //order by start date probably useless since firestore order date automatically
-      _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
-      //identify minimum duration's event
-      int md = 4;
-      _selectedEvents.forEach((e) => {
-        md = max(0,min(md.toInt(), (((e.end.hour * 60 + e.end.minute) -
-            (e.start.hour * 60 + e.start.minute)) / 60).toInt()))
-      });
-      if (md == 0) {
-        _gridHourHeight = minEventHeight * 2;
-        _gridHourSpan = 1;
-      } else {
-        int i = 0;
-        while (md == (max(pow(2, i), md)))i++;
-        md = (min(pow(2, i-1), md));
+      if(_selectedEvents.length == 1 &&
+          _selectedEvents[0].start.compareTo(_selectedDay.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN)))<=0 &&
+          _selectedEvents[0].end.compareTo(_selectedDay.add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN)))>=0) {
         _gridHourHeight = minEventHeight;
-        _gridHourSpan = md;
+        _gridHourSpan = 0;
+      }else{
+        //order by start date probably useless since firestore order date automatically
+        _selectedEvents.sort((a, b) => a.start.compareTo(b.start));
+        //identify minimum duration's event
+        int md = 4;
+        _selectedEvents.forEach((e) => {
+          md = max(0, min(md.toInt(), ((maxDailyHour(e.end) - minDailyHour(e.start)) / 60).toInt()))
+        });
+        if (md == 0) {
+          _gridHourHeight = minEventHeight * 2;
+          _gridHourSpan = 1;
+        } else {
+          int i = 0;
+          while (md == (max(pow(2, i), md)))i++;
+          md = (min(pow(2, i-1), md));
+          _gridHourHeight = minEventHeight;
+          _gridHourSpan = md;
+        }
       }
+
     }else{
       _gridHourHeight = minEventHeight;
       _gridHourSpan = 1;
@@ -273,7 +280,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   List<Widget> _buildBack(int length) {
     double barHourHeight = _gridHourHeight / 2;
     return List.generate(length, (i) {
-      int n = ((i)*_gridHourSpan) + 6;
+      int n = ((i)*_gridHourSpan) + global.Constants.MIN_WORKHOUR_SPAN;
       return Row(children: <Widget>[Expanded(
           flex: 2,
           child: Container(
@@ -307,27 +314,27 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   List<Widget> _buildFront(){
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
-    DateTime base = new DateTime(1990,1,1,6,0,0);
-    DateTime top = new DateTime(1990,1,1,21,0,0);
+    DateTime base = new DateTime(1990,1,1,global.Constants.MIN_WORKHOUR_SPAN,0,0);
+    DateTime top = new DateTime(1990,1,1,global.Constants.MAX_WORKHOUR_SPAN,0,0);
     r.add(SizedBox(height: barHourHeight));
-    _selectedEvents.forEach((e){
-      r.add(SizedBox(height: (((e.start.hour*60+e.start.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
+    if(_gridHourSpan==0){
       r.add(
           Row(children: <Widget>[
             Expanded(
                 flex: 2,
                 child: Container(
-                    padding: EdgeInsets.only(right: 40),
-                    height: (((e.end.hour*60+e.end.minute)-(e.start.hour*60+e.start.minute))/60)/_gridHourSpan*_gridHourHeight,
-                    child: e.status<=Status.Seen?Icon(Icons.notification_important,color: red):Container(),
+                  padding: EdgeInsets.only(right: 40),
+                  height: _gridHourHeight,
+                  child: _selectedEvents[0].status<=Status.Seen?Icon(Icons.notification_important,color: red):Container(),
                 )
             ),
             Expanded(
                 flex: 8,
                 child: cardEvent(
-                  e:e,
+                  e:_selectedEvents[0],
                   hourSpan:_gridHourSpan,
                   hourHeight:_gridHourHeight,
+                  selectedDay: _selectedDay,
                   actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
                   buttonArea: false,
                   dateView: false,
@@ -335,9 +342,38 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
             ),
           ])
       );
-      base = e.end;
-    });
-    r.add(SizedBox(height: (((top.hour*60+top.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
+    }else{
+      _selectedEvents.forEach((e){
+        r.add(SizedBox(height: ((minDailyHour(e.start)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
+        r.add(
+            Row(children: <Widget>[
+              Expanded(
+                  flex: 2,
+                  child: Container(
+                      padding: EdgeInsets.only(right: 40),
+                      height: ((maxDailyHour(e.end) - minDailyHour(e.start))/60)/_gridHourSpan*_gridHourHeight,
+                      child: e.status<=Status.Seen?Icon(Icons.notification_important,color: red):Container(),
+                  )
+              ),
+              Expanded(
+                  flex: 8,
+                  child: cardEvent(
+                    e:e,
+                    hourSpan:_gridHourSpan,
+                    hourHeight:_gridHourHeight,
+                    selectedDay: _selectedDay,
+                    actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
+                    buttonArea: false,
+                    dateView: false,
+                  )
+              ),
+            ])
+        );
+        int newBaseMinutes = maxDailyHour(e.end);
+        base = Utils.formatDate(base, "day").add(Duration(hours: (newBaseMinutes/60).toInt(), minutes: (newBaseMinutes%60).toInt()));
+      });
+      r.add(SizedBox(height: (((top.hour*60+top.minute)-(base.hour*60+base.minute))/60)/_gridHourSpan*_gridHourHeight));
+    }
     return r;
   }
 
@@ -346,6 +382,13 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     _selectedDay = Utils.formatDate(day, "day");
     BlocProvider.of<BackdropBloc>(context).day = Utils.formatDate(day, "day");
     BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(Utils.formatDate(day, "day")));
+  }
+
+  int minDailyHour(DateTime start){
+    return (start.day!=_selectedDay.day?global.Constants.MIN_WORKHOUR_SPAN*60:max<int>(global.Constants.MIN_WORKHOUR_SPAN*60,start.hour * 60 + start.minute));
+  }
+  int maxDailyHour(DateTime end){
+    return (end.day!=_selectedDay.day?global.Constants.MAX_WORKHOUR_SPAN*60:min<int>(global.Constants.MAX_WORKHOUR_SPAN*60,end.hour * 60 + end.minute));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {}

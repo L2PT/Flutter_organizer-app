@@ -1,7 +1,13 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
@@ -9,6 +15,7 @@ class cardEvent extends StatefulWidget {
   final Event e;
   final int hourSpan;
   final double hourHeight;
+  final DateTime selectedDay;
   final bool buttonArea;
   final void Function(Event) actionEvent;
   final bool dateView;
@@ -17,6 +24,7 @@ class cardEvent extends StatefulWidget {
       {this.e,
         this.hourSpan,
         this.hourHeight,
+        this.selectedDay,
         this.actionEvent,
         this.buttonArea,
         this.dateView, Key key}) : super(key: key);
@@ -181,11 +189,16 @@ class _cardEventState extends State<cardEvent> {
         color: dark,
       );
     } else {
-      hour = (((widget.e.end.hour * 60 + widget.e.end.minute) -
-              (widget.e.start.hour * 60 + widget.e.start.minute)) /
-          60);
-      containerHeight = hour / widget.hourSpan * widget.hourHeight;
-      paddingContainer = 5 * hour / widget.hourSpan;
+      if(widget.hourSpan==0){
+        hour = 1;
+        containerHeight = widget.hourHeight;
+        paddingContainer = 5;
+      }else{
+        hour = (((widget.e.end.day!=widget.selectedDay.day?global.Constants.MAX_WORKHOUR_SPAN*60:min<int>(global.Constants.MAX_WORKHOUR_SPAN*60,widget.e.end.hour * 60 + widget.e.end.minute)) -
+            (widget.e.start.day!=widget.selectedDay.day?global.Constants.MIN_WORKHOUR_SPAN*60:max<int>(global.Constants.MIN_WORKHOUR_SPAN*60,widget.e.start.hour * 60 + widget.e.start.minute))) / 60);
+        containerHeight = hour / widget.hourSpan * widget.hourHeight;
+        paddingContainer = 5 * hour / widget.hourSpan;
+      }
       heightBar = 40;
       r = Card(
         child: Container(
@@ -243,11 +256,15 @@ class _cardEventState extends State<cardEvent> {
   void _actionRifiuta() {
     EventsRepository().updateEvent(widget.e, "Stato", Status.Rejected);
     widget.e.status = Status.Rejected;
+    Account operator = BlocProvider.of<AuthenticationBloc>(context).account;
+    Utils.notify(token:Account.fromMap(widget.e.idSupervisor, widget.e.supervisor).token, title: operator.surname+" "+operator.name+" ha rifiutato un lavoro");
   }
 
   void _actionConferma() {
     EventsRepository().updateEvent(widget.e, "Stato", Status.Accepted);
     widget.e.status = Status.Accepted;
+    Account operator = BlocProvider.of<AuthenticationBloc>(context).account;
+    Utils.notify(token:Account.fromMap(widget.e.idSupervisor, widget.e.supervisor).token, title: operator.surname+" "+operator.name+" ha accettato un lavoro");
   }
 
 }

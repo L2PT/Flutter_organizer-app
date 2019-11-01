@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -61,7 +60,10 @@ class EventCreatorState extends State<EventCreator> {
     double iconspace = 30.0;//handle
     List<Widget> listCat = _categoriesN.map((n){
       int index = _categoriesN.indexOf(n);
-      return Container(
+      if(widget._event.category == n) _radioValue = index;
+      return GestureDetector(
+          onTap: ()=>_handleRadioValueChange(index),
+          child: Container(
           margin: EdgeInsets.symmetric(vertical: 5),
           decoration: BoxDecoration(
               color: (_radioValue==index)?dark:white,
@@ -88,6 +90,7 @@ class EventCreatorState extends State<EventCreator> {
                 new Text(_categoriesN[index], style: (_radioValue==index)?subtitle_rev:subtitle.copyWith(color: dark)),
               ]
           )
+      )
       );
     }).toList();
 
@@ -427,15 +430,7 @@ class EventCreatorState extends State<EventCreator> {
                             enabledField?IconButton(
                               icon: Icon(Icons.add, color: colorValidator),
                               onPressed: enabledField?() async {
-                                if(!_formDateKey.currentState.validate()) return Fluttertoast.showToast(
-                                    msg: "Inserisci un intervallo temporale valido",
-                                    toastLength: Toast.LENGTH_SHORT,
-                                    gravity: ToastGravity.CENTER,
-                                    timeInSecForIos: 1,
-                                    backgroundColor: Colors.red,
-                                    textColor: Colors.white,
-                                    fontSize: 16.0
-                                );
+                                if(!_formDateKey.currentState.validate()) return PlatformUtils.onErrorMessage("Inserisci un intervallo temporale valido");
                                 Event tempEvent = widget._event;
                                 if(_allDayFlag) {
                                   tempEvent.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));

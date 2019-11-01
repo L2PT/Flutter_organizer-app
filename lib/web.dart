@@ -48,6 +48,9 @@ external dynamic addResource(dynamic data);
 @JS()
 external dynamic deleteEvent(String id, dynamic event);
 
+@JS()
+external dynamic showAlert(String msg);
+
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
 //external String today();
@@ -348,11 +351,18 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             Event e = onValue as Event;
             //update local
             int i = 0;
-            for(dynamic o in e.suboperators)
-              if (!widget.account.webops.contains(o)){
-                Account a=Account.fromMap(e.idOperators[i++], o);a.webops=[];
-                widget.account.webops.add(a.toMap());
+            for(dynamic o in e.suboperators){
+              Account a=Account.fromMap(e.idOperators[i++], o);
+              a.webops=[];
+              bool found = false;
+              for(dynamic webop in widget.account.webops){
+                Account b=Account.fromMap(null, webop);
+                if (a.id == b.id){
+                  found = true; break;
+                }
               }
+              if(!found) widget.account.webops.add(a.toMap());
+            }
             //update firestore
             OperatorsRepository().updateOperator(widget.account.id, "OperatoriWeb", widget.account.webops);
             //update calendar js
@@ -384,18 +394,23 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   }
 
   Widget _buildTableCalendarWithBuilders(BuildContext context) {
-    return TableCalendar(
-      locale: 'it_IT',
-      calendarController: _calendarController,
-      availableGestures: AvailableGestures.none,
-      onDaySelected: (date, events){
-        jQuery('#calendar').fullCalendar('gotoDate',date.toLocal().toString());
-        updateDateCalendar();
-        Navigator.of(context).pop();},
-      headerStyle: HeaderStyle(
-        leftChevronIcon:Icon(Icons.arrow_back_ios, color: dark,),
-        rightChevronIcon:Icon(Icons.arrow_forward_ios, color: dark,),
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: dark,
       ),
+      body: TableCalendar(
+        locale: 'it_IT',
+        calendarController: _calendarController,
+        availableGestures: AvailableGestures.none,
+        onDaySelected: (date, events){
+          jQuery('#calendar').fullCalendar('gotoDate',date.toLocal().toString());
+          updateDateCalendar();
+          Navigator.of(context).pop();},
+        headerStyle: HeaderStyle(
+          leftChevronIcon:Icon(Icons.arrow_back_ios, color: dark,),
+          rightChevronIcon:Icon(Icons.arrow_forward_ios, color: dark,),
+        ),
+      )
     );
   }
 

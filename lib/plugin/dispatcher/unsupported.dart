@@ -10,6 +10,7 @@ abstract class PlatformUtils {
   }
 */
 
+  static const String platform = null;
   static const dynamic myApp = null;
 
   static dynamic gestureDetector(
@@ -34,6 +35,8 @@ abstract class PlatformUtils {
   static dynamic extractFieldFromDocument(field, document) => null;
 
   static dynamic navigator(context, content) => null;
+
+  static dynamic onErrorMessage(msg) => null;
 
   static Event EventFromMap(id, color, json) => null;
 

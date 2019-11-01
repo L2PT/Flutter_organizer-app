@@ -83,6 +83,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
 
   Stream<EventsState> _mapLoadEventFilteredByWaitingToState(FilterEventsByWaiting event) async* {
     //filter the _events end return them
+    _events.sort((a, b) => a.start.compareTo(b.start));
     dispatch(Done(_events,null));
   }
 

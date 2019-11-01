@@ -4,6 +4,9 @@ import 'package:venturiautospurghi/models/event.dart';
 class Constants {
   static const String title = "Venturi Autospurghi App";
   static bool debug = false;
+  static const String web = "web";
+  static const String mobile = "mobile";
+
 
   static const int fallbackColor = 0xFF119DD1;
   static const String fallbackHexColor = "#FDA90A";
