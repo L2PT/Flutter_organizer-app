@@ -12,13 +12,14 @@ class Event {
   String _color="";
   String _idSupervisor = "";
   String _idOperator = "";
+  String _motivazione = "";
   List<dynamic> _idOperators = new List();
   dynamic _supervisor = null;
   dynamic _operator = null;
   List<dynamic> _suboperators = new List();
 
 
-  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators);
+  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators, this._motivazione);
   Event.empty();
   Event.fromMapWeb(String id, String color, dynamic json){
     _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
@@ -29,6 +30,7 @@ class Event {
     _address = json.Indirizzo;
     _status = json.Stato;
     _category = json.Categoria;
+    _motivazione = json.Motivazione;
     _color = (color!=null && color!="")?color:(json.color!=null)?json.color:"";
     _idSupervisor = json.IdResponsabile;
     _idOperator = json.IdOperatore;
@@ -54,6 +56,7 @@ class Event {
     _supervisor = json["Responsabile"];
     _operator = json["Operatore"];
     _suboperators = json["SubOperatori"];
+    _motivazione = json["Motivazione"];
 
   }
 
@@ -88,7 +91,8 @@ class Event {
       "IdOperatori":this.idOperators,
       "Responsabile":this.supervisor,
       "Operatore":this.operator,
-      "SubOperatori":this.suboperators
+      "SubOperatori":this.suboperators,
+      "Motivazione" : this.motivazione,
     });
   }
 
@@ -107,7 +111,7 @@ class Event {
   dynamic get supervisor => _supervisor;
   dynamic get operator => _operator;
   List<dynamic> get suboperators => _suboperators;
-
+  String get motivazione => _motivazione;
 
   set id(String value) {
     _id = value;
@@ -169,6 +173,9 @@ class Event {
     _suboperators = value;
   }
 
+  set motivazione(String value){
+    _motivazione = value;
+  }
   bool isBetweenDate(DateTime dataInizio,DateTime dataFine){
     if(((this.start.isAfter(dataInizio) || this.start.isAtSameMomentAs(dataInizio)) && this.start.isBefore(dataFine)) || (this.end.isAfter(dataInizio) && (this.end.isBefore(dataFine)) || this.end.isAtSameMomentAs(dataFine)) || (this.start.isBefore(dataInizio) && this.end.isAfter(dataFine)) || (this.start.isAtSameMomentAs(dataInizio) && this.end.isAtSameMomentAs(dataFine))){
       return true;

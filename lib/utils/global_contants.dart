@@ -34,8 +34,9 @@ class Constants {
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
   static const String tabellaEventi = 'Eventi';
-  static const String tabellaEventiEliminati = 'EventiEliminati';
-  static const String tabellaEventiTerminati = 'EventiTerminati';
+  static const String tabellaEventiEliminati = '/Storico/StoricoEventi/EventiEliminati';
+  static const String tabellaEventiTerminati = '/Storico/StoricoEventi/EventiTerminati';
+  static const String tabellaEventiRifiutati = '/Storico/StoricoEventi/EventiRifiutati';
   static const String tabellaCostanti = 'Costanti';
   // TABLE EVENTI
   static const String tabellaEventi_categoria = 'Categoria';
@@ -48,6 +49,7 @@ class Constants {
   static const String tabellaEventi_stato = 'Stato';
   static const String tabellaEventi_subOpe = 'SubOperatori';
   static const String tabellaEventi_titolo = 'Titolo';
+  static const String tabellaEventi_motivazione = 'Motivazione';
 
   // INSIDE EVENTS SWITCHES
   static const int EVENTS_BLOC = 0;

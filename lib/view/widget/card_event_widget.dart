@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 
 class cardEvent extends StatefulWidget {
   final Event e;
@@ -13,20 +17,23 @@ class cardEvent extends StatefulWidget {
   final void Function(Event) actionEvent;
   final bool dateView;
 
+  final _formDateKey = GlobalKey<FormState>();
+
   cardEvent(
       {this.e,
-        this.hourSpan,
-        this.hourHeight,
-        this.actionEvent,
-        this.buttonArea,
-        this.dateView, Key key}) : super(key: key);
+      this.hourSpan,
+      this.hourHeight,
+      this.actionEvent,
+      this.buttonArea,
+      this.dateView,
+      Key key})
+      : super(key: key);
 
   @override
   _cardEventState createState() => _cardEventState();
 }
 
 class _cardEventState extends State<cardEvent> {
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -131,7 +138,8 @@ class _cardEventState extends State<cardEvent> {
                                             title_rev.copyWith(fontSize: 16)),
                                   ),
                                   Center(
-                                    child: Text(formatterSett.format(widget.e.start),
+                                    child: Text(
+                                        formatterSett.format(widget.e.start),
                                         style: title_rev.copyWith(
                                             fontSize: 16,
                                             fontWeight: FontWeight.normal)),
@@ -241,13 +249,91 @@ class _cardEventState extends State<cardEvent> {
   }
 
   void _actionRifiuta() {
-    EventsRepository().updateEvent(widget.e, "Stato", Status.Rejected);
-    widget.e.status = Status.Rejected;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return dialogAlert(
+          action: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  child: new Text('ANNULLA', style: button_card),
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.all(Radius.circular(15.0))),
+                  color: dark,
+                  elevation: 15,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                SizedBox(width: 15,),
+                RaisedButton(
+                  child: new Text('CONFERMA', style: button_card),
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.all(Radius.circular(15.0))),
+                  color: dark,
+                  elevation: 15,
+                  onPressed: () => _actionFormRifiuta(context),
+                ),
+              ]),
+          content: Form(
+            key: widget._formDateKey,
+            child: SingleChildScrollView(
+              child: ListBody(children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text('Inserisci la motivazione del rifiuto'),
+                ),
+                TextFormField(
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    hintText: 'Motivazione rifiuto',
+                    hintStyle: subtitle,
+                    errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: red, width: 1.0)),
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: grey_light, width: 1.0)),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: grey_light, width: 1.0)),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: red, width: 1.0),
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  validator: (value) =>
+                  value.trim() == "" ? "Inserisci la motivazione" : null,
+                  onSaved: (String value) => widget.e.motivazione = value,
+                ),
+              ]),
+            ),
+          ),
+          tittle: "RIFIUTA INCARICO",
+          context: context,
+
+        );
+      },
+    );
   }
 
   void _actionConferma() {
     EventsRepository().updateEvent(widget.e, "Stato", Status.Accepted);
     widget.e.status = Status.Accepted;
+    Account operator = BlocProvider.of<AuthenticationBloc>(context).account;
+    Utils.notify(token:Account.fromMap(widget.e.idSupervisor, widget.e.supervisor).token, title: operator.surname+" "+operator.name+" ha accettato un lavoro");
   }
 
+  void _actionFormRifiuta(BuildContext context) {
+    if (widget._formDateKey.currentState.validate()) {
+      widget._formDateKey.currentState.save();
+      EventsRepository().refuseEvent(widget.e);
+      widget.e.status = Status.Rejected;
+      Account operator = BlocProvider.of<AuthenticationBloc>(context).account;
+      Utils.notify(token:Account.fromMap(widget.e.idSupervisor, widget.e.supervisor).token, title: operator.surname+" "+operator.name+" ha rifiutato un lavoro con la seguente motivazione:\n"+widget.e.motivazione);
+      Navigator.of(context).pop();
+    }
+  }
 }

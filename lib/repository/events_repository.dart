@@ -131,4 +131,13 @@ class EventsRepository {
     return docRef;
   }
 
+  void refuseEvent(Event e) async {
+    final dynamic createTransaction = (dynamic tx) async {
+      dynamic dc = PlatformUtils.fireDocument(global.Constants.tabellaEventi, e.id);
+      await tx.set(PlatformUtils.fireDocument(global.Constants.tabellaEventiRifiutati, e.id), e.toDocument());
+      await tx.delete(dc);
+    };
+    PlatformUtils.fire.runTransaction(createTransaction);
+  }
+
 }
