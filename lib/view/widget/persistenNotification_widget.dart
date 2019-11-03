@@ -15,24 +15,14 @@ class persistenNotification extends StatefulWidget {
 
 class _persistenNotificationState extends State<persistenNotification> {
   bool flagMultiEvent;
-  Map<String, int> mapWaitingEvent;
-
-  @override
-  void initState() {
-    super.initState();
-    mapWaitingEvent = new Map<String, int>();
-    widget.events.forEach((event) => _setMapWaitingEvent(event));
-    if (widget.events.length > 1) {
-      flagMultiEvent = true;
-    } else {
-      flagMultiEvent = false;
-    }
-  }
+  Map<String, int> mapWaitingEvent = new Map<String, int>();
 
   @override
   Widget build(BuildContext context) {
+    mapWaitingEvent = new Map<String, int>();
+    widget.events.forEach((event) => _setMapWaitingEvent(event));
     return Container(
-      child: flagMultiEvent
+      child: widget.events.length > 1
           ? viewPersistentMultiEvent()
           : viewPersistentSingleEvent(),
     );
@@ -107,6 +97,7 @@ class _persistenNotificationState extends State<persistenNotification> {
     return cardEvent(
       buttonArea: true,
       dateView: true,
+      hourSpan: 0,
       e: widget.events[0],
       hourHeight: 160,
       actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, widget.events[0]),

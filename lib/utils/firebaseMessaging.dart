@@ -4,10 +4,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 
 FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
@@ -30,20 +33,42 @@ void firebaseCloudMessaging_Listeners(String email, BuildContext context){
   _firebaseMessaging.configure(
     onMessage: (Map<String, dynamic> message) async {
       print('on message: $message');
-      Event event = await EventsRepository().getEvent(message['data']['id']);
-      EventsRepository().updateEvent(event, "Stato", Status.Delivered);
+      if(message['data']['id'] != null && message['data']['id']!=""){
+        Event event = await EventsRepository().getEvent(message['data']['id']);
+        EventsRepository().updateEvent(event, "Stato", Status.Delivered);
+        Account operator = Account.fromMap(event.idOperator, event.operator);
+        Utils.notify(token:Account.fromMap(event.idSupervisor, event.supervisor).token, title: "L'avviso è stato cosegnato a "+operator.surname+" "+operator.name);
+      }else{
+        Fluttertoast.showToast(
+            msg: message["notification"]["title"],
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.CENTER,
+            timeInSecForIos: 1,
+            backgroundColor: dark,
+            textColor: white,
+            fontSize: 16.0
+        );
+      }
     },
     onResume: (Map<String, dynamic> message) async {
       print('on resume: $message');
-      Event event = await EventsRepository().getEvent(message['data']['id']);
-      EventsRepository().updateEvent(event, "Stato", Status.Delivered);
-      Utils.PushViewDetailsEvent(context, event);
+      if(message['data']['id'] != null && message['data']['id']!="") {
+        Event event = await EventsRepository().getEvent(message['data']['id']);
+        EventsRepository().updateEvent(event, "Stato", Status.Delivered);
+        Account operator = Account.fromMap(event.idOperator, event.operator);
+        Utils.notify(token:Account.fromMap(event.idSupervisor, event.supervisor).token, title: "L'avviso è stato cosegnato a "+operator.surname+" "+operator.name);
+        Utils.PushViewDetailsEvent(context, event);
+      }
     },
     onLaunch: (Map<String, dynamic> message) async {
       print('on launch: $message');
-      Event event = await EventsRepository().getEvent(message['data']['id']);
-      EventsRepository().updateEvent(event, "Stato", Status.Delivered);
-      Utils.PushViewDetailsEvent(context, event);
+      if(message['data']['id'] != null && message['data']['id']!="") {
+        Event event = await EventsRepository().getEvent(message['data']['id']);
+        EventsRepository().updateEvent(event, "Stato", Status.Delivered);
+        Account operator = Account.fromMap(event.idOperator, event.operator);
+        Utils.notify(token:Account.fromMap(event.idSupervisor, event.supervisor).token, title: "L'avviso è stato cosegnato a "+operator.surname+" "+operator.name);
+        Utils.PushViewDetailsEvent(context, event);
+      }
     },
   );
 }

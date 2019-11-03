@@ -192,4 +192,5 @@ class Status {
   static const int Seen = 2;
   static const int Accepted = 3;
   static const int Rejected = 4;
+  static const int Ended = 5;
 }

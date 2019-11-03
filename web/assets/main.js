@@ -42,8 +42,8 @@ function initCalendar(){
         timezone:'local',
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         now: formatDate(new Date()),
-        editable: true, // enable draggable events
-        droppable: true, // this allows things to be dropped onto the calendar
+        editable: false, // enable draggable events
+        droppable: false, // this allows things to be dropped onto the calendar
         aspectRatio: 2,
         scrollTime: '00:00', // undo default 6am scrollTime
         header: {
@@ -217,4 +217,8 @@ function setCookie(cname, cvalue, exdays) {
   d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
   var expires = "expires="+d.toUTCString();
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function showAlert(msg){
+    alert(msg);
 }

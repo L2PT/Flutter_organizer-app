@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -44,15 +45,8 @@ class _OperatorSelectionState extends State<OperatorSelection>{
           child: Icon(Icons.check),
           backgroundColor: dark,
           onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
-            return Fluttertoast.showToast(
-                msg: "Seleziona l' operatore principale, tappando due volte",
-                toastLength: Toast.LENGTH_SHORT,
-                gravity: ToastGravity.CENTER,
-                timeInSecForIos: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0
-            );},
+            return PlatformUtils.onErrorMessage("Seleziona l' operatore principale, tappando due volte");
+          },
     ),
         body: Material(
         elevation: 12.0,

@@ -154,8 +154,9 @@ class _OperatorListState extends State<OperatorList>{
                                 lastDate: DateTime(3000)
                             );
                           },
+                          onChanged: (v){ print(v);},
                           onSaved: (DateTime value) => _dateFilter = value!=null?value.year>2000?value:
-                          DateTime(2000+value.year, value.month, value.day, value.hour, value.minute):Utils.formatDate(DateTime.now(), "day"),
+                          DateTime(2000+value.year, value.month, value.day, value.hour, value.minute):null,
                         )
                       ),
                       Icon(Icons.access_time),
@@ -176,7 +177,7 @@ class _OperatorListState extends State<OperatorList>{
                             );
                             return DateTimeField.convert(time);
                           },
-                          onSaved: (DateTime value) => _dateFilter = value!=null?_dateFilter.add(Duration(hours: value.hour, minutes: value.minute)):_dateFilter
+                            onSaved: (DateTime value) => _dateFilter = _dateFilter!=null?value!=null?_dateFilter.add(Duration(hours: value.hour, minutes: value.minute)):_dateFilter:null
                           ),
                       ),
                     ],

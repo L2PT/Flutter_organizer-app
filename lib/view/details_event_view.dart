@@ -12,6 +12,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 
 class DetailsEvent extends StatefulWidget {
@@ -494,8 +495,35 @@ class _DetailsEventState extends State<DetailsEvent>
                         ],
                       ),
                     ),
+                    widget.event.status==Status.Accepted?
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              RaisedButton(
+                                child: new Text('TERMINATO', style: button_card),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(15.0))),
+                                color: dark,
+                                elevation: 15,
+                                onPressed:
+                                      () => _actionEndAlert(),
+
+                              ),
+                            ],
+                          ),
+                        ):widget.event.status==Status.Ended?
                     Container(
-                      height: 30,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                            Text('INCARICO TERMINATO', style: title),
+                        ],
+                      ),
+                    ):
+                    Container(
+                      height: 30,)
                       /*child: Row(
                     children: <Widget>[
                       SizedBox(
@@ -510,11 +538,52 @@ class _DetailsEventState extends State<DetailsEvent>
                       Switch(value: true, activeColor: c, onChanged: (v) {})
                     ],
                   ),*/
-                    )
+
                   ])),
             ])));
   }
 
+  void _actionEndAlert(){
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return dialogAlert(
+            action: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    child: new Text('Annulla', style: label),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  SizedBox(width: 15,),
+                  RaisedButton(
+                    child: new Text('CONFERMA', style: button_card),
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(15.0))),
+                    color: dark,
+                    elevation: 15,
+                    onPressed: () => _actionEndConferma(context),
+                  ),
+                ]),
+            content: Form(
+              child: SingleChildScrollView(
+                child: ListBody(children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text("Confermi la terminazione dell'incarico?", style: label,),
+                  ),
+                ]),
+              ),
+            ),
+            tittle: "TERMINA INCARICO",
+            context: context,
+          );
+    });
+  }
   void getColor() async {
     var a = await Utils.getColor(widget.event.category);
     if (color != a) {
@@ -522,6 +591,16 @@ class _DetailsEventState extends State<DetailsEvent>
         color = a;
       });
     }
+  }
+
+  void _actionEndConferma(BuildContext context){
+    widget.event.status = Status.Ended;
+    EventsRepository().endEvent(widget.event);
+    Account operator = BlocProvider.of<AuthenticationBloc>(context).account;
+    Utils.notify(token:Account.fromMap(widget.event.idSupervisor, widget.event.supervisor).token, title: operator.surname+" "+operator.name+" ha terminato il lavoro "+widget.event.title);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
+
   }
 
 }

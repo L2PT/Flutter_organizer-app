@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -28,6 +31,7 @@ class _LogInState extends State<LogIn> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _success = false;
+  String _errorMessage = "";
   LoginData _data = new LoginData();
   bool _isLoading = false;
 
@@ -248,6 +252,8 @@ class _LogInState extends State<LogIn> {
           ),
           SizedBox(height: 30.0),
           resetPasswordText,
+          SizedBox(height: 60.0),
+          Text(_errorMessage, style: error)
         ],
       ),
     );
@@ -293,14 +299,27 @@ class _LogInState extends State<LogIn> {
     if (user != null) {
       //enable loading
       setState(() {
+        _errorMessage="";
         _success = true;
         _isLoading = false;
       });
       //this set the user info into a global state (main)
       BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn(user));
+      Timer(Duration(seconds: 15),(){
+        if(BlocProvider.of<AuthenticationBloc>(context).isSupervisor) {
+          _errorMessage="Errore di connessione";
+        }else{
+          _errorMessage="Non hai il permesso";
+        }
+        setState(() {
+          _success = false;
+          _isLoading = false;
+        });
+      });
     } else {
       //disable loading
       setState(() {
+        _errorMessage="Email o password non corretti";
         _success = false;
         _isLoading = false;
       });

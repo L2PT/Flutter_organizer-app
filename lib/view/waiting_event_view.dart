@@ -37,6 +37,7 @@ class _waitingEventState extends State<waitingEvent> {
             BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByWaiting());
             ready = true;
           }else if(state is Filtered && ready){
+            dataCorrente = null;
             return Material(
               elevation: 12.0,
               borderRadius: new BorderRadius.only(
@@ -53,7 +54,27 @@ class _waitingEventState extends State<waitingEvent> {
                           physics: BouncingScrollPhysics(),
                           itemCount: state.events.length,
                           itemBuilder: (context, index) =>
-                              _buildWaitingEvent(state.events[index]),):Container()
+                              _buildWaitingEvent(state.events[index]),):Container(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico in sospeso",style: title,)),
+                                  Padding(padding: EdgeInsets.only(bottom: 5), child: Text("Controlla i tuoi incarichi accettati", style: subtitle,)),
+                                  RaisedButton(
+                                    child: new Text('VEDI CALENDARIO', style: button_card),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.all(Radius.circular(15.0))),
+                                    color: dark,
+                                    elevation: 15,
+                                    onPressed: () => _actionCalendar(),
+                                  ),
+
+                                ],
+                              ),
+
+                        )
                     )
                   ],
                 ),
@@ -67,11 +88,12 @@ class _waitingEventState extends State<waitingEvent> {
 
   Widget _buildWaitingEvent(Event evento) {
     List<Widget> r = new List<Widget>();
-    if (dataCorrente != evento.start) {
+    if (dataCorrente == null || Utils.formatDate(dataCorrente, "day") != Utils.formatDate(evento.start, "day")) {
       dataCorrente = evento.start;
       _viewDateHeader(dataCorrente).forEach((row) => r.add(row));
     }
     r.add(_viewEvent(evento));
+    r.add(SizedBox(height: 10,));
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: r
@@ -91,6 +113,7 @@ class _waitingEventState extends State<waitingEvent> {
           e: e,
           dateView: false,
           hourHeight: 140,
+          hourSpan: 0,
           buttonArea: true,
           actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
         ),
@@ -153,4 +176,8 @@ class _waitingEventState extends State<waitingEvent> {
     return r;
   }
 
+  void _actionCalendar(){
+    DateTime date = DateTime.now();
+    Utils.NavigateTo(context,global.Constants.monthlyCalendarRoute, Utils.formatDate(date, "month"));
+  }
 }

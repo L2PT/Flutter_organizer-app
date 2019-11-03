@@ -5,6 +5,7 @@ import 'package:fb_auth/fb_auth.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 part 'authentication_event.dart';
 
@@ -53,7 +54,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     user = event.user;
     account = await getAccount(user.email);
     isSupervisor = account.supervisor;
-    yield Authenticated(account, isSupervisor);
+    if(PlatformUtils.platform == global.Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {

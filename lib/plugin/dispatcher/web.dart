@@ -4,6 +4,7 @@ import 'package:firebase/firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/web.dart';
 
 
@@ -14,6 +15,7 @@ class PlatformUtils {
 //    html.window.open(url, name);
 //}
 
+  static const String platform = Constants.web;
   static dynamic myApp = MyApp();
 
   static dynamic gestureDetector({dynamic child, Function onVerticalSwipe, dynamic swipeConfig}){
@@ -61,6 +63,10 @@ class PlatformUtils {
         );
       },
     );
+  }
+
+  static dynamic onErrorMessage(msg) {
+    showAlert(msg);
   }
 
   static Event EventFromMap(id, color, json) => Event.fromMapWeb(id, color, json);

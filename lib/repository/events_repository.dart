@@ -4,6 +4,7 @@
 
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -114,7 +115,7 @@ class EventsRepository {
     final dynamic createTransaction = (dynamic tx) async {
       dynamic dc = PlatformUtils.fireDocument(global.Constants.tabellaEventi, e.id);
       await tx.set(PlatformUtils.fireDocument(global.Constants.tabellaEventiTerminati, e.id), e.toDocument());
-      await tx.delete(dc);
+      await tx.update(dc, {global.Constants.tabellaEventi_stato:e.status});
     };
     PlatformUtils.fire.runTransaction(createTransaction);
   }

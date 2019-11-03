@@ -34,204 +34,211 @@ class RegisterState extends State<Register> {
     return WillPopScope(
         onWillPop: (){_onBackPressed();},
         child: Scaffold(
-      appBar: AppBar(
-        leading: new BackButton(
-          onPressed: _onBackPressed,
-        ),
-        title: new Text('Crea nuovo utente'),
-      ),
-      body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-            child:Column(
-                children:<Widget>[
-                  Container(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.work, color: yellow, size: 80,),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                      color: dark,
-                    ),
-                  ),
-                  SizedBox(height: 10,),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-
-                        TextFormField(
-                          controller: _nomeController,
-                          decoration: InputDecoration(hintText: "Nome", hintStyle: subtitle, border: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2.0,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                          ),
-                          validator: (String value) {
-                            if (value.isEmpty) {
-                              return 'Il campo \'Nome\' è obbligatorio';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: _cognomeController,
-                          decoration: InputDecoration(hintText: 'Cognome', hintStyle: subtitle, border: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2.0,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                          ),
-                          validator: (String value) {
-                            if (value.isEmpty) {
-                              return 'Il campo \'Cognome\' è obbligatorio';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: InputDecoration(hintText: 'Email', hintStyle: subtitle, border: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2.0,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                          ),
-                          validator: (String value) {
-                            if (value.isEmpty) {
-                              return 'Il campo \'Email\' è obbligatorio';
-                            }
-                            return null;
-                          },
-                        ),
-                        TextFormField(
-                            controller: _telefonoController,
-                            decoration: InputDecoration(hintText: 'Telefono', hintStyle: subtitle, border: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                width: 2.0,
-                                style: BorderStyle.solid,
-                              ),
-                            ),
-                            ),
-                            validator: (String value) {
-                              if (value.isEmpty) {
-                                return 'Il campo \'Telefono\' è obbligatorio';
-                              } else if (!Utils.isNumeric(value)) {
-                                return 'Inserisci un valore valido';
-                              }
-                              return null;
-                            }
-                        ),
-                        TextFormField(
-                          controller: _codFiscaleController,
-                          decoration: InputDecoration(hintText: 'Codice Fiscale', hintStyle: subtitle, border: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2.0,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                          ),
-                          validator: (String value) {
-                            if (value.isEmpty) {
-                              return 'Il campo \'Codice Fiscale\' è obbligatorio';
-                            }else if (value.length != 16){
-                              return 'Inserisci un valore valido';
-                            }
-                            return null;
-                          },
-                        ),Padding(
-                          padding: EdgeInsets.symmetric(vertical: 15),
-                          child: new Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                  decoration: BoxDecoration(
-                                      color: (_radioValue==0)?dark:white,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(color: dark)
-                                  ),
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Row(
-                                      children: <Widget>[
-                                        new Radio(
-                                          value: 0,
-                                          activeColor: almost_dark,
-                                          groupValue: _radioValue,
-                                          onChanged: _handleRadioValueChange,
-                                        ),
-                                        new Text('Operatore', style: (_radioValue==0)?subtitle_rev:subtitle.copyWith(color: dark)),
-                                      ]
-                                  )
-                              ),
-                              SizedBox(width: 30,),
-                              Container(
-                                  decoration: BoxDecoration(
-                                      color: (_radioValue==1)?dark:white,
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      border: Border.all(color: dark)
-                                  ),
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: Row(
-                                      children: <Widget>[
-                                        new Radio(
-                                          value: 1,
-                                          activeColor: almost_dark,
-                                          groupValue: _radioValue,
-                                          onChanged: _handleRadioValueChange,
-                                        ),
-                                        new Text('Responsabile', style: (_radioValue==1)?subtitle_rev:subtitle.copyWith(color: dark)),
-                                      ]
-                                  )
-                              ),
-                            ],
-                          ),
-                        ),
-                        Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10.0),
-                            alignment: Alignment.topRight,
-
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                RaisedButton(
-                                  color: dark,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                                  onPressed: ()=>Navigator.of(context).pop(),
-                                  child: Text('ANNULLA', style: title_rev),
-                                ),SizedBox(
-                                    width: 20
-                                ),
-                                RaisedButton(
-                                  color: dark,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                                  onPressed: () async {
-                                    if (_formKey.currentState.validate()) {
-                                      _register();
-                                    }
-                                  },
-                                  child: Text('CONFERMA', style: title_rev),
-                                ),
-                              ],
-                            )
-                        ),
-                        Container(
-                          alignment: Alignment.center,
-                          child: Text(_success == null? ''
-                              : (_success? 'Utente '+_userEmail+' registrato con successo.'
-                              : _errMsg), style: _success!=null && _success?label:error,),
-                        )
-                      ],
-                    ),
-                  ),
-                ]
+          appBar: AppBar(
+            leading: new BackButton(
+              onPressed: _onBackPressed,
             ),
-          )
-      ),
-    )
+            title: new Text('Crea nuovo utente'),
+          ),
+          body: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+                child:Column(
+                    children:<Widget>[
+                      Container(
+                        padding: EdgeInsets.all(8.0),
+                        child: Icon(Icons.work, color: yellow, size: 80,),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          color: dark,
+                        ),
+                      ),
+                      SizedBox(height: 10,),
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+
+                            TextFormField(
+                              controller: _nomeController,
+                              decoration: InputDecoration(hintText: "Nome", hintStyle: subtitle, border: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  width: 2.0,
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              ),
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return 'Il campo \'Nome\' è obbligatorio';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: _cognomeController,
+                              decoration: InputDecoration(hintText: 'Cognome', hintStyle: subtitle, border: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  width: 2.0,
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              ),
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return 'Il campo \'Cognome\' è obbligatorio';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: InputDecoration(hintText: 'Email', hintStyle: subtitle, border: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  width: 2.0,
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              ),
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return 'Il campo \'Email\' è obbligatorio';
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                                controller: _telefonoController,
+                                decoration: InputDecoration(hintText: 'Telefono', hintStyle: subtitle, border: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 2.0,
+                                    style: BorderStyle.solid,
+                                  ),
+                                ),
+                                ),
+                                validator: (String value) {
+                                  if (value.isEmpty) {
+                                    return 'Il campo \'Telefono\' è obbligatorio';
+                                  } else if (!Utils.isNumeric(value)) {
+                                    return 'Inserisci un valore valido';
+                                  }
+                                  return null;
+                                }
+                            ),
+                            TextFormField(
+                              controller: _codFiscaleController,
+                              decoration: InputDecoration(hintText: 'Codice Fiscale', hintStyle: subtitle, border: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  width: 2.0,
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                              ),
+                              validator: (String value) {
+                                if (value.isEmpty) {
+                                  return 'Il campo \'Codice Fiscale\' è obbligatorio';
+                                }else if (value.length != 16){
+                                  return 'Inserisci un valore valido';
+                                }
+                                return null;
+                              },
+                            ),Padding(
+                              padding: EdgeInsets.symmetric(vertical: 15),
+                              child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  GestureDetector(
+                                    onTap: ()=>_handleRadioValueChange(0),
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                            color: (_radioValue==0)?dark:white,
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            border: Border.all(color: dark)
+                                        ),
+                                        padding: EdgeInsets.only(right: 10),
+                                        child: Row(
+                                            children: <Widget>[
+                                              new Radio(
+                                                value: 0,
+                                                activeColor: almost_dark,
+                                                groupValue: _radioValue,
+                                                onChanged: _handleRadioValueChange,
+                                              ),
+                                              new Text('Operatore', style: (_radioValue==0)?subtitle_rev:subtitle.copyWith(color: dark)),
+                                            ]
+                                        )
+                                    ),
+                                  ),
+                                  SizedBox(width: 30,),
+                                  GestureDetector(
+                                    onTap: ()=>_handleRadioValueChange(1),
+                                    child:
+                                    Container(
+                                        decoration: BoxDecoration(
+                                            color: (_radioValue==1)?dark:white,
+                                            borderRadius: BorderRadius.circular(10.0),
+                                            border: Border.all(color: dark)
+                                        ),
+                                        padding: EdgeInsets.only(right: 10),
+                                        child: Row(
+                                            children: <Widget>[
+                                              new Radio(
+                                                value: 1,
+                                                activeColor: almost_dark,
+                                                groupValue: _radioValue,
+                                                onChanged: _handleRadioValueChange,
+                                              ),
+                                              new Text('Responsabile', style: (_radioValue==1)?subtitle_rev:subtitle.copyWith(color: dark)),
+                                            ]
+                                        )
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                alignment: Alignment.topRight,
+
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    RaisedButton(
+                                      color: dark,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                                      onPressed: ()=>Navigator.of(context).pop(),
+                                      child: Text('ANNULLA', style: title_rev),
+                                    ),SizedBox(
+                                        width: 20
+                                    ),
+                                    RaisedButton(
+                                      color: dark,
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                                      onPressed: () async {
+                                        if (_formKey.currentState.validate()) {
+                                          _register();
+                                        }
+                                      },
+                                      child: Text('CONFERMA', style: title_rev),
+                                    ),
+                                  ],
+                                )
+                            ),
+                            Container(
+                              alignment: Alignment.center,
+                              child: Text(_success == null? ''
+                                  : (_success? 'Utente '+_userEmail+' registrato con successo.'
+                                  : _errMsg), style: _success!=null && _success?label:error,),
+                            )
+                          ],
+                        ),
+                      ),
+                    ]
+                ),
+              )
+          ),
+        )
     );
   }
 
@@ -287,7 +294,7 @@ class RegisterState extends State<Register> {
   }
 
   Future<Account> createUser(String uid, String nome, String cognome, String email, String telefono, String codFiscale, bool responsabile) async {
-    OperatorsRepository().addOperator(Account(uid,nome,cognome,email,telefono,codFiscale,[],"",false,responsabile));
+    OperatorsRepository().addOperator(Account(uid,nome,cognome,email,telefono,codFiscale,[],"",responsabile));
   }
 
 }

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -5,6 +7,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/widget/dialog_app.dart';
@@ -13,27 +16,27 @@ class cardEvent extends StatefulWidget {
   final Event e;
   final int hourSpan;
   final double hourHeight;
+  final DateTime selectedDay;
   final bool buttonArea;
   final void Function(Event) actionEvent;
   final bool dateView;
 
   final _formDateKey = GlobalKey<FormState>();
 
-  cardEvent(
-      {this.e,
-      this.hourSpan,
-      this.hourHeight,
-      this.actionEvent,
-      this.buttonArea,
-      this.dateView,
-      Key key})
-      : super(key: key);
+  cardEvent({this.e,
+    this.hourSpan,
+    this.hourHeight,
+    this.selectedDay,
+    this.actionEvent,
+    this.buttonArea,
+    this.dateView, Key key}) : super(key: key);
 
   @override
   _cardEventState createState() => _cardEventState();
 }
 
 class _cardEventState extends State<cardEvent> {
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -57,7 +60,7 @@ class _cardEventState extends State<cardEvent> {
     double containerHeight;
     double paddingContainer;
     double heightBar;
-    if (widget.buttonArea) {
+    if (widget.hourSpan == 0) {
       containerHeight = widget.hourHeight;
       paddingContainer = 15;
       heightBar = 60;
@@ -106,52 +109,52 @@ class _cardEventState extends State<cardEvent> {
                   ),
                   widget.dateView
                       ? Expanded(
-                          flex: 3,
-                          child: Container(
-                            alignment: Alignment.centerRight,
-                            margin: EdgeInsets.only(right: 15),
-                            child: Container(
-                              alignment: Alignment.centerRight,
-                              decoration: BoxDecoration(
-                                  color: HexColor(widget.e.color),
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(25.0))),
-                              width: 55,
-                              height: 90,
-                              padding: EdgeInsets.all(10),
-                              margin: EdgeInsets.only(bottom: 5),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  Center(
-                                    child: Text(
-                                        formatterMese
-                                            .format(widget.e.start)
-                                            .toUpperCase(),
-                                        style:
-                                            title_rev.copyWith(fontSize: 16)),
-                                  ),
-                                  Center(
-                                    child: Text("${widget.e.start.day}",
-                                        style:
-                                            title_rev.copyWith(fontSize: 16)),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                        formatterSett.format(widget.e.start),
-                                        style: title_rev.copyWith(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.normal)),
-                                  )
-                                ],
-                              ),
+                    flex: 3,
+                    child: Container(
+                      alignment: Alignment.centerRight,
+                      margin: EdgeInsets.only(right: 15),
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        decoration: BoxDecoration(
+                            color: HexColor(widget.e.color),
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(25.0))),
+                        width: 55,
+                        height: 90,
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 5),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            Center(
+                              child: Text(
+                                  formatterMese
+                                      .format(widget.e.start)
+                                      .toUpperCase(),
+                                  style:
+                                  title_rev.copyWith(fontSize: 16)),
                             ),
-                          ),
-                        )
+                            Center(
+                              child: Text("${widget.e.start.day}",
+                                  style:
+                                  title_rev.copyWith(fontSize: 16)),
+                            ),
+                            Center(
+                              child: Text(formatterSett.format(widget.e.start),
+                                  style: title_rev.copyWith(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal)),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
                       : Container(),
                 ],
               ),
+              widget.buttonArea ?
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
@@ -160,7 +163,7 @@ class _cardEventState extends State<cardEvent> {
                       child: new Text('RIFIUTA', style: button_card),
                       shape: RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.all(Radius.circular(15.0))),
+                          BorderRadius.all(Radius.circular(15.0))),
                       color: HexColor(widget.e.color),
                       elevation: 15,
                       onPressed: () => _actionRifiuta(),
@@ -172,7 +175,7 @@ class _cardEventState extends State<cardEvent> {
                       child: new Text('CONFERMA', style: button_card),
                       shape: RoundedRectangleBorder(
                           borderRadius:
-                              BorderRadius.all(Radius.circular(15.0))),
+                          BorderRadius.all(Radius.circular(15.0))),
                       color: HexColor(widget.e.color),
                       elevation: 15,
                       onPressed: () => _actionConferma(),
@@ -180,7 +183,7 @@ class _cardEventState extends State<cardEvent> {
                     margin: EdgeInsets.only(right: 10),
                   )
                 ],
-              )
+              ) : Container()
             ],
           ),
         ),
@@ -189,9 +192,8 @@ class _cardEventState extends State<cardEvent> {
         color: dark,
       );
     } else {
-      hour = (((widget.e.end.hour * 60 + widget.e.end.minute) -
-              (widget.e.start.hour * 60 + widget.e.start.minute)) /
-          60);
+      hour = (((widget.e.end.day!=widget.selectedDay.day?global.Constants.MAX_WORKHOUR_SPAN*60:min<int>(global.Constants.MAX_WORKHOUR_SPAN*60,widget.e.end.hour * 60 + widget.e.end.minute)) -
+          (widget.e.start.day!=widget.selectedDay.day?global.Constants.MIN_WORKHOUR_SPAN*60:max<int>(global.Constants.MIN_WORKHOUR_SPAN*60,widget.e.start.hour * 60 + widget.e.start.minute))) / 60);
       containerHeight = hour / widget.hourSpan * widget.hourHeight;
       paddingContainer = 5 * hour / widget.hourSpan;
       heightBar = 40;
@@ -257,13 +259,8 @@ class _cardEventState extends State<cardEvent> {
           action: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                RaisedButton(
-                  child: new Text('ANNULLA', style: button_card),
-                  shape: RoundedRectangleBorder(
-                      borderRadius:
-                      BorderRadius.all(Radius.circular(15.0))),
-                  color: dark,
-                  elevation: 15,
+                FlatButton(
+                  child: new Text('Annulla', style: label),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
@@ -285,7 +282,7 @@ class _cardEventState extends State<cardEvent> {
               child: ListBody(children: <Widget>[
                 Padding(
                   padding: EdgeInsets.only(bottom: 10),
-                  child: Text('Inserisci la motivazione del rifiuto'),
+                  child: Text('Inserisci la motivazione del rifiuto',style: label,),
                 ),
                 TextFormField(
                   maxLines: 5,
@@ -336,4 +333,6 @@ class _cardEventState extends State<cardEvent> {
       Navigator.of(context).pop();
     }
   }
+
+
 }

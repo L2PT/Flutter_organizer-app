@@ -146,7 +146,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
           dispatch(
               CreateNotificationEvent(events)
           );
-      }else{
+      }else if(events.length==0){
         if(currentState is NotificationWaitingState) dispatch(NavigateEvent(global.Constants.homeRoute,null));
       }
     }
