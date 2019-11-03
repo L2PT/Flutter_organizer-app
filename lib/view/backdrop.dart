@@ -46,6 +46,8 @@ final Map<String, LinkMenu> _menuOperatore = const {
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
       const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+  global.Constants.historyEventListRoute: const LinkMenu(
+      Icons.history, Colors.white, 16, "Storico incarichi", title_rev),
   global.Constants.formEventCreatorRoute:
       const LinkMenu(Icons.edit, Colors.white, 16, "Crea evento", title_rev),
   global.Constants.registerRoute: const LinkMenu(
@@ -160,7 +162,6 @@ class _BackdropState extends State<Backdrop>
                     body: Stack(
                       fit: StackFit.expand,
                       children: <Widget>[
-                        //TODO MINELLI sfondo statico ricostruisci una buildback statica
                         DailyCalendar(null),
                       ],
                     )),Container(

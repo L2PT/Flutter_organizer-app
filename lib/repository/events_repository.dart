@@ -4,7 +4,6 @@
 
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -14,6 +13,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class EventsRepository {
   final collectionEventi = PlatformUtils.fire.collection(global.Constants.tabellaEventi);
+  final subCollectionStorico = PlatformUtils.fire.collectionGroup(global.Constants.subtabellaStorico);
   final collectionEliminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiEliminati);
   final collectionTerminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiTerminati);
   Map<String,dynamic> categories;
@@ -56,7 +56,7 @@ class EventsRepository {
   }
 
   //Snapshot - Eventi di un determinato operatore
-  Stream<List<Event>> eventsOperator(String idOperator) {
+  Stream<List<Event>> eventsByOperator(String idOperator) {
     return collectionEventi.where("IdOperatori", arrayContains: idOperator).snapshots().map((snapshot) {
       return PlatformUtils.documents(snapshot).map((doc) {
         return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
@@ -65,12 +65,35 @@ class EventsRepository {
             : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
           .toList();
     });
-    
+  }
+
+  //Snapshot - Eventi da accettati in su, di un determinato operatore
+  Stream<List<Event>> eventsByOperatorAcceptedOrAbove(String idOperator) {
+    return collectionEventi.where("IdOperatori", arrayContains: idOperator).where("Stato", isGreaterThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
+          .toList();
+    });
   }
 
   //Snapshot per eventi in waitingevent
-  Stream<List<Event>> eventsWaitingOpe(String idOperator) {
+  Stream<List<Event>> eventsWaiting(String idOperator) {
     return collectionEventi.where("IdOperatore", isEqualTo: idOperator).where("Stato", isLessThanOrEqualTo: Status.Seen).snapshots().map((snapshot) {
+      return PlatformUtils.documents(snapshot).map((doc) {
+        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
+          .toList();
+    });
+  }
+
+  //Snapshot per eventi in history
+  Stream<List<Event>> eventsHistory() {
+    return subCollectionStorico.snapshots().map((snapshot) {
       return PlatformUtils.documents(snapshot).map((doc) {
         return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
         categories[doc["Categoria"]] != null
@@ -105,6 +128,7 @@ class EventsRepository {
   void deleteEvent(Event e) async {
     final dynamic createTransaction = (dynamic tx) async {
       dynamic dc = PlatformUtils.fireDocument(global.Constants.tabellaEventi, e.id);
+      e.status = Status.Deleted;
       await tx.set(PlatformUtils.fireDocument(global.Constants.tabellaEventiEliminati, e.id), e.toDocument());
       await tx.delete(dc);
     };

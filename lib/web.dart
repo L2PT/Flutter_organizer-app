@@ -372,6 +372,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           case "event":{
             if(onValue == global.Constants.DELETE_SIGNAL) {
               Event e = PlatformUtils.EventFromMap(param.id, param.color, param);
+              e.status = Status.Deleted;
               deleteEvent(e.id, json.encode(e.toDocument(), toEncodable: myEncode));
 //              jQuery('#calendar').fullCalendar('refetchEvents',null);
             }

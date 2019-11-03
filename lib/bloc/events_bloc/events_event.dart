@@ -38,6 +38,15 @@ class FilterEventsByWaiting extends EventsEvent {
   List<Object> get props => [];
 }
 
+class FilterEventsByStatus extends EventsEvent {
+  final int selectedStatus;
+
+  FilterEventsByStatus(this.selectedStatus) : super([selectedStatus]);
+
+  @override
+  List<Object> get props => [selectedStatus];
+}
+
 class EventsUpdated extends EventsEvent {
   final List<Event> events;
 

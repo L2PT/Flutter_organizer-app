@@ -140,8 +140,8 @@ class CalendarController {
   /// }
   /// ```
   void dispose() {
-    _calendarFormat.dispose();
-    _visibleDays.dispose();
+    _calendarFormat?.dispose();
+    _visibleDays?.dispose();
   }
 
   /// Toggles calendar format. Same as using `FormatButton`.

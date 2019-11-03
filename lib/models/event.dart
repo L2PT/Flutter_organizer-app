@@ -187,10 +187,11 @@ class Event {
 }
 
 class Status {
+  static const int Deleted = -1;
   static const int New = 0;
   static const int Delivered = 1;
   static const int Seen = 2;
   static const int Accepted = 3;
-  static const int Rejected = 4;
+  static const int Refused = 4;
   static const int Ended = 5;
 }

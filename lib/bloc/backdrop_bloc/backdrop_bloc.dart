@@ -10,6 +10,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/daily_calendar_view.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
+import 'package:venturiautospurghi/view/history_view.dart';
 import 'package:venturiautospurghi/view/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/view/operator_list_view.dart';
 import 'package:venturiautospurghi/view/register_view.dart';
@@ -70,7 +71,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
           bloctype = global.Constants.OPERATORS_BLOC;
         }else{
           content = DailyCalendar(null);
-          subscription = eventsRepository.eventsOperator;
+          subscription = eventsRepository.eventsByOperatorAcceptedOrAbove;
           subscriptionArgs = user.id;
           bloctype = global.Constants.EVENTS_BLOC;
         }
@@ -79,7 +80,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       case global.Constants.monthlyCalendarRoute: {
         content = MonthlyCalendar(event.arg);
         if(operator != null || !isSupervisor){
-          subscription = eventsRepository.eventsOperator;
+          subscription = eventsRepository.eventsByOperator;
           subscriptionArgs = !isSupervisor?user.id:operator.id;
         }else
           subscription = eventsRepository.events;
@@ -96,7 +97,10 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
         else
           day=Utils.formatDate(DateTime.now(),"day");
         content = DailyCalendar(event.arg[1]);
-        subscription = eventsRepository.eventsOperator;
+        if(isSupervisor)
+          subscription = eventsRepository.eventsByOperator;
+        else
+          subscription = eventsRepository.eventsByOperatorAcceptedOrAbove;
         subscriptionArgs = !isSupervisor?user.id:operator.id;
         bloctype = global.Constants.EVENTS_BLOC;
       }
@@ -124,8 +128,15 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
       case global.Constants.waitingEventListRoute: {
         //pay attention this works only for Operators
         content = waitingEvent();
-        subscription = eventsRepository.eventsWaitingOpe;
+        subscription = eventsRepository.eventsWaiting;
         subscriptionArgs = user.id;
+        bloctype = global.Constants.EVENTS_BLOC;
+      }
+      break;
+      case global.Constants.historyEventListRoute: {
+        //pay attention this works only for Operators
+        content = History();
+        subscription = eventsRepository.eventsHistory;
         bloctype = global.Constants.EVENTS_BLOC;
       }
       break;
@@ -141,7 +152,7 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
     await eventsRepository.init();
     dispatch(NavigateEvent(global.Constants.homeRoute,null));
-    eventsRepository.eventsWaitingOpe(user.id).listen((events) {
+    eventsRepository.eventsWaiting(user.id).listen((events) {
       if(events.length>0 && route!=global.Constants.waitingEventListRoute){
           dispatch(
               CreateNotificationEvent(events)

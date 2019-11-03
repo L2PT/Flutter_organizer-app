@@ -29,6 +29,7 @@ class Constants {
   static const String detailsEventViewRoute = 'view/details_event';
   static const String formEventCreatorRoute = 'view/form_event_creator';
   static const String waitingEventListRoute = 'view/waiting_event_list';
+  static const String historyEventListRoute = 'view/history_event_list';
   static const String profileRoute = 'view/profile';
   static const String resetCodeRoute = 'view/reset_code_page';
   static const String logInRoute = 'view/log_in';
@@ -37,9 +38,11 @@ class Constants {
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
   static const String tabellaEventi = 'Eventi';
-  static const String tabellaEventiEliminati = '/Storico/StoricoEventi/EventiEliminati';
-  static const String tabellaEventiTerminati = '/Storico/StoricoEventi/EventiTerminati';
-  static const String tabellaEventiRifiutati = '/Storico/StoricoEventi/EventiRifiutati';
+  static const String tabellaStorico = 'Storico';
+  static const String subtabellaStorico = 'StoricoEventi';
+  static const String tabellaEventiEliminati = '/Storico/StoricoEliminati/StoricoEventi';
+  static const String tabellaEventiTerminati = '/Storico/StoricoTerminati/StoricoEventi';
+  static const String tabellaEventiRifiutati = '/Storico/StoricoRifiutati/StoricoEventi';
   static const String tabellaCostanti = 'Costanti';
   // TABLE EVENTI
   static const String tabellaEventi_categoria = 'Categoria';

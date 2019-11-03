@@ -74,7 +74,7 @@ class _DetailsEventState extends State<DetailsEvent>
       case Status.Delivered: textStatusEvent = "Consegnato"; break;
       case Status.Seen: textStatusEvent = "Visualizzato"; break;
       case Status.Accepted: textStatusEvent = "Accettato"; break;
-      case Status.Rejected: textStatusEvent = "Rifiutato"; break;
+      case Status.Refused: textStatusEvent = "Rifiutato"; break;
     }
     tabsContents = _buildTabsContents();
   }
