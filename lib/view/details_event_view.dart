@@ -518,7 +518,23 @@ class _DetailsEventState extends State<DetailsEvent>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                            Text('INCARICO TERMINATO', style: title),
+                          Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                                color: HexColor(widget.event.color),
+                                boxShadow: <BoxShadow> [BoxShadow(color: Colors.black45,
+                                  offset: Offset(1.0, 2.5),
+                                  blurRadius: 5.0,)]
+
+                              ),
+                              child: Text('INCARICO TERMINATO', style: button_card),
+                              padding: EdgeInsets.all(10),
+
+                            ),
+                          )
+                            ,
                         ],
                       ),
                     ):
