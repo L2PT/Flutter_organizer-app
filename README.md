@@ -1,2 +1,2 @@
 # Flutter_organizer-app
-Flutter app 
+Flutter app
