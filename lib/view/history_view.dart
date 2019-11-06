@@ -51,7 +51,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     super.dispose();
   }
 
-  //MAIN BUILEDER METHODS
+  //MAIN BUILEDER METHOD
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<EventsBloc, EventsState>(
