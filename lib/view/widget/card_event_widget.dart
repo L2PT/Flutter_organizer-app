@@ -286,6 +286,7 @@ class _cardEventState extends State<cardEvent> {
                 ),
                 TextFormField(
                   maxLines: 5,
+                  cursorColor: dark,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     hintText: 'Motivazione rifiuto',
@@ -326,7 +327,7 @@ class _cardEventState extends State<cardEvent> {
   void _actionFormRifiuta(BuildContext context) {
     if (widget._formDateKey.currentState.validate()) {
       widget._formDateKey.currentState.save();
-      widget.e.status = Status.Rejected;
+      widget.e.status = Status.Refused;
       EventsRepository().refuseEvent(widget.e);
       Account operator = BlocProvider.of<AuthenticationBloc>(context).account;
       Utils.notify(token:Account.fromMap(widget.e.idSupervisor, widget.e.supervisor).token, title: operator.surname+" "+operator.name+" ha rifiutato un lavoro con la seguente motivazione:\n"+widget.e.motivazione);

@@ -38,7 +38,7 @@ class RegisterState extends State<Register> {
             leading: new BackButton(
               onPressed: _onBackPressed,
             ),
-            title: new Text('Crea nuovo utente'),
+            title: new Text('CREAZIONE UTENTE', style: title_rev,),
           ),
           body: SingleChildScrollView(
               child: Padding(
@@ -46,10 +46,10 @@ class RegisterState extends State<Register> {
                 child:Column(
                     children:<Widget>[
                       Container(
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(Icons.work, color: yellow, size: 80,),
+                        padding: EdgeInsets.all(6.0),
+                        child: Icon(Icons.work, color: yellow, size: 70,),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                          borderRadius: BorderRadius.all(Radius.circular(10.0)),
                           color: dark,
                         ),
                       ),
@@ -61,6 +61,7 @@ class RegisterState extends State<Register> {
                           children: <Widget>[
 
                             TextFormField(
+                              cursorColor: dark,
                               controller: _nomeController,
                               decoration: InputDecoration(hintText: "Nome", hintStyle: subtitle, border: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -78,6 +79,7 @@ class RegisterState extends State<Register> {
                             ),
                             TextFormField(
                               controller: _cognomeController,
+                              cursorColor: dark,
                               decoration: InputDecoration(hintText: 'Cognome', hintStyle: subtitle, border: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                   width: 2.0,
@@ -94,6 +96,8 @@ class RegisterState extends State<Register> {
                             ),
                             TextFormField(
                               controller: _emailController,
+                              cursorColor: dark,
+                              keyboardType: TextInputType.emailAddress,
                               decoration: InputDecoration(hintText: 'Email', hintStyle: subtitle, border: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                   width: 2.0,
@@ -110,6 +114,8 @@ class RegisterState extends State<Register> {
                             ),
                             TextFormField(
                                 controller: _telefonoController,
+                                cursorColor: dark,
+                                keyboardType: TextInputType.phone,
                                 decoration: InputDecoration(hintText: 'Telefono', hintStyle: subtitle, border: UnderlineInputBorder(
                                   borderSide: BorderSide(
                                     width: 2.0,
@@ -128,6 +134,7 @@ class RegisterState extends State<Register> {
                             ),
                             TextFormField(
                               controller: _codFiscaleController,
+                              cursorColor: dark,
                               decoration: InputDecoration(hintText: 'Codice Fiscale', hintStyle: subtitle, border: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                   width: 2.0,
@@ -154,7 +161,7 @@ class RegisterState extends State<Register> {
                                         decoration: BoxDecoration(
                                             color: (_radioValue==0)?dark:white,
                                             borderRadius: BorderRadius.circular(10.0),
-                                            border: Border.all(color: dark)
+                                            border: Border.all(color: grey)
                                         ),
                                         padding: EdgeInsets.only(right: 10),
                                         child: Row(
@@ -178,7 +185,7 @@ class RegisterState extends State<Register> {
                                         decoration: BoxDecoration(
                                             color: (_radioValue==1)?dark:white,
                                             borderRadius: BorderRadius.circular(10.0),
-                                            border: Border.all(color: dark)
+                                            border: Border.all(color: grey)
                                         ),
                                         padding: EdgeInsets.only(right: 10),
                                         child: Row(

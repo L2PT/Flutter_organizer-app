@@ -33,6 +33,8 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
       yield* _mapLoadEventFilteredByMonthToState(event);
     } else if (event is FilterEventsByWaiting) {
       yield* _mapLoadEventFilteredByWaitingToState(event);
+    } else if (event is FilterEventsByStatus) {
+      yield* _mapLoadEventFilteredByStatusToState(event);
     } else if (event is EventsUpdated) {
       yield* _mapEventsUpdateToState(event);
     } else if (event is Done) {
@@ -85,6 +87,17 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     //filter the _events end return them
     _events.sort((a, b) => a.start.compareTo(b.start));
     dispatch(Done(_events,null));
+  }
+
+  Stream<EventsState> _mapLoadEventFilteredByStatusToState(FilterEventsByStatus event) async* {
+    //filter the _events end return them
+    _events.sort((a, b) => a.start.compareTo(b.start));
+    List<Event> eventsFiltered = List();
+    _events.forEach((singleEvent){
+      if(singleEvent.status == event.selectedStatus)
+        eventsFiltered.add(singleEvent);
+    });
+    dispatch(Done(eventsFiltered,null));
   }
 
   Stream<EventsState> _mapEventsUpdateToState(EventsUpdated event) async* {

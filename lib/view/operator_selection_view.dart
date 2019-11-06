@@ -36,13 +36,13 @@ class _OperatorSelectionState extends State<OperatorSelection>{
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: Text('Intervento'),
+            title: Text('OPERATORI DISPONIBILI',style: title_rev,),
             leading: IconButton(icon:Icon(Icons.arrow_back, color: white),
               onPressed:() => Navigator.pop(context, false),
             )
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.check),
+          child: Icon(Icons.check, size: 40,),
           backgroundColor: dark,
           onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
             return PlatformUtils.onErrorMessage("Seleziona l' operatore principale, tappando due volte");
@@ -146,7 +146,7 @@ class ChildItem extends StatelessWidget {
         children: <Widget>[
           Container(
             margin: EdgeInsets.only(right: 10.0),
-            padding: EdgeInsets.all(2.0),
+            padding: EdgeInsets.all(3.0),
             child: Icon(Icons.work, color: yellow,),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -159,7 +159,7 @@ class ChildItem extends StatelessWidget {
           tristate?CheckboxTriState(onChanged: (v)=>onTap(operator),
             value: checked, tristate: true, activeColor: dark, checkColor: white, superColor: yellow,):
           Checkbox(onChanged: (v)=>onTap(operator),
-            value: checked, activeColor: dark, checkColor: white),
+            value: checked, activeColor: dark, checkColor: white,),
         ],
       ),
     );

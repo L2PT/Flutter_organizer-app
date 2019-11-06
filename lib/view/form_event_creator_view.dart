@@ -33,19 +33,19 @@ class EventCreator extends StatefulWidget {
 }
 
 class EventCreatorState extends State<EventCreator> {
-  final dateFormat = DateFormat("EEE d MMM y");
-  final timeFormat = DateFormat("HH:mm");
+  final dateFormat = DateFormat("EEE d MMM y",'it_IT');
+  final timeFormat = DateFormat("HH:mm",'it_IT');
   final _formKey = GlobalKey<FormState>();
   final _formDateKey = GlobalKey<FormState>();
   bool _allDayFlag = false;
-  int _radioValue = 0;
+  int _radioValue = -1;
   List<String> _categoriesN = List();
   List<dynamic> _categoriesC = List();
   DateTime now = DateTime.now();
   Color colorValidator = dark;
   bool enabledField = false;
   Account _supervisor;
-
+  String _title = '';
 
   @override
   void initState() {
@@ -53,6 +53,9 @@ class EventCreatorState extends State<EventCreator> {
     _supervisor = BlocProvider.of<AuthenticationBloc>(context).account;
     enabledField = widget._event.id!=null&&widget._event.id!=""?!widget._event.start.isBefore(now.subtract(Duration(minutes:4))):true;
     getCategories();
+    setState(() {
+      _title =widget._event.operator==null?'NUOVO EVENTO':'MODIFICA EVENTO';
+    });
   }
 
   @override
@@ -60,7 +63,9 @@ class EventCreatorState extends State<EventCreator> {
     double iconspace = 30.0;//handle
     List<Widget> listCat = _categoriesN.map((n){
       int index = _categoriesN.indexOf(n);
-      if(widget._event.category == n) _radioValue = index;
+      if(_radioValue == -1){
+        _radioValue = 0;
+      }
       return GestureDetector(
           onTap: ()=>_handleRadioValueChange(index),
           child: Container(
@@ -68,7 +73,7 @@ class EventCreatorState extends State<EventCreator> {
           decoration: BoxDecoration(
               color: (_radioValue==index)?dark:white,
               borderRadius: BorderRadius.circular(10.0),
-              border: Border.all(color: dark)
+              border: Border.all(color: grey)
           ),
           child: Row(
               children: <Widget>[
@@ -87,7 +92,7 @@ class EventCreatorState extends State<EventCreator> {
                       color: HexColor(_categoriesC[index])
                   ),
                 ),
-                new Text(_categoriesN[index], style: (_radioValue==index)?subtitle_rev:subtitle.copyWith(color: dark)),
+                new Text(_categoriesN[index].toUpperCase(), style: (_radioValue==index)?subtitle_rev:subtitle.copyWith(color: dark)),
               ]
           )
       )
@@ -98,12 +103,13 @@ class EventCreatorState extends State<EventCreator> {
       Account entity = Account.fromMap("",op);
       return Container(
         height: 50,
+        margin: EdgeInsets.symmetric(horizontal: 15),
         padding: EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(right: 10.0),
-              padding: EdgeInsets.all(2.0),
+              padding: EdgeInsets.all(3.0),
               child: Icon(Icons.work, color: yellow,),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
@@ -114,7 +120,7 @@ class EventCreatorState extends State<EventCreator> {
             Text(entity.name, style: subtitle),
             Expanded(child: Container(),),
             op!=widget._event.operator&&enabledField?IconButton(
-                icon: Icon(Icons.close, color: dark),
+                icon: Icon(Icons.delete, color: dark, size: 25,),
                 onPressed: (){
                   List<String> tempRemovingList = new List.from(widget._event.idOperators);
                   tempRemovingList.remove(widget._event.idOperator);
@@ -133,37 +139,43 @@ class EventCreatorState extends State<EventCreator> {
     return WillPopScope(
         onWillPop: (){_onBackPressed();},
         child: new Scaffold(
+          extendBody: true,
+          resizeToAvoidBottomInset: false,
+
           appBar: new AppBar(
             leading: new BackButton(
               onPressed: _onBackPressed,
             ),
-            title: new Text('Crea nuovo evento'),
+            title: new Text(_title,style: title_rev,),
             actions: <Widget>[
               new Container(
                 alignment: Alignment.center,
                 padding: EdgeInsets.all(15.0),
-                child: new InkWell(
-                  child: new Text(
-                    'SAVE',
-                    style: TextStyle(
-                        fontSize: 20.0),
+                child:
+                RaisedButton(
+                  child: new Text('SALVA', style: subtitle_rev),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)),
+                    side: BorderSide(color: white)
                   ),
-                  onTap: () => _saveNewEvent(context),
-                ),
+                  elevation: 5,
+                  onPressed: () => _saveNewEvent(context),
+                )
               )
             ],
           ),
           body: SingleChildScrollView(
             scrollDirection: Axis.vertical,
+            padding: EdgeInsets.symmetric(horizontal: 15),
             child: new Form(
                 key: this._formKey,
-                child: new Container(
-                    padding: EdgeInsets.all(10.0),
                     child: new Column(
                         children: <Widget>[
                           Container(
-                            padding: EdgeInsets.symmetric(horizontal: 40.0),
+                            padding: EdgeInsets.symmetric(horizontal: 20.0),
+                            margin: EdgeInsets.only(top: 10),
                             child: TextFormField(
+                              cursorColor: dark,
                               keyboardType: TextInputType.text,
                               decoration: InputDecoration(
                                 hintText: 'Titolo',
@@ -190,16 +202,18 @@ class EventCreatorState extends State<EventCreator> {
                             Container(
                               width: iconspace,
                               margin: EdgeInsets.only(right: 20.0),
-                              child: Icon(Icons.note, color: dark, size: iconspace,),
+                              child: Icon(Icons.assignment, color: dark, size: iconspace,),
                             ),
                             Expanded(
                               child: TextFormField(
                                 maxLines: 3,
+                                cursorColor: dark,
                                 keyboardType: TextInputType.text,
                                 decoration: InputDecoration(
                                   hintText: 'Aggiungi note',
                                   hintStyle: subtitle,
-                                  border: InputBorder.none,
+                                  border: OutlineInputBorder(
+                                      borderSide: BorderSide(color: dark, width: 1.0))
                                 ),
                                 initialValue: widget._event.description,
                                 validator: (value)=>null,
@@ -208,6 +222,7 @@ class EventCreatorState extends State<EventCreator> {
                             ),
                           ]),
                           Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+
                           Row(children: <Widget>[
                             Container(
                               width: iconspace,
@@ -217,10 +232,16 @@ class EventCreatorState extends State<EventCreator> {
                             Expanded(
                               child: TextFormField(
                                 keyboardType: TextInputType.text,
+                                cursorColor: dark,
                                 decoration: InputDecoration(
                                   hintText: 'Aggiungi posizione',
                                   hintStyle: subtitle,
-                                  border: InputBorder.none,
+                                  border: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      width: 2.0,
+                                      style: BorderStyle.solid,
+                                    ),
+                                  ),
                                 ),
                                 initialValue: widget._event.address,
                                 validator: (value)=>null,
@@ -296,6 +317,7 @@ class EventCreatorState extends State<EventCreator> {
                                         onSaved: (DateTime value) => widget._event.start = Utils.formatDate(value, "day"),
                                       ),
                                     ),
+                                    _allDayFlag?Container():
                                     Expanded(
                                       child:
                                       new DateTimeField(
@@ -308,7 +330,7 @@ class EventCreatorState extends State<EventCreator> {
                                           style: label,
                                           format: timeFormat,
                                           initialValue: widget._event.start,
-                                          enabled: !_allDayFlag&&enabledField,
+                                          enabled: enabledField,
                                           readOnly: true,
                                           resetIcon: null,
                                           onShowPicker: (context, currentValue) async {
@@ -332,6 +354,7 @@ class EventCreatorState extends State<EventCreator> {
                                           onSaved: (DateTime value) => widget._event.start = value != null ? Utils.formatDate(widget._event.start,"day").add(Duration(hours: value.hour,minutes: value.minute)): widget._event.start),
                                     ),
                                   ]),
+                              _allDayFlag?Container():
                               Row(
                                 children: <Widget>[
                                   Container(
@@ -348,7 +371,7 @@ class EventCreatorState extends State<EventCreator> {
                                       style: label,
                                       format: dateFormat,
                                       initialValue: widget._event.end,
-                                      enabled: !_allDayFlag&&enabledField,
+                                      enabled: enabledField,
                                       readOnly: true,
                                       resetIcon: null,
                                       onShowPicker: (context, currentValue) {
@@ -451,6 +474,7 @@ class EventCreatorState extends State<EventCreator> {
                               )
                           ),
                           Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+
                           Container(
                             child:
                             Row(
@@ -471,7 +495,6 @@ class EventCreatorState extends State<EventCreator> {
                           ),
                           Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
                         ])
-                )
             ),
           ),
         )
@@ -500,6 +523,7 @@ class EventCreatorState extends State<EventCreator> {
         setState(() {
           _categoriesN = data.keys.toList();
           _categoriesC = data.values.toList();
+          _radioValue = _categoriesN.indexOf(widget._event.category);
         });
       }
     });
@@ -545,5 +569,8 @@ class EventCreatorState extends State<EventCreator> {
       }catch(e){print(e);}
     }
   }
+
+
+
 
 }

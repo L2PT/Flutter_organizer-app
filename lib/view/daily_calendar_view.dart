@@ -12,6 +12,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -39,10 +41,12 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   double _gridHourHeight;
   int _gridHourSpan;
   bool ready = false;
+  Account account;
 
   @override
   void initState() {
     super.initState();
+    account = BlocProvider.of<AuthenticationBloc>(context).account;
     _selectedDay = widget.day!=null?widget.day:Utils.formatDate(DateTime.now(), "day");
     _events = Map();
     _calendarController = CalendarController();
@@ -354,7 +358,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                   child: Container(
                     padding: EdgeInsets.only(right: 40),
                     height: ((maxDailyHour(e.end) - minDailyHour(e.start))/60)/_gridHourSpan*_gridHourHeight,
-                    child: e.status<=Status.Seen?Icon(Icons.notification_important,color: red):Container(),
+                    child: account.supervisor?Icon(Status.getIcon(e.status),color: dark):Container(),
                   )
               ),
               Expanded(

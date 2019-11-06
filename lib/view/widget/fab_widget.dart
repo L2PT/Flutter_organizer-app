@@ -44,7 +44,7 @@ class Fab {
     } else if (route == global.Constants.dailyCalendarRoute) {
       if (account.supervisor) {
         return FloatingActionButton(
-          child: Icon(Icons.add),
+          child: Icon(Icons.add,size: 40,),
           onPressed: (){
             DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
             Event ev = Event.empty();
@@ -93,7 +93,7 @@ class Fab {
                               shape: BoxShape.circle,
                               color: dark,
                             ),
-                            child: Icon(Icons.delete),
+                            child: Icon(Icons.delete,),
                           ),
                         )
                       ],

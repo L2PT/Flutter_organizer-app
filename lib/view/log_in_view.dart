@@ -9,6 +9,7 @@ import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 import 'package:venturiautospurghi/view/widget/responsive_widget.dart';
 
 final _auth = FBAuth();
@@ -192,26 +193,35 @@ class _LogInState extends State<LogIn> {
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
-              return new AlertDialog(
-                title: new Text('Reset Password'),
-                content: new Text(resetMessage),
-                actions: <Widget>[
-                  new FlatButton(
-                      onPressed: () {
-                        if (_data.email.isNotEmpty) {
-                          Utils.NavigateTo(context, global.Constants.resetCodeRoute, null);
-                        }
-                        Navigator.of(context).pop(false);
-                      },
-                      child: new Text('OK')
-                  ),
-                  new FlatButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(true);
-                    },
-                    child: new Text("ANNULLA"),
-                  )
-                ],
+              return new dialogAlert(
+                tittle: "RESET PASSWORD",
+                content: new Text(resetMessage, style: label,),
+                action: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      FlatButton(
+                        child: new Text('ANNULLA', style: label),
+                        onPressed: () {
+                          Navigator.of(context).pop(true);
+                        },
+                      ),
+                      SizedBox(width: 15,),
+                      RaisedButton(
+                        child: new Text('CONFERMA', style: button_card),
+                        shape: RoundedRectangleBorder(
+                            borderRadius:
+                            BorderRadius.all(Radius.circular(15.0))),
+                        color: dark,
+                        elevation: 15,
+                        onPressed: () {
+                          if (_data.email.isNotEmpty) {
+                            Utils.NavigateTo(context, global.Constants.resetCodeRoute, null);
+                          }
+                          Navigator.of(context).pop(false);
+                        },
+                      ),
+                    ]),
+                context: context,
               );
             }
         );

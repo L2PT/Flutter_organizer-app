@@ -25,6 +25,7 @@ import 'package:venturiautospurghi/utils/firebaseMessaging.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/view/daily_calendar_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
+import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 import 'package:venturiautospurghi/view/widget/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:flutter/material.dart';
@@ -45,11 +46,13 @@ final Map<String, LinkMenu> _menuOperatore = const {
 
 final Map<String, LinkMenu> _menuResponsabile = const {
   global.Constants.homeRoute:
-      const LinkMenu(Icons.home, Colors.white, 16, "Home", title_rev),
+      const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  global.Constants.historyEventListRoute: const LinkMenu(
+      Icons.history, Colors.white, 30, "Storico incarichi", title_rev),
   global.Constants.formEventCreatorRoute:
-      const LinkMenu(Icons.edit, Colors.white, 16, "Crea evento", title_rev),
+      const LinkMenu(Icons.edit, Colors.white, 30, "Crea evento", title_rev),
   global.Constants.registerRoute: const LinkMenu(
-      Icons.person_add, Colors.white, 16, "Crea utente", title_rev),
+      Icons.person_add, Colors.white, 30, "Crea utente", title_rev),
 };
 
 /// Builds a Backdrop.
@@ -160,7 +163,6 @@ class _BackdropState extends State<Backdrop>
                     body: Stack(
                       fit: StackFit.expand,
                       children: <Widget>[
-                        //TODO MINELLI sfondo statico ricostruisci una buildback statica
                         DailyCalendar(null),
                       ],
                     )),Container(
@@ -239,19 +241,30 @@ class _BackdropState extends State<Backdrop>
   Future<bool> _onBackPressed() {
     return showDialog(
           context: context,
-          builder: (context) => new AlertDialog(
-            title: new Text('Sei sicuro?'),
-            content: new Text('Vuoi uscire dall\'app?'),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("No"),
-              ),
-              FlatButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text("Si"),
-              ),
-            ],
+          builder: (context) => new dialogAlert(
+            tittle: "ESCI",
+            content: new Text('Vuoi uscire dall\'app?',style: label,),
+            context: context,
+            action: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    child: new Text('No', style: label),
+                    onPressed: () {
+                     Navigator.of(context).pop(false);
+                    },
+                  ),
+                  SizedBox(width: 15,),
+                  RaisedButton(
+                    child: new Text('Si', style: button_card),
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(15.0))),
+                    color: dark,
+                    elevation: 15,
+                    onPressed: () => Navigator.of(context).pop(true),
+                  ),
+                ]),
           ),
         ) ??
         false;

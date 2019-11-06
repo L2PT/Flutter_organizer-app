@@ -11,13 +11,13 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
 
 class OperatorList extends StatefulWidget {
-  OperatorList({ Key key }) : super(key: key);
+  OperatorList({Key key}) : super(key: key);
+
   @override
   _OperatorListState createState() => new _OperatorListState();
-
 }
 
-class _OperatorListState extends State<OperatorList>{
+class _OperatorListState extends State<OperatorList> {
   final dateFormat = DateFormat("dd-MM-yy");
   final timeFormat = DateFormat("h:mm a");
   final _filtersKey = new GlobalKey<FormState>();
@@ -30,10 +30,11 @@ class _OperatorListState extends State<OperatorList>{
     _stringFilter.text = BlocProvider.of<OperatorsBloc>(context).stringQuery;
     _stringFilter.addListener(() {
       if (_stringFilter.text.isEmpty) {
-        BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterString(null));
-      }
-      else {
-        BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterString(_stringFilter.text));
+        BlocProvider.of<OperatorsBloc>(context)
+            .dispatch(ApplyOperatorFilterString(null));
+      } else {
+        BlocProvider.of<OperatorsBloc>(context)
+            .dispatch(ApplyOperatorFilterString(_stringFilter.text));
       }
     });
   }
@@ -46,13 +47,14 @@ class _OperatorListState extends State<OperatorList>{
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OperatorsBloc, OperatorsState>(
-      builder: (context, state) {
-        if (state is Loaded) {
-          //get data
-          BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilters(null,null));
-          ready = true;
-        }else if(state is Filtered && ready){
-          return Material(
+        builder: (context, state) {
+      if (state is Loaded) {
+        //get data
+        BlocProvider.of<OperatorsBloc>(context)
+            .dispatch(ApplyOperatorFilters(null, null));
+        ready = true;
+      } else if (state is Filtered && ready) {
+        return Material(
             elevation: 12.0,
             borderRadius: new BorderRadius.only(
                 topLeft: new Radius.circular(16.0),
@@ -61,35 +63,43 @@ class _OperatorListState extends State<OperatorList>{
               children: <Widget>[
                 SizedBox(height: 8.0),
                 logo,
-                Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: searchBar()
-                ),
+                Padding(padding: const EdgeInsets.all(8.0), child: searchBar()),
                 Visibility(
                   child: filtersBox(),
                   visible: _filters,
                 ),
+                Container(
+                  margin: EdgeInsets.only(left: 15),
+                  alignment: Alignment.centerLeft,
+                  child: Text("Tutti gli operatori liberi", style: label.copyWith(fontWeight: FontWeight.bold),),
+                ),
                 Expanded(
-                  child: ListView(
+                  child: ListView.separated(
+                    separatorBuilder: (context, index) => Divider(
+                      height: 2,
+                      thickness: 1,
+                      indent: 15,
+                      endIndent: 15,
+                      color: greyToday,
+                    ),
+                    physics: BouncingScrollPhysics(),
                     padding: new EdgeInsets.symmetric(vertical: 8.0),
-                    children: state.operators.map((contact) => new ChildItem(contact)).toList(),
+                    itemCount: state.operators.length,
+                    itemBuilder: (context, index) =>
+                        new ChildItem(state.operators[index]),
                   ),
-                )
+                ),
               ],
-          )
-          );
-        }
-        return LoadingScreen();
+            ));
       }
-  );
+      return LoadingScreen();
+    });
   }
 
   Widget searchBar() {
     return DecoratedBox(
         decoration: BoxDecoration(
-            color: dark,
-            borderRadius: BorderRadius.all(Radius.circular(15.0))
-        ),
+            color: dark, borderRadius: BorderRadius.all(Radius.circular(15.0))),
         child: Row(
           children: <Widget>[
             Expanded(
@@ -98,104 +108,136 @@ class _OperatorListState extends State<OperatorList>{
                 controller: _stringFilter,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  prefixIcon: new Icon(Icons.search, color: white,),
+                  prefixIcon: new Icon(
+                    Icons.search,
+                    color: white,
+                  ),
                   hintText: "Cerca un operatore",
                 ),
               ),
-            ), IconButton(
-              icon: new Icon((!_filters)?Icons.tune:Icons.keyboard_arrow_up, color: white),
-              onPressed: (){setState(() {
-                _filters = !_filters;
-              });},
+            ),
+            IconButton(
+              icon: new Icon((!_filters) ? Icons.tune : Icons.keyboard_arrow_up,
+                  color: white),
+              onPressed: () {
+                setState(() {
+                  _filters = !_filters;
+                });
+              },
             ),
           ],
-        )
-    );
+        ));
   }
 
   Widget filtersBox() {
     return Container(
-        margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
-        padding: const EdgeInsets.only(top:16.0, right:14.0, bottom:4.0, left:14.0),
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        padding: const EdgeInsets.only(
+            top: 16.0, right: 14.0, bottom: 4.0, left: 14.0),
         decoration: BoxDecoration(
-            color: dark,
-            borderRadius: BorderRadius.all(Radius.circular(15.0))
-        ),
-        child: Column(
+            color: dark, borderRadius: BorderRadius.all(Radius.circular(15.0))),
+        child: Column(children: <Widget>[
+          Row(
             children: <Widget>[
-              Row(children: <Widget>[
-                Icon(Icons.tune),
-                Text("FILTRA PER OPEARATORI LIBERI",style: subtitle_rev),
-              ],),
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 5.0),
-                child: new Form(
+              Icon(Icons.tune),
+              SizedBox(width: 5,),
+              Text("FILTRA PER OPEARATORI LIBERI", style: subtitle_rev),
+            ],
+          ),
+          Padding(
+              padding: EdgeInsets.only(top: 5.0),
+              child: new Form(
                   key: this._filtersKey,
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.calendar_today),
+                      Icon(Icons.date_range),
                       Expanded(
-                        child: DateTimeField(
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
-                          ),
-                          style: subtitle_rev,
-                          format: dateFormat,
-                          initialValue: _dateFilter,
-                          enabled: true,
-                          readOnly: true,
-                          onShowPicker: (context, currentValue) {
-                            return showDatePicker(
-                                context: context,
-                                firstDate: Utils.formatDate(DateTime.now(), "day"),
-                                initialDate: currentValue!=null?currentValue.year>2000?currentValue:
-                                DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
-                                    :Utils.formatDate(DateTime.now(), "day"),
-                                lastDate: DateTime(3000)
-                            );
-                          },
-                          onChanged: (v){ print(v);},
-                          onSaved: (DateTime value) => _dateFilter = value!=null?value.year>2000?value:
-                          DateTime(2000+value.year, value.month, value.day, value.hour, value.minute):null,
-                        )
-                      ),
-                      Icon(Icons.access_time),
-                      Expanded(
-                        child: DateTimeField(
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(borderSide: BorderSide(width: 0.0, style: BorderStyle.none))
-                          ),
-                          style: subtitle_rev,
-                          format: timeFormat,
-                          initialValue: DateTime(0),
-                          enabled: true,
-                          readOnly: true,
-                          onShowPicker: (context, currentValue) async {
-                            final time = await showTimePicker(
+                          child: DateTimeField(
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    width: 0.0, style: BorderStyle.none))),
+                        style: subtitle_rev,
+                        resetIcon: Icon(
+                          Icons.clear,
+                          color: white,
+                        ),
+                        format: dateFormat,
+                        initialValue: _dateFilter,
+                        enabled: true,
+                        readOnly: true,
+                        onShowPicker: (context, currentValue) {
+                          return showDatePicker(
                               context: context,
-                              initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
-                            );
-                            return DateTimeField.convert(time);
-                          },
-                            onSaved: (DateTime value) => _dateFilter = _dateFilter!=null?value!=null?_dateFilter.add(Duration(hours: value.hour, minutes: value.minute)):_dateFilter:null
-                          ),
+                              firstDate:
+                                  Utils.formatDate(DateTime.now(), "day"),
+                              initialDate: currentValue != null
+                                  ? currentValue.year > 2000
+                                      ? currentValue
+                                      : DateTime(
+                                          2000 + currentValue.year,
+                                          currentValue.month,
+                                          currentValue.day,
+                                          currentValue.hour,
+                                          currentValue.minute)
+                                  : Utils.formatDate(DateTime.now(), "day"),
+                              lastDate: DateTime(3000));
+                        },
+                        onChanged: (v) {
+                          print(v);
+                        },
+                        onSaved: (DateTime value) => _dateFilter = value != null
+                            ? value.year > 2000
+                                ? value
+                                : DateTime(2000 + value.year, value.month,
+                                    value.day, value.hour, value.minute)
+                            : null,
+                      )),
+                      Icon(Icons.watch_later),
+                      Expanded(
+                        child: DateTimeField(
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 0.0, style: BorderStyle.none))),
+                            style: subtitle_rev,
+                            resetIcon: Icon(
+                              Icons.clear,
+                              color: white,
+                            ),
+                            format: timeFormat,
+                            initialValue: DateTime(0),
+                            enabled: true,
+                            readOnly: true,
+                            onShowPicker: (context, currentValue) async {
+                              final time = await showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.fromDateTime(
+                                    currentValue ?? DateTime(0)),
+                              );
+                              return DateTimeField.convert(time);
+                            },
+                            onSaved: (DateTime value) => _dateFilter =
+                                _dateFilter != null
+                                    ? value != null
+                                        ? _dateFilter.add(Duration(
+                                            hours: value.hour,
+                                            minutes: value.minute))
+                                        : _dateFilter
+                                    : null),
                       ),
                     ],
-                  )
-                )
-              ),
-              Align(
-                  alignment: Alignment.bottomRight,
-                  child: RaisedButton(
-                    child: new Text('APPLICA', style: subtitle_rev),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                    elevation: 15,
-                    onPressed: () => _applyFilters(),
-                  )
-              )
-            ]
-        )
-    );
+                  ))),
+          Align(
+              alignment: Alignment.bottomRight,
+              child: RaisedButton(
+                child: new Text('FILTRA', style: subtitle_rev),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(15.0))),
+                elevation: 15,
+                onPressed: () => _applyFilters(),
+              ))
+        ]));
   }
 
   Future _applyFilters() async {
@@ -203,19 +245,23 @@ class _OperatorListState extends State<OperatorList>{
       _filtersKey.currentState.save();
       _filters = false;
       print(_dateFilter);
-      BlocProvider.of<OperatorsBloc>(context).dispatch(ApplyOperatorFilterDate(_dateFilter));
+      BlocProvider.of<OperatorsBloc>(context)
+          .dispatch(ApplyOperatorFilterDate(_dateFilter));
     }
   }
 }
 
 class ChildItem extends StatelessWidget {
   final Account operator;
+
   ChildItem(this.operator);
+
   @override
   Widget build(BuildContext context) {
     //TOMAYBEDO add icons by account's properties
     return GestureDetector(
-      onTap: ()=>BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[operator,null])),
+      onTap: () => BlocProvider.of<BackdropBloc>(context).dispatch(
+          NavigateEvent(global.Constants.dailyCalendarRoute, [operator, null])),
       child: Container(
         height: 50,
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -223,21 +269,22 @@ class ChildItem extends StatelessWidget {
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(right: 10.0),
-              padding: EdgeInsets.all(2.0),
-              child: Icon(Icons.work, color: yellow,),
+              padding: EdgeInsets.all(3.0),
+              child: Icon(
+                Icons.work,
+                color: yellow,
+              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: dark,
               ),
             ),
-            Text(operator.surname.toUpperCase()+" ", style: title),
+            Text(operator.surname.toUpperCase() + " ", style: title),
             Text(operator.name, style: subtitle),
-            Expanded(child: Container(),),
-            Icon(Icons.local_shipping, color: dark,)
+
           ],
         ),
       ),
     );
   }
-
 }

@@ -19,28 +19,30 @@ final Text12WhiteNormal = TextStyle(fontWeight: FontWeight.normal, fontSize: 12,
 ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
-    accentColor: Color(0xFFA3A3A3), //Colore secondario <-- da sistemare quando compare
+    accentColor: yellow, //Colore secondario <-- da sistemare quando compare
     primaryColor: dark, //appBar
     scaffoldBackgroundColor: whitebackground, //ok
     cardColor: Color(0x00000000),
-    textSelectionColor: Color(0xFFC5032B),
+    textSelectionColor: dark,
     cursorColor: Color(0xFFFFFFFF),
     errorColor: red,
-    buttonTheme: base.buttonTheme.copyWith(
-      buttonColor: Color(0xFF333333),
-      textTheme: ButtonTextTheme.normal
+    buttonTheme: ButtonThemeData(
+      buttonColor: dark,
+      textTheme: ButtonTextTheme.accent
     ),
+    colorScheme: ColorScheme.dark().copyWith(secondary: dark, secondaryVariant: dark,),
+    buttonBarTheme: ButtonBarThemeData(buttonTextTheme: ButtonTextTheme.accent,),
     hintColor: grey_light,
-    buttonColor: Color(0xFFC5032B),
+    buttonColor: dark,
     inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(50.0))),
-        fillColor: Color(0xFFC5032B),
+        fillColor: dark,
 
   ),
     textTheme: _buildShrineTextTheme(base.textTheme,dark), //ok
     primaryTextTheme: _buildShrineTextTheme(base.primaryTextTheme,Color(0xFFFFFFFF)), //text appBar
-    accentTextTheme: _buildShrineTextTheme(base.accentTextTheme,Color(0xFFC5032B)), //Colore secondario <-- da sistemare quando compare
+    accentTextTheme: _buildShrineTextTheme(base.accentTextTheme,dark), //Colore secondario <-- da sistemare quando compare
     iconTheme: IconThemeData(color: Color(0xFFF4F4F4)), //dunno
     primaryIconTheme: IconThemeData(color: Color(0xFFFFFFFF)) //icon
   );
@@ -64,7 +66,7 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
     ),
   ).apply(
     fontFamily: 'Roboto',
-    displayColor: Color(0xFFC5032B), //dunno
+    displayColor: dark, //dunno
     bodyColor: c, //text
 
   );

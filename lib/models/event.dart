@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 
 class Event {
@@ -187,10 +188,30 @@ class Event {
 }
 
 class Status {
+  static const int Deleted = -1;
   static const int New = 0;
   static const int Delivered = 1;
   static const int Seen = 2;
   static const int Accepted = 3;
-  static const int Rejected = 4;
+  static const int Refused = 4;
   static const int Ended = 5;
+
+  static IconData getIcon(int status){
+    switch(status){
+      case Deleted:
+        return Icons.delete;
+      case  New:
+        return Icons.assignment;
+      case Delivered:
+        return Icons.assignment_returned;
+      case Seen:
+        return Icons.assignment_ind;
+      case Accepted:
+        return Icons.assignment_turned_in;
+      case Refused:
+        return Icons.assignment_late;
+      case Ended:
+        return Icons.assistant_photo;
+    }
+  }
 }

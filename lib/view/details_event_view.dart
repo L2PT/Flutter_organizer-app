@@ -74,7 +74,7 @@ class _DetailsEventState extends State<DetailsEvent>
       case Status.Delivered: textStatusEvent = "Consegnato"; break;
       case Status.Seen: textStatusEvent = "Visualizzato"; break;
       case Status.Accepted: textStatusEvent = "Accettato"; break;
-      case Status.Rejected: textStatusEvent = "Rifiutato"; break;
+      case Status.Refused: textStatusEvent = "Rifiutato"; break;
     }
     tabsContents = _buildTabsContents();
   }
@@ -129,7 +129,7 @@ class _DetailsEventState extends State<DetailsEvent>
                     SizedBox(
                       width: padding,
                     ),
-                    Text(widget.event.address, style: subtitle_rev),
+                    Text(widget.event.address.isEmpty?'Nessun indirizzo indicato':widget.event.address, style: subtitle_rev),
                     //Text(widget.event.address, style: subtitle_rev)
                   ],
                 ),
@@ -219,12 +219,14 @@ class _DetailsEventState extends State<DetailsEvent>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(widget.event.description.substring(0,min(widget.event.description.length,80)),
+                            Text(widget.event.description.isEmpty?'Nessuna nota indicata':widget.event.description.substring(0,min(widget.event.description.length,80)),
                               style: subtitle_rev,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 5,
                             ),
+
                             SizedBox(height: 15),
+                            widget.event.description.isNotEmpty?
                             GestureDetector(
                               child: Container(
                                   width: 100,
@@ -244,7 +246,7 @@ class _DetailsEventState extends State<DetailsEvent>
                                         ),
                                       ))),
                               onTap: () => _tabController.animateTo(2),
-                            )
+                            ):Container()
                           ],
                         ),
                       ),
@@ -315,7 +317,7 @@ class _DetailsEventState extends State<DetailsEvent>
                       flex: 1,
                       child: new SingleChildScrollView(
                         scrollDirection: Axis.vertical,
-                        child: new Text(widget.event.description, style: subtitle_rev),
+                        child: new Text(widget.event.description.isEmpty?'Nessuna nota indicata':widget.event.description, style: subtitle_rev),
                       ))
                 ],
               ),
@@ -345,10 +347,8 @@ class _DetailsEventState extends State<DetailsEvent>
             child: Padding(
                 padding: EdgeInsets.all(2),
                 child: FloatingActionButton(
-                  child: Icon(Icons.delete),
-                  onPressed: (){
-                    Navigator.pop(context, global.Constants.DELETE_SIGNAL);
-                  },
+                  child: Icon(Icons.delete, size: 40,),
+                  onPressed: () => _actionDeleteAlert(),
                   backgroundColor: dark,
                   elevation: 6,
                 ))):Fab(context).FabChooser(widget.route),
@@ -501,7 +501,7 @@ class _DetailsEventState extends State<DetailsEvent>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               RaisedButton(
-                                child: new Text('TERMINATO', style: button_card),
+                                child: new Text('TERMINA', style: button_card),
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
                                     BorderRadius.all(Radius.circular(15.0))),
@@ -585,8 +585,7 @@ class _DetailsEventState extends State<DetailsEvent>
                     onPressed: () => _actionEndConferma(context),
                   ),
                 ]),
-            content: Form(
-              child: SingleChildScrollView(
+            content:  SingleChildScrollView(
                 child: ListBody(children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(bottom: 10),
@@ -594,7 +593,6 @@ class _DetailsEventState extends State<DetailsEvent>
                   ),
                 ]),
               ),
-            ),
             tittle: "TERMINA INCARICO",
             context: context,
           );
@@ -607,6 +605,49 @@ class _DetailsEventState extends State<DetailsEvent>
         color = a;
       });
     }
+  }
+
+  void _actionDeleteAlert(){
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return dialogAlert(
+            action: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    child: new Text('Annulla', style: label),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  SizedBox(width: 15,),
+                  RaisedButton(
+                    child: new Text('CONFERMA', style: button_card),
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(15.0))),
+                    color: dark,
+                    elevation: 15,
+                    onPressed: () {
+                      Navigator.pop(context,false);
+                      Navigator.pop(context, global.Constants.DELETE_SIGNAL);
+                    },
+                  ),
+                ]),
+            content:  SingleChildScrollView(
+              child: ListBody(children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text("Confermi la cancellazione dell'incarico?", style: label,),
+                ),
+              ]),
+            ),
+            tittle: "CANCELLA INCARICO",
+            context: context,
+          );
+        });
   }
 
   void _actionEndConferma(BuildContext context){

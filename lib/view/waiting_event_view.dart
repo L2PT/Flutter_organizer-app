@@ -8,6 +8,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/view/splash_screen.dart';
 import 'package:venturiautospurghi/view/widget/card_event_widget.dart';
 
 class waitingEvent extends StatefulWidget {
@@ -81,7 +82,7 @@ class _waitingEventState extends State<waitingEvent> {
               ),
             );
           }
-          return Container();
+          return LoadingScreen();
         }
     );
   }
