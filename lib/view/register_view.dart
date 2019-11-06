@@ -214,7 +214,7 @@ class RegisterState extends State<Register> {
                                     RaisedButton(
                                       color: dark,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
-                                      onPressed: ()=>Navigator.of(context).pop(),
+                                      onPressed: _onBackPressed,
                                       child: Text('ANNULLA', style: title_rev),
                                     ),SizedBox(
                                         width: 20

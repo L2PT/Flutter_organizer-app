@@ -189,7 +189,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
       selectNext: () {
-        Utils.NavigateTo(context,global.Constants.monthlyCalendarRoute, Utils.formatDate(_selectedDay, "month"));
+        Utils.NavigateTo(context,global.Constants.monthlyCalendarRoute, _selectedDay);
       },
       selectPrevious: (){},
     );

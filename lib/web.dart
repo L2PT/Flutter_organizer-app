@@ -422,7 +422,9 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     });
   }
   Event getEventWithCurrentDay(){
-    DateTime day = DateTime.parse(jQuery('#calendar').fullCalendar('getDate', null).format('').toString()).add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+    DateTime day = DateTime.parse(jQuery('#calendar').fullCalendar('getDate', null).format('').toString());
+    if(DateTime.now().isAfter(day)) day = Utils.formatDate(DateTime.now(), "day");
+    day = day.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
     Event event = Event.empty();
     event.start = day;
     event.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));

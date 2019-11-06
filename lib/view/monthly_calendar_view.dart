@@ -36,7 +36,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   @override
   void initState() {
     super.initState();
-    _selectedMonth = widget.month!=null?widget.month:Utils.formatDate(DateTime.now(), "month");
+    _selectedMonth = widget.month!=null?widget.month:Utils.formatDate(DateTime.now(), "day");
     _events = Map();
     _calendarController = CalendarController();
     _animationController = AnimationController(
@@ -150,9 +150,6 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
                 right: 1,
                 child: _buildEventsMarker(date, events),
               )
-
-
-              
             );
           }
           if (holidays.isNotEmpty && false) {

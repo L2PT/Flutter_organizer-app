@@ -46,7 +46,9 @@ class Fab {
         return FloatingActionButton(
           child: Icon(Icons.add,size: 40,),
           onPressed: (){
-            DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+            DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day");
+            if(DateTime.now().isAfter(day)) day = Utils.formatDate(DateTime.now(), "day");
+            day = day.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
             Event ev = Event.empty();
             ev.start = day;
             ev.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));
