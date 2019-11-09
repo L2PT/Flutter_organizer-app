@@ -218,8 +218,7 @@ hr.fc-divider {
     border-spacing: 0
 }
 
-.fc td,
-.fc th {
+.fc td{
     border-style: solid;
     border-width: 1px;
     padding: 0;

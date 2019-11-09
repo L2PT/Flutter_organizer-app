@@ -9,6 +9,8 @@ import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 
 class Utils {
   static Future<Map<String,dynamic>> getCategories() async {
@@ -81,6 +83,49 @@ class Utils {
     if(result == global.Constants.MODIFY_SIGNAL) {
       Navigator.pushNamed(context, global.Constants.formEventCreatorRoute, arguments: ev);
     }
+  }
+
+  static void deleteDialog(BuildContext context){
+    showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return dialogAlert(
+            action: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  FlatButton(
+                    child: new Text('Annulla', style: label),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  SizedBox(width: 15,),
+                  RaisedButton(
+                    child: new Text('CONFERMA', style: button_card),
+                    shape: RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(15.0))),
+                    color: dark,
+                    elevation: 15,
+                    onPressed: () {
+                      Navigator.pop(context,false);
+                      Navigator.pop(context, global.Constants.DELETE_SIGNAL);
+                    },
+                  ),
+                ]),
+            content:  SingleChildScrollView(
+              child: ListBody(children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text("Confermi la cancellazione dell'incarico?", style: label,),
+                ),
+              ]),
+            ),
+            tittle: "CANCELLA INCARICO",
+            context: context,
+          );
+        });
   }
 
   static void NavigateTo(BuildContext context, String route, dynamic arg){

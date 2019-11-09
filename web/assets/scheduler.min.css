@@ -151,6 +151,10 @@ tr.fc-transitioning>td {
     font-size: 15px;
 }
 
+.fc-scroller-clip th:first {
+    border-radius: 10px;
+}
+
 .fc-resource-area {
     width: 30%
 }

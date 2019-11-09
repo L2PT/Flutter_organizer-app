@@ -3,7 +3,7 @@
 body {  min-width:600px; }
 
 #wrap {
-    margin: 0 0 0 40px;
+    margin: 0 0 0 15px;
     z-index: 1;
     position: relative;
     color: #333;
@@ -12,4 +12,39 @@ body {  min-width:600px; }
 
 #calendar {
     margin-top:100px;
+}
+#fine {
+    position: static;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    border-top: 1px solid #e8e8e8;
+}
+#fine .copyright {
+    position: relative;
+    z-index: 800;
+    left: 0;
+    bottom: 0;
+    padding: 10px;
+    width: 100%;
+    background-color: #333333;
+    color: white;
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    float: left;
+}
+.diritti {
+    text-align: center;
+    clear: both;
+    padding-top: 10px;
+}
+span{
+    cursor: pointer;
+}
+
+.l2pt-textOperatori{
+    text-align: left !important;
 }

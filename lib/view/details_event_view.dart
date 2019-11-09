@@ -348,7 +348,7 @@ class _DetailsEventState extends State<DetailsEvent>
                 padding: EdgeInsets.all(2),
                 child: FloatingActionButton(
                   child: Icon(Icons.delete, size: 40,),
-                  onPressed: () => _actionDeleteAlert(),
+                  onPressed: () => Utils.deleteDialog(context),
                   backgroundColor: dark,
                   elevation: 6,
                 ))):Fab(context).FabChooser(widget.route),
@@ -605,49 +605,6 @@ class _DetailsEventState extends State<DetailsEvent>
         color = a;
       });
     }
-  }
-
-  void _actionDeleteAlert(){
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return dialogAlert(
-            action: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    child: new Text('Annulla', style: label),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  SizedBox(width: 15,),
-                  RaisedButton(
-                    child: new Text('CONFERMA', style: button_card),
-                    shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(15.0))),
-                    color: dark,
-                    elevation: 15,
-                    onPressed: () {
-                      Navigator.pop(context,false);
-                      Navigator.pop(context, global.Constants.DELETE_SIGNAL);
-                    },
-                  ),
-                ]),
-            content:  SingleChildScrollView(
-              child: ListBody(children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 10),
-                  child: Text("Confermi la cancellazione dell'incarico?", style: label,),
-                ),
-              ]),
-            ),
-            tittle: "CANCELLA INCARICO",
-            context: context,
-          );
-        });
   }
 
   void _actionEndConferma(BuildContext context){

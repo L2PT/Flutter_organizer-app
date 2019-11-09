@@ -84,10 +84,7 @@ class Fab {
                           width: 10,
                         ),
                         GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.pop(context, global.Constants.DELETE_SIGNAL);
-                          },
+                          onTap: () => Utils.deleteDialog(context),
                           child: Container(
                             height: 50,
                             width: 50,

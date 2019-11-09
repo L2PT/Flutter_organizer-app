@@ -67,7 +67,7 @@ void firebaseCloudMessaging_Listeners(String email, BuildContext context){
         EventsRepository().updateEvent(event, "Stato", Status.Delivered);
         Account operator = Account.fromMap(event.idOperator, event.operator);
         Utils.notify(token:Account.fromMap(event.idSupervisor, event.supervisor).token, title: "L'avviso è stato cosegnato a "+operator.surname+" "+operator.name);
-        Utils.PushViewDetailsEvent(context, event);
+        Utils.NavigateTo(context, global.Constants.waitingEventListRoute, event);
       }
     },
   );

@@ -137,8 +137,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     _calendarController = CalendarController();
-    var formatter = new DateFormat('dddd D MMMM YYYY', 'it_IT');
-    _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString():formatter.format(DateTime.now()).toString();
+    var formatter = new DateFormat('MMMM YYYY - ddd D', 'it_IT');
+    _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('MMMM YYYY - ddd D',).toString():formatter.format(DateTime.now()).toString();
     initJs2Dart(this);
     initCalendar();
     updateDateCalendar();
@@ -192,17 +192,13 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Row(
                       children: <Widget>[
-                        Text("CALENDARIO INCARICHI",style: title_rev),
+                        Text("CALENDARIO INCARICHI",style: button_card),
                         Expanded(child: Container(),),
                         Container(
                           alignment: Alignment.bottomRight,
                           child: Row(children: <Widget>[
                             IconButton(
-                              icon: Icon(Icons.supervisor_account,),
-                              onPressed: (){
-                                cookieJar("user", "");
-                                BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedOut());
-                              },
+                              icon: Icon(Icons.person, color: white),
                             ),
                             Text(c, textAlign: TextAlign.right,style: title_rev),
                             SizedBox(width: 5,),
@@ -216,10 +212,18 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                                   children: <Widget>[
                                     Icon(Icons.person_add, color: white,),
                                     SizedBox(width:5),
-                                    Text("CREA UTENTE", style: title_rev,),
+                                    Text("CREA UTENTE", style: button_card,),
                                   ],
                                 )
-                            )
+                            ),
+                            SizedBox(width: 20),
+                            IconButton(
+                              icon: Icon(Icons.exit_to_app,),
+                              onPressed: (){
+                                cookieJar("user", "");
+                                BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedOut());
+                              },
+                            ),
                           ],
                           ),
                         ),
@@ -246,31 +250,31 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                   children: <Widget>[
                     Icon(Icons.add_box, color: white,),
                     SizedBox(width:5),
-                    Text("Nuovo Incarico", style: subtitle_rev,),
+                    Text("Nuovo Incarico", style: button_card,),
                   ],
                 )
             ),
           ),
-          Expanded(child: Container(
+          Expanded(flex: 2,child: Container(),),
+          Expanded(flex: 5,child: Container(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                SizedBox(width: 15,),
                 IconButton(
                     onPressed: (){
                       jQuery('#calendar').fullCalendar('prev',null);
                       updateDateCalendar();
                     },
-                    icon: Icon(Icons.arrow_back_ios,color:dark)
+                    icon: Icon(Icons.arrow_back_ios,color:grey_dark, size: 20,)
                 ),
                 IconButton(
                     onPressed: (){
                       jQuery('#calendar').fullCalendar('next',null);
                       updateDateCalendar();
                     },
-                    icon: Icon(Icons.arrow_forward_ios,color:dark)
+                    icon: Icon(Icons.arrow_forward_ios,color:grey_dark, size: 20,)
                 ),SizedBox(width: 15,),
-                Text(_dateCalendar, style: title,)
+                Text(_dateCalendar.toUpperCase(), style: title,)
               ],
             ),
           ),),
@@ -288,7 +292,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.calendar_today, color: white,),
+                            Icon(Icons.today, color: white,),
                             SizedBox(width:5),
                             Text("Oggi", style: subtitle_rev,),
                           ],
@@ -302,7 +306,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.calendar_view_day, color: white,),
+                            Icon(Icons.date_range, color: white,),
                             SizedBox(width:5),
                             Text("Calendario", style: subtitle_rev,),
                           ],
@@ -418,7 +422,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 
   void updateDateCalendar(){
     setState(() {
-      _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('dddd D MMMM YYYY').toString();
+      _dateCalendar = jQuery('#calendar').fullCalendar('getDate', null).format('MMMM YYYY - ddd D').toString();
     });
   }
   Event getEventWithCurrentDay(){
