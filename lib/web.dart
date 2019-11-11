@@ -19,6 +19,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:js/js.dart';
+import 'package:venturiautospurghi/view/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/splash_screen.dart';
@@ -340,7 +341,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
         return AlertDialog(
           contentPadding: EdgeInsets.all(0),
           content: Container(
-            height:650, width:400,
+            height:750, width:450,
             child: Scaffold(
                 body: dialogContainer
             )
@@ -401,21 +402,52 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   Widget _buildTableCalendarWithBuilders(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text("CALENDARIO", style: title_rev,),
         backgroundColor: dark,
       ),
       body: TableCalendar(
+        rowHeight: 85,
         locale: 'it_IT',
         calendarController: _calendarController,
+        holidays: global.Constants().holidays,
+        initialCalendarFormat: CalendarFormat.month,
+        formatAnimation: FormatAnimation.slide,
+        startingDayOfWeek: StartingDayOfWeek.monday,
         availableGestures: AvailableGestures.none,
+        availableCalendarFormats: {CalendarFormat.month: ''},
         onDaySelected: (date, events){
           jQuery('#calendar').fullCalendar('gotoDate',date.toLocal().toString());
           updateDateCalendar();
           Navigator.of(context).pop();},
+        builders: CalendarBuilders(
+          todayDayBuilder: (context, date, _) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 20),
+              decoration: BoxDecoration(
+                color: greyToday,
+                borderRadius: BorderRadius.circular(100.0),
+              ),
+              child: Center(child:Text(
+                  '${date.day}',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
+              ),
+              ),
+            );
+          },
+        ),
         headerStyle: HeaderStyle(
           leftChevronIcon:Icon(Icons.arrow_back_ios, color: dark,),
           rightChevronIcon:Icon(Icons.arrow_forward_ios, color: dark,),
         ),
       )
+
+
+
+
+
+
+
+
     );
   }
 

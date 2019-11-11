@@ -54,8 +54,10 @@ class _OperatorSelectionState extends State<OperatorSelection>{
             topLeft: new Radius.circular(16.0),
             topRight: new Radius.circular(16.0)),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 8.0),
+            SizedBox(height: 15.0),
+            Padding(padding: EdgeInsets.only(left: 20), child: Text("Aggiungi gli operatori disponibili", style: label,)),
             Expanded(
               child: ListView(
                 padding: new EdgeInsets.symmetric(vertical: 8.0),

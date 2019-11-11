@@ -16,7 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  url_launcher: ^4.0.4
+  url_launcher: ^5.2.5
   cupertino_icons: ^0.1.2
   intl: ^0.15.7
   date_utils: ^0.1.0+2

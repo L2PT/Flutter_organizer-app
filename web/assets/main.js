@@ -40,11 +40,12 @@ $(function() { // document ready
 function initCalendar(){
      $('#calendar').fullCalendar({
         timezone:'local',
+        local: 'it',
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         now: formatDate(new Date()),
         editable: false, // enable draggable events
         droppable: false, // this allows things to be dropped onto the calendar
-        aspectRatio: 2,
+        aspectRatio: 2.4,
         scrollTime: '00:00', // undo default 6am scrollTime
         header: {
                 left: '',

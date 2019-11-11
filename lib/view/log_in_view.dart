@@ -72,6 +72,7 @@ class _LogInState extends State<LogIn> {
           ),
           new Expanded(
             child: TextFormField(
+              cursorColor: dark,
               controller: _emailController,
               textInputAction: TextInputAction.next,
               decoration: InputDecoration(
@@ -113,6 +114,7 @@ class _LogInState extends State<LogIn> {
           ),
           new Expanded(
             child: TextFormField(
+              cursorColor: dark,
               controller: _passwordController,
               textInputAction: TextInputAction.done,
               onFieldSubmitted: (term) => {this._signInWithEmailAndPassword()},
