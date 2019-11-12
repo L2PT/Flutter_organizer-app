@@ -127,6 +127,9 @@ class _OperatorSelectionState extends State<OperatorSelection>{
           sel[operator] = false;
       }
     });
+    print(widget.event.idOperator);
+    print(widget.event.idOperators);
+    print(operators);
     setState(() {});
   }
 }

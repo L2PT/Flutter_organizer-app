@@ -176,7 +176,7 @@ function mapEventObj(eventData){
 /*-------------------------------------------------------------------*/
                         /*--UTILITIES--*/
 function getColor(arg){
-    return (arg != null && typeof(a) != 'undefined' && categories[arg] != null)?categories[arg]:categories['default'];
+    return (arg != null && typeof(arg) != 'undefined' && categories[arg] != null)?categories[arg]:categories['default'];
 }
 
 function formatDate(date) {

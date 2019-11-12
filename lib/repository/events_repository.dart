@@ -13,7 +13,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class EventsRepository {
   final collectionEventi = PlatformUtils.fire.collection(global.Constants.tabellaEventi);
-  final subCollectionStorico = PlatformUtils.fire.collectionGroup(global.Constants.subtabellaStorico);
+//  final subCollectionStorico = PlatformUtils.fire.collectionGroup(global.Constants.subtabellaStorico);
   final collectionEliminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiEliminati);
   final collectionTerminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiTerminati);
   Map<String,dynamic> categories;
@@ -93,7 +93,7 @@ class EventsRepository {
 
   //Snapshot per eventi in history
   Stream<List<Event>> eventsHistory() {
-    return subCollectionStorico.snapshots().map((snapshot) {
+    return PlatformUtils.fire.collectionGroup.snapshots().map((snapshot) {
       return PlatformUtils.documents(snapshot).map((doc) {
         return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
         categories[doc["Categoria"]] != null

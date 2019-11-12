@@ -318,15 +318,19 @@ class _LogInState extends State<LogIn> {
       //this set the user info into a global state (main)
       BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn(user));
       Timer(Duration(seconds: 15),(){
-        if(BlocProvider.of<AuthenticationBloc>(context).isSupervisor) {
-          _errorMessage="Errore di connessione";
-        }else{
-          _errorMessage="Non hai il permesso";
-        }
-        setState(() {
-          _success = false;
-          _isLoading = false;
-        });
+        try {
+          if (BlocProvider
+              .of<AuthenticationBloc>(context)
+              .isSupervisor) {
+            _errorMessage = "Errore di connessione";
+          } else {
+            _errorMessage = "Non hai il permesso";
+          }
+          setState(() {
+            _success = false;
+            _isLoading = false;
+          });
+        }catch(error){/*don't worry*/}
       });
     } else {
       //disable loading
