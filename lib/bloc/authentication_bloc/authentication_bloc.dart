@@ -12,7 +12,7 @@ part 'authentication_event.dart';
 part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final FBAuth _userRepository = FBAuth();
+  final FBAuth _userRepository = FBAuth(null);
   AuthUser user = null;
   Account account = null;
   bool isSupervisor = false;

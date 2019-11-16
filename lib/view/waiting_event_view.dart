@@ -35,7 +35,7 @@ class _waitingEventState extends State<waitingEvent> {
         builder: (context, state) {
           if (state is Loaded) {
             //get data
-            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByWaiting());
+            BlocProvider.of<EventsBloc>(context).add(FilterEventsByWaiting());
             ready = true;
           }else if(state is Filtered && ready){
             dataCorrente = null;

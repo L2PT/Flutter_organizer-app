@@ -30,11 +30,9 @@ class _OperatorListState extends State<OperatorList> {
     _stringFilter.text = BlocProvider.of<OperatorsBloc>(context).stringQuery;
     _stringFilter.addListener(() {
       if (_stringFilter.text.isEmpty) {
-        BlocProvider.of<OperatorsBloc>(context)
-            .dispatch(ApplyOperatorFilterString(null));
+        BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilterString(null));
       } else {
-        BlocProvider.of<OperatorsBloc>(context)
-            .dispatch(ApplyOperatorFilterString(_stringFilter.text));
+        BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilterString(_stringFilter.text));
       }
     });
   }
@@ -50,8 +48,7 @@ class _OperatorListState extends State<OperatorList> {
         builder: (context, state) {
       if (state is Loaded) {
         //get data
-        BlocProvider.of<OperatorsBloc>(context)
-            .dispatch(ApplyOperatorFilters(null, null));
+        BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilters(null, null));
         ready = true;
       } else if (state is Filtered && ready) {
         return Material(
@@ -245,8 +242,7 @@ class _OperatorListState extends State<OperatorList> {
       _filtersKey.currentState.save();
       _filters = false;
       print(_dateFilter);
-      BlocProvider.of<OperatorsBloc>(context)
-          .dispatch(ApplyOperatorFilterDate(_dateFilter));
+      BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilterDate(_dateFilter));
     }
   }
 }
@@ -260,7 +256,7 @@ class ChildItem extends StatelessWidget {
   Widget build(BuildContext context) {
     //TOMAYBEDO add icons by account's properties
     return GestureDetector(
-      onTap: () => BlocProvider.of<BackdropBloc>(context).dispatch(
+      onTap: () => BlocProvider.of<BackdropBloc>(context).add(
           NavigateEvent(global.Constants.dailyCalendarRoute, [operator, null])),
       child: Container(
         height: 50,

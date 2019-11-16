@@ -15,7 +15,7 @@ void main() {
   initializeDateFormatting("it_IT").then((_) => runApp(
     BlocProvider(
         builder: (context) => AuthenticationBloc()
-          ..dispatch(AppStarted()),
+          ..add(AppStarted()),
         child: PlatformUtils.myApp),
   )
   );

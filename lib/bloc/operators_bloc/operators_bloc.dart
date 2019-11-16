@@ -55,7 +55,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
     _eventsSubscription?.cancel();
     //subscribe and do dispatch of interested events
     _eventsSubscription = event.subscription().listen((events) {
-      dispatch(
+      add(
         EventsUpdated(events), //crea l'evento
       );
     });
@@ -106,7 +106,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
           filteredOperators.removeAt(i);
         }
     }
-    dispatch(Done(filteredOperators));
+    add(Done(filteredOperators));
   }
 
   Stream<OperatorsState> _mapAddOperatorToState(AddOperator event) async* {
@@ -125,7 +125,7 @@ class OperatorsBloc extends Bloc<OperatorsEvent, OperatorsState> {
   @override
   void dispose() {
     _eventsSubscription?.cancel();
-    super.dispose();
+   // super.close();
   }
 
 

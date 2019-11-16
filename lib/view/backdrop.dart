@@ -73,10 +73,8 @@ class _BackdropState extends State<Backdrop>
   @override
   void initState() {
     super.initState();
-    firebaseCloudMessaging_Listeners(
-        BlocProvider.of<AuthenticationBloc>(context).account.email, context);
-    _controller = AnimationController(
-        duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
+    firebaseCloudMessaging_Listeners(BlocProvider.of<AuthenticationBloc>(context).account.email, context);
+    _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
   @override
@@ -110,14 +108,9 @@ class _BackdropState extends State<Backdrop>
           if (state is Ready) {
             //in the state there is the subscription to the data to ear for realtime changes
             _toggleBackdropLayerVisibility(false);
-            if (state.subtype == global.Constants.EVENTS_BLOC)
-              BlocProvider.of<EventsBloc>(context).dispatch(
-                  LoadEvents(state.subscription, state.subscriptionArgs));
-            else if (state.subtype == global.Constants.OPERATORS_BLOC)
-              BlocProvider.of<OperatorsBloc>(context).dispatch(
-                  LoadOperators(state.subscription, state.subscriptionArgs));
-            else if (state.subtype == global.Constants.OUT_OF_BLOC)
-              return state.content;
+            if (state.subtype == global.Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).add(LoadEvents(state.subscription, state.subscriptionArgs));
+            else if (state.subtype == global.Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).add(LoadOperators(state.subscription, state.subscriptionArgs));
+            else if (state.subtype == global.Constants.OUT_OF_BLOC)return state.content;
             return WillPopScope(
                 onWillPop: _onBackPressed,
                 child: Scaffold(
@@ -308,8 +301,7 @@ class _BackLayer extends StatelessWidget {
             Expanded(
               child: Container(
                 child: GestureDetector(
-                  onTap: () => BlocProvider.of<AuthenticationBloc>(context)
-                      .dispatch(LoggedOut()),
+                  onTap: () => BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut()),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[

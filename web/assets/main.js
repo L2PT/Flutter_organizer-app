@@ -99,7 +99,7 @@ function initCategories(){
 }
 
 function readResources(callback){
-    var docRef = db.collection("Utenti").doc(dart.widget.account.id);
+    var docRef = db.collection("Utenti").doc(dart.account.id);
     docRef.get().then(function(doc) {
         if (doc.exists) {
             var arr = doc.data().OperatoriWeb

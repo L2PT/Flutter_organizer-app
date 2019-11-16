@@ -13,7 +13,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
 class EventsRepository {
   final collectionEventi = PlatformUtils.fire.collection(global.Constants.tabellaEventi);
-//  final subCollectionStorico = PlatformUtils.fire.collectionGroup(global.Constants.subtabellaStorico);
+  final subCollectionStorico = PlatformUtils.fire.collectionGroup(global.Constants.subtabellaStorico);
   final collectionEliminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiEliminati);
   final collectionTerminati = PlatformUtils.fire.collection(global.Constants.tabellaEventiTerminati);
   Map<String,dynamic> categories;
@@ -78,7 +78,6 @@ class EventsRepository {
           .toList();
     });
   }
-
   //Snapshot per eventi in waitingevent
   Stream<List<Event>> eventsWaiting(String idOperator) {
     return collectionEventi.where("IdOperatore", isEqualTo: idOperator).where("Stato", isLessThanOrEqualTo: Status.Seen).snapshots().map((snapshot) {
@@ -93,14 +92,7 @@ class EventsRepository {
 
   //Snapshot per eventi in history
   Stream<List<Event>> eventsHistory() {
-    return PlatformUtils.fire.collectionGroup.snapshots().map((snapshot) {
-      return PlatformUtils.documents(snapshot).map((doc) {
-        return Event.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), categories!=null?
-        categories[doc["Categoria"]] != null
-            ? categories[doc["Categoria"]]
-            : categories['default']:global.Constants.fallbackHexColor, PlatformUtils.extractFieldFromDocument(null, doc));})
-          .toList();
-    });
+    return PlatformUtils.customCollectionGroup(categories);
   }
 
   Stream<List<Event>> eventsDeleted() {

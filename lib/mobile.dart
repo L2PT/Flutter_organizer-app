@@ -12,8 +12,6 @@ import 'utils/theme.dart';
 import 'view/backdrop.dart';
 import 'view/log_in_view.dart';
 
-final tabellaUtenti = 'Utenti';
-
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -38,7 +36,7 @@ class _MyAppState extends State<MyApp> {
               debugShowCheckedModeBanner: false,
               home: BlocProvider(
                   builder: (context) {
-                    return BackdropBloc(state.user, state.user.supervisor)..dispatch(InitAppEvent());
+                    return BackdropBloc(state.user, state.user.supervisor)..add(InitAppEvent());
                   },
                   child: Backdrop()
               ),

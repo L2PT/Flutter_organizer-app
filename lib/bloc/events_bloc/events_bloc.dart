@@ -49,13 +49,13 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
     //subscribe and do dispatch of interested events
     if(event.subscriptionArgs!=null) {
       _eventsSubscription = event.subscription(event.subscriptionArgs).listen((events) {
-            dispatch(
+        add(
               EventsUpdated(events), //crea l'evento
             );
           });
     }else{
       _eventsSubscription = event.subscription().listen((events) {
-            dispatch(
+        add(
               EventsUpdated(events), //crea l'evento
             );
           });
@@ -70,7 +70,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
       if(singleEvent.isBetweenDate(event.selectedDay, event.selectedDay.add(Duration(days: 1))))
         eventsFiltered.add(singleEvent);
     });
-    dispatch(Done(eventsFiltered,event.selectedDay));
+    add(Done(eventsFiltered,event.selectedDay));
   }
 
   Stream<EventsState> _mapLoadEventFilteredByMonthToState(FilterEventsByMonth event) async* {
@@ -80,13 +80,13 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
       if(singleEvent.isBetweenDate(event.selectedDay, DateTime(event.selectedDay.year+(event.selectedDay.month+2>12?1:0),event.selectedDay.month+2>12?(event.selectedDay.month+2)-12:event.selectedDay.month+2)))
         eventsFiltered.add(singleEvent);
     });
-    dispatch(Done(eventsFiltered,event.selectedDay));
+    add(Done(eventsFiltered,event.selectedDay));
   }
 
   Stream<EventsState> _mapLoadEventFilteredByWaitingToState(FilterEventsByWaiting event) async* {
     //filter the _events end return them
     _events.sort((a, b) => a.start.compareTo(b.start));
-    dispatch(Done(_events,null));
+    add(Done(_events,null));
   }
 
   Stream<EventsState> _mapLoadEventFilteredByStatusToState(FilterEventsByStatus event) async* {
@@ -97,7 +97,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
       if(singleEvent.status == event.selectedStatus)
         eventsFiltered.add(singleEvent);
     });
-    dispatch(Done(eventsFiltered,null));
+    add(Done(eventsFiltered,null));
   }
 
   Stream<EventsState> _mapEventsUpdateToState(EventsUpdated event) async* {
@@ -112,7 +112,7 @@ class EventsBloc extends Bloc<EventsEvent, EventsState> {
   @override
   void dispose() {
     _eventsSubscription?.cancel();
-    super.dispose();
+    //super.dispose();
   }
 
 

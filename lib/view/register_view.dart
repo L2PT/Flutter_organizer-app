@@ -11,7 +11,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
-final _auth = FBAuth();
+final _auth = FBAuth(null);
 
 class Register extends StatefulWidget {
   @override
@@ -313,8 +313,7 @@ class RegisterState extends State<Register> {
             _telefonoController.text,
             _codFiscaleController.text,
             (_radioValue == 0) ? false : true);
-        FBAuth a = FBAuth();
-        a.forgotPassword(_emailController.text);
+        _auth.forgotPassword(_emailController.text);
         setState(() {
           _success = true;
           _userEmail = user.email;
@@ -322,7 +321,7 @@ class RegisterState extends State<Register> {
           Timer(
               Duration(seconds: 3),
               () => BlocProvider.of<BackdropBloc>(context)
-                  .dispatch(NavigateEvent(global.Constants.homeRoute, null)));
+                  .add(NavigateEvent(global.Constants.homeRoute, null)));
         });
       } else {
         setState(() {

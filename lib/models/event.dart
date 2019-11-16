@@ -8,6 +8,7 @@ class Event {
   DateTime _start=DateTime.now();
   DateTime _end=DateTime.now();
   String _address="";
+  String _documents="";
   int _status= Status.New;
   String _category="";
   String _color="";
@@ -20,7 +21,7 @@ class Event {
   List<dynamic> _suboperators = new List();
 
 
-  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators, this._motivazione);
+  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._documents, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators, this._motivazione);
   Event.empty();
   Event.fromMapWeb(String id, String color, dynamic json){
     _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
@@ -29,6 +30,7 @@ class Event {
     _start = new DateTime.fromMillisecondsSinceEpoch(json.DataInizio.seconds*1000);
     _end = new DateTime.fromMillisecondsSinceEpoch(json.DataFine.seconds*1000);
     _address = json.Indirizzo;
+    _documents = json.Documenti;
     _status = json.Stato;
     _category = json.Categoria;
     _motivazione = json.Motivazione;
@@ -48,6 +50,7 @@ class Event {
     _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
     _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000);
     _address = json["Indirizzo"];
+    _documents = json["Documenti"];
     _status = json["Stato"];
     _category = json["Categoria"];
     _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
@@ -85,6 +88,7 @@ class Event {
       "DataInizio":this.start,
       "DataFine":this.end,
       "Indirizzo":this.address,
+      "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
       "IdResponsabile":this.idSupervisor,
@@ -103,6 +107,7 @@ class Event {
   DateTime get start => _start;
   DateTime get end => _end;
   String get address => _address;
+  String get documents => _documents;
   int get status => _status;
   String get category => _category;
   String get color => _color;
@@ -128,6 +133,10 @@ class Event {
 
   set address(String value) {
     _address = value;
+  }
+
+  set documents(String value) {
+    _documents = value;
   }
 
   set start(DateTime value) {

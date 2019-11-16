@@ -60,7 +60,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
         builder: (context, state) {
           if (state is Loaded) {
             //get data
-            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(Utils.formatDate(_selectedMonth, "month")));
+            BlocProvider.of<EventsBloc>(context).add(FilterEventsByMonth(Utils.formatDate(_selectedMonth, "month")));
             ready = true;
           }else if(state is Filtered && ready){
             spreadEventsInMonth(state.events);
@@ -212,7 +212,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-    BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByMonth(Utils.formatDate(first,"month")));
+    BlocProvider.of<EventsBloc>(context).add(FilterEventsByMonth(Utils.formatDate(first,"month")));
   }
 
 }

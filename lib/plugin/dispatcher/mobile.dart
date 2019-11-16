@@ -1,10 +1,12 @@
 //custom import for mobile
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
@@ -37,6 +39,9 @@ abstract class PlatformUtils {
   );
   static const dynamic Dir = SwipeDirection.up;
   static Firestore fire = new Firestore();
+  static FirebaseStorage storage = new FirebaseStorage();
+  static dynamic metadata = StorageMetadata;
+  static dynamic filePicker = FilePicker;
 
   static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
@@ -73,6 +78,17 @@ abstract class PlatformUtils {
       fire.collection(collection).document(documentId).updateData(data);
 
   static dynamic fireDocument(collection, documentId) => fire.collection(collection).document(documentId);
+
+  static dynamic customCollectionGroup(categories){
+    return fire.collectionGroup(Constants.subtabellaStorico).snapshots().map((snapshot) {
+      return documents(snapshot).map((doc) {
+        return Event.fromMap(extractFieldFromDocument("id", doc), categories!=null?
+        categories[doc["Categoria"]] != null
+            ? categories[doc["Categoria"]]
+            : categories['default']:Constants.fallbackHexColor, extractFieldFromDocument(null, doc));})
+          .toList();
+    });
+  }
 
   static dynamic extractFieldFromDocument(field, document){
     if(field != null){

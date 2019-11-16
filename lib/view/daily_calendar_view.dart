@@ -73,7 +73,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
         builder: (context, state) {
           if (state is Loaded) {
             //get data
-            BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(_selectedDay));
+            BlocProvider.of<EventsBloc>(context).add(FilterEventsByDay(_selectedDay));
             ready = true;
           }else if(state is Filtered && ready){
             _events[state.selectedDay] = state.events;
@@ -387,7 +387,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   void _onDaySelected(DateTime day, List events) {
     _selectedDay = Utils.formatDate(day, "day");
     BlocProvider.of<BackdropBloc>(context).day = Utils.formatDate(day, "day");
-    BlocProvider.of<EventsBloc>(context).dispatch(FilterEventsByDay(Utils.formatDate(day, "day")));
+    BlocProvider.of<EventsBloc>(context).add(FilterEventsByDay(Utils.formatDate(day, "day")));
   }
 
   int minDailyHour(DateTime start){

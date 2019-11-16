@@ -21,8 +21,13 @@ abstract class PlatformUtils {
   static const dynamic simpleSwipeConfig = null;
   static const dynamic Dir = null;
   static const dynamic fire = null;
+  static const dynamic storage = null;
+  static const dynamic metadata = null;
+  static const dynamic filePicker = null;
 
   static dynamic fireDocuments(collection, {whereCondFirst, whereOp, whereCondSecond}) async => null;
+
+  static dynamic customCollectionGroup(categories) => null;
 
   static List documents(querySnapshot) => null;
 

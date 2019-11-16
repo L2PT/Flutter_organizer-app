@@ -12,7 +12,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 import 'package:venturiautospurghi/view/widget/responsive_widget.dart';
 
-final _auth = FBAuth();
+final _auth = FBAuth(null);
 
 class LoginData {
   String email = '';
@@ -316,7 +316,7 @@ class _LogInState extends State<LogIn> {
         _isLoading = false;
       });
       //this set the user info into a global state (main)
-      BlocProvider.of<AuthenticationBloc>(context).dispatch(LoggedIn(user));
+      BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn(user));
       Timer(Duration(seconds: 15),(){
         try {
           if (BlocProvider

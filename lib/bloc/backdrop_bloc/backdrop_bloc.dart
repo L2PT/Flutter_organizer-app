@@ -151,14 +151,14 @@ class BackdropBloc extends Bloc<BackdropEvent, BackdropState> {
   /// it initialize the bloc and start the subscription for the notification events
   Stream<BackdropState> _mapInitAppToState(InitAppEvent event) async* {
     await eventsRepository.init();
-    dispatch(NavigateEvent(global.Constants.homeRoute,null));
+    add(NavigateEvent(global.Constants.homeRoute,null));
     eventsRepository.eventsWaiting(user.id).listen((events) {
       if(events.length>0 && route!=global.Constants.waitingEventListRoute){
-          dispatch(
+        add(
               CreateNotificationEvent(events)
           );
       }else if(events.length==0){
-        if(currentState is NotificationWaitingState) dispatch(NavigateEvent(global.Constants.homeRoute,null));
+        if(this.state is NotificationWaitingState) add(NavigateEvent(global.Constants.homeRoute,null));
       }
     }
     );

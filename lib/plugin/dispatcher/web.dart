@@ -24,6 +24,9 @@ class PlatformUtils {
   static const dynamic simpleSwipeConfig = null;
   static const dynamic Dir = null;
   static dynamic fire = fb.firestore();
+  static dynamic storage = fb.storage();
+  static dynamic metadata = fb.UploadMetadata;
+  static dynamic filePicker = null;
 
   static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;
@@ -43,6 +46,18 @@ class PlatformUtils {
   static dynamic updateDocument(collection, documentId, data) => fire.collection(collection).doc(documentId).update( data: data);
 
   static dynamic fireDocument(collection,documentId) => fire.collection(collection).doc(documentId);
+
+  static dynamic customCollectionGroup(categories){
+    return fb.firestore().collectionGroup(Constants.subtabellaStorico).onSnapshot.map((snapshot) {
+      return documents(snapshot).map((doc) {
+        String cat = extractFieldFromDocument("Categoria", doc);
+        return Event.fromMap(extractFieldFromDocument("id", doc), categories!=null?
+        categories[cat] != null
+            ? categories[cat]
+            : categories['default']:Constants.fallbackHexColor, extractFieldFromDocument(null, doc));})
+          .toList();
+    });
+  }
 
   static dynamic extractFieldFromDocument(field, document){
     if(field != null){

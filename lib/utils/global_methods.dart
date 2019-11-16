@@ -49,6 +49,16 @@ class Utils {
   static DateTime formatDate(DateTime date, String format) {
     return DateTime.parse(formatDateString(date, format));
   }
+  static Event getEventWithCurrentDay(DateTime day){
+    day = Utils.formatDate(day, "day");
+    if(DateTime.now().isAfter(day)) day = Utils.formatDate(DateTime.now(), "day");
+    day = day.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+    Event event = Event.empty();
+    event.start = day;
+    event.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));
+    return event;
+  }
+
   static bool isNumeric(String str) {
     if(str == null) {
       return false;
@@ -129,7 +139,7 @@ class Utils {
   }
 
   static void NavigateTo(BuildContext context, String route, dynamic arg){
-    BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(route,arg));
+    BlocProvider.of<BackdropBloc>(context).add(NavigateEvent(route,arg));
   }
 }
 class HexColor extends Color {
