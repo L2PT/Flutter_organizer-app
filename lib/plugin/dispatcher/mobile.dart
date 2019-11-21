@@ -1,7 +1,11 @@
 //custom import for mobile
 
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
@@ -37,11 +41,34 @@ abstract class PlatformUtils {
     verticalThreshold: 25.0,
     swipeDetectionBehavior: SwipeDetectionBehavior.continuousDistinct,
   );
+  static dynamic file(path) => File(path);
+
   static const dynamic Dir = SwipeDirection.up;
   static Firestore fire = new Firestore();
+
   static FirebaseStorage storage = new FirebaseStorage();
-  static dynamic metadata = StorageMetadata;
-  static dynamic filePicker = FilePicker;
+
+  static dynamic download(url,filename) async {
+    var localpath = await getExternalStorageDirectory();
+    FlutterDownloader.enqueue(
+        url: url,
+        savedDir: localpath.path,
+        fileName: filename,
+        showNotification: true, // show download progress in status bar (for Android)
+        openFileFromNotification: false, // click on notification to open downloaded file (for Android)
+    );
+  }
+  static void initDownloader() => FlutterDownloader.initialize();
+
+  static dynamic filePicker() async {
+    var a = await FilePicker.getFilePath();
+    return a;
+  }
+
+  static dynamic multiFilePicker() async {
+    var a = await FilePicker.getMultiFilePath();
+    return a;
+  }
 
   static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;

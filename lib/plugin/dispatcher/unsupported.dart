@@ -19,11 +19,18 @@ abstract class PlatformUtils {
   }
 
   static const dynamic simpleSwipeConfig = null;
+  static dynamic file(path) => null;
+
   static const dynamic Dir = null;
   static const dynamic fire = null;
   static const dynamic storage = null;
-  static const dynamic metadata = null;
-  static const dynamic filePicker = null;
+
+  static dynamic download(url,filename) => null;
+  static void initDownloader() => null;
+
+  static dynamic filePicker() => null;
+
+  static dynamic multiFilePicker() => null;
 
   static dynamic fireDocuments(collection, {whereCondFirst, whereOp, whereCondSecond}) async => null;
 
@@ -32,9 +39,9 @@ abstract class PlatformUtils {
   static List documents(querySnapshot) => null;
 
   static dynamic setDocument(collection, documentId, data) => null;
-  
+
   static dynamic updateDocument(collection, documentId, data) => null;
-  
+
   static dynamic fireDocument(collection, documentId) => null;
 
   static dynamic extractFieldFromDocument(field, document) => null;

@@ -6,6 +6,8 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/user.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/web.dart';
+import 'dart:async';
+import 'dart:html';
 
 
 class PlatformUtils {
@@ -22,11 +24,53 @@ class PlatformUtils {
     throw 'Platform Not Supported';
   }
   static const dynamic simpleSwipeConfig = null;
+  static dynamic file(path) => null;
+
   static const dynamic Dir = null;
   static dynamic fire = fb.firestore();
+
   static dynamic storage = fb.storage();
-  static dynamic metadata = fb.UploadMetadata;
-  static dynamic filePicker = null;
+
+  static dynamic download(url,filename){window.open(url, 'tab');}
+  static void initDownloader() => null;
+
+
+  static Future<String> filePicker() {
+//    final completer = new Completer<String>();
+//    final InputElement input = document.createElement('input');
+//    input..type = 'file';
+//    input.onChange.listen((e) async {
+//      final List<File> files = input.files;
+//      final reader = new FileReader();
+//      reader.readAsDataUrl(files[0]);
+//      reader.onError.listen((error) => completer.completeError(error));
+//      await reader.onLoad.first;
+//      completer.complete(reader.result as String);
+//    });
+//    input.click();
+//    return completer.future;
+  }
+
+  static Future<Map<String,String>> multiFilePicker() {
+//    final completer = new Completer<List<String>>();
+//    final InputElement input = document.createElement('input');
+//    input
+//      ..type = 'file'
+//      ..multiple = true;
+//    input.onChange.listen((e) async {
+//      final List<File> files = input.files;
+//      Iterable<Future<String>> resultsFutures = files.map((file) {
+//        final reader = new FileReader();
+//        reader.readAsDataUrl(file);
+//        reader.onError.listen((error) => completer.completeError(error));
+//        return reader.onLoad.first.then((_) => reader.result as String);
+//      });
+//      final results = await Future.wait(resultsFutures);
+//      completer.complete(results);
+//    });
+//    input.click();
+//    return completer.future;
+  }
 
   static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
     var query;

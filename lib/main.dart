@@ -17,7 +17,6 @@ void main() {
         builder: (context) => AuthenticationBloc()
           ..add(AppStarted()),
         child: PlatformUtils.myApp),
-  )
-  );
+  )).then((_)=>PlatformUtils.initDownloader());
 }
 
