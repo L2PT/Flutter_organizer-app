@@ -42,7 +42,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
   final List<MapEntry<Tab,int>> tabsHeaders = [
     MapEntry(new Tab(text: "TERMINATI",icon: Icon(Icons.flag),),Status.Ended),
     MapEntry(new Tab(text: "ELIMINATI",icon: Icon(Icons.delete),),Status.Deleted),
-    MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.delete_sweep),),Status.Refused)
+    MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.assignment_late),),Status.Refused)
   ];
   int selectedStatus = Status.Ended;
   bool ready = false;
@@ -126,6 +126,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                           unselectedLabelColor: dark,
                           labelStyle: title.copyWith(fontSize: 16),
                           labelColor: dark,
+                          indicatorColor: yellow,
                           indicatorSize: TabBarIndicatorSize.tab,
                           tabs: tabsHeaders.map((pair)=>pair.key).toList(),
                           controller: _tabController,

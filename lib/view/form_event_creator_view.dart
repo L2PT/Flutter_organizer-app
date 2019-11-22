@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,6 +17,7 @@ import 'package:venturiautospurghi/models/event.dart';
 
 class EventCreator extends StatefulWidget {
   Event _event;
+
 
   @override
   State<StatefulWidget> createState() {
@@ -45,7 +47,7 @@ class EventCreatorState extends State<EventCreator> {
   bool enabledField = false;
   Account _supervisor;
   String _title = '';
-
+  List<String> _placesList;
   String _fileName;
   String _path;
   Map<String, String> _paths;
@@ -237,25 +239,41 @@ class EventCreatorState extends State<EventCreator> {
                           child: Icon(Icons.map, color: dark, size: iconspace,),
                         ),
                         Expanded(
-                          child: TextFormField(
-                            keyboardType: TextInputType.text,
-                            cursorColor: dark,
-                            decoration: InputDecoration(
-                              hintText: 'Aggiungi posizione',
-                              hintStyle: subtitle,
-                              border: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  width: 2.0,
-                                  style: BorderStyle.solid,
+                            child:
+                            TextFormField(
+                              onChanged: (text) {
+                                getLocationsResult(text);
+                              },
+                              keyboardType: TextInputType.text,
+                              cursorColor: dark,
+                              decoration: InputDecoration(
+                                hintText: 'Aggiungi posizione',
+                                hintStyle: subtitle,
+                                border: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    width: 2.0,
+                                    style: BorderStyle.solid,
+                                  ),
                                 ),
                               ),
-                            ),
-                            initialValue: widget._event.address,
-                            validator: (value)=>null,
-                            onSaved: (String value) => widget._event.address = value,
-                          ),
+                              initialValue: widget._event.address,
+                              validator: (value) => null,
+                              onSaved: (String value) =>
+                              widget._event.address = value,
+                            )
                         ),
-                      ]),Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
+                      ]),
+                      Row(
+                         children: <Widget>[
+                          Expanded(
+                          child: Column(
+                            children:
+                              buildAutocompleteMaps()
+
+                          ))
+                             ],
+                      ),
+                      Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
                       Row(children: <Widget>[
                         Container(
                           width: iconspace,
@@ -672,6 +690,35 @@ class EventCreatorState extends State<EventCreator> {
   }
 
 
+  void getLocationsResult(String text) async{
+    if(text.isNotEmpty){
+      String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
+      String language = 'it';
+      String type= 'address';
+      String key = global.Constants.googleMapsApiKey;
+      String request = '$baseURL?input=$text&key=$key&type=$type&language=$language';
 
+      Response response = await Dio().get(request);
 
+      final predictions = response.data['predictions'];
+
+      List<String> _displayResults = [];
+      for (var i=0; i < 3; i++) {
+        String name = predictions[i]['description'];
+        _displayResults.add(name);
+      }
+      setState(() {
+        this._placesList = _displayResults;
+      });
+    }
+  }
+
+  List<Widget> buildAutocompleteMaps() {
+    List<Widget> listPlace =_placesList.map((place) {
+      return Container(
+        child: Text(place),
+      );
+    }).toList();
+    return listPlace;
+  }
 }

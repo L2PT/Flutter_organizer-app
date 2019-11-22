@@ -69,6 +69,8 @@ class Constants {
   static const MAX_WORKHOUR_SPAN = 21;
   static const WORKHOUR_SPAN = 30;
 
+  static const googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
+
 
 
 }
