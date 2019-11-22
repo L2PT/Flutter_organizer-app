@@ -55,7 +55,6 @@ class _DetailsEventState extends State<DetailsEvent>
     getColor();
     if(widget.event is String){
       //event coming from notification
-
     }
     if(widget.event.idOperator == account.id && widget.event.status < Status.Seen){
       EventsRepository().updateEvent(widget.event, "Stato", Status.Seen);
@@ -263,38 +262,40 @@ class _DetailsEventState extends State<DetailsEvent>
 
     Widget detailsDocument = Container(
         margin: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-        child: ListView(physics: BouncingScrollPhysics(), children: <Widget>[
-          Container(
-            padding: EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              color: white,
-              borderRadius: BorderRadius.all(Radius.circular(15.0)),
-            ),
-            child: Row(children: <Widget>[
-              Icon(
-                Icons.insert_drive_file,
-                size: sizeIcon,
-                color: dark,
-              ),
-              SizedBox(
-                width: padding,
-              ),
-              Container(
-                child: Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text("Nessun documento allegato",
-                          style: subtitle.copyWith(
-                              color: dark, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.visible,
-                        )
-                      ],
-                    )),
-              )
-            ]),
-          )
-        ]));
+        child: widget.event.documents!=""?ListView.separated(
+            itemCount: widget.event.documents.split("/").length>0?widget.event.documents.split("/").length: 1,
+            itemBuilder: (BuildContext context, int index) {
+              final String fileName = widget.event.documents.split("/")[index];
+              return new Container(
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  color: white,
+                  borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                ),
+                child: Row(children: <Widget>[
+                  Icon(Icons.insert_drive_file, size: sizeIcon, color: dark),
+                  SizedBox(
+                    width: padding,
+                  ),
+                  Container(
+                    child: Text(fileName,
+                      style: subtitle.copyWith(color: dark, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.visible,
+                    )
+                  ),Expanded(child: Container(),),
+                  IconButton(
+                    icon:Icon(Icons.file_download, size: sizeIcon, color: dark),
+                    onPressed: () async {
+                      var url = await PlatformUtils.storage.ref().child(widget.event.id+"/"+fileName).getDownloadURL();
+                      PlatformUtils.download(url, fileName);
+                    },
+                  ),
+                ])
+              );
+            },
+          separatorBuilder: (BuildContext context, int index){return SizedBox(height: 10.0,);}
+        ):Container()
+    );
 
     Widget detailsNote = Container(
         padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),

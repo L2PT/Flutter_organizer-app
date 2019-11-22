@@ -51,17 +51,20 @@ class EventCreatorState extends State<EventCreator> {
   String _fileName;
   String _path;
   Map<String, String> _paths;
-  String _extension;
   bool _loadingPath = false;
   bool _multiPick = false;
-  bool _hasValidMime = false;
-  dynamic _pickingType;
 
   @override
   void initState() {
     super.initState();
     _supervisor = BlocProvider.of<AuthenticationBloc>(context).account;
     enabledField = widget._event.id!=null&&widget._event.id!=""?!widget._event.start.isBefore(now.subtract(Duration(minutes:4))):true;
+    if(widget._event.documents!=null && widget._event.documents!=""){
+      if(widget._event.documents.split("/").length>0)
+        _paths=new Map.fromIterable(widget._event.documents.split("/"), key: (v) => v, value: (v) => "from cloud");
+      else
+        _path=widget._event.documents;
+    }
     getCategories();
     setState(() {
       _title =widget._event.operator==null?'NUOVO EVENTO':'MODIFICA EVENTO';
@@ -291,51 +294,50 @@ class EventCreatorState extends State<EventCreator> {
                               hintStyle: subtitle,
                               border: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                  width: 2.0,
-                                  style: BorderStyle.solid,
+                                  width: 0.0,
+                                  style: BorderStyle.none,
                                 ),
                               ),
                             ),
-                            initialValue: widget._event.documents,
                             validator: (value)=>null,
                             onSaved: (String value) => widget._event.address = value,
                           ),
                         ),
                       ]),
-                      _loadingPath
-                          ? Padding(
+                      _loadingPath?
+                      Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
-                          child: const CircularProgressIndicator())
-                          : _path != null || _paths != null
-                          ? new Container(
-                        padding: const EdgeInsets.only(bottom: 30.0),
-                        height: MediaQuery.of(context).size.height * 0.50,
+                          child: const CircularProgressIndicator()
+                      )
+                          : _path != null || _paths != null ?
+                      new Container(
+                        height: 60,
                         child: new Scrollbar(
                             child: new ListView.separated(
-                              itemCount: _paths != null && _paths.isNotEmpty
-                                  ? _paths.length
-                                  : 1,
+                              itemCount: _paths != null && _paths.isNotEmpty? _paths.length: 1,
                               itemBuilder: (BuildContext context, int index) {
-                                final bool isMultiPath =
-                                    _paths != null && _paths.isNotEmpty;
-                                final String name = 'File $index: ' +
-                                    (isMultiPath
-                                        ? _paths.keys.toList()[index]
-                                        : _fileName ?? '...');
-                                final path = isMultiPath
-                                    ? _paths.values.toList()[index].toString()
-                                    : _path;
-
+                                final bool isMultiPath = _paths != null && _paths.isNotEmpty;
+                                final String name = (isMultiPath? 'File: ' +_paths.keys.toList()[index]:'File ${index+1}: '+ _fileName ?? '...');
+                                final path = isMultiPath? _paths.values.toList()[index].toString(): _path;
                                 return new ListTile(
-                                  title: new Text(
-                                    name,
-                                  ),
+                                  title: new Text(name),
                                   subtitle: new Text(path),
+                                  trailing: IconButton(
+                                    icon: Icon(Icons.close),
+                                    onPressed: (){
+                                      if(_path!=null){
+                                        _path=null;
+                                      }else{
+                                        _paths.remove(_paths.keys.toList()[index]);
+                                        if(_paths.keys.toList().length==0)_paths=null;
+                                      }
+                                      setState(() {});
+                                    },
+                                  ),
                                 );
                               },
                               separatorBuilder:
-                                  (BuildContext context, int index) =>
-                              new Divider(),
+                                  (BuildContext context, int index) => new Divider(),
                             )),
                       )
                           : new Container(),
@@ -596,12 +598,10 @@ class EventCreatorState extends State<EventCreator> {
     try {
       if (_multiPick) {
         _path = null;
-        _paths = await PlatformUtils.filePicker().getMultiFilePath(
-            type: _pickingType, fileExtension: _extension);
+        _paths = await PlatformUtils.multiFilePicker();
       } else {
         _paths = null;
-        _path = await PlatformUtils.filePicker().getFilePath(
-            type: _pickingType, fileExtension: _extension);
+        _path = await PlatformUtils.filePicker();
       }
     } on Exception catch (e) {
       print("Unsupported operation" + e.toString());
@@ -656,14 +656,14 @@ class EventCreatorState extends State<EventCreator> {
     if ((this._formDateKey.currentState.validate()||!enabledField) && this._formKey.currentState.validate() && widget._event.operator!=null) {
       _formDateKey.currentState.save();
       _formKey.currentState.save();
-      print( widget._event.start);
-      print( widget._event.end);
-      print("Firebase save");
+      print("Firebase save "+widget._event.start.toString()+" : "+widget._event.end.toString());
       widget._event.idSupervisor = _supervisor.id;
       widget._event.supervisor = _supervisor.toDocument();
       widget._event.category = _categoriesN[_radioValue];
       widget._event.color = _categoriesC[_radioValue];
       widget._event.status = Status.New;
+      var oldDocumentsList = widget._event.documents.split("/");
+      widget._event.documents = _path!=null?_path.split("/").last:_paths!=null?_paths.keys.join("/"):"";
       if(_allDayFlag) {
         widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
         widget._event.end = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN));
@@ -676,13 +676,15 @@ class EventCreatorState extends State<EventCreator> {
         }else{
           docRef = await EventsRepository().addEvent(widget._event, widget._event.toDocument());
           docRef = PlatformUtils.extractFieldFromDocument("id", docRef);
-          PlatformUtils.storage.ref().child(widget._event.documents).putFile(
-            //File("filePath"),
-            PlatformUtils.metadata(
-              contentType: "type" + '/' + "extension",
-            ),
-          );
         }
+        if(_path!=null) _paths = Map.of({_path.split('/').last: _path});
+        _paths?.forEach((singleName,singlePath){
+          oldDocumentsList.remove(singleName);
+          if(singlePath.contains("/")) PlatformUtils.storage.ref().child(widget._event.id+"/"+singleName).putFile(PlatformUtils.file(singlePath));
+        });
+        oldDocumentsList?.forEach((fileNameToDelate){
+          PlatformUtils.storage.ref().child(widget._event.id+"/"+fileNameToDelate).delete();
+        });
         Utils.notify(token: widget._event.operator["Token"], eventId: docRef);
         Navigator.pop(context);
       }catch(e){print(e);}
