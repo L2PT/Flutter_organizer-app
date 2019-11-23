@@ -14,6 +14,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/view/waiting_event_view.dart';
 
 class EventCreator extends StatefulWidget {
   Event _event;
@@ -53,10 +54,12 @@ class EventCreatorState extends State<EventCreator> {
   Map<String, String> _paths;
   bool _loadingPath = false;
   bool _multiPick = false;
+  TextEditingController textMaps;
 
   @override
   void initState() {
     super.initState();
+    textMaps = new TextEditingController(text: widget._event.address);
     _supervisor = BlocProvider.of<AuthenticationBloc>(context).account;
     enabledField = widget._event.id!=null&&widget._event.id!=""?!widget._event.start.isBefore(now.subtract(Duration(minutes:4))):true;
     if(widget._event.documents!=null && widget._event.documents!=""){
@@ -259,23 +262,26 @@ class EventCreatorState extends State<EventCreator> {
                                   ),
                                 ),
                               ),
-                              initialValue: widget._event.address,
+                              controller: textMaps,
                               validator: (value) => null,
                               onSaved: (String value) =>
                               widget._event.address = value,
                             )
                         ),
                       ]),
+                      _placesList!= null?
                       Row(
-                         children: <Widget>[
+                        children: <Widget>[
                           Expanded(
-                          child: Column(
-                            children:
-                              buildAutocompleteMaps()
-
-                          ))
-                             ],
-                      ),
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 15),
+                                child: Column(
+                                  children:
+                                  buildAutocompleteMaps(),
+                                ),
+                              ))
+                        ],
+                      ):Container(),
                       Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light),
                       Row(children: <Widget>[
                         Container(
@@ -717,10 +723,34 @@ class EventCreatorState extends State<EventCreator> {
 
   List<Widget> buildAutocompleteMaps() {
     List<Widget> listPlace = _placesList!=null?_placesList.map((place) {
-      return Container(
-        child: Text(place),
-      );
+      return
+        GestureDetector(
+          onTap: () => actionSelectPlace(place),
+            child: Container(
+                margin: EdgeInsets.only(bottom: 10, top: 10, left: 45),
+                child: Row(
+                  children: <Widget>[
+                    Padding(padding: EdgeInsets.only(right: 15),
+                      child: Icon(Icons.place, color: grey_dark, size: 25,),
+                    ),
+                    Expanded(
+                      child: Text(place, style: label.copyWith(fontWeight: FontWeight.bold),),
+                    )
+
+                  ],
+                )
+            )
+        );
     }).toList():List();
     return listPlace;
   }
+
+  void actionSelectPlace(String place){
+    textMaps.text = place;
+    setState(() {
+      _placesList.clear();
+    });
+
+  }
+
 }
