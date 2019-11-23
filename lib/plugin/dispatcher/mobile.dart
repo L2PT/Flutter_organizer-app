@@ -46,7 +46,16 @@ abstract class PlatformUtils {
   static const dynamic Dir = SwipeDirection.up;
   static Firestore fire = new Firestore();
 
-  static FirebaseStorage storage = new FirebaseStorage();
+  static Future<String> storageGetUrl(path) async {
+    var a = await FirebaseStorage().ref().child(path).getDownloadURL();
+    return a;
+  }
+  static void storagePutFile(path, file){
+    FirebaseStorage().ref().child(path).putFile(file);
+  }
+  static void storageDelFile(path){
+    FirebaseStorage().ref().child(path).delete();
+  }
 
   static dynamic download(url,filename) async {
     var localpath = await getExternalStorageDirectory();

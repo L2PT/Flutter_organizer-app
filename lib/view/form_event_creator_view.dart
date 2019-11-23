@@ -317,7 +317,7 @@ class EventCreatorState extends State<EventCreator> {
                               itemCount: _paths != null && _paths.isNotEmpty? _paths.length: 1,
                               itemBuilder: (BuildContext context, int index) {
                                 final bool isMultiPath = _paths != null && _paths.isNotEmpty;
-                                final String name = (isMultiPath? 'File: ' +_paths.keys.toList()[index]:'File ${index+1}: '+ _fileName ?? '...');
+                                final String name = (isMultiPath? 'File: ${index+1}' +_paths.keys.toList()[index]:'File : '+ _fileName ?? '...');
                                 final path = isMultiPath? _paths.values.toList()[index].toString(): _path;
                                 return new ListTile(
                                   title: new Text(name),
@@ -610,7 +610,7 @@ class EventCreatorState extends State<EventCreator> {
     setState(() {
       _loadingPath = false;
       _fileName = _path != null
-          ? _path.split('/').last
+          ? (PlatformUtils.platform==global.Constants.web)?_path.split(":").first:_path.split('/').last
           : _paths != null ? _paths.keys.toString() : '...';
     });
   }
@@ -663,10 +663,10 @@ class EventCreatorState extends State<EventCreator> {
       widget._event.color = _categoriesC[_radioValue];
       widget._event.status = Status.New;
       var oldDocumentsList = widget._event.documents.split("/");
-      widget._event.documents = _path!=null?_path.split("/").last:_paths!=null?_paths.keys.join("/"):"";
+      widget._event.documents = _path!=null?(PlatformUtils.platform==global.Constants.web)?_path.split(":").first:_path.split("/").last:_paths!=null?_paths.keys.join("/"):"";
       if(_allDayFlag) {
-        widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
-        widget._event.end = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN));
+        widget._event.start = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN)).toLocal();
+        widget._event.end = Utils.formatDate(widget._event.start,"day").add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN)).toLocal();
       }
       dynamic docRef;
       try{
@@ -677,13 +677,13 @@ class EventCreatorState extends State<EventCreator> {
           docRef = await EventsRepository().addEvent(widget._event, widget._event.toDocument());
           docRef = PlatformUtils.extractFieldFromDocument("id", docRef);
         }
-        if(_path!=null) _paths = Map.of({_path.split('/').last: _path});
+        if(_path!=null) _paths = Map.of({(PlatformUtils.platform==global.Constants.web)?_path.split(":").first:_path.split('/').last: _path});
         _paths?.forEach((singleName,singlePath){
           oldDocumentsList.remove(singleName);
-          if(singlePath.contains("/")) PlatformUtils.storage.ref().child(widget._event.id+"/"+singleName).putFile(PlatformUtils.file(singlePath));
+          if(singlePath.contains("/")) PlatformUtils.storagePutFile(widget._event.id+"/"+singleName, PlatformUtils.file(singlePath));
         });
         oldDocumentsList?.forEach((fileNameToDelate){
-          PlatformUtils.storage.ref().child(widget._event.id+"/"+fileNameToDelate).delete();
+          PlatformUtils.storageDelFile(widget._event.id+"/"+fileNameToDelate);
         });
         Utils.notify(token: widget._event.operator["Token"], eventId: docRef);
         Navigator.pop(context);
@@ -716,11 +716,11 @@ class EventCreatorState extends State<EventCreator> {
   }
 
   List<Widget> buildAutocompleteMaps() {
-    List<Widget> listPlace =_placesList.map((place) {
+    List<Widget> listPlace = _placesList!=null?_placesList.map((place) {
       return Container(
         child: Text(place),
       );
-    }).toList();
+    }).toList():List();
     return listPlace;
   }
 }

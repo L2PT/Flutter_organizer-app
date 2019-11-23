@@ -5,17 +5,18 @@ var dart;
 $(function() { // document ready
 // Your web app's Firebase configuration
     var firebaseConfig = {
-        apiKey: "AIzaSyD5sZzeqqH_wje72BWe3zoOR136YEh186k",
-        authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
-        databaseURL: "https://com-l2pt-venturiautospurghi.firebaseio.com",
-        projectId: "com-l2pt-venturiautospurghi",
-        storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
-        messagingSenderId: "964614131015",
-        appId: "1:964614131015:web:8a10af66f5b15bad589062"
+              apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
+              authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
+              databaseURL: "https://com-l2pt-venturiautospurghi.firebaseio.com",
+              projectId: "com-l2pt-venturiautospurghi",
+              storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
+              messagingSenderId: "964614131015",
+              appId: "1:964614131015:web:8a10af66f5b15bad589062"
     };
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    db=firebase.firestore();
+    db = firebase.firestore();
+
     initCategories();
 
     /* initialize the calendar
@@ -158,6 +159,22 @@ function deleteEvent(id, event){
         console.log("Error in trasaction: deleteEvent - ", error);
     });
 }
+
+  async function storageGetUrlJs(path){
+    storage = firebase.storage();
+    var downloadUrl = await storage.ref().child(path).getDownloadURL();
+    window.open(downloadUrl);
+  }
+
+  function storagePutFileJs(path, file){
+    storage = firebase.storage();
+    storage.ref().child(path).put(file);
+  }
+
+  function storageDelFileJs(path){
+    storage = firebase.storage();
+    storage.ref().child(path).delete();
+  }
 
 function mapEventObj(eventData){
     if(eventData!=null){

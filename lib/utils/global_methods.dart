@@ -108,6 +108,7 @@ class Utils {
                     child: new Text('Annulla', style: label),
                     onPressed: () {
                       Navigator.of(context).pop();
+                      Navigator.canPop(context)?Navigator.of(context).pop():null;
                     },
                   ),
                   SizedBox(width: 15,),
@@ -121,6 +122,7 @@ class Utils {
                     onPressed: () {
                       Navigator.pop(context,false);
                       Navigator.pop(context, global.Constants.DELETE_SIGNAL);
+                      Navigator.canPop(context)?Navigator.pop(context, global.Constants.DELETE_SIGNAL):null;
                     },
                   ),
                 ]),

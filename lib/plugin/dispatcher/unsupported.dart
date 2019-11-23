@@ -23,8 +23,9 @@ abstract class PlatformUtils {
 
   static const dynamic Dir = null;
   static const dynamic fire = null;
-  static const dynamic storage = null;
-
+  static dynamic storageGetUrl(path) => null;
+  static void storagePutFile(path, file) => null;
+  static void storageDelFile(path) => null;
   static dynamic download(url,filename) => null;
   static void initDownloader() => null;
 
