@@ -57,7 +57,7 @@ dev_dependencies:
   test: ^1.6.3
 
 flutter_icons:
-  image_path: "assets/logo.png"
+  image_path: "assets/logo-venturi.png"
   android: true
   ios: true
   web: true
