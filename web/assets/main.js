@@ -2,6 +2,7 @@ var calendar;
 var db;
 var categories;
 var dart;
+var idUtente;
 $(function() { // document ready
 // Your web app's Firebase configuration
     var firebaseConfig = {
@@ -27,7 +28,7 @@ $(function() { // document ready
 //              $('#calendar').fullCalendar('today');
 
     $(document).on('click',".fc-resource-header-postfix",function(){
-        dart.showDialogWindow("add_operator",null);
+        showDialogWindow("add_operator",null);
     });
 
     $(document).on('click',".fc-resource-postfix",function(){
@@ -76,7 +77,7 @@ function initCalendar(){
             dartCallback("stampa da js");
         },
         eventClick: function(calEvent, jsEvent, view) {//tell to dart to open the modal
-            dart.showDialogWindow("event",calEvent)
+            showDialogWindow("event",calEvent)
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
@@ -100,7 +101,7 @@ function initCategories(){
 }
 
 function readResources(callback){
-    var docRef = db.collection("Utenti").doc(dart.account.id);
+    var docRef = db.collection("Utenti").doc(idUtente);
     docRef.get().then(function(doc) {
         if (doc.exists) {
             var arr = doc.data().OperatoriWeb
@@ -138,7 +139,7 @@ function readEvents(start, end, timezone, callback){
 
 function removeResource(res){
     calendar.removeResource(res).then(function(value){
-        dart.removeResource(res);
+        removeResourceDart(res);
     });
 }
 
@@ -206,6 +207,9 @@ function formatDate(date) {
 function initJs2Dart(callback){
     dart=callback;
 }
+function initJs2DartUtente(callback){
+    idUtente=callback;
+}
 
 function cookieJar(name, val){
     if(val!=null){
@@ -239,4 +243,8 @@ function setCookie(cname, cvalue, exdays) {
 
 function showAlert(msg){
     alert(msg);
+}
+
+function consolLog(value){
+    console.log(value);
 }

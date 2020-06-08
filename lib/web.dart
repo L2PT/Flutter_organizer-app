@@ -1,7 +1,7 @@
 @JS()
 library jquery;
 import 'dart:convert';
-
+import 'dart:js' as js;
 import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,6 +35,8 @@ final _auth = FBAuth(null);
 
 @JS()
 external void initJs2Dart(dynamic data);
+@JS()
+external void initJs2DartUtente(dynamic data);
 
 @JS()
 external void login(String email);
@@ -53,6 +55,11 @@ external dynamic deleteEvent(String id, dynamic event);
 
 @JS()
 external dynamic showAlert(String msg);
+
+@JS()
+external dynamic consolLog(dynamic value);
+
+
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -153,6 +160,9 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     var formatter = new DateFormat('MMMM YYYY - ddd D', 'it_IT');
     _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('MMMM YYYY - ddd D',).toString():formatter.format(DateTime.now()).toString();
     initJs2Dart(this);
+    initJs2DartUtente(this.account.id);
+    js.context['showDialogWindow'] = this.showDialogWindow;
+    js.context['removeResourceDart'] = this.removeResource;
     initCalendar();
     updateDateCalendar();
 
@@ -406,10 +416,11 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
   void showDialogWindow(String opt,dynamic param) {
     // flutter defined function
     jQuery('#wrap').css(CssOptions(zIndex: -1));
+
     var dialogContainer;
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(param.id, param.color, param));}break;
+      case "event":{dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(param.a.id, param.a.color, param.a));}break;
       case "new_event":{dialogContainer = EventCreator(Event.empty());}break;
       case "modify_event":{dialogContainer = EventCreator(PlatformUtils.EventFromMap(param.id, param.color, param));}break;
       case "new_user":{dialogContainer = Register();}break;
@@ -437,7 +448,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             Event e = onValue as Event;
             //update local
             int i = 0;
-            for(dynamic o in e.suboperators){
+            for(Account o in e.suboperators){
               Account a=Account.fromMap(e.idOperators[i++], o);
               a.webops=[];
               bool found = false;
@@ -457,7 +468,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           }break;
           case "event":{
             if(onValue == global.Constants.DELETE_SIGNAL) {
-              Event e = PlatformUtils.EventFromMap(param.id, param.color, param);
+              Event e = PlatformUtils.EventFromMap(param.getIDWeb(), param.getColorWeb(), param);
               e.status = Status.Deleted;
               deleteEvent(e.id, json.encode(e.toDocument(), toEncodable: myEncode));
 //              jQuery('#calendar').fullCalendar('refetchEvents',null);
