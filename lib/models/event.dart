@@ -43,12 +43,12 @@ class Event {
     _suboperators = json.SubOperatori.map((op)=>PlatformUtils.AccountFromMap("d", op).toDocument()).toList();
   }
 
-  Event.fromMap(String id, String color, dynamic json){
+  Event.fromMap(String id, String color, Map json){
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
     _title = json["Titolo"];
     _description = json["Descrizione"];
-    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
-    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000);
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"]["seconds"]*1000);
+    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"]["seconds"]*1000);
     _address = json["Indirizzo"];
     _documents = json["Documenti"];
     _status = json["Stato"];

@@ -77,7 +77,7 @@ function initCalendar(){
             dartCallback("stampa da js");
         },
         eventClick: function(calEvent, jsEvent, view) {//tell to dart to open the modal
-            showDialogWindow("event",calEvent)
+            showDialogWindow("event",JSON.stringify(calEvent, censor(calEvent)))
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
@@ -203,6 +203,22 @@ function formatDate(date) {
       var year = date.getFullYear();
 
       return year + '-' + ((monthIndex/10<1)?0+''+monthIndex:monthIndex) + '-' + ((day/10<1)?0+''+day:day);
+}
+
+function censor(censor) {
+  var i = 0;
+
+  return function(key, value) {
+    if(i !== 0 && typeof(censor) === 'object' && typeof(value) == 'object' && censor == value)
+      return '[Circular]';
+
+    if(key == "source") // seems to be a harded maximum of 30 serialized objects?
+      return '[Censor]';
+
+    ++i; // so we know we aren't using the original object anymore
+
+    return value;
+  }
 }
 function initJs2Dart(callback){
     dart=callback;

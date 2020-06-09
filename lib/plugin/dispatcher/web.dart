@@ -167,7 +167,7 @@ class PlatformUtils {
     showAlert(msg);
   }
 
-  static E.Event EventFromMap(id, color, json) => E.Event.fromMapWeb(id, color, json);
+  static E.Event EventFromMap(id, color, json) => E.Event.fromMap(id, color, json);
 
   static Account AccountFromMap(id, json) => Account.fromMapWeb(id, json);
 

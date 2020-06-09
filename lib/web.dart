@@ -420,9 +420,13 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     var dialogContainer;
     switch(opt) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
-      case "event":{dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(param.a.id, param.a.color, param.a));}break;
+      case "event":{
+        Map paramMap = json.decode(param);
+        dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap));}break;
       case "new_event":{dialogContainer = EventCreator(Event.empty());}break;
-      case "modify_event":{dialogContainer = EventCreator(PlatformUtils.EventFromMap(param.id, param.color, param));}break;
+      case "modify_event":{
+        Map paramMap = json.decode(param);
+        dialogContainer = EventCreator(PlatformUtils.EventFromMap(paramMap["id"], paramMap["id"], paramMap));}break;
       case "new_user":{dialogContainer = Register();}break;
       case "add_operator":{dialogContainer = OperatorSelection(Event.empty(), false);}break;
     }
@@ -468,7 +472,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           }break;
           case "event":{
             if(onValue == global.Constants.DELETE_SIGNAL) {
-              Event e = PlatformUtils.EventFromMap(param.getIDWeb(), param.getColorWeb(), param);
+              Map paramMap = json.decode(param);
+              Event e = PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap);
               e.status = Status.Deleted;
               deleteEvent(e.id, json.encode(e.toDocument(), toEncodable: myEncode));
 //              jQuery('#calendar').fullCalendar('refetchEvents',null);
