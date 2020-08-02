@@ -42,7 +42,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
             )
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.check, size: 40,),
+          child: Icon(Icons.check, size: 40, color: white,),
           backgroundColor: dark,
           onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
             return PlatformUtils.onErrorMessage("Seleziona l' operatore principale, tappando due volte");

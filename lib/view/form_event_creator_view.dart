@@ -305,8 +305,8 @@ class EventCreatorState extends State<EventCreator> {
                                 ),
                               ),
                             ),
-                            validator: (value)=>null,
-                            onSaved: (String value) => widget._event.address = value,
+                            validator: (value) => null,
+                            onSaved: (String value) => widget._event.documents = value,
                           ),
                         ),
                       ]),
@@ -400,7 +400,19 @@ class EventCreatorState extends State<EventCreator> {
                                           initialDate: currentValue!=null?currentValue.year>2000?currentValue:
                                           DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
                                               :Utils.formatDate(now, "day"),
-                                          lastDate: DateTime(3000)
+                                          lastDate: DateTime(3000),
+                                        builder: (BuildContext context, Widget child) {
+                                          return Theme(
+                                            data: ThemeData.dark().copyWith(
+                                              colorScheme: ColorScheme.dark(
+                                                primary: yellow,
+                                                onPrimary: Colors.white,
+                                                surface: Colors.black54,
+                                              ),
+                                            ),
+                                            child: child,
+                                          );
+                                        },
                                       );
                                     },
                                     onChanged: (newValue)=>resetOperatorsFields(),
@@ -435,6 +447,21 @@ class EventCreatorState extends State<EventCreator> {
                                         final time = await showTimePicker(
                                           context: context,
                                           initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                          builder: (BuildContext context, Widget child) {
+                                            return Theme(
+                                              data: ThemeData.dark().copyWith(
+                                                accentColor: yellow,
+                                                primaryColor: white, //color you want at header
+                                                buttonTheme: ButtonTheme.of(context).copyWith(
+                                                  colorScheme: ColorScheme.dark(
+                                                    secondary: dark,
+                                                    // Color you want for action buttons (CANCEL and OK)
+                                                  ),
+                                                ),
+                                              ),
+                                              child: child
+                                            );
+                                          },
                                         );
                                         return DateTimeField.convert(time);
                                       },
@@ -479,7 +506,19 @@ class EventCreatorState extends State<EventCreator> {
                                         initialDate: currentValue!=null?currentValue.year>2000?currentValue:
                                         DateTime(2000+currentValue.year, currentValue.month, currentValue.day, currentValue.hour, currentValue.minute)
                                             :Utils.formatDate(now, "day"),
-                                        lastDate: DateTime(3000)
+                                        lastDate: DateTime(3000),
+                                      builder: (BuildContext context, Widget child) {
+                                        return Theme(
+                                          data: ThemeData.dark().copyWith(
+                                            colorScheme: ColorScheme.dark(
+                                              primary: yellow,
+                                              onPrimary: Colors.white,
+                                              surface: Colors.black54,
+                                            ),
+                                          ),
+                                          child: child,
+                                        );
+                                      },
                                     );
                                   },
                                   onChanged: (newValue)=>resetOperatorsFields(),
@@ -514,6 +553,21 @@ class EventCreatorState extends State<EventCreator> {
                                       final time = await showTimePicker(
                                         context: context,
                                         initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime(0)),
+                                           builder:  (BuildContext context, Widget child) {
+                                            return Theme(
+                                                data: ThemeData.dark().copyWith(
+                                                  accentColor: yellow,
+                                                  primaryColor: white, //color you want at header
+                                                  buttonTheme: ButtonTheme.of(context).copyWith(
+                                                    colorScheme: ColorScheme.dark(
+                                                      secondary: dark,
+                                                      // Color you want for action buttons (CANCEL and OK)
+                                                    ),
+                                                  ),
+                                                ),
+                                                child: child
+                                            );
+                                        }
                                       );
                                       return DateTimeField.convert(time);
                                     },

@@ -378,7 +378,7 @@ class _DetailsEventState extends State<DetailsEvent>
             child: Padding(
                 padding: EdgeInsets.all(2),
                 child: FloatingActionButton(
-                  child: Icon(Icons.delete, size: 40,),
+                  child: Icon(Icons.delete, size: 40,color: white,),
                   onPressed: () => Utils.deleteDialog(context),
                   backgroundColor: dark,
                   elevation: 6,

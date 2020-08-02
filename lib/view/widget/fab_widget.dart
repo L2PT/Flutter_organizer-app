@@ -22,7 +22,7 @@ class Fab {
             child: Padding(
               padding: EdgeInsets.all(2),
               child: FloatingActionButton(
-                child: Icon(Icons.event_note,size: 40),
+                child: Icon(Icons.event_note,size: 40,color: white,),
                 onPressed: () => _showDialogFabSupervisor(),
                 backgroundColor: dark,
                 elevation: 6,
@@ -35,7 +35,7 @@ class Fab {
             child: Padding(
                 padding: EdgeInsets.all(2),
                 child: FloatingActionButton(
-                  child: Icon(Icons.phone,size: 40,),
+                  child: Icon(Icons.phone,size: 40,color: white,),
                   onPressed: () => _showDialogFabOperator(),
                   backgroundColor: dark,
                   elevation: 6,
@@ -44,7 +44,7 @@ class Fab {
     } else if (route == global.Constants.dailyCalendarRoute) {
       if (account.supervisor) {
         return FloatingActionButton(
-          child: Icon(Icons.add,size: 40,),
+          child: Icon(Icons.add,size: 40,color: white,),
           onPressed: (){
             DateTime day = Utils.formatDate(BlocProvider.of<BackdropBloc>(context).day,"day");
             if(DateTime.now().isAfter(day)) day = Utils.formatDate(DateTime.now(), "day");
@@ -92,7 +92,7 @@ class Fab {
                               shape: BoxShape.circle,
                               color: dark,
                             ),
-                            child: Icon(Icons.delete,),
+                            child: Icon(Icons.delete),
                           ),
                         )
                       ],

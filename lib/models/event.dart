@@ -23,32 +23,31 @@ class Event {
 
   Event(this._id, this._title, this._description, this._start, this._end, this._address, this._documents, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators, this._motivazione);
   Event.empty();
-  Event.fromMapWeb(String id, String color, dynamic json){
-    _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
-    _title = json.Titolo;
-    _description = json.Descrizione;
-    _start = new DateTime.fromMillisecondsSinceEpoch(json.DataInizio.seconds*1000);
-    _end = new DateTime.fromMillisecondsSinceEpoch(json.DataFine.seconds*1000);
-    _address = json.Indirizzo;
-    _documents = json.Documenti;
-    _status = json.Stato;
-    _category = json.Categoria;
-    _motivazione = json.Motivazione;
-    _color = (color!=null && color!="")?color:(json.color!=null)?json.color:"";
-    _idSupervisor = json.IdResponsabile;
-    _idOperator = json.IdOperatore;
-    _idOperators = json.IdOperatori;
-    _supervisor = PlatformUtils.AccountFromMap("d", json.Responsabile).toDocument();
-    _operator = PlatformUtils.AccountFromMap("d", json.Operatore).toDocument();
-    _suboperators = json.SubOperatori.map((op)=>PlatformUtils.AccountFromMap("d", op).toDocument()).toList();
-  }
-
-  Event.fromMap(String id, String color, Map json){
+  Event.fromMapWeb(String id, String color, Map json){
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
     _title = json["Titolo"];
     _description = json["Descrizione"];
     _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"]["seconds"]*1000);
     _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"]["seconds"]*1000);
+    _address = json["Indirizzo"];
+    _documents = json["Documenti"];
+    _status = json["Stato"];
+    _category = json["Categoria"];
+    _motivazione = json["Motivazione"]; _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
+    _idSupervisor = json["IdResponsabile"];
+    _idOperator = json["IdOperatore"];
+    _idOperators = json["IdOperatori"];
+    _supervisor = json["Responsabile"];
+    _operator = json["Operatore"];
+    _suboperators = json["SubOperatori"];
+  }
+
+  Event.fromMap(String id, String color, dynamic json){
+    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
+    _title = json["Titolo"];
+    _description = json["Descrizione"];
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
+    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000);
     _address = json["Indirizzo"];
     _documents = json["Documenti"];
     _status = json["Stato"];
