@@ -5,8 +5,8 @@ import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
-import 'package:venturiautospurghi/view/widget/switch.dart';
+import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/view/widget/switch_widget.dart';
 
 class OperatorSelection extends StatefulWidget {
   final Event event;
@@ -43,7 +43,7 @@ class _OperatorSelectionState extends State<OperatorSelection>{
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.check, size: 40,),
-          backgroundColor: dark,
+          backgroundColor: black,
           onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
             return PlatformUtils.onErrorMessage("Seleziona l' operatore principale, tappando due volte");
           },
@@ -155,16 +155,16 @@ class ChildItem extends StatelessWidget {
             child: Icon(Icons.work, color: yellow,),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(5.0)),
-              color: dark,
+              color: black,
             ),
           ),
           Text(operator.surname.toUpperCase() + " ", style: title),
           Text(operator.name, style: subtitle),
           Expanded(child: Container(),),
           tristate?CheckboxTriState(onChanged: (v)=>onTap(operator),
-            value: checked, tristate: true, activeColor: dark, checkColor: white, superColor: yellow,):
+            value: checked, tristate: true, activeColor: black, checkColor: white, superColor: yellow,):
           Checkbox(onChanged: (v)=>onTap(operator),
-            value: checked, activeColor: dark, checkColor: white,),
+            value: checked, activeColor: black, checkColor: white,),
         ],
       ),
     );

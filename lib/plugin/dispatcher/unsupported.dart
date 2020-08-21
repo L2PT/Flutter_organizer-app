@@ -1,5 +1,5 @@
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/models/account.dart';
 
 abstract class PlatformUtils {
   PlatformUtils._();

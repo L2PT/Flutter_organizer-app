@@ -5,14 +5,13 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/mobile.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 
 abstract class PlatformUtils {
@@ -44,7 +43,7 @@ abstract class PlatformUtils {
   static dynamic file(path) => File(path);
 
   static const dynamic Dir = SwipeDirection.up;
-  static Firestore fire = new Firestore();
+  static dynamic fire = fb.FirebaseAuth.instance;
 
   static Future<String> storageGetUrl(path) async {
     var a = await FirebaseStorage().ref().child(path).getDownloadURL();
@@ -58,7 +57,7 @@ abstract class PlatformUtils {
   }
 
   static dynamic download(url,filename) async {
-    var localpath = await getExternalStorageDirectory();
+    var localpath = null;
     FlutterDownloader.enqueue(
         url: url,
         savedDir: localpath.path,
@@ -106,7 +105,7 @@ abstract class PlatformUtils {
     return a.documents;
   }
 
-  static List<DocumentSnapshot> documents(querySnapshot) => querySnapshot.documents;
+  static List<dynamic> documents(querySnapshot) => querySnapshot.documents;
 
   static dynamic setDocument(collection, documentId, data) => fire.collection(collection).document(documentId).setData(data);
 

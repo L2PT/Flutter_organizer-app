@@ -12,7 +12,22 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/widget/dialog_app.dart';
 
+class TimeUtils {
+
+  static DateTime truncateDate(DateTime date, String format) {
+    int year = date.year,
+        month = 1,
+        day = 1;
+    if (format == "month" || format == "day") month = date.month;
+    if (format == "day") day = date.day;
+    String truncatedDate = year.toString() + '-' + ((month / 10 < 1) ? "0" + month.toString() : month.toString()) +
+        '-' + ((day / 10 < 1) ? "0" + day.toString() : day.toString());
+    return DateTime.parse(truncatedDate);
+  }
+}
+
 class Utils {
+
   static Future<Map<String,dynamic>> getCategories() async {
     Map <String,dynamic> categories;
     var doc = await PlatformUtils.fireDocument(global.Constants.tabellaCostanti, "Categorie").get();
@@ -39,19 +54,9 @@ class Utils {
         : categories['default']);
   }
 
-  static String formatDateString(DateTime date, String format) {
-    int year = date.year, month = 1, day = 1;
-    if(format == "month" || format == "day") month = date.month;
-    if(format == "day") day = date.day;
-
-    return year.toString() + '-' + ((month/10<1)?"0"+month.toString():month.toString()) + '-' + ((day/10<1)?"0"+day.toString():day.toString());
-  }
-  static DateTime formatDate(DateTime date, String format) {
-    return DateTime.parse(formatDateString(date, format));
-  }
   static Event getEventWithCurrentDay(DateTime day){
-    day = Utils.formatDate(day, "day");
-    if(DateTime.now().isAfter(day)) day = Utils.formatDate(DateTime.now(), "day");
+    day = TimeUtils.truncateDate(day, "day");
+    if(DateTime.now().isAfter(day)) day = TimeUtils.truncateDate(DateTime.now(), "day");
     day = day.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
     Event event = Event.empty();
     event.start = day;
@@ -91,7 +96,7 @@ class Utils {
       EventsRepository().deleteEvent(ev);
     }
     if(result == global.Constants.MODIFY_SIGNAL) {
-      Navigator.pushNamed(context, global.Constants.formEventCreatorRoute, arguments: ev);
+      Navigator.pushNamed(context, global.Constants.createEventViewRoute, arguments: ev);
     }
   }
 
@@ -117,7 +122,7 @@ class Utils {
                     shape: RoundedRectangleBorder(
                         borderRadius:
                         BorderRadius.all(Radius.circular(15.0))),
-                    color: dark,
+                    color: black,
                     elevation: 15,
                     onPressed: () {
                       Navigator.pop(context,false);
@@ -141,7 +146,7 @@ class Utils {
   }
 
   static void NavigateTo(BuildContext context, String route, dynamic arg){
-    BlocProvider.of<BackdropBloc>(context).add(NavigateEvent(route,arg));
+//    BlocProvider.of<BackdropBloc>(context).add(NavigateEvent(route,arg));
   }
 }
 class HexColor extends Color {

@@ -3,22 +3,13 @@ import 'package:venturiautospurghi/models/event.dart';
 
 class Constants {
   static const String title = "Venturi Autospurghi App";
-  static bool debug = false;
+  static bool debug = true;
   static const String web = "web";
   static const String mobile = "mobile";
 
-
+  static const String passwordNewUsers = "adminVenturi";
   static const int fallbackColor = 0xFF119DD1;
   static const String fallbackHexColor = "#FDA90A";
-
-  //Calendar related
-  final Map<DateTime, List> holidays = {
-    //DateTime(2019, 1, 1): [new Event("New Year\'s Day", "", DateTime(2019, 1, 1),DateTime(2019, 1, 1),"","")],
-    //DateTime(2019, 1, 6): [new Event("Epiphany", "", DateTime(2019, 1, 6),DateTime(2019, 1, 6),"","")],
-    //DateTime(2019, 2, 14): [new Event("Valentine\'s Day", "", DateTime(2019, 2, 14),DateTime(2019, 2, 14),"","")],
-    //DateTime(2019, 4, 21): [new Event("Easter Sunday", "", DateTime(2019, 4, 21),DateTime(2019, 4, 21),"","")],
-    //DateTime(2019, 4, 22): [new Event("Easter Monday", "", DateTime(2019, 4, 22),DateTime(2019, 4, 22),"","")]
-  };
 
   // ROUTES
   static const String homeRoute = '/';
@@ -27,7 +18,7 @@ class Constants {
   static const String operatorListRoute = 'view/op_list';
   static const String registerRoute = 'view/register';
   static const String detailsEventViewRoute = 'view/details_event';
-  static const String formEventCreatorRoute = 'view/form_event_creator';
+  static const String createEventViewRoute = 'view/form_event_creator';
   static const String waitingEventListRoute = 'view/waiting_event_list';
   static const String historyEventListRoute = 'view/history_event_list';
   static const String profileRoute = 'view/profile';

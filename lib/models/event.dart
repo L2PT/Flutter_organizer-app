@@ -43,43 +43,39 @@ class Event {
     _suboperators = json.SubOperatori.map((op)=>PlatformUtils.AccountFromMap("d", op).toDocument()).toList();
   }
 
-  Event.fromMap(String id, String color, Map json){
-    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
-    _title = json["Titolo"];
-    _description = json["Descrizione"];
-    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"]["seconds"]*1000);
-    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"]["seconds"]*1000);
-    _address = json["Indirizzo"];
-    _documents = json["Documenti"];
-    _status = json["Stato"];
-    _category = json["Categoria"];
-    _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
-    _idSupervisor = json["IdResponsabile"];
-    _idOperator = json["IdOperatore"];
-    _idOperators = json["IdOperatori"];
-    _supervisor = json["Responsabile"];
-    _operator = json["Operatore"];
-    _suboperators = json["SubOperatori"];
+  Event.fromMap(String id, String color, Map json) :
+    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"",
+    _title = json["Titolo"],
+    _description = json["Descrizione"],
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"]["seconds"]*1000),
+    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"]["seconds"]*1000),
+    _address = json["Indirizzo"],
+    _documents = json["Documenti"],
+    _status = json["Stato"],
+    _category = json["Categoria"],
+    _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"",
+    _idSupervisor = json["IdResponsabile"],
+    _idOperator = json["IdOperatore"],
+    _idOperators = json["IdOperatori"],
+    _supervisor = json["Responsabile"],
+    _operator = json["Operatore"],
+    _suboperators = json["SubOperatori"],
     _motivazione = json["Motivazione"];
 
-  }
-
-//  Map<String, dynamic> toMap(){
-//    return Map<String, dynamic>.of({
-//      "id":this.id,
-//      "Titolo":this.title,
-//      "Descrizione":this.description,
-//      "DataInizio":this.start,
-//      "DataFine":this.end,
-//      "Indirizzo":this.address,
-//      "Stato":this.status,
-//      "Categoria":this.category,
-//      "color":this.color,
-//      "Responsabile":this.supervisor,
-//      "Operatore":this.operator,
-//      "SubOperatori":this.suboperators
-//    });
-//  }
+  Map<String, dynamic> toMap() => {
+      "id":this.id,
+      "Titolo":this.title,
+      "Descrizione":this.description,
+      "DataInizio":this.start,
+      "DataFine":this.end,
+      "Indirizzo":this.address,
+      "Stato":this.status,
+      "Categoria":this.category,
+      "color":this.color,
+      "Responsabile":this.supervisor,
+      "Operatore":this.operator,
+      "SubOperatori":this.suboperators
+  };
 
   Map<String, dynamic> toDocument(){
     return Map<String, dynamic>.of({

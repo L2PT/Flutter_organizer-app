@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-
 class dialogAlert extends  StatelessWidget {
 
   final Widget content;
@@ -27,11 +26,11 @@ class dialogAlert extends  StatelessWidget {
       title: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: dark,
+          color: black,
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20.0),
               topRight: Radius.circular(20.0)),
-          border: Border.all(color: dark),
+          border: Border.all(color: black),
         ),
         child: Center(
           child: Text(

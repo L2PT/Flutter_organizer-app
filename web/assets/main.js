@@ -4,7 +4,7 @@ var categories;
 var dart;
 var idUtente;
 $(function() { // document ready
-// Your web app's Firebase configuration
+
     var firebaseConfig = {
               apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
               authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
@@ -24,11 +24,11 @@ $(function() { // document ready
     -----------------------------------------------------------------*/
     //this will be done after login
 
-//              $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matto', eventColor: 'orange' },);
+//              $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matteo', eventColor: 'orange' },);
 //              $('#calendar').fullCalendar('today');
 
     $(document).on('click',".fc-resource-header-postfix",function(){
-        showDialogWindow("add_operator",null);
+        showDialogByContext_dart("add_operator",null);
     });
 
     $(document).on('click',".fc-resource-postfix",function(){
@@ -46,7 +46,7 @@ function initCalendar(){
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         now: formatDate(new Date()),
         editable: false, // enable draggable events
-        droppable: false, // this allows things to be dropped onto the calendar
+        droppable: false, // allows things to be dropped onto the calendar
         aspectRatio: 2.4,
         scrollTime: '00:00', // undo default 6am scrollTime
         header: {
@@ -77,7 +77,7 @@ function initCalendar(){
             dartCallback("stampa da js");
         },
         eventClick: function(calEvent, jsEvent, view) {//tell to dart to open the modal
-            showDialogWindow("event",JSON.stringify(calEvent, censor(calEvent)))
+            showDialogByContext_dart("event",JSON.stringify(calEvent, censor(calEvent)))
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
@@ -227,14 +227,6 @@ function initJs2DartUtente(callback){
     idUtente=callback;
 }
 
-function cookieJar(name, val){
-    if(val!=null){
-        if(val == "") setCookie(name, val, 1);
-        else setCookie(name, val, -10);
-    }
-    else return getCookie(name);
-}
-
 function getCookie(cname) {
   var name = cname + "=";
   var decodedCookie = decodeURIComponent(document.cookie);
@@ -257,10 +249,15 @@ function setCookie(cname, cvalue, exdays) {
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-function showAlert(msg){
-    alert(msg);
-}
 
-function consolLog(value){
-    console.log(value);
-}
+/*          DART            */
+//accessors
+function WriteCookieJar(name,val) => setCookie(name,val,val==""?-10:1);
+function ReadCookieJar(name) => getCookie(name);
+
+function consolLog(value) => console.log(value);
+
+
+
+
+

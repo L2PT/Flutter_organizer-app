@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-import 'package:fb_auth/fb_auth.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 
@@ -12,15 +14,20 @@ part 'authentication_event.dart';
 part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final FBAuth _userRepository = FBAuth(null);
-  AuthUser user = null;
+  final FirebaseAuthService _authenticationRepository;
+  StreamSubscription<AuthUser> _userSubscription;
   Account account = null;
   bool isSupervisor = false;
 
-  AuthenticationBloc();
-
-  @override
-  AuthenticationState get initialState => Uninitialized();
+  AuthenticationBloc({
+    @required FirebaseAuthService authenticationRepository,
+  })  : assert(authenticationRepository != null),
+        _authenticationRepository = authenticationRepository,
+        super(Uninitialized()) {
+    _userSubscription = _authenticationRepository.onAuthStateChanged.listen(
+        (user) => add(LoggedIn(user)),
+      );
+  }
 
   @override
   Stream<AuthenticationState> mapEventToState(
@@ -37,7 +44,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Stream<AuthenticationState> _mapAppStartedToState() async* {
     try {
-      user = await _userRepository.currentUser();
+      var user = await _authenticationRepository.currentUser();
       if (user != null) {
         account = await getAccount(user.email);
         isSupervisor = account.supervisor;
@@ -51,15 +58,15 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   }
 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
-    user = event.user;
+    var user = event.user;
     account = await getAccount(user.email);
     isSupervisor = account.supervisor;
-    if(PlatformUtils.platform == global.Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
+    if (PlatformUtils.platform == global.Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
     yield Unauthenticated();
-    _userRepository.logout();
+    _authenticationRepository.signOut();
   }
 
   /// Function to retrieve from the database the information associated with the
@@ -67,11 +74,19 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   /// document in the "Utenti"(Constants.tabellaUtenti) collection.
   /// However the mail is an unique field.
   Future<Account> getAccount(String email) async {
-    var docs = await PlatformUtils.fireDocuments("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
-    for (var doc in docs) {
-      if(doc != null) {
-        return Account.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), PlatformUtils.extractFieldFromDocument(null, doc));
+    var query = FirebaseFirestore.instance.collection("Utenti").where('Email', isEqualTo: email);
+    var result = await query.get();
+    var docs = result.docs;
+    for (QueryDocumentSnapshot doc in docs) {
+      if (doc != null) {
+        return Account.fromMap(doc.id, doc.data());
       }
     }
+  }
+
+  @override
+  Future<void> close() {
+    _userSubscription?.cancel();
+    return super.close();
   }
 }

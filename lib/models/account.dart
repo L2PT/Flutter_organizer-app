@@ -23,20 +23,18 @@ class Account {
     _supervisor = json.Responsabile;
   }
 
-  Account.fromMap(String id, dynamic json) {
-    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
-    _name = json['Nome'];
-    _surname = json['Cognome'];
-    _email = json['Email'];
-    _phone = json['Telefono'];
-    _codFiscale = json['CodiceFiscale'];
-    _webops = json['OperatoriWeb'];
-    _token = json['Token'];
+  Account.fromMap(String id, Map<String,dynamic> json) :
+    _id = id ?? json["id"] ?? "",
+    _name = json['Nome'],
+    _surname = json['Cognome'],
+    _email = json['Email'],
+    _phone = json['Telefono'],
+    _codFiscale = json['CodiceFiscale'],
+    _webops = json['OperatoriWeb'],
+    _token = json['Token'],
     _supervisor = json['Responsabile'];
-  }
 
-  Map<String, dynamic> toMap() {
-    return Map<String, dynamic>.of({
+  Map<String, dynamic> toMap() => {
       "id":this.id,
       "Nome":this.name,
       "Cognome":this.surname,
@@ -45,8 +43,7 @@ class Account {
       "CodiceFiscale":this.codFiscale,
       "Token":this.token,
       "Responsabile":this.supervisor
-    });
-  }
+  };
 
   Map<String, dynamic> toDocument() {
     return Map<String, dynamic>.of({
@@ -54,10 +51,10 @@ class Account {
       "Cognome":this.surname,
       "Email":this.email,
       "Telefono":this.phone,
-      "OperatoriWeb":this.webops,
-      "Token":this.token,
       "CodiceFiscale":this.codFiscale,
-      "Responsabile":this.supervisor
+      "Token":this.token,
+      "Responsabile":this.supervisor,
+      "OperatoriWeb":this.webops,
     });
   }
 

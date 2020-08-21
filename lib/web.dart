@@ -2,13 +2,14 @@
 library jquery;
 import 'dart:convert';
 import 'dart:js' as js;
-import 'package:fb_auth/fb_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/user.dart';
+import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
@@ -20,46 +21,28 @@ import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import 'package:venturiautospurghi/view/register_view.dart';
-import 'package:venturiautospurghi/view/splash_screen.dart';
+import 'package:venturiautospurghi/view/widget/loading_screen.dart';
+import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/view/widget/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/events_bloc/events_bloc.dart';
 import 'bloc/operators_bloc/operators_bloc.dart';
 import 'bloc/web_bloc/web_bloc.dart';
 
-final _auth = FBAuth(null);
-
-/*------------------ DB -----------------------------*/
-
-@JS()
-external void initJs2Dart(dynamic data);
-@JS()
-external void initJs2DartUtente(dynamic data);
-
-@JS()
-external void login(String email);
-
 @JS()
 external void initCalendar();
-
-@JS()
-external dynamic cookieJar(String cookie, String value);
-
-@JS()
 external dynamic addResource(dynamic data);
-
-@JS()
 external dynamic deleteEvent(String id, dynamic event);
 
 @JS()
-external dynamic showAlert(String msg);
+external dynamic WriteCookieJar(String cookie, String value);
+external dynamic ReadCookieJar(String cookie);
 
 @JS()
 external dynamic consolLog(dynamic value);
-
-
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -97,6 +80,8 @@ class CssOptions {
 }
 /*-------------------------------------------------*/
 
+const String COOKIE_PATH = "user";
+
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
@@ -106,29 +91,27 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(//TOMAYBEDO inverti l'ordine del builder e del MaterialApp come in mobile.dart
+    var repository = RepositoryProvider.of<FirebaseAuthService>(context);
+
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: customLightTheme,
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           if (state is Unauthenticated) {
-            dynamic c = cookieJar("user", null);
-            if(c != null && c != ""){
+            String c = ReadCookieJar(COOKIE_PATH);
+            if(!c.isNullOrEmpty()){
               Map<String, dynamic> map = jsonDecode(c);
-              AuthUser u = AuthUser(uid: map["uid"],email: map["uid"],displayName: map["displayName"],isAnonymous: map["isAnonymous"],isEmailVerified: map["isEmailVerified"],);
-              BlocProvider.of<AuthenticationBloc>(context).add(LoggedIn(u));
-              return SplashScreen();
+              AuthUser u = AuthUser.fromMap(map);
+              WriteCookieJar(COOKIE_PATH, "");
+              repository.signInWithToken(u.email,u.token);
+              return LoadingScreen();
             }
             jQuery("#calendar").html("");
             return LogIn();
-          }else if (state is Authenticated) {
-            //cookieJar("user", '{"uid":"${state.user.id}","email":"${state.user.email}","displayName":"${state.user.name}","isAnonymous":"${state.user}","isEmailVerified":"${state.user}"}');
-            return BlocProvider(
-              builder: (context) {
-                return WebBloc(state.user, state.user.supervisor)..add(InitAppEvent());
-              },
-              child: MyAppWeb(),
-            );
+          } else if (state is Authenticated) {
+            if(!global.Constants.debug) WriteCookieJar(COOKIE_PATH, jsonEncode(state.user));
+            return MyAppWeb();
           }
           return SplashScreen();
         },
@@ -159,21 +142,12 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     _calendarController = CalendarController();
     var formatter = new DateFormat('MMMM YYYY - ddd D', 'it_IT');
     _dateCalendar = (jQuery('#calendar').children().length>0)?jQuery('#calendar').fullCalendar('getDate', null).format('MMMM YYYY - ddd D',).toString():formatter.format(DateTime.now()).toString();
-    initJs2Dart(this);
-    initJs2DartUtente(this.account.id);
-    js.context['showDialogWindow'] = this.showDialogWindow;
-    js.context['removeResourceDart'] = this.removeResource;
+    js.context['showDialogByContext_dart'] = this.showDialogByContext;
+    js.context['removeResource_dart'] = this.removeOperator;
     initCalendar();
     updateDateCalendar();
-
-    if(account!=null){
-      if(account.name!=null) {
-        userName = account.name.toString();
-      }
-      if(account.surname!=null) {
-        userSurname = account.surname.toString().toUpperCase();
-      }
-    }
+    userName = account?.name?.toString();
+    userSurname = account?.surname?.toString()?.toUpperCase();
   }
 
   @override
@@ -184,37 +158,10 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
-    final repo = BlocProvider.of<WebBloc>(context).eventsRepository;
 
     return new Scaffold(
         backgroundColor: Color(0x00000000),
-        body: MultiBlocProvider(
-            providers: [
-              BlocProvider<EventsBloc>(
-                builder: (context) {
-                  return EventsBloc(eventsRepository: repo);
-                },
-              ),
-              BlocProvider<OperatorsBloc>(
-                builder: (context) {
-                  return OperatorsBloc(eventsRepository: repo);
-                },
-              ),
-            ],
-            child:BlocBuilder<WebBloc, WebState>(builder: (context, state) {
-              if (state is Ready) {
-                selectedRoute = BlocProvider.of<WebBloc>(context).route;
-                //in the state there is the subscription to the data to ear for realtime changes
-                if (state.subtype == global.Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).add(LoadEvents(state.subscription, state.subscriptionArgs));
-                else if (state.subtype == global.Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).add(LoadOperators(state.subscription, state.subscriptionArgs));
-                else if (state.subtype == global.Constants.OUT_OF_BLOC)return state.content;
-                return _buildPage(state.route, state.content);
-              }
-              return Container(
-                child: SplashScreen(),
-              );
-            })
-        )
+        body: Text("")
     );
 
   }
@@ -229,7 +176,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             Expanded(
                 child: Container(
                     decoration: BoxDecoration(
-                        color: dark,
+                        color: black,
                         borderRadius: BorderRadius.horizontal(left:Radius.circular(10.0))
                     ),
                     child: Padding(
@@ -239,24 +186,24 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                             Container(
                               decoration: BoxDecoration(border: Border(
                                   bottom: BorderSide(
-                                      color: BlocProvider.of<WebBloc>(context).route == global.Constants.homeRoute?yellow:dark,
+                                      color: yellow,
                                       width: 3
                                   )
                               )),
                               child: FlatButton(
-                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(global.Constants.homeRoute, null)),
+                                onPressed: ()=>{},
                                 child: Text("CALENDARIO INCARICHI",style: button_card),
                               ),
                             ),
                             Container(
                               decoration: BoxDecoration(border: Border(
                                   bottom: BorderSide(
-                                      color: BlocProvider.of<WebBloc>(context).route == global.Constants.historyEventListRoute?yellow:dark,
+                                      color: yellow,
                                       width: 3
                                   )
                               )),
                               child: FlatButton(
-                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(global.Constants.historyEventListRoute, null)),
+                                onPressed: ()=>{},
                                 child: Text("STORICO",style: button_card),
                               ),
                             ),
@@ -274,7 +221,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                                 FlatButton(
                                     color: whiteoverlapbackground,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                                    onPressed: ()=>showDialogWindow("new_user", null),
+                                    onPressed: ()=>showDialogByContext("new_user", null),
                                     child: Row(
                                       children: <Widget>[
                                         Icon(Icons.person_add, color: white,),
@@ -287,7 +234,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                                 IconButton(
                                   icon: Icon(Icons.exit_to_app,),
                                   onPressed: (){
-                                    cookieJar("user", "");
+                                    WriteCookieJar("user", "");
                                     BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());
                                   },
                                 ),
@@ -336,7 +283,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             width: 180,
             margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
             child: RaisedButton(
-                onPressed: ()=>showDialogWindow("new_event", BlocProvider.of<AuthenticationBloc>(context).user),
+                onPressed: ()=>{},
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
                   children: <Widget>[
@@ -394,7 +341,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                   Container(
                     margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                     child: RaisedButton(
-                        onPressed: ()=>showDialogWindow("calendar", null),
+                        onPressed: ()=>showDialogByContext("calendar", null),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
                           children: <Widget>[
@@ -413,20 +360,20 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     );
   }
 
-  void showDialogWindow(String opt,dynamic param) {
+  void showDialogByContext(String dialogType, dynamic param) {
     // flutter defined function
     jQuery('#wrap').css(CssOptions(zIndex: -1));
 
     var dialogContainer;
-    switch(opt) {
+    switch(dialogType) {
       case "calendar":{dialogContainer = _buildTableCalendarWithBuilders(context);}break;
       case "event":{
-        Map paramMap = json.decode(param);
-        dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap));}break;
-      case "new_event":{dialogContainer = EventCreator(Event.empty());}break;
+//        Map paramMap = json.decode(param);
+//        dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap));
+        }break;
+      case "new_event":{}break;
       case "modify_event":{
-        Map paramMap = json.decode(param);
-        dialogContainer = EventCreator(PlatformUtils.EventFromMap(paramMap["id"], paramMap["id"], paramMap));}break;
+        Map paramMap = json.decode(param);}break;
       case "new_user":{dialogContainer = Register();}break;
       case "add_operator":{dialogContainer = OperatorSelection(Event.empty(), false);}break;
     }
@@ -447,13 +394,13 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     ).then((onValue) async {
       jQuery('#wrap').css(CssOptions(zIndex: 1));
       if(onValue != null && onValue != false){
-        switch(opt) {
+        switch(dialogType) {
           case "add_operator":{
             Event e = onValue as Event;
             //update local
             int i = 0;
             for(Account o in e.suboperators){
-              Account a=Account.fromMap(e.idOperators[i++], o);
+              Account a= Account.empty();
               a.webops=[];
               bool found = false;
               for(dynamic webop in account.webops){
@@ -479,7 +426,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 //              jQuery('#calendar').fullCalendar('refetchEvents',null);
             }
             if(onValue == global.Constants.MODIFY_SIGNAL) {
-              showDialogWindow("modify_event", param);
+              showDialogByContext("modify_event", param);
             }
           }break;
         }
@@ -487,7 +434,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     });
   }
 
-  void removeResource(dynamic res){
+  void removeOperator(dynamic res){
     dynamic j = null;
     for(dynamic o in account.webops){
       if(Account.fromMap(null, o).id == res) j=o;
@@ -500,13 +447,12 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
     return Scaffold(
         appBar: AppBar(
           title: Text("CALENDARIO", style: title_rev,),
-          backgroundColor: dark,
+          backgroundColor: black,
         ),
         body: TableCalendar(
           rowHeight: 85,
           locale: 'it_IT',
           calendarController: _calendarController,
-          holidays: global.Constants().holidays,
           initialCalendarFormat: CalendarFormat.month,
           formatAnimation: FormatAnimation.slide,
           startingDayOfWeek: StartingDayOfWeek.monday,
@@ -521,7 +467,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
               return Container(
                 margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 20),
                 decoration: BoxDecoration(
-                  color: greyToday,
+                  color: grey_light,
                   borderRadius: BorderRadius.circular(100.0),
                 ),
                 child: Center(child:Text(
@@ -533,8 +479,8 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             },
           ),
           headerStyle: HeaderStyle(
-            leftChevronIcon:Icon(Icons.arrow_back_ios, color: dark,),
-            rightChevronIcon:Icon(Icons.arrow_forward_ios, color: dark,),
+            leftChevronIcon:Icon(Icons.arrow_back_ios, color: black,),
+            rightChevronIcon:Icon(Icons.arrow_forward_ios, color: black,),
           ),
         )
 
