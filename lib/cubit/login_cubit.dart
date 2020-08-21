@@ -29,16 +29,21 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> logInWithCredentials() async {
-    if (state.isValid()) return;
+    if (state.isInvalid()) return;
+    var stateToRestore = state;
     emit(state.assign(status: FormStatus.loading));
-    try {
-      await _authenticationRepository.signInWithEmailAndPassword(
-        state.email.value,
-        state.password.value,
-      );
-      emit(state.assign(status: FormStatus.success));
-    } on Exception {
-      emit(state.assign(status: FormStatus.failure));
+    if(stateToRestore.isValid()) {
+      try {
+        await _authenticationRepository.signInWithEmailAndPassword(
+          state.email.value,
+          state.password.value,
+        );
+        emit(state.assign(status: FormStatus.success));
+      } on Exception {
+        emit(state.assign(status: FormStatus.failure));
+      }
+    } else{
+      emit(state.assign(status: stateToRestore.status));
     }
   }
 

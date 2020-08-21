@@ -13,19 +13,22 @@ import 'bloc/simple_bloc_delegate.dart';
 //run dependend by platform
 //the actual main is in mobile.dart and/or web.dart
 void main() {
-  final FirebaseAuthService authenticationRepository = FirebaseAuthService();
+  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseAuthService authenticationRepository;
   Bloc.observer = SimpleBlocObserver();
   Firebase.initializeApp()
       .then((_) => initializeDateFormatting("it_IT"))
-      .then((_) => runApp(
-            RepositoryProvider.value(
-              value: authenticationRepository,
-              child: BlocProvider(
-                  create: (_) => AuthenticationBloc(
-                        authenticationRepository: authenticationRepository,
-                      )..add(AppStarted()),
-                  child: PlatformUtils.myApp),
-            ),
-          ))
-      .then((_) => PlatformUtils.initDownloader());
+      .then((_) {
+        authenticationRepository = FirebaseAuthService();
+        runApp(
+          RepositoryProvider.value(
+            value: authenticationRepository,
+            child: BlocProvider(
+                create: (_) => AuthenticationBloc(
+                  authenticationRepository: authenticationRepository,
+                )..add(AppStarted()),
+                child: PlatformUtils.myApp),
+          ),
+        );
+  }).then((_) => PlatformUtils.initDownloader());
 }

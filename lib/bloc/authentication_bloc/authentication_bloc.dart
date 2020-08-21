@@ -25,7 +25,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         _authenticationRepository = authenticationRepository,
         super(Uninitialized()) {
     _userSubscription = _authenticationRepository.onAuthStateChanged.listen(
-        (user) => add(LoggedIn(user)),
+        (user){if(user!=null) add(LoggedIn(user));},
       );
   }
 

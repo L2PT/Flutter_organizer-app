@@ -24,36 +24,34 @@ class LoginState extends Equatable {
     return LoginState(
       email: email ?? this.email,
       password: password ?? this.password,
-      status: status ?? email.validate() ? (password.validate() ? FormStatus.valid : FormStatus.passwordInvalid) : FormStatus.emailInvalid,
+      status: status ?? (( email ?? this.email) != null && (password ?? this.password) != null ?
+        ( email ?? this.email).validate() ?
+            ((password ?? this.password).validate() ? FormStatus.valid
+            : FormStatus.passwordInvalid)
+          : FormStatus.emailInvalid
+        : FormStatus.invalid)
     );
   }
 
-  bool isInvalid(){
+  bool isInvalid() =>
     this.status == FormStatus.invalid;
-  }
 
-  bool isValid(){
+  bool isValid() =>
     this.status == FormStatus.valid;
-  }
 
-  bool isEmailInvalid(){
+  bool isEmailInvalid() =>
     this.status == FormStatus.emailInvalid;
-  }
 
-  bool isPasswordInvalid(){
+  bool isPasswordInvalid() =>
     this.status == FormStatus.passwordInvalid;
-  }
 
-  bool isLoading(){
+  bool isLoading() =>
     this.status == FormStatus.loading;
-  }
 
-  bool isSuccess(){
+  bool isSuccess() =>
     this.status == FormStatus.valid;
-  }
 
-  bool isFailure(){
+  bool isFailure() =>
     this.status == FormStatus.failure;
-  }
 
 }

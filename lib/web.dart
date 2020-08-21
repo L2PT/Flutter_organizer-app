@@ -11,12 +11,8 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:venturiautospurghi/view/details_event_view.dart';
-import 'package:venturiautospurghi/view/form_event_creator_view.dart';
-import 'package:venturiautospurghi/view/history_view.dart';
 import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
@@ -26,11 +22,8 @@ import 'package:js/js.dart';
 import 'package:venturiautospurghi/view/operator_selection_view.dart';
 import 'package:venturiautospurghi/view/register_view.dart';
 import 'package:venturiautospurghi/view/widget/loading_screen.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/view/widget/splash_screen.dart';
+import 'package:venturiautospurghi/view/widget/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
-import 'bloc/events_bloc/events_bloc.dart';
-import 'bloc/operators_bloc/operators_bloc.dart';
-import 'bloc/web_bloc/web_bloc.dart';
 
 @JS()
 external void initCalendar();

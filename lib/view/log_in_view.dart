@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -27,11 +28,11 @@ class LogIn extends StatelessWidget {
           SizedBox(height: 8.0),
           _passwordInput(),
           SizedBox(height: 8.0),
+          _errorText(),
+          SizedBox(height: 8.0),
           _loginButton(),
           SizedBox(height: 30.0),
           _resetPasswordText(),
-          SizedBox(height: 60.0),
-          _errorText()
         ],
       ),
     );
@@ -63,8 +64,9 @@ class LogIn extends StatelessWidget {
     );
 
     return new Scaffold(
+      resizeToAvoidBottomPadding: false,
       backgroundColor: white,
-      body: BlocProvider(
+      body: new BlocProvider(
           create: (_) => LoginCubit(repository),
           child: loginPage
       ),
@@ -166,6 +168,22 @@ class _passwordInput extends StatelessWidget {
   }
 }
 
+class _errorText extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) => previous.isLoading(),
+      builder: (context, state) {
+        if(state.isEmailInvalid()) return Text("L'email inserita non è valida", style: error,);
+        if(state.isPasswordInvalid()) return Text("La password inserita non è valida", style: error,);
+        if(state.isSuccess()) return Text("Accesso effettuato. Attendere reindirizzamento...", style: subtitle2,);
+        if(state.isFailure()) return Text("Le credenziali inserite non sono valide", style: error,);
+        return Text("");
+      },
+    );
+  }
+}
+
 class _loginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -185,7 +203,6 @@ class _loginButton extends StatelessWidget {
                     child: FlatButton(
                       shape: new RoundedRectangleBorder(
                           borderRadius: new BorderRadius.circular(30.0)),
-                      splashColor: Colors.white,
                       color: black,
                       child: new Row(
                         children: <Widget>[
@@ -193,7 +210,7 @@ class _loginButton extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                             child: Text(
                               "LOGIN",
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: white),
                             ),
                           ),
                           new Expanded(
@@ -207,23 +224,18 @@ class _loginButton extends StatelessWidget {
                                 shape: new RoundedRectangleBorder(
                                     borderRadius:
                                     new BorderRadius.circular(45.0)),
-                                splashColor: black,
                                 color: white,
                                 child: Icon(
                                   Icons.arrow_forward,
                                   color: black,
                                 ),
-                                onPressed: state.isValid()
-                                    ? () => context.bloc<LoginCubit>().logInWithCredentials()
-                                    : null,
+                                onPressed: (){FocusScope.of(context).unfocus();context.bloc<LoginCubit>().logInWithCredentials();}
                               ),
                             ),
                           )
                         ],
                       ),
-                      onPressed: state.isValid()
-                          ? () => context.bloc<LoginCubit>().logInWithCredentials()
-                          : null,
+                        onPressed: (){FocusScope.of(context).unfocus();context.bloc<LoginCubit>().logInWithCredentials();}
                     ),
                   ),
                 ],
@@ -250,7 +262,7 @@ class _resetPasswordText extends StatelessWidget {
       onTap: () {
         var blocState = context.bloc<LoginCubit>().state;
         String resetMessage;
-        if (blocState.email.value.isNullOrEmpty()) {
+        if (blocState.email.value?.isNullOrEmpty()??false) {
           resetMessage = 'Inserisci un indirizzo email';
         } else {
           resetMessage = 'Reset password per ' + blocState.email.value;
@@ -297,22 +309,6 @@ class _resetPasswordText extends StatelessWidget {
       child: new Text('Reset Password', textAlign: TextAlign.center,
         style: new TextStyle(fontSize: 18.0, color: Colors.black54),
       ),
-    );
-  }
-}
-
-class _errorText extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LoginCubit, LoginState>(
-      buildWhen: (previous, current) => previous.status != current.status,
-      builder: (context, state) {
-        if(state.isEmailInvalid()) return Text("L'email inserita non è valida", style: error,);
-        if(state.isPasswordInvalid()) return Text("La password inserita non è valida", style: error,);
-        if(state.isSuccess()) return Text("Accesso effettuato. Attendere reindirizzamento...", style: subtitle2,);
-        if(state.isFailure()) return Text("Le credenziali inserite non sono valide", style: error,);
-        return Text("");
-      },
     );
   }
 }

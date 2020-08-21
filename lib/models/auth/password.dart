@@ -1,3 +1,5 @@
+import 'package:venturiautospurghi/utils/global_contants.dart';
+
 enum PasswordValidationError { invalid }
 
 class Password {
@@ -9,6 +11,6 @@ class Password {
   static final _passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
 
   bool validate() {
-    return _passwordRegExp.hasMatch(this.value);
+    return Constants.debug || _passwordRegExp.hasMatch(this.value);
   }
 }

@@ -12,7 +12,7 @@ internal class VenturiApplication : FlutterApplication(), PluginRegistry.PluginR
         FlutterFirebaseMessagingService.setPluginRegistrant(this);
     }
 
-    override fun registerWith(registry: PluginRegistry) {
-        GeneratedPluginRegistrant.registerWith(registry);
+    override fun registerWith(registry: PluginRegistry?) {
+        registry?.registrarFor("io.flutter.plugins.firebasemessaging.FirebaseMessagingPlugin");
     }
 }

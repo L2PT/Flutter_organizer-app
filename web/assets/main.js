@@ -252,10 +252,10 @@ function setCookie(cname, cvalue, exdays) {
 
 /*          DART            */
 //accessors
-function WriteCookieJar(name,val) => setCookie(name,val,val==""?-10:1);
-function ReadCookieJar(name) => getCookie(name);
+function WriteCookieJar(name,val) { setCookie(name,val,val==""?-10:1);}
+function ReadCookieJar(name) { getCookie(name);}
 
-function consolLog(value) => console.log(value);
+function consolLog(value) { console.log(value);}
 
 
 
