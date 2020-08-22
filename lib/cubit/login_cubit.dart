@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:venturiautospurghi/models/auth/email.dart';
 import 'package:venturiautospurghi/models/auth/password.dart';
-import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
+import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
 
 part 'login_state.dart';
 

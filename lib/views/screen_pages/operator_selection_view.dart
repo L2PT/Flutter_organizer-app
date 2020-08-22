@@ -6,7 +6,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/view/widget/switch_widget.dart';
+import 'package:venturiautospurghi/views/widgets/switch_widget.dart';
 
 class OperatorSelection extends StatefulWidget {
   final Event event;

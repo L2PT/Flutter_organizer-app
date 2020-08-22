@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
@@ -46,7 +46,7 @@ class _ResetCodeState extends State<ResetCode> {
       _signature = await SmsAutoFill().getAppSignature;
       setState((){});
       if(widget.code == code || Constants.debug){
-        //BlocProvider.of<BackdropBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[operator,null]));
+        //BlocProvider.of<MobileBloc>(context).dispatch(NavigateEvent(global.Constants.dailyCalendarRoute,[operator,null]));
       }
   }
   void sendMail(){int a=4;}

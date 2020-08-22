@@ -3,7 +3,7 @@ library jquery;
 //custom import
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:firebase_auth/firebase_auth.dart' as fb;
+
 import 'package:flutter/material.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/models/event.dart' as E;
@@ -53,7 +53,7 @@ class PlatformUtils {
   }
 
   static const dynamic Dir = null;
-  static dynamic fire = fb.FirebaseAuth.instance;
+  static dynamic fire = fb.firestore();
 
   static dynamic storageGetUrl(path){
     storageGetUrlJs(path);
@@ -129,7 +129,7 @@ class PlatformUtils {
   static dynamic fireDocument(collection,documentId) => fire.collection(collection).doc(documentId);
 
   static dynamic customCollectionGroup(categories){
-    return fire.collectionGroup(Constants.subtabellaStorico).onSnapshot.map((snapshot) {
+    return fb.firestore().collectionGroup(Constants.subtabellaStorico).onSnapshot.map((snapshot) {
       return documents(snapshot).map((doc) {
         String cat = extractFieldFromDocument("Categoria", doc);
         return E.Event.fromMap(extractFieldFromDocument("id", doc), categories!=null?
@@ -162,7 +162,7 @@ class PlatformUtils {
   }
 
   static dynamic onErrorMessage(msg) {
-//    showAlert(msg);
+    showAlert(msg);
   }
 
   static E.Event EventFromMap(id, color, json) => E.Event.fromMap(id, color, json);

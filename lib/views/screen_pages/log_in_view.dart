@@ -1,16 +1,16 @@
 import 'dart:async';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/cubit/login_cubit.dart';
-import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
+import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/view/widget/dialog_app.dart';
-import 'package:venturiautospurghi/view/widget/responsive_widget.dart';
+import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class LogIn extends StatelessWidget {
 
@@ -294,8 +294,8 @@ class _resetPasswordText extends StatelessWidget {
                         color: black,
                         elevation: 15,
                         onPressed: () {
-                          if (blocState.email.value.isNullOrEmpty()) {
-                            Utils.NavigateTo(context, global.Constants.resetCodeRoute, null);
+                          if (!blocState.email.value.isNullOrEmpty()) {
+                            context.bloc<MobileBloc>().add(NavigateEvent(global.Constants.resetCodeRoute));
                           }
                           Navigator.of(context).pop(false);
                         },

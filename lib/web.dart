@@ -8,22 +8,26 @@ import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
-import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
+import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
-import 'package:venturiautospurghi/view/log_in_view.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:js/js.dart';
-import 'package:venturiautospurghi/view/operator_selection_view.dart';
-import 'package:venturiautospurghi/view/register_view.dart';
-import 'package:venturiautospurghi/view/widget/loading_screen.dart';
-import 'package:venturiautospurghi/view/widget/splash_screen.dart';
+import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
+import 'package:venturiautospurghi/views/screens/form_event_creator_view.dart';
+import 'package:venturiautospurghi/views/screens/register_view.dart';
+import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
+import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
+import 'bloc/events_bloc/events_bloc.dart';
+import 'bloc/operators_bloc/operators_bloc.dart';
+import 'bloc/web_bloc/web_bloc.dart';
 
 @JS()
 external void initCalendar();
@@ -104,7 +108,12 @@ class _MyAppState extends State<MyApp> {
             return LogIn();
           } else if (state is Authenticated) {
             if(!global.Constants.debug) WriteCookieJar(COOKIE_PATH, jsonEncode(state.user));
-            return MyAppWeb();
+            return BlocProvider(
+              create: (context) {
+                return WebBloc(state.user, state.user.supervisor)..add(InitAppEvent());
+              },
+              child: MyAppWeb(),
+            );
           }
           return SplashScreen();
         },
@@ -151,10 +160,37 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
+    final repo = BlocProvider.of<WebBloc>(context).eventsRepository;
 
     return new Scaffold(
         backgroundColor: Color(0x00000000),
-        body: Text("")
+        body: MultiBlocProvider(
+            providers: [
+              BlocProvider<EventsBloc>(
+                create: (context) {
+                  return EventsBloc(eventsRepository: repo);
+                },
+              ),
+              BlocProvider<OperatorsBloc>(
+                create: (context) {
+                  return OperatorsBloc(eventsRepository: repo);
+                },
+              ),
+            ],
+            child:BlocBuilder<WebBloc, WebState>(builder: (context, state) {
+              if (state is Ready) {
+                selectedRoute = BlocProvider.of<WebBloc>(context).route;
+                //in the state there is the subscription to the data to ear for realtime changes
+                if (state.subtype == global.Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).add(LoadEvents(state.subscription, state.subscriptionArgs));
+                else if (state.subtype == global.Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).add(LoadOperators(state.subscription, state.subscriptionArgs));
+                else if (state.subtype == global.Constants.OUT_OF_BLOC)return state.content;
+                return _buildPage(state.route, state.content);
+              }
+              return Container(
+                child: SplashScreen(),
+              );
+            })
+        )
     );
 
   }
@@ -179,24 +215,24 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                             Container(
                               decoration: BoxDecoration(border: Border(
                                   bottom: BorderSide(
-                                      color: yellow,
+                                      color: BlocProvider.of<WebBloc>(context).route == global.Constants.homeRoute?yellow:black,
                                       width: 3
                                   )
                               )),
                               child: FlatButton(
-                                onPressed: ()=>{},
+                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(global.Constants.homeRoute, null)),
                                 child: Text("CALENDARIO INCARICHI",style: button_card),
                               ),
                             ),
                             Container(
                               decoration: BoxDecoration(border: Border(
                                   bottom: BorderSide(
-                                      color: yellow,
+                                      color: BlocProvider.of<WebBloc>(context).route == global.Constants.historyEventListRoute?yellow:black,
                                       width: 3
                                   )
                               )),
                               child: FlatButton(
-                                onPressed: ()=>{},
+                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(global.Constants.historyEventListRoute, null)),
                                 child: Text("STORICO",style: button_card),
                               ),
                             ),
@@ -276,7 +312,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             width: 180,
             margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
             child: RaisedButton(
-                onPressed: ()=>{},
+                onPressed: ()=>showDialogByContext("new_event", BlocProvider.of<AuthenticationBloc>(context).account),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
                   children: <Widget>[
@@ -364,9 +400,10 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 //        Map paramMap = json.decode(param);
 //        dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap));
         }break;
-      case "new_event":{}break;
+      case "new_event":{dialogContainer = EventCreator();}break;
       case "modify_event":{
-        Map paramMap = json.decode(param);}break;
+        Map paramMap = json.decode(param);
+        dialogContainer = EventCreator(PlatformUtils.EventFromMap(paramMap["id"], paramMap["id"], paramMap));}break;
       case "new_user":{dialogContainer = Register();}break;
       case "add_operator":{dialogContainer = OperatorSelection(Event.empty(), false);}break;
     }
@@ -391,9 +428,10 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           case "add_operator":{
             Event e = onValue as Event;
             //update local
+            //TODO this map is obviusly to check
             int i = 0;
-            for(Account o in e.suboperators){
-              Account a= Account.empty();
+            for(dynamic o in e.suboperators){
+              Account a=Account.fromMap(e.idOperators[i++], o);
               a.webops=[];
               bool found = false;
               for(dynamic webop in account.webops){

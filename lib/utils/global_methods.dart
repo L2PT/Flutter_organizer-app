@@ -3,14 +3,11 @@ library App.utils;
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/view/widget/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
 
 class TimeUtils {
 
@@ -143,10 +140,6 @@ class Utils {
             context: context,
           );
         });
-  }
-
-  static void NavigateTo(BuildContext context, String route, dynamic arg){
-//    BlocProvider.of<BackdropBloc>(context).add(NavigateEvent(route,arg));
   }
 }
 class HexColor extends Color {

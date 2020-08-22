@@ -4,8 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart' as global;
 

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/backdrop_bloc.dart';
+import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
@@ -286,7 +286,7 @@ class RegisterState extends State<Register> {
           _successMessage = "Utente " + user.email + " registrato con successo.";
           _errorMessage = "";
           Timer(Duration(seconds: 3),
-              () => {});
+              () => BlocProvider.of<MobileBloc>(context).add(NavigateEvent(global.Constants.homeRoute, null)));
         });
       } else {
         setState(() {
