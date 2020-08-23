@@ -53,7 +53,6 @@ class PlatformUtils {
   }
 
   static const dynamic Dir = null;
-  static dynamic fire = fb.firestore();
 
   static dynamic storageGetUrl(path){
     storageGetUrlJs(path);
@@ -107,47 +106,6 @@ class PlatformUtils {
     input.click();
     var a = await completer.future;
     return Map.fromIterable(a, key: (s) => s.split("/").last, value: (s) => s);
-  }
-
-  static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
-    var query;
-    if(whereOp!=null) {
-      query = fire.collection(collection).where(whereCondFirst,whereOp,whereCondSecond);
-    }else{
-      query = fire.collection(collection);
-    }
-    var a = await query.get();
-    return a.docs;
-  }
-
-  static List documents(querySnapshot) => querySnapshot.docs;
-
-  static dynamic setDocument(collection, documentId, data) => fire.collection(collection).doc(documentId).set(data);
-
-  static dynamic updateDocument(collection, documentId, data) => fire.collection(collection).doc(documentId).update( data: data);
-
-  static dynamic fireDocument(collection,documentId) => fire.collection(collection).doc(documentId);
-
-  static dynamic customCollectionGroup(categories){
-    return fb.firestore().collectionGroup(Constants.subtabellaStorico).onSnapshot.map((snapshot) {
-      return documents(snapshot).map((doc) {
-        String cat = extractFieldFromDocument("Categoria", doc);
-        return E.Event.fromMap(extractFieldFromDocument("id", doc), categories!=null?
-        categories[cat] != null
-            ? categories[cat]
-            : categories['default']:Constants.fallbackHexColor, extractFieldFromDocument(null, doc));})
-          .toList();
-    });
-  }
-
-  static dynamic extractFieldFromDocument(field, document){
-    if(field != null){
-      if(field == "id")
-        return document.id;
-      else
-        return document.get(field);
-    }
-    else return document.data();
   }
 
   static dynamic navigator(context, content) async {

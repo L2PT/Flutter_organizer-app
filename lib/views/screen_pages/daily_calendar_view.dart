@@ -15,7 +15,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
@@ -102,7 +102,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     return TableCalendar(
       locale: 'it_IT',
       calendarController: _calendarController,
-      events: _events,
+      subscribeEvents: _events,
       initialCalendarFormat: CalendarFormat.week,
       formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.monday,
@@ -187,7 +187,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
       },
       onVisibleDaysChanged: _onVisibleDaysChanged,
       selectNext: () {
-        Utils.NavigateTo(context,global.Constants.monthlyCalendarRoute, _selectedDay);
+        Utils.NavigateTo(context,Constants.monthlyCalendarRoute, _selectedDay);
       },
       selectPrevious: (){},
     );
@@ -233,7 +233,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
               children: <Widget>[
                 _gridHourSpan==0?Container():
                 Column(
-                    children: _buildBack(((global.Constants.MAX_WORKHOUR_SPAN-global.Constants.MIN_WORKHOUR_SPAN+1)/_gridHourSpan).toInt()) //16 sono le ore della griglia
+                    children: _buildBack(((Constants.MAX_WORKHOUR_SPAN-Constants.MIN_WORKHOUR_SPAN+1)/_gridHourSpan).toInt()) //16 sono le ore della griglia
                 )
                 ,Column(
                     children: _buildFront()
@@ -249,8 +249,8 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
     _selectedEvents = _events[_selectedDay] ?? [];
     if(_selectedEvents.length>0) {
       if(_selectedEvents.length == 1 &&
-          _selectedEvents[0].start.compareTo(_selectedDay.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN)))<=0 &&
-          _selectedEvents[0].end.compareTo(_selectedDay.add(Duration(hours: global.Constants.MAX_WORKHOUR_SPAN)))>=0) {
+          _selectedEvents[0].start.compareTo(_selectedDay.add(Duration(hours: Constants.MIN_WORKHOUR_SPAN)))<=0 &&
+          _selectedEvents[0].end.compareTo(_selectedDay.add(Duration(hours: Constants.MAX_WORKHOUR_SPAN)))>=0) {
         _gridHourHeight = minEventHeight;
         _gridHourSpan = 0;
       }else{
@@ -282,7 +282,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   List<Widget> _buildBack(int length) {
     double barHourHeight = _gridHourHeight / 2;
     return List.generate(length, (i) {
-      int n = ((i)*_gridHourSpan) + global.Constants.MIN_WORKHOUR_SPAN;
+      int n = ((i)*_gridHourSpan) + Constants.MIN_WORKHOUR_SPAN;
       return Row(children: <Widget>[Expanded(
           flex: 2,
           child: Container(
@@ -316,8 +316,8 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   List<Widget> _buildFront(){
     List<Widget> r = new List<Widget>();
     double barHourHeight = _gridHourHeight / 2;
-    DateTime base = new DateTime(1990,1,1,global.Constants.MIN_WORKHOUR_SPAN,0,0);
-    DateTime top = new DateTime(1990,1,1,global.Constants.MAX_WORKHOUR_SPAN,0,0);
+    DateTime base = new DateTime(1990,1,1,Constants.MIN_WORKHOUR_SPAN,0,0);
+    DateTime top = new DateTime(1990,1,1,Constants.MAX_WORKHOUR_SPAN,0,0);
 
     //SE gridHour == 0 => Evento dura tutto il giorno
     if(_gridHourSpan==0){
@@ -389,10 +389,10 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   }
 
   int minDailyHour(DateTime start){
-    return (start.day!=_selectedDay.day?global.Constants.MIN_WORKHOUR_SPAN*60:max<int>(global.Constants.MIN_WORKHOUR_SPAN*60,start.hour * 60 + start.minute));
+    return (start.day!=_selectedDay.day?Constants.MIN_WORKHOUR_SPAN*60:max<int>(Constants.MIN_WORKHOUR_SPAN*60,start.hour * 60 + start.minute));
   }
   int maxDailyHour(DateTime end){
-    return (end.day!=_selectedDay.day?global.Constants.MAX_WORKHOUR_SPAN*60:min<int>(global.Constants.MAX_WORKHOUR_SPAN*60,end.hour * 60 + end.minute));
+    return (end.day!=_selectedDay.day?Constants.MAX_WORKHOUR_SPAN*60:min<int>(Constants.MAX_WORKHOUR_SPAN*60,end.hour * 60 + end.minute));
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {}

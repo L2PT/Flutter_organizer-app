@@ -43,7 +43,6 @@ abstract class PlatformUtils {
   static dynamic file(path) => File(path);
 
   static const dynamic Dir = SwipeDirection.up;
-  static Firestore fire = new Firestore();
 
   static Future<String> storageGetUrl(path) async {
     var a = await FirebaseStorage().ref().child(path).getDownloadURL();
@@ -76,63 +75,6 @@ abstract class PlatformUtils {
   static dynamic multiFilePicker() async {
     var a = await FilePicker.getMultiFilePath();
     return a;
-  }
-
-  static dynamic fireDocuments(collection,{whereCondFirst,whereOp,whereCondSecond}) async {
-    var query;
-    if(whereOp!=null) {
-      switch(whereOp){
-        case "<" :{
-          query = fire.collection(collection).where(whereCondFirst,isLessThan: whereCondSecond);
-        }break;
-        case "<=" :{
-          query = fire.collection(collection).where(whereCondFirst,isLessThanOrEqualTo: whereCondSecond);
-        }break;
-        case "==" :{
-          query = fire.collection(collection).where(whereCondFirst,isEqualTo: whereCondSecond);
-        }break;
-        case ">=" :{
-          query = fire.collection(collection).where(whereCondFirst,isGreaterThanOrEqualTo: whereCondSecond);
-        }break;
-        case ">" :{
-          query = fire.collection(collection).where(whereCondFirst,isGreaterThan: whereCondSecond);
-        }break;
-      }
-    }else{
-      query = fire.collection(collection);
-    }
-    var a = await query.getDocuments();
-    return a.documents;
-  }
-
-  static List<DocumentSnapshot> documents(querySnapshot) => querySnapshot.documents;
-
-  static dynamic setDocument(collection, documentId, data) => fire.collection(collection).document(documentId).setData(data);
-
-  static dynamic updateDocument(collection, documentId, data) =>
-      fire.collection(collection).document(documentId).updateData(data);
-
-  static dynamic fireDocument(collection, documentId) => fire.collection(collection).document(documentId);
-
-  static dynamic customCollectionGroup(categories){
-    return fire.collectionGroup(Constants.subtabellaStorico).snapshots().map((snapshot) {
-      return documents(snapshot).map((doc) {
-        return Event.fromMap(extractFieldFromDocument("id", doc), categories!=null?
-        categories[doc["Categoria"]] != null
-            ? categories[doc["Categoria"]]
-            : categories['default']:Constants.fallbackHexColor, extractFieldFromDocument(null, doc));})
-          .toList();
-    });
-  }
-
-  static dynamic extractFieldFromDocument(field, document){
-    if(field != null){
-      if(field == "id")
-        return document.documentID;
-      else
-        return document.data[field];
-    }
-    else return document.data;
   }
 
   static dynamic navigator(context, content) async {

@@ -9,7 +9,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as Global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -460,7 +460,7 @@ class EventCreatorState extends State<EventCreator> {
                                       validator: (val) {
                                         if (_allDayFlag) return null;
                                         if (val != null &&
-                                            (val.hour >= Global.Constants.MIN_WORKHOUR_SPAN) &&
+                                            (val.hour >= Constants.MIN_WORKHOUR_SPAN) &&
                                             (TimeUtils.truncateDate(widget._event.start, "day") ==
                                                     TimeUtils.truncateDate(now, "day")
                                                 ? val.hour > now.hour ||
@@ -548,9 +548,9 @@ class EventCreatorState extends State<EventCreator> {
                                           if (val != null &&
                                               (widget._event.start.isBefore(widget._event.end.add(Duration(
                                                   hours: val.hour,
-                                                  minutes: (val.minute + 1) - Global.Constants.WORKHOUR_SPAN)))) &&
-                                              (val.hour < Global.Constants.MAX_WORKHOUR_SPAN ||
-                                                  (val.hour == Global.Constants.MAX_WORKHOUR_SPAN &&
+                                                  minutes: (val.minute + 1) - Constants.WORKHOUR_SPAN)))) &&
+                                              (val.hour < Constants.MAX_WORKHOUR_SPAN ||
+                                                  (val.hour == Constants.MAX_WORKHOUR_SPAN &&
                                                       val.minute == 0))) {
                                             widget._event.end = val != null
                                                 ? TimeUtils.truncateDate(widget._event.end, "day")
@@ -598,9 +598,9 @@ class EventCreatorState extends State<EventCreator> {
                                     Event tempEvent = widget._event;
                                     if (_allDayFlag) {
                                       tempEvent.start = TimeUtils.truncateDate(widget._event.start, "day")
-                                          .add(Duration(hours: Global.Constants.MIN_WORKHOUR_SPAN));
+                                          .add(Duration(hours: Constants.MIN_WORKHOUR_SPAN));
                                       tempEvent.end = TimeUtils.truncateDate(widget._event.start, "day")
-                                          .add(Duration(hours: Global.Constants.MAX_WORKHOUR_SPAN));
+                                          .add(Duration(hours: Constants.MAX_WORKHOUR_SPAN));
                                     }
                                     var result =
                                         await PlatformUtils.navigator(context, new OperatorSelection(tempEvent, true));
@@ -651,7 +651,7 @@ class EventCreatorState extends State<EventCreator> {
     setState(() {
       _loadingPath = false;
       _fileName = _path != null
-          ? (PlatformUtils.platform == Global.Constants.web) ? _path.split(":").first : _path.split('/').last
+          ? (PlatformUtils.platform == Constants.web) ? _path.split(":").first : _path.split('/').last
           : _paths != null ? _paths.keys.toString() : '...';
     });
   }
@@ -660,7 +660,7 @@ class EventCreatorState extends State<EventCreator> {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else {
-      Utils.NavigateTo(context, Global.Constants.homeRoute, null);
+      Utils.NavigateTo(context, Constants.homeRoute, null);
     }
   }
 
@@ -671,7 +671,7 @@ class EventCreatorState extends State<EventCreator> {
   }
 
   getCategories() async {
-    PlatformUtils.fireDocument(Global.Constants.tabellaCostanti, "Categorie").get().then((doc) {
+    PlatformUtils.fireDocument(Constants.tabellaCostanti, "Categorie").get().then((doc) {
       if (doc.exists && doc != null) {
         dynamic data = PlatformUtils.extractFieldFromDocument(null, doc);
         setState(() {
@@ -714,14 +714,14 @@ class EventCreatorState extends State<EventCreator> {
       widget._event.status = Status.New;
       var oldDocumentsList = widget._event.documents.split("/");
       widget._event.documents = _path != null
-          ? (PlatformUtils.platform == Global.Constants.web) ? _path.split(":").first : _path.split("/").last
+          ? (PlatformUtils.platform == Constants.web) ? _path.split(":").first : _path.split("/").last
           : _paths != null ? _paths.keys.join("/") : "";
       if (_allDayFlag) {
         widget._event.start = TimeUtils.truncateDate(widget._event.start, "day")
-            .add(Duration(hours: Global.Constants.MIN_WORKHOUR_SPAN))
+            .add(Duration(hours: Constants.MIN_WORKHOUR_SPAN))
             .toLocal();
         widget._event.end = TimeUtils.truncateDate(widget._event.start, "day")
-            .add(Duration(hours: Global.Constants.MAX_WORKHOUR_SPAN))
+            .add(Duration(hours: Constants.MAX_WORKHOUR_SPAN))
             .toLocal();
       }
       dynamic docRef;
@@ -735,7 +735,7 @@ class EventCreatorState extends State<EventCreator> {
         }
         if (_path != null)
           _paths = Map.of({
-            (PlatformUtils.platform == Global.Constants.web) ? _path.split(":").first : _path.split('/').last: _path
+            (PlatformUtils.platform == Constants.web) ? _path.split(":").first : _path.split('/').last: _path
           });
         _paths?.forEach((singleName, singlePath) {
           oldDocumentsList.remove(singleName);
@@ -758,7 +758,7 @@ class EventCreatorState extends State<EventCreator> {
       String baseURL = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
       String language = 'it';
       String type = 'address';
-      String key = Global.Constants.googleMapsApiKey;
+      String key = Constants.googleMapsApiKey;
       String request = '$baseURL?input=$text&key=$key&type=$type&language=$language';
 
       Response response = await Dio().get(request);

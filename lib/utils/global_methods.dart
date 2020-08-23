@@ -4,10 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/repository/events_repository.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 
 class TimeUtils {
 
@@ -27,10 +26,10 @@ class Utils {
 
   static Future<Map<String,dynamic>> getCategories() async {
     Map <String,dynamic> categories;
-    var doc = await PlatformUtils.fireDocument(global.Constants.tabellaCostanti, "Categorie").get();
+    var doc = await PlatformUtils.fireDocument(Constants.tabellaCostanti, "Categorie").get();
     if (doc.exists) {
       categories = PlatformUtils.extractFieldFromDocument(null, doc);
-      categories['default'] = global.Constants.fallbackHexColor;
+      categories['default'] = Constants.fallbackHexColor;
     } else {
       print("No categories!");
     }
@@ -39,10 +38,10 @@ class Utils {
 
   static Future<Color> getColor(arg) async {
     Map <String,dynamic> categories;
-    var doc = await PlatformUtils.fireDocument(global.Constants.tabellaCostanti, "Categorie").get();
+    var doc = await PlatformUtils.fireDocument(Constants.tabellaCostanti, "Categorie").get();
     if (doc.exists) {
       categories = PlatformUtils.extractFieldFromDocument(null, doc);
-      categories['default'] = global.Constants.fallbackHexColor;
+      categories['default'] = Constants.fallbackHexColor;
     } else {
       print("No categories!");
     }
@@ -54,10 +53,10 @@ class Utils {
   static Event getEventWithCurrentDay(DateTime day){
     day = TimeUtils.truncateDate(day, "day");
     if(DateTime.now().isAfter(day)) day = TimeUtils.truncateDate(DateTime.now(), "day");
-    day = day.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+    day = day.add(Duration(hours: Constants.MIN_WORKHOUR_SPAN));
     Event event = Event.empty();
     event.start = day;
-    event.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));
+    event.end = day.add(Duration(minutes: Constants.WORKHOUR_SPAN));
     return event;
   }
 
@@ -88,59 +87,15 @@ class Utils {
   }
 
   static void PushViewDetailsEvent(BuildContext context, Event ev) async {
-    final result = await Navigator.pushNamed(context, global.Constants.detailsEventViewRoute, arguments: ev);
-    if(result == global.Constants.DELETE_SIGNAL) {
+    final result = await Navigator.pushNamed(context, Constants.detailsEventViewRoute, arguments: ev);
+    if(result == Constants.DELETE_SIGNAL) {
       EventsRepository().deleteEvent(ev);
     }
-    if(result == global.Constants.MODIFY_SIGNAL) {
-      Navigator.pushNamed(context, global.Constants.createEventViewRoute, arguments: ev);
+    if(result == Constants.MODIFY_SIGNAL) {
+      Navigator.pushNamed(context, Constants.createEventViewRoute, arguments: ev);
     }
   }
 
-  static void deleteDialog(BuildContext context){
-    showDialog(
-        context: context,
-        barrierDismissible: true,
-        builder: (BuildContext context) {
-          return dialogAlert(
-            action: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  FlatButton(
-                    child: new Text('Annulla', style: label),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      Navigator.canPop(context)?Navigator.of(context).pop():null;
-                    },
-                  ),
-                  SizedBox(width: 15,),
-                  RaisedButton(
-                    child: new Text('CONFERMA', style: button_card),
-                    shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.all(Radius.circular(15.0))),
-                    color: black,
-                    elevation: 15,
-                    onPressed: () {
-                      Navigator.pop(context,false);
-                      Navigator.pop(context, global.Constants.DELETE_SIGNAL);
-                      Navigator.canPop(context)?Navigator.pop(context, global.Constants.DELETE_SIGNAL):null;
-                    },
-                  ),
-                ]),
-            content:  SingleChildScrollView(
-              child: ListBody(children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(bottom: 10),
-                  child: Text("Confermi la cancellazione dell'incarico?", style: label,),
-                ),
-              ]),
-            ),
-            tittle: "CANCELLA INCARICO",
-            context: context,
-          );
-        });
-  }
 }
 class HexColor extends Color {
   static int _getColorFromHex(String hexColor) {

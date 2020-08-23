@@ -6,7 +6,7 @@ import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugin/firebase/firebase_auth_service.dart';
 import 'package:venturiautospurghi/repository/operators_repository.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
@@ -259,7 +259,7 @@ class RegisterState extends State<Register> {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else {
-      Utils.NavigateTo(context, global.Constants.homeRoute, null);
+      Utils.NavigateTo(context, Constants.homeRoute, null);
     }
   }
 
@@ -273,7 +273,7 @@ class RegisterState extends State<Register> {
   void _register() async {
     RepositoryProvider.of<FirebaseAuthService>(context).createAccount(
       _emailController.text,
-      global.Constants.passwordNewUsers,
+      Constants.passwordNewUsers,
       displayName: _cognomeController.text + " " + _nomeController.text,
     ).then((user) {
       if (user != null) {
@@ -286,7 +286,7 @@ class RegisterState extends State<Register> {
           _successMessage = "Utente " + user.email + " registrato con successo.";
           _errorMessage = "";
           Timer(Duration(seconds: 3),
-              () => BlocProvider.of<MobileBloc>(context).add(NavigateEvent(global.Constants.homeRoute, null)));
+              () => BlocProvider.of<MobileBloc>(context).add(NavigateEvent(Constants.homeRoute, null)));
         });
       } else {
         setState(() {

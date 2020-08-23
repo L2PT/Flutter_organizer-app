@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../models/auth/authuser.dart';
+import '../models/auth/authuser.dart';
 
 class FirebaseAuthService {
   final fb.FirebaseAuth _firebaseAuth;

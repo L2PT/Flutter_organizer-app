@@ -6,7 +6,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/simple_bloc_delegate.dart';
 

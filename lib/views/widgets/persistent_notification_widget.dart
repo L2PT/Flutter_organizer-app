@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -120,7 +120,7 @@ class _PersistentNotificationState extends State<PersistentNotification> {
   }
 
   void _actionVisualizza() {
-    Utils.NavigateTo(context,global.Constants.waitingEventListRoute,null);
+    Utils.NavigateTo(context,Constants.waitingEventListRoute,null);
   }
 
   void _setMapWaitingEvent(Event event) {

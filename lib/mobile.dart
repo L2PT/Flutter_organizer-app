@@ -2,8 +2,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/plugins/firebase/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/views/backdrop.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
@@ -25,14 +25,14 @@ class _MyAppState extends State<MyApp> {
       builder: (context, state) {
         if (state is Unauthenticated) {
           return MaterialApp(
-              title: global.Constants.title,
+              title: Constants.title,
               theme: customLightTheme,
               debugShowCheckedModeBanner: false,
               home: LogIn());
         } else if (state is Authenticated) {
           CloudFirestoreService databaseRepository = CloudFirestoreService();
           return MaterialApp(
-              title: global.Constants.title,
+              title: Constants.title,
               theme: customLightTheme,
               debugShowCheckedModeBanner: false,
               home: RepositoryProvider.value(
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
                           );
                         }
                         return MaterialApp(
-                            title: global.Constants.title,
+                            title: Constants.title,
                             theme: customLightTheme,
                             debugShowCheckedModeBanner: false,
                             home: SplashScreen());

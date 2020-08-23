@@ -1,22 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-a
-class dialogAlert extends  StatelessWidget {
 
+class Alert extends StatelessWidget {
   final Widget content;
-  final BuildContext context;
-  final String tittle;
+  final String title;
   final Widget action;
 
-  dialogAlert(
-      {this.content,
-        this.context,
-        this.tittle,
-        this.action,
-        Key key})
-      : super(key: key);
-
+  Alert({this.content, this.title, this.action, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +27,7 @@ class dialogAlert extends  StatelessWidget {
         ),
         child: Center(
           child: Text(
-            tittle,
+            title,
             style: title_rev,
           ),
         ),
@@ -46,9 +38,4 @@ class dialogAlert extends  StatelessWidget {
       ],
     );
   }
-
 }
-
-
-
-

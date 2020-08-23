@@ -13,7 +13,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
@@ -96,7 +96,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
       rowHeight: 85,
       locale: 'it_IT',
       calendarController: _calendarController,
-      events: _events,
+      subscribeEvents: _events,
       initialCalendarFormat: CalendarFormat.month,
       formatAnimation: FormatAnimation.slide,
       startingDayOfWeek: StartingDayOfWeek.monday,
@@ -206,7 +206,7 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
       //METODI DI CALLBACK
   void _onDaySelected(DateTime day, List events) {
     //reformat since is a UTC
-    Utils.NavigateTo(context, global.Constants.dailyCalendarRoute, [null,TimeUtils.truncateDate(day,"day")]);
+    Utils.NavigateTo(context, Constants.dailyCalendarRoute, [null,TimeUtils.truncateDate(day,"day")]);
   }
 
   void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {

@@ -7,10 +7,11 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/base_alert.dart';
+import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 
 a
 class cardEvent extends StatefulWidget {
@@ -193,8 +194,8 @@ class _cardEventState extends State<cardEvent> {
         color: black,
       );
     } else {
-      hour = (((widget.e.end.day!=widget.selectedDay.day?global.Constants.MAX_WORKHOUR_SPAN*60:min<int>(global.Constants.MAX_WORKHOUR_SPAN*60,widget.e.end.hour * 60 + widget.e.end.minute)) -
-          (widget.e.start.day!=widget.selectedDay.day?global.Constants.MIN_WORKHOUR_SPAN*60:max<int>(global.Constants.MIN_WORKHOUR_SPAN*60,widget.e.start.hour * 60 + widget.e.start.minute))) / 60);
+      hour = (((widget.e.end.day!=widget.selectedDay.day?Constants.MAX_WORKHOUR_SPAN*60:min<int>(Constants.MAX_WORKHOUR_SPAN*60,widget.e.end.hour * 60 + widget.e.end.minute)) -
+          (widget.e.start.day!=widget.selectedDay.day?Constants.MIN_WORKHOUR_SPAN*60:max<int>(Constants.MIN_WORKHOUR_SPAN*60,widget.e.start.hour * 60 + widget.e.start.minute))) / 60);
       containerHeight = hour / widget.hourSpan * widget.hourHeight;
       paddingContainer = 5 * hour / widget.hourSpan;
       heightBar = 40;
@@ -256,7 +257,7 @@ class _cardEventState extends State<cardEvent> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return dialogAlert(
+        return Alert(
           action: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -310,9 +311,7 @@ class _cardEventState extends State<cardEvent> {
               ]),
             ),
           ),
-          tittle: "RIFIUTA INCARICO",
-          context: context,
-
+          title: "RIFIUTA INCARICO",
         );
       },
     );

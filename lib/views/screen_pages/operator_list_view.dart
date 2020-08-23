@@ -6,7 +6,7 @@ import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
 
@@ -257,7 +257,7 @@ class ChildItem extends StatelessWidget {
     //TOMAYBEDO add icons by account's properties
     return GestureDetector(
       onTap: () => BlocProvider.of<MobileBloc>(context).add(
-          NavigateEvent(global.Constants.dailyCalendarRoute, [operator, null])),
+          NavigateEvent(Constants.dailyCalendarRoute, [operator, null])),
       child: Container(
         height: 50,
         padding: EdgeInsets.symmetric(horizontal: 20),

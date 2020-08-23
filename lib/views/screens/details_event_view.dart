@@ -6,16 +6,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repository/events_repository.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/base_alert.dart';
+import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 
 class DetailsEvent extends StatefulWidget {
-  final route = global.Constants.detailsEventViewRoute;
+  final route = Constants.detailsEventViewRoute;
   Event event;
 
   DetailsEvent(
@@ -43,7 +44,7 @@ class _DetailsEventState extends State<DetailsEvent>
   ];
   List<Widget> tabsContents = List();
   TabController _tabController;
-  Color color = Color(global.Constants.fallbackColor);
+  Color color = Color(Constants.fallbackColor);
   Account account;
 
   @override
@@ -379,10 +380,10 @@ class _DetailsEventState extends State<DetailsEvent>
                 padding: EdgeInsets.all(2),
                 child: FloatingActionButton(
                   child: Icon(Icons.delete, size: 40,),
-                  onPressed: () => Utils.deleteDialog(context),
+                  onPressed: () => DeleteAlert(),
                   backgroundColor: black,
                   elevation: 6,
-                ))):Fab(context).FabChooser(widget.route),
+                ))):Fab(),
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
@@ -595,7 +596,7 @@ class _DetailsEventState extends State<DetailsEvent>
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
-          return dialogAlert(
+          return Alert(
             action: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
@@ -624,8 +625,7 @@ class _DetailsEventState extends State<DetailsEvent>
                   ),
                 ]),
               ),
-            tittle: "TERMINA INCARICO",
-            context: context,
+            title: "TERMINA INCARICO",
           );
     });
   }

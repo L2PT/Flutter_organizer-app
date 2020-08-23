@@ -5,9 +5,9 @@ import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 
 part 'authentication_event.dart';
 
@@ -61,7 +61,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     var user = event.user;
     account = await getAccount(user.email);
     isSupervisor = account.supervisor;
-    if (PlatformUtils.platform == global.Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
+    if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
@@ -71,8 +71,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   /// Function to retrieve from the database the information associated with the
   /// user logged in. The Firebase AuthUser uid must be the same as the id of the
-  /// document in the "Utenti"(Constants.tabellaUtenti) collection.
-  /// However the mail is an unique field.
+  /// document in the "Utenti" [Constants.tabellaUtenti] collection.
+  /// However the mail is also an unique field.
   Future<Account> getAccount(String email) async {
     var query = FirebaseFirestore.instance.collection("Utenti").where('Email', isEqualTo: email);
     var result = await query.get();

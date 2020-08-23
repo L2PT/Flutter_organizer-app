@@ -3,12 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/fab_cubit.dart';
-import 'package:venturiautospurghi/plugins/firebase/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 
 class Fab extends StatelessWidget {
 
@@ -52,7 +53,7 @@ class Fab_details_super extends StatelessWidget {
                             width: 10,
                           ),
                           GestureDetector(
-                            onTap: () => Utils.deleteDialog(context),
+                            onTap: () => DeleteAlert(),
                             child: Container(
                               height: 50,
                               width: 50,
@@ -80,7 +81,7 @@ class Fab_details_super extends StatelessWidget {
                           GestureDetector(
                             onTap: () {
                               Navigator.pop(context);
-                              Navigator.pop(context, global.Constants.MODIFY_SIGNAL);
+                              Navigator.pop(context, Constants.MODIFY_SIGNAL);
                             },
                             child: Container(
                               height: 50,
@@ -222,11 +223,11 @@ class Fab_daily_super extends StatelessWidget {
       onPressed: (){
         DateTime day = DateTime.now();//TODO TimeUtils.truncateDate(BlocProvider.of<MobileBloc>(context).day,"day");
         if(DateTime.now().isAfter(day)) day = TimeUtils.truncateDate(DateTime.now(), "day");
-        day = day.add(Duration(hours: global.Constants.MIN_WORKHOUR_SPAN));
+        day = day.add(Duration(hours: Constants.MIN_WORKHOUR_SPAN));
         Event ev = Event.empty();
         ev.start = day;
-        ev.end = day.add(Duration(minutes: global.Constants.WORKHOUR_SPAN));
-        Navigator.pushNamed(context, global.Constants.createEventViewRoute, arguments: ev);
+        ev.end = day.add(Duration(minutes: Constants.WORKHOUR_SPAN));
+        Navigator.pushNamed(context, Constants.createEventViewRoute, arguments: ev);
       },
       backgroundColor: black,
     );

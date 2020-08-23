@@ -24,9 +24,10 @@ import 'package:venturiautospurghi/models/linkmenu.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/backdrop_menu.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
-import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/base_alert.dart';
+import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/views/widgets/persistent_notification_widget.dart';
 import '../utils/theme.dart';
@@ -66,8 +67,8 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
             appBar: AppBar(
               title: new Text(
                   (account.supervisor
-                          ? (menuResponsabile[bloc.actualRoute] ?? menuResponsabile[global.Constants.homeRoute])
-                          : (menuOperatore[bloc.actualRoute] ?? menuOperatore[global.Constants.homeRoute]))
+                          ? (menuResponsabile[bloc.actualRoute] ?? menuResponsabile[Constants.homeRoute])
+                          : (menuOperatore[bloc.actualRoute] ?? menuOperatore[Constants.homeRoute]))
                       .textLink
                       .toUpperCase(),
                   style: title_rev),
@@ -141,10 +142,9 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
   Future<bool> _onBackPressed() {
     return showDialog(
           context: context,
-          builder: (context) => new dialogAlert(
-            tittle: "ESCI",
+          builder: (context) => new Alert(
+            title: "ESCI",
             content: new Text( 'Vuoi uscire dall\'app?', style: label, ),
-            context: context,
             action: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
               FlatButton(
                 child: new Text('No', style: label),

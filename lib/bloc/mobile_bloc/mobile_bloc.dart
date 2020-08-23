@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/plugins/firebase/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
+import 'package:venturiautospurghi/views/screens/details_event_view.dart';
 import 'package:venturiautospurghi/views/screens/form_event_creator_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/monthly_calendar_view.dart';
@@ -71,31 +72,31 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
     int bloctype;
     actualRoute = event.route;
     switch(event.route) {
-      case global.Constants.detailsEventViewRoute: yield OutBackdrop(event.route, DetailsEvent(event.arg)); break;
-      case global.Constants.createEventViewRoute: yield OutBackdrop(event.route, EventCreator(event.args)); break;
-      case global.Constants.registerRoute: yield OutBackdrop(event.route, Register()); break;
-      case global.Constants.homeRoute: {
-        if(isSupervisor) {
+      case Constants.detailsEventViewRoute: yield OutBackdropState(event.route, DetailsEvent(event.arg)); break;
+      case Constants.createEventViewRoute: yield OutBackdropState(event.route, EventCreator(event.args)); break;
+      case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
+      case Constants.homeRoute: {
+        if(_account.supervisor) {
           content = OperatorList();
-          subscription = eventsRepository.events;
-          bloctype = global.Constants.OPERATORS_BLOC;
+          subscription = eventsRepository.subscribeEvents;
+          bloctype = Constants.OPERATORS_BLOC;
         }else{
           content = DailyCalendar(null);
           subscription = eventsRepository.eventsByOperatorAcceptedOrAbove;
           subscriptionArgs = user.id;
-          bloctype = global.Constants.EVENTS_BLOC;
+          bloctype = Constants.EVENTS_BLOC;
         }
       } break;
-      case global.Constants.monthlyCalendarRoute: {
+      case Constants.monthlyCalendarRoute: {
         content = MonthlyCalendar(event.arg);
         if(operator != null || !isSupervisor){
           subscription = eventsRepository.eventsByOperator;
           subscriptionArgs = !isSupervisor?user.id:operator.id;
         }else
-          subscription = eventsRepository.events;
-        bloctype = global.Constants.EVENTS_BLOC;
+          subscription = eventsRepository.subscribeEvents;
+        bloctype = Constants.EVENTS_BLOC;
       } break;
-      case global.Constants.dailyCalendarRoute: {
+      case Constants.dailyCalendarRoute: {
         //arg 1: operator
         //arg 2: day
         if(event.arg!=null && event.arg[0]!=null)
@@ -110,41 +111,41 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
         else
           subscription = eventsRepository.eventsByOperatorAcceptedOrAbove;
         subscriptionArgs = !isSupervisor?user.id:operator.id;
-        bloctype = global.Constants.EVENTS_BLOC;
+        bloctype = Constants.EVENTS_BLOC;
       } break;
-      case global.Constants.profileRoute: {
+      case Constants.profileRoute: {
         //content = Profile;
       }
       break;
-      case global.Constants.registerRoute: {
-        bloctype = global.Constants.OUT_OF_BLOC;
+      case Constants.registerRoute: {
+        bloctype = Constants.OUT_OF_BLOC;
         content = Register();
       }
       break;
-      case global.Constants.operatorListRoute: {
+      case Constants.operatorListRoute: {
         content = OperatorList();
-        subscription = eventsRepository.events;
-        bloctype = global.Constants.OPERATORS_BLOC;
+        subscription = eventsRepository.subscribeEvents;
+        bloctype = Constants.OPERATORS_BLOC;
       }
       break;
-      case global.Constants.createEventViewRoute: {
-        bloctype = global.Constants.OUT_OF_BLOC;
+      case Constants.createEventViewRoute: {
+        bloctype = Constants.OUT_OF_BLOC;
         content = EventCreator(null);
       }
       break;
-      case global.Constants.waitingEventListRoute: {
+      case Constants.waitingEventListRoute: {
         //pay attention this works only for Operators
         content = waitingEvent();
         subscription = eventsRepository.eventsWaiting;
         subscriptionArgs = user.id;
-        bloctype = global.Constants.EVENTS_BLOC;
+        bloctype = Constants.EVENTS_BLOC;
       }
       break;
-      case global.Constants.historyEventListRoute: {
+      case Constants.historyEventListRoute: {
         //pay attention this works only for Operators
         content = History();
         subscription = eventsRepository.eventsHistory;
-        bloctype = global.Constants.EVENTS_BLOC;
+        bloctype = Constants.EVENTS_BLOC;
       }
       break;
       default: {content = DailyCalendar(null);}
@@ -159,7 +160,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
     //TODO is it really necessary? maybe
     //await eventsRepository.init();
-    add(NavigateEvent(global.Constants.homeRoute,null));
+    add(NavigateEvent(Constants.homeRoute,null));
   }
 
 }

@@ -22,7 +22,6 @@ abstract class PlatformUtils {
   static dynamic file(path) => null;
 
   static const dynamic Dir = null;
-  static const dynamic fire = null;
   static dynamic storageGetUrl(path) => null;
   static void storagePutFile(path, file) => null;
   static void storageDelFile(path) => null;
@@ -32,20 +31,6 @@ abstract class PlatformUtils {
   static dynamic filePicker() => null;
 
   static dynamic multiFilePicker() => null;
-
-  static dynamic fireDocuments(collection, {whereCondFirst, whereOp, whereCondSecond}) async => null;
-
-  static dynamic customCollectionGroup(categories) => null;
-
-  static List documents(querySnapshot) => null;
-
-  static dynamic setDocument(collection, documentId, data) => null;
-
-  static dynamic updateDocument(collection, documentId, data) => null;
-
-  static dynamic fireDocument(collection, documentId) => null;
-
-  static dynamic extractFieldFromDocument(field, document) => null;
 
   static dynamic navigator(context, content) => null;
 

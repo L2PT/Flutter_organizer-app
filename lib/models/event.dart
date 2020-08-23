@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 
 class Event {
   String _id="";

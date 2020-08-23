@@ -35,18 +35,27 @@ class Constants {
   static const String tabellaEventiTerminati = '/Storico/StoricoTerminati/StoricoEventi';
   static const String tabellaEventiRifiutati = '/Storico/StoricoRifiutati/StoricoEventi';
   static const String tabellaCostanti = 'Costanti';
+
   // TABLE EVENTI
-  static const String tabellaEventi_categoria = 'Categoria';
+  static const String tabellaEventi_titolo = 'Titolo';
+  static const String tabellaEventi_descrizione = 'Descrizione';
   static const String tabellaEventi_dataFine = 'DataFine';
   static const String tabellaEventi_dataInizio = 'DataInizio';
-  static const String tabellaEventi_desc = 'Descrizione';
-  static const String tabellaEventi_luogo = 'Luogo';
-  static const String tabellaEventi_ope = 'Operatore';
-  static const String tabellaEventi_resp = 'Responsabile';
+  static const String tabellaEventi_indirizzo = 'Indirizzo';
   static const String tabellaEventi_stato = 'Stato';
-  static const String tabellaEventi_subOpe = 'SubOperatori';
-  static const String tabellaEventi_titolo = 'Titolo';
+  static const String tabellaEventi_categoria = 'Categoria';
   static const String tabellaEventi_motivazione = 'Motivazione';
+  static const String tabellaEventi_luogo = 'Luogo';
+  static const String tabellaEventi_idOperatore = 'IdOperatore';
+  static const String tabellaEventi_idOperatori = 'IdOperatori';
+  static const String tabellaEventi_idResponsabile = 'IdResponsabile';
+  static const String tabellaEventi_operatore = 'Operatore';
+  static const String tabellaEventi_subOperatori = 'SubOperatori';
+  static const String tabellaEventi_responsabile = 'Responsabile';
+
+  // TABLE COSTANTI
+  static const String tabellaCostanti_Categorie = 'Categorie';
+
 
   // INSIDE EVENTS SWITCHES
   static const int EVENTS_BLOC = 0;
@@ -56,11 +65,11 @@ class Constants {
   static const String DELETE_SIGNAL = "delete_event_signal";
   static const String MODIFY_SIGNAL = "modify_event_signal";
 
-  static const MIN_WORKHOUR_SPAN = 6;
-  static const MAX_WORKHOUR_SPAN = 21;
-  static const WORKHOUR_SPAN = 30;
+  static const int MIN_WORKHOUR_SPAN = 6;
+  static const int MAX_WORKHOUR_SPAN = 21;
+  static const int WORKHOUR_SPAN = 30;
 
-  static const googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
+  static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
 
 
 

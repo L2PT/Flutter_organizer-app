@@ -5,11 +5,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/cubit/login_cubit.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/repositories/firebase_auth_service.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/dialog_app.dart';
+import 'package:venturiautospurghi/views/widgets/base_alert.dart';
+import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class LogIn extends StatelessWidget {
@@ -273,8 +274,8 @@ class _resetPasswordText extends StatelessWidget {
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
-              return new dialogAlert(
-                tittle: "RESET PASSWORD",
+              return new Alert(
+                title: "RESET PASSWORD",
                 content: new Text(resetMessage, style: label,),
                 action: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -295,13 +296,12 @@ class _resetPasswordText extends StatelessWidget {
                         elevation: 15,
                         onPressed: () {
                           if (!blocState.email.value.isNullOrEmpty()) {
-                            context.bloc<MobileBloc>().add(NavigateEvent(global.Constants.resetCodeRoute));
+                            context.bloc<MobileBloc>().add(NavigateEvent(Constants.resetCodeRoute));
                           }
                           Navigator.of(context).pop(false);
                         },
                       ),
                     ]),
-                context: context,
               );
             }
         );

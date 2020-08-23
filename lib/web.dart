@@ -9,12 +9,10 @@ import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_auth_service.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/repository/events_repository.dart';
-import 'package:venturiautospurghi/repository/operators_repository.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:js/js.dart';
@@ -23,7 +21,7 @@ import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.da
 import 'package:venturiautospurghi/views/screens/form_event_creator_view.dart';
 import 'package:venturiautospurghi/views/screens/register_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
+import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/events_bloc/events_bloc.dart';
 import 'bloc/operators_bloc/operators_bloc.dart';
@@ -107,7 +105,7 @@ class _MyAppState extends State<MyApp> {
             jQuery("#calendar").html("");
             return LogIn();
           } else if (state is Authenticated) {
-            if(!global.Constants.debug) WriteCookieJar(COOKIE_PATH, jsonEncode(state.user));
+            if(!Constants.debug) WriteCookieJar(COOKIE_PATH, jsonEncode(state.user));
             return BlocProvider(
               create: (context) {
                 return WebBloc(state.user, state.user.supervisor)..add(InitAppEvent());
@@ -181,9 +179,9 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
               if (state is Ready) {
                 selectedRoute = BlocProvider.of<WebBloc>(context).route;
                 //in the state there is the subscription to the data to ear for realtime changes
-                if (state.subtype == global.Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).add(LoadEvents(state.subscription, state.subscriptionArgs));
-                else if (state.subtype == global.Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).add(LoadOperators(state.subscription, state.subscriptionArgs));
-                else if (state.subtype == global.Constants.OUT_OF_BLOC)return state.content;
+                if (state.subtype == Constants.EVENTS_BLOC)BlocProvider.of<EventsBloc>(context).add(LoadEvents(state.subscription, state.subscriptionArgs));
+                else if (state.subtype == Constants.OPERATORS_BLOC)BlocProvider.of<OperatorsBloc>(context).add(LoadOperators(state.subscription, state.subscriptionArgs));
+                else if (state.subtype == Constants.OUT_OF_BLOC)return state.content;
                 return _buildPage(state.route, state.content);
               }
               return Container(
@@ -215,24 +213,24 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                             Container(
                               decoration: BoxDecoration(border: Border(
                                   bottom: BorderSide(
-                                      color: BlocProvider.of<WebBloc>(context).route == global.Constants.homeRoute?yellow:black,
+                                      color: BlocProvider.of<WebBloc>(context).route == Constants.homeRoute?yellow:black,
                                       width: 3
                                   )
                               )),
                               child: FlatButton(
-                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(global.Constants.homeRoute, null)),
+                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(Constants.homeRoute, null)),
                                 child: Text("CALENDARIO INCARICHI",style: button_card),
                               ),
                             ),
                             Container(
                               decoration: BoxDecoration(border: Border(
                                   bottom: BorderSide(
-                                      color: BlocProvider.of<WebBloc>(context).route == global.Constants.historyEventListRoute?yellow:black,
+                                      color: BlocProvider.of<WebBloc>(context).route == Constants.historyEventListRoute?yellow:black,
                                       width: 3
                                   )
                               )),
                               child: FlatButton(
-                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(global.Constants.historyEventListRoute, null)),
+                                onPressed: ()=>BlocProvider.of<WebBloc>(context).add(NavigateEvent(Constants.historyEventListRoute, null)),
                                 child: Text("STORICO",style: button_card),
                               ),
                             ),
@@ -278,7 +276,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
           ],
         )
     );
-    if(route == global.Constants.homeRoute){
+    if(route == Constants.homeRoute){
       jQuery('#wrap').css(CssOptions(zIndex: 1));
       jQuery('#wrap').css(CssOptions(display: "block"));
       return Container(
@@ -449,14 +447,14 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
             addResource(e.suboperators.map((o){Account a=Account.fromMap(e.idOperators[i++], o);a.webops=[];return a;}).toList());
           }break;
           case "event":{
-            if(onValue == global.Constants.DELETE_SIGNAL) {
+            if(onValue == Constants.DELETE_SIGNAL) {
               Map paramMap = json.decode(param);
               Event e = PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap);
               e.status = Status.Deleted;
               deleteEvent(e.id, json.encode(e.toDocument(), toEncodable: myEncode));
 //              jQuery('#calendar').fullCalendar('refetchEvents',null);
             }
-            if(onValue == global.Constants.MODIFY_SIGNAL) {
+            if(onValue == Constants.MODIFY_SIGNAL) {
               showDialogByContext("modify_event", param);
             }
           }break;

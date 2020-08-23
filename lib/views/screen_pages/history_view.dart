@@ -17,7 +17,7 @@ import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/form_event_creator_view.dart';
@@ -131,7 +131,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                           tabs: tabsHeaders.map((pair)=>pair.key).toList(),
                           controller: _tabController,
                         ),
-                      ),PlatformUtils.platform==global.Constants.web?
+                      ),PlatformUtils.platform==Constants.web?
                       Container(height: MediaQuery.of(context).size.height-150, child: list,):
                       Expanded(child: list,)
                     ],

@@ -3,21 +3,21 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/linkmenu.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 final Map<String, LinkMenu> menuOperatore = const {
-  global.Constants.homeRoute: const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
-  global.Constants.waitingEventListRoute: const LinkMenu(Icons.visibility_off, Colors.white, 30, "Incarichi in sospeso", title_rev),
-  global.Constants.monthlyCalendarRoute: const LinkMenu(FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
+  Constants.homeRoute: const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  Constants.waitingEventListRoute: const LinkMenu(Icons.visibility_off, Colors.white, 30, "Incarichi in sospeso", title_rev),
+  Constants.monthlyCalendarRoute: const LinkMenu(FontAwesomeIcons.calendarAlt, Colors.white, 25, "Calendario", title_rev)
 };
 
 final Map<String, LinkMenu> menuResponsabile = const {
-  global.Constants.homeRoute: const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
-  global.Constants.historyEventListRoute: const LinkMenu(Icons.history, Colors.white, 30, "Storico incarichi", title_rev),
-  global.Constants.createEventViewRoute: const LinkMenu(Icons.edit, Colors.white, 30, "Crea evento", title_rev),
-  global.Constants.registerRoute: const LinkMenu(Icons.person_add, Colors.white, 30, "Crea utente", title_rev),
+  Constants.homeRoute: const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
+  Constants.historyEventListRoute: const LinkMenu(Icons.history, Colors.white, 30, "Storico incarichi", title_rev),
+  Constants.createEventViewRoute: const LinkMenu(Icons.edit, Colors.white, 30, "Crea evento", title_rev),
+  Constants.registerRoute: const LinkMenu(Icons.person_add, Colors.white, 30, "Crea utente", title_rev),
 };
 
 /// Builds a BackLayer. A menu with the links to the sections that the user can reach.
