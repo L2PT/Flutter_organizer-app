@@ -223,10 +223,10 @@ class Fab_daily_super extends StatelessWidget {
       onPressed: (){
         DateTime day = DateTime.now();//TODO TimeUtils.truncateDate(BlocProvider.of<MobileBloc>(context).day,"day");
         if(DateTime.now().isAfter(day)) day = TimeUtils.truncateDate(DateTime.now(), "day");
-        day = day.add(Duration(hours: Constants.MIN_WORKHOUR_SPAN));
+        day = day.add(Duration(hours: Constants.MIN_WORKTIME));
         Event ev = Event.empty();
         ev.start = day;
-        ev.end = day.add(Duration(minutes: Constants.WORKHOUR_SPAN));
+        ev.end = day.add(Duration(minutes: Constants.WORKTIME_SPAN));
         Navigator.pushNamed(context, Constants.createEventViewRoute, arguments: ev);
       },
       backgroundColor: black,

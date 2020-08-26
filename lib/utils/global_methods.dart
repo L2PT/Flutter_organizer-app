@@ -2,11 +2,8 @@ library App.utils;
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
-import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 
 class TimeUtils {
 
@@ -20,21 +17,20 @@ class TimeUtils {
         '-' + ((day / 10 < 1) ? "0" + day.toString() : day.toString());
     return DateTime.parse(truncatedDate);
   }
+
+  static DateTime getNextWorkTimeSpan([DateTime date]) {
+    //TODO ragiona sul now e le ore lavorative [Constants.MIN_WORKTIME] -> [Constants.MAX_WORKTIME] e [Constants.WORKTIME_SPAN]
+    //il paramtro va inteso come max(date, now)
+
+  }
+
+  static DateTime addWorkTime(DateTime time, {int hour, int minutes}) {
+    //TODO ragiona sul time e le ore lavorative [Constants.MIN_WORKTIME] -> [Constants.MAX_WORKTIME]
+
+  }
 }
 
 class Utils {
-
-  static Future<Map<String,dynamic>> getCategories() async {
-    Map <String,dynamic> categories;
-    var doc = await PlatformUtils.fireDocument(Constants.tabellaCostanti, "Categorie").get();
-    if (doc.exists) {
-      categories = PlatformUtils.extractFieldFromDocument(null, doc);
-      categories['default'] = Constants.fallbackHexColor;
-    } else {
-      print("No categories!");
-    }
-    return categories;
-  }
 
   static Future<Color> getColor(arg) async {
     Map <String,dynamic> categories;
@@ -53,10 +49,10 @@ class Utils {
   static Event getEventWithCurrentDay(DateTime day){
     day = TimeUtils.truncateDate(day, "day");
     if(DateTime.now().isAfter(day)) day = TimeUtils.truncateDate(DateTime.now(), "day");
-    day = day.add(Duration(hours: Constants.MIN_WORKHOUR_SPAN));
+    day = day.add(Duration(hours: Constants.MIN_WORKTIME));
     Event event = Event.empty();
     event.start = day;
-    event.end = day.add(Duration(minutes: Constants.WORKHOUR_SPAN));
+    event.end = day.add(Duration(minutes: Constants.WORKTIME_SPAN));
     return event;
   }
 
@@ -65,25 +61,6 @@ class Utils {
       return false;
     }
     return double.tryParse(str) != null;
-  }
-
-  static void notify({token="eGIwmXLpg_c:APA91bGkJI5Nargw6jjiuO9XHxJYcJRL1qfg0CjmnblAsZQ8k-kPQXCCkalundHtsdS21_clryRplzXaSgCj6PM1geEmXttijdSCWQuMQWUHpjPZ9nJOaNFqC6Yq6Oa5WixzyObXr8gt",
-                      title="Nuovo incarico assegnato",
-                      description="Clicca la notifica per vedere i dettagli",
-                      eventId=""}) async {
-    String url = "https://fcm.googleapis.com/fcm/send";
-    String json = "";
-    Map<String,String> not = new Map<String,String>();
-    Map<String,String> data = new Map<String,String>();
-    json = "{\"to\":\"${token}\",";
-    not['title'] = title;
-    not['body'] = description;
-    not['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
-    data['id'] = eventId;
-    json += "\"notification\":"+jsonEncode(not)+", \"data\":"+jsonEncode(data)+"}";
-    var response = await http.post(url, body: json, headers: {"Authorization": "key=AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk","Content-Type": "application/json"},encoding: Encoding.getByName('utf-8'));
-    print("response: "+jsonEncode(json));
-    print("response: "+response.body);
   }
 
   static void PushViewDetailsEvent(BuildContext context, Event ev) async {

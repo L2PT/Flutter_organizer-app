@@ -194,8 +194,8 @@ class _cardEventState extends State<cardEvent> {
         color: black,
       );
     } else {
-      hour = (((widget.e.end.day!=widget.selectedDay.day?Constants.MAX_WORKHOUR_SPAN*60:min<int>(Constants.MAX_WORKHOUR_SPAN*60,widget.e.end.hour * 60 + widget.e.end.minute)) -
-          (widget.e.start.day!=widget.selectedDay.day?Constants.MIN_WORKHOUR_SPAN*60:max<int>(Constants.MIN_WORKHOUR_SPAN*60,widget.e.start.hour * 60 + widget.e.start.minute))) / 60);
+      hour = (((widget.e.end.day!=widget.selectedDay.day?Constants.MAX_WORKTIME*60:min<int>(Constants.MAX_WORKTIME*60,widget.e.end.hour * 60 + widget.e.end.minute)) -
+          (widget.e.start.day!=widget.selectedDay.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,widget.e.start.hour * 60 + widget.e.start.minute))) / 60);
       containerHeight = hour / widget.hourSpan * widget.hourHeight;
       paddingContainer = 5 * hour / widget.hourSpan;
       heightBar = 40;

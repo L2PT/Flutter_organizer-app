@@ -74,7 +74,7 @@ class CloudFirestoreService {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Future<Map<String, String>> _getCategories() async {
+  Future<Map<String, String>> getCategories() async {
     return (await _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get()).data();
   }
 

@@ -16,12 +16,9 @@ import 'package:universal_html/prefer_universal/html.dart';
 import 'package:js_shims/js_shims.dart';
 
 @JS()
+external void storageOpenUrlJs(dynamic path);
 external void storageGetUrlJs(dynamic path);
-
-@JS()
 external void storagePutFileJs(dynamic path, dynamic file);
-
-@JS()
 external void storageDelFileJs(dynamic path);
 
 class PlatformUtils {
@@ -55,7 +52,8 @@ class PlatformUtils {
   static const dynamic Dir = null;
 
   static dynamic storageGetUrl(path){
-    storageGetUrlJs(path);
+    storageOpenUrlJs(path);
+    return null;
   }
   static void storagePutFile(path, file){
     storagePutFileJs(path, file);
@@ -85,7 +83,6 @@ class PlatformUtils {
     print(a);
     return a;
   }
-
   static Future<Map<String,String>> multiFilePicker() async {
     final completer = new Completer<List<String>>();
     final InputElement input = document.createElement('input');
@@ -119,8 +116,8 @@ class PlatformUtils {
     );
   }
 
-  static dynamic onErrorMessage(msg) {
-    showAlert(msg);
+  static dynamic notifyErrorMessage(msg) {
+    showAlertJs(msg);
   }
 
   static E.Event EventFromMap(id, color, json) => E.Event.fromMap(id, color, json);

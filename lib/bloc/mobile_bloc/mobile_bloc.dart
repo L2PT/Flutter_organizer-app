@@ -11,7 +11,7 @@ import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
-import 'package:venturiautospurghi/views/screens/form_event_creator_view.dart';
+import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_list_view.dart';
@@ -73,7 +73,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
     actualRoute = event.route;
     switch(event.route) {
       case Constants.detailsEventViewRoute: yield OutBackdropState(event.route, DetailsEvent(event.arg)); break;
-      case Constants.createEventViewRoute: yield OutBackdropState(event.route, EventCreator(event.args)); break;
+      case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.args)); break;
       case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
       case Constants.homeRoute: {
         if(_account.supervisor) {
@@ -130,7 +130,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       break;
       case Constants.createEventViewRoute: {
         bloctype = Constants.OUT_OF_BLOC;
-        content = EventCreator(null);
+        content = CreateEvent(null);
       }
       break;
       case Constants.waitingEventListRoute: {

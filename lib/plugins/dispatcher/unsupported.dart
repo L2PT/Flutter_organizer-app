@@ -23,18 +23,18 @@ abstract class PlatformUtils {
 
   static const dynamic Dir = null;
   static dynamic storageGetUrl(path) => null;
+  static dynamic storageGetFiles(path) => null;
   static void storagePutFile(path, file) => null;
   static void storageDelFile(path) => null;
   static dynamic download(url,filename) => null;
   static void initDownloader() => null;
 
-  static dynamic filePicker() => null;
-
-  static dynamic multiFilePicker() => null;
+  static Future<String> filePicker() => null;
+  static Future<Map<String,String>> multiFilePicker() => null;
 
   static dynamic navigator(context, content) => null;
 
-  static dynamic onErrorMessage(msg) => null;
+  static dynamic notifyErrorMessage(msg) => null;
 
   static Event EventFromMap(id, color, json) => null;
 

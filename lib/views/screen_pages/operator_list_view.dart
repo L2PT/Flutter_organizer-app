@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
 
 class OperatorList extends StatefulWidget {
   OperatorList({Key key}) : super(key: key);

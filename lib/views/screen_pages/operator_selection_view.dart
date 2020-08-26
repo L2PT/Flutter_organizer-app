@@ -1,39 +1,53 @@
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/repository/operators_repository.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/cubit/operator_selection_cubit.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/switch_widget.dart';
 
-class OperatorSelection extends StatefulWidget {
-  final Event event;
-  final bool tristate;
+class OperatorSelection extends StatelessWidget {
+  final Event _event;
+  final bool supportPrimaryOperator;
 
+  OperatorSelection(this._event, {this.supportPrimaryOperator = false});
 
-  OperatorSelection(@required this.event, this.tristate, {Key key,})  :
-        assert(event != null),
-        super(key: key);
-
-  @override
-  _OperatorSelectionState createState()=>_OperatorSelectionState();
-}
-
-class _OperatorSelectionState extends State<OperatorSelection>{
-  List<Account> operators = [];
-  Map<Account,bool> sel = Map();
-  bool superChecked = false;
-
-  @override
-  void initState() {
-    super.initState();
-    getOperatorsDB();
-  }
 
   @override
   Widget build(BuildContext context) {
+    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var account = BlocProvider.of<AuthenticationBloc>(context).account;
+
+    Widget content = Container();
+
+    Widget loginPage = Container();
+
+    return new Scaffold(
+      resizeToAvoidBottomPadding: false,
+      backgroundColor: white,
+      body: new BlocProvider(
+          create: (_) => OperatorSelectionCubit(repository, _event, account),
+          child: loginPage
+      ),
+    );
+  }
+}
+
+  @override
+  Widget build(BuildContext context) {
+
+  List<Widget> buildOperatorsList = context.bloc<OperatorSelectionCubit>().operators.map((operator) => new ListTileOperator(
+      operator,
+      checkbox: context.bloc<OperatorSelectionCubit>().supportPrimaryOperator?2:1,
+      isChecked: sel[operator],
+      onTap: context.bloc<OperatorSelectionCubit>().onTap(operator))).toList();
+
     return Scaffold(
         appBar: AppBar(
             title: Text('OPERATORI DISPONIBILI',style: title_rev,),
@@ -44,8 +58,8 @@ class _OperatorSelectionState extends State<OperatorSelection>{
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.check, size: 40,),
           backgroundColor: black,
-          onPressed:(){if(!widget.tristate || superChecked)Navigator.pop(context, getOperatorsSelected());else
-            return PlatformUtils.onErrorMessage("Seleziona l' operatore principale, tappando due volte");
+          onPressed:(){if(!supportPrimaryOperator || superChecked)Navigator.pop(context, true);else
+            return PlatformUtils.notifyErrorMessage("Seleziona l' operatore principale, tappando due volte");
           },
     ),
         body: Material(
@@ -61,112 +75,11 @@ class _OperatorSelectionState extends State<OperatorSelection>{
             Expanded(
               child: ListView(
                 padding: new EdgeInsets.symmetric(vertical: 8.0),
-                children: operators.map((operator) => new ChildItem(operator, sel[operator], widget.tristate, onTap)).toList(),
-              ),
+                children: buildOperatorsList ),
             )
           ],
         )
       )
-    );
-  }
-
-  bool onTap(Account op){
-    print(sel[op]);
-    setState(() {
-      if(sel[op]==false) sel[op]=true;
-      else if(sel[op]==true && !superChecked && widget.tristate){
-        superChecked = true;
-        sel[op]=null;
-      }else{
-        if(sel[op]==null) superChecked = false;
-        sel[op]=false;
-      }
-    });
-  }
-
-  Event getOperatorsSelected(){
-    //Input Object Account
-    //Output Object Map
-    List<String> selectedOperatorsId = [];
-    List<dynamic> selectedSubOperators = [];
-    Account selectedOperator = null;
-    sel.keys.forEach((k){
-      if(sel[k] == true){
-        selectedOperatorsId.add(k.id);
-        selectedSubOperators.add(k.toDocument());
-      }else if(widget.tristate && sel[k] == null){
-        selectedOperatorsId.add(k.id);
-        selectedOperator = k;
-      }
-    });
-    if(widget.tristate) {
-      widget.event.idOperator = selectedOperator.id;
-      widget.event.operator = selectedOperator.toDocument();
-    }
-    widget.event.idOperators = selectedOperatorsId;
-    widget.event.suboperators = selectedSubOperators;
-    return widget.event;
-  }
-
-  void getOperatorsDB() async {
-    //Input Object Account
-    //Output Object Map
-    OperatorsRepository repo = OperatorsRepository();
-    if(widget.tristate)
-      operators = await repo.getOperatorsFree(widget.event.id, widget.event.start, widget.event.end);
-    else
-      operators = await repo.getOperators();
-    operators.forEach((operator){
-      if(operator!=null) {
-        if (widget.event.idOperator == operator.id) {
-          sel[operator] = null;
-          superChecked = true;
-        }else if (widget.event.idOperators.contains(operator.id))
-          sel[operator] = true;
-        else
-          sel[operator] = false;
-      }
-    });
-    print(widget.event.idOperator);
-    print(widget.event.idOperators);
-    print(operators);
-    setState(() {});
-  }
-}
-
-class ChildItem extends StatelessWidget {
-  final Account operator;
-  final bool checked;
-  final bool tristate;
-  final dynamic onTap;
-
-  ChildItem(this.operator, this.checked, this.tristate, this.onTap);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50,
-      padding: EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(right: 10.0),
-            padding: EdgeInsets.all(3.0),
-            child: Icon(Icons.work, color: yellow,),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(5.0)),
-              color: black,
-            ),
-          ),
-          Text(operator.surname.toUpperCase() + " ", style: title),
-          Text(operator.name, style: subtitle),
-          Expanded(child: Container(),),
-          tristate?CheckboxTriState(onChanged: (v)=>onTap(operator),
-            value: checked, tristate: true, activeColor: black, checkColor: white, superColor: yellow,):
-          Checkbox(onChanged: (v)=>onTap(operator),
-            value: checked, activeColor: black, checkColor: white,),
-        ],
-      ),
     );
   }
 }

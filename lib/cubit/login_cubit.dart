@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:venturiautospurghi/models/auth/email.dart';
 import 'package:venturiautospurghi/models/auth/password.dart';
 import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/repositories/firebase_auth_service.dart';
@@ -31,16 +30,16 @@ class LoginCubit extends Cubit<LoginState> {
   Future<void> logInWithCredentials() async {
     if (state.isInvalid()) return;
     var stateToRestore = state;
-    emit(state.assign(status: FormStatus.loading));
+    emit(state.assign(status: _formStatus.loading));
     if(stateToRestore.isValid()) {
       try {
         await _authenticationRepository.signInWithEmailAndPassword(
           state.email.value,
           state.password.value,
         );
-        emit(state.assign(status: FormStatus.success));
+        emit(state.assign(status: _formStatus.success));
       } on Exception {
-        emit(state.assign(status: FormStatus.failure));
+        emit(state.assign(status: _formStatus.failure));
       }
     } else{
       emit(state.assign(status: stateToRestore.status));
@@ -48,12 +47,12 @@ class LoginCubit extends Cubit<LoginState> {
   }
 
   Future<void> logInWithGoogle() async {
-    emit(state.assign(status: FormStatus.loading));
+    emit(state.assign(status: _formStatus.loading));
     try {
       await _authenticationRepository.signInWithGoogle();
-      emit(state.assign(status: FormStatus.success));
+      emit(state.assign(status: _formStatus.success));
     } on Exception {
-      emit(state.assign(status: FormStatus.failure));
+      emit(state.assign(status: _formStatus.failure));
     }
   }
 }

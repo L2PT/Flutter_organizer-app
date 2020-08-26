@@ -1,0 +1,29 @@
+part of 'create_event_cubit.dart';
+
+
+enum _formStatus { normal, loading, success }
+
+class CreateEventState extends Equatable {
+  CreateEventState([this.event]) : this.locations = List<String>.empty() {
+    if(event == null) {
+      event = Event.empty();
+      event.start = TimeUtils.addWorkTime(TimeUtils.getNextWorkTimeSpan(), hour: 1);
+      event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
+    }
+    documents = Map<String,String>.fromIterable(event.documents, key: (v) => v, value: (v) => "");
+  }
+
+  Event event;
+  List<String> locations;
+  Map<String,String> documents;
+  int category;
+  _formStatus status;
+
+  @override
+  List<Object> get props => [event, locations, documents, status];
+
+  bool isLoading() => this.status == _formStatus.loading;
+
+  //TODO maybe here goes an assign
+
+}

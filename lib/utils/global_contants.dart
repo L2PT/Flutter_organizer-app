@@ -65,9 +65,9 @@ class Constants {
   static const String DELETE_SIGNAL = "delete_event_signal";
   static const String MODIFY_SIGNAL = "modify_event_signal";
 
-  static const int MIN_WORKHOUR_SPAN = 6;
-  static const int MAX_WORKHOUR_SPAN = 21;
-  static const int WORKHOUR_SPAN = 30;
+  static const int MIN_WORKTIME = 6;
+  static const int MAX_WORKTIME = 21;
+  static const int WORKTIME_SPAN = 30;
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
 

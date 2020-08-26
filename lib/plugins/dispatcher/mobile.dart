@@ -17,15 +17,6 @@ import 'package:venturiautospurghi/utils/global_contants.dart';
 abstract class PlatformUtils {
   PlatformUtils._();
 
-  //custom import for mobile
-//  static void open(String url, {String name}) async {
-//      if (await canLaunch(url)) {
-//        await launch(url);
-//      }else{
-//        throw 'Could not launch $url';
-//      }
-//  }
-
   static const String platform = Constants.mobile;
   static dynamic myApp = MyApp();
 
@@ -48,6 +39,9 @@ abstract class PlatformUtils {
     var a = await FirebaseStorage().ref().child(path).getDownloadURL();
     return a;
   }
+  static Future<List<String>> storageGetFiles(path) async {
+    return List<String>();//LONGTERMTODO maybe it will be implemented listAll is not available...
+  }
   static void storagePutFile(path, file){
     FirebaseStorage().ref().child(path).putFile(file);
   }
@@ -67,12 +61,11 @@ abstract class PlatformUtils {
   }
   static void initDownloader() => FlutterDownloader.initialize();
 
-  static dynamic filePicker() async {
+  static Future<String> filePicker() async {
     var a = await FilePicker.getFilePath();
     return a;
   }
-
-  static dynamic multiFilePicker() async {
+  static Future<Map<String,String>> multiFilePicker() async {
     var a = await FilePicker.getMultiFilePath();
     return a;
   }
@@ -81,12 +74,11 @@ abstract class PlatformUtils {
     return await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => content ));
   }
 
-  static dynamic onErrorMessage(msg) {
+  static dynamic notifyErrorMessage(msg) {
     return Fluttertoast.showToast(
         msg: msg,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
-        timeInSecForIos: 1,
         backgroundColor: Colors.red,
         textColor: Colors.white,
         fontSize: 16.0

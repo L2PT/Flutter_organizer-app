@@ -13,12 +13,11 @@ import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
-import 'package:venturiautospurghi/views/screens/form_event_creator_view.dart';
+import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screens/register_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
@@ -30,14 +29,14 @@ import 'bloc/web_bloc/web_bloc.dart';
 @JS()
 external void initCalendar();
 external dynamic addResource(dynamic data);
-external dynamic deleteEvent(String id, dynamic event);
 
 @JS()
-external dynamic WriteCookieJar(String cookie, String value);
-external dynamic ReadCookieJar(String cookie);
+external dynamic WriteCookieJarJs(String cookie, String value);
+external dynamic ReadCookieJarJs(String cookie);
 
 @JS()
-external dynamic consolLog(dynamic value);
+external dynamic showAlertJs(dynamic value);
+external dynamic consolLogJs(dynamic value);
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -94,18 +93,18 @@ class _MyAppState extends State<MyApp> {
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           if (state is Unauthenticated) {
-            String c = ReadCookieJar(COOKIE_PATH);
+            String c = ReadCookieJarJs(COOKIE_PATH);
             if(!c.isNullOrEmpty()){
               Map<String, dynamic> map = jsonDecode(c);
               AuthUser u = AuthUser.fromMap(map);
-              WriteCookieJar(COOKIE_PATH, "");
+              WriteCookieJarJs(COOKIE_PATH, "");
               repository.signInWithToken(u.email,u.token);
               return LoadingScreen();
             }
             jQuery("#calendar").html("");
             return LogIn();
           } else if (state is Authenticated) {
-            if(!Constants.debug) WriteCookieJar(COOKIE_PATH, jsonEncode(state.user));
+            if(!Constants.debug) WriteCookieJarJs(COOKIE_PATH, jsonEncode(state.user));
             return BlocProvider(
               create: (context) {
                 return WebBloc(state.user, state.user.supervisor)..add(InitAppEvent());
@@ -398,10 +397,10 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 //        Map paramMap = json.decode(param);
 //        dialogContainer = DetailsEvent(PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap));
         }break;
-      case "new_event":{dialogContainer = EventCreator();}break;
+      case "new_event":{dialogContainer = CreateEvent();}break;
       case "modify_event":{
         Map paramMap = json.decode(param);
-        dialogContainer = EventCreator(PlatformUtils.EventFromMap(paramMap["id"], paramMap["id"], paramMap));}break;
+        dialogContainer = CreateEvent(PlatformUtils.EventFromMap(paramMap["id"], paramMap["id"], paramMap));}break;
       case "new_user":{dialogContainer = Register();}break;
       case "add_operator":{dialogContainer = OperatorSelection(Event.empty(), false);}break;
     }
@@ -451,6 +450,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
               Map paramMap = json.decode(param);
               Event e = PlatformUtils.EventFromMap(paramMap["id"], paramMap["color"], paramMap);
               e.status = Status.Deleted;
+              databa
               deleteEvent(e.id, json.encode(e.toDocument(), toEncodable: myEncode));
 //              jQuery('#calendar').fullCalendar('refetchEvents',null);
             }

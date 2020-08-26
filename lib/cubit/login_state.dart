@@ -1,17 +1,17 @@
 part of 'login_cubit.dart';
 
-enum FormStatus { valid, invalid, emailInvalid, passwordInvalid, loading, success, failure }
+enum _formStatus { valid, invalid, emailInvalid, passwordInvalid, loading, success, failure }
 
 class LoginState extends Equatable {
   const LoginState({
     this.email = const Email(),
     this.password = const Password(),
-    this.status = FormStatus.invalid,
+    this.status = _formStatus.invalid,
   });
 
   final Email email;
   final Password password;
-  final FormStatus status;
+  final _formStatus status;
 
   @override
   List<Object> get props => [email, password, status];
@@ -19,39 +19,39 @@ class LoginState extends Equatable {
   LoginState assign({
     Email email,
     Password password,
-    FormStatus status,
+    _formStatus status,
   }) {
     return LoginState(
       email: email ?? this.email,
       password: password ?? this.password,
       status: status ?? (( email ?? this.email) != null && (password ?? this.password) != null ?
         ( email ?? this.email).validate() ?
-            ((password ?? this.password).validate() ? FormStatus.valid
-            : FormStatus.passwordInvalid)
-          : FormStatus.emailInvalid
-        : FormStatus.invalid)
+            ((password ?? this.password).validate() ? _formStatus.valid
+            : _formStatus.passwordInvalid)
+          : _formStatus.emailInvalid
+        : _formStatus.invalid)
     );
   }
 
   bool isInvalid() =>
-    this.status == FormStatus.invalid;
+    this.status == _formStatus.invalid;
 
   bool isValid() =>
-    this.status == FormStatus.valid;
+    this.status == _formStatus.valid;
 
   bool isEmailInvalid() =>
-    this.status == FormStatus.emailInvalid;
+    this.status == _formStatus.emailInvalid;
 
   bool isPasswordInvalid() =>
-    this.status == FormStatus.passwordInvalid;
+    this.status == _formStatus.passwordInvalid;
 
   bool isLoading() =>
-    this.status == FormStatus.loading;
+    this.status == _formStatus.loading;
 
   bool isSuccess() =>
-    this.status == FormStatus.valid;
+    this.status == _formStatus.valid;
 
   bool isFailure() =>
-    this.status == FormStatus.failure;
+    this.status == _formStatus.failure;
 
 }

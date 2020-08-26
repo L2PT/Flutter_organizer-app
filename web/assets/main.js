@@ -17,6 +17,7 @@ $(function() { // document ready
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
+    storage = firebase.storage();
 
     initCategories();
 
@@ -139,7 +140,7 @@ function readEvents(start, end, timezone, callback){
 
 function removeResource(res){
     calendar.removeResource(res).then(function(value){
-        removeResourceDart(res);
+        removeResource_dart(res);
     });
 }
 
@@ -150,32 +151,23 @@ function addResource(res){
     })
 }
 
-function deleteEvent(id, event){
-    //here cause transactions in dart web give error
-    db.runTransaction(async function(transaction) {
-        var docRef = db.collection("Eventi").doc(id);
-        var a = await transaction.set(db.collection("EventiEliminati").doc(id), JSON.parse(event));
-        return await transaction.delete(docRef);
-    }).catch(function(error) {
-        console.log("Error in trasaction: deleteEvent - ", error);
-    });
-}
-
-  async function storageGetUrlJs(path){
-    storage = firebase.storage();
+async function storageOpenUrl(path){
     var downloadUrl = await storage.ref().child(path).getDownloadURL();
     window.open(downloadUrl);
-  }
+}
 
-  function storagePutFileJs(path, file){
-    storage = firebase.storage();
+async function storageGetFiles(path){
+    var a = (await storage.ref().child(path).listAll());
+    return a;
+}
+
+function storagePutFile(path, file){
     storage.ref().child(path).put(file);
-  }
+}
 
-  function storageDelFileJs(path){
-    storage = firebase.storage();
+function storageDelFile(path){
     storage.ref().child(path).delete();
-  }
+}
 
 function mapEventObj(eventData){
     if(eventData!=null){
@@ -220,12 +212,6 @@ function censor(censor) {
     return value;
   }
 }
-function initJs2Dart(callback){
-    dart=callback;
-}
-function initJs2DartUtente(callback){
-    idUtente=callback;
-}
 
 function getCookie(cname) {
   var name = cname + "=";
@@ -249,13 +235,19 @@ function setCookie(cname, cvalue, exdays) {
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-
 /*          DART            */
 //accessors
-function WriteCookieJar(name,val) { setCookie(name,val,val==""?-10:1);}
-function ReadCookieJar(name) { getCookie(name);}
+function WriteCookieJarJs(name,val) { setCookie(name,val,val==""?-10:1);}
+function ReadCookieJarJs(name) { return getCookie(name);}
 
-function consolLog(value) { console.log(value);}
+function storageOpenUrlJs(path){ storageOpenUrl(path); };
+async function storageGetFilesJs(path){ return await storageGetFiles(path); };
+function storagePutFileJs(path, file){ storagePutFile(path, file); };
+function storageDelFileJs(path){ storageDelFileJs(path); };
+
+function showAlertJs(value) { alert(value);}
+function consolLogJs(value) { console.log(value);}
+
 
 
 

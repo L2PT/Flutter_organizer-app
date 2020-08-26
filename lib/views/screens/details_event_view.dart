@@ -4,8 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/repository/events_repository.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -29,8 +28,7 @@ class DetailsEvent extends StatefulWidget {
   _DetailsEventState createState() => _DetailsEventState();
 }
 
-class _DetailsEventState extends State<DetailsEvent>
-    with TickerProviderStateMixin {
+class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMixin {
   String textNamesOperators = "";
   String textStatusEvent = "";
   final double sizeIcon = 30;

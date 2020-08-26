@@ -1,20 +1,17 @@
 import 'package:flutter/material.dart';
 
 class Event {
-  String _id="";
-  String _title="";
-  String _description="";
-  DateTime _start=DateTime.now();
-  DateTime _end=DateTime.now();
-  String _address="";
-  String _documents="";
-  int _status= Status.New;
-  String _category="";
-  String _color="";
-  String _idSupervisor = "";
-  String _idOperator = "";
+  String _id = "";
+  String _title = "";
+  String _description = "";
+  DateTime _start = DateTime.now();
+  DateTime _end = DateTime.now();
+  String _address = "";
+  List<dynamic> _documents = new List();
+  int _status = Status.New;
+  String _category = "";
+  String _color = "";
   String _motivazione = "";
-  List<dynamic> _idOperators = new List();
   dynamic _supervisor = null;
   dynamic _operator = null;
   List<dynamic> _suboperators = new List();
@@ -34,9 +31,6 @@ class Event {
     _category = json.Categoria;
     _motivazione = json.Motivazione;
     _color = (color!=null && color!="")?color:(json.color!=null)?json.color:"";
-    _idSupervisor = json.IdResponsabile;
-    _idOperator = json.IdOperatore;
-    _idOperators = json.IdOperatori;
     _supervisor = PlatformUtils.AccountFromMap("d", json.Responsabile).toDocument();
     _operator = PlatformUtils.AccountFromMap("d", json.Operatore).toDocument();
     _suboperators = json.SubOperatori.map((op)=>PlatformUtils.AccountFromMap("d", op).toDocument()).toList();
@@ -53,9 +47,6 @@ class Event {
     _status = json["Stato"],
     _category = json["Categoria"],
     _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"",
-    _idSupervisor = json["IdResponsabile"],
-    _idOperator = json["IdOperatore"],
-    _idOperators = json["IdOperatori"],
     _supervisor = json["Responsabile"],
     _operator = json["Operatore"],
     _suboperators = json["SubOperatori"],
@@ -86,9 +77,6 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
-      "IdResponsabile":this.idSupervisor,
-      "IdOperatore":this.idOperator,
-      "IdOperatori":this.idOperators,
       "Responsabile":this.supervisor,
       "Operatore":this.operator,
       "SubOperatori":this.suboperators,
@@ -102,13 +90,10 @@ class Event {
   DateTime get start => _start;
   DateTime get end => _end;
   String get address => _address;
-  String get documents => _documents;
+  List<dynamic> get documents => _documents;
   int get status => _status;
   String get category => _category;
   String get color => _color;
-  String get idSupervisor => _idSupervisor;
-  String get idOperator => _idOperator;
-  List<dynamic> get idOperators => _idOperators;
   dynamic get supervisor => _supervisor;
   dynamic get operator => _operator;
   List<dynamic> get suboperators => _suboperators;
@@ -130,7 +115,7 @@ class Event {
     _address = value;
   }
 
-  set documents(String value) {
+  set documents(List<dynamic> value) {
     _documents = value;
   }
 
@@ -154,18 +139,6 @@ class Event {
     _color = value;
   }
 
-  set idSupervisor(String value) {
-    _idSupervisor = value;
-  }
-
-  set idOperator(String value) {
-    _idOperator = value;
-  }
-
-  set idOperators(List<dynamic> value) {
-    _idOperators = value;
-  }
-
   set supervisor(dynamic value) {
     _supervisor = value;
   }
@@ -181,12 +154,17 @@ class Event {
   set motivazione(String value){
     _motivazione = value;
   }
+
   bool isBetweenDate(DateTime dataInizio,DateTime dataFine){
     if(((this.start.isAfter(dataInizio) || this.start.isAtSameMomentAs(dataInizio)) && this.start.isBefore(dataFine)) || (this.end.isAfter(dataInizio) && (this.end.isBefore(dataFine)) || this.end.isAtSameMomentAs(dataFine)) || (this.start.isBefore(dataInizio) && this.end.isAfter(dataFine)) || (this.start.isAtSameMomentAs(dataInizio) && this.end.isAtSameMomentAs(dataFine))){
       return true;
     }else{
       return false;
     }
+  }
+
+  isAllDayLong() {
+    //TODO use the constants
   }
 
 }
