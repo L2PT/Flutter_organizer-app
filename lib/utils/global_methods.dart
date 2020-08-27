@@ -17,26 +17,23 @@ class TimeUtils {
         '-' + ((day / 10 < 1) ? "0" + day.toString() : day.toString());
     return DateTime.parse(truncatedDate);
   }
-//TODO ragiona sul now e le ore lavorative [Constants.MIN_WORKTIME] -> [Constants.MAX_WORKTIME] e [Constants.WORKTIME_SPAN]
-  //il paramtro va inteso come max(date, now)
+
+  //TODO to check
   static DateTime getNextWorkTimeSpan([DateTime date]) {
-    if(date == null){
-      date = DateTime.now();
+    date = date ?? DateTime.now();
+
+    DateTime nextWorkTime = date.add(new Duration(minutes: Constants.WORKTIME_SPAN));
+    if(nextWorkTime.hour > Constants.MAX_WORKTIME){
+      nextWorkTime = truncateDate(nextWorkTime, "day");
+      nextWorkTime = nextWorkTime.add(new Duration(days: 1, hours: Constants.MIN_WORKTIME));
+    }else if(nextWorkTime.hour < Constants.MIN_WORKTIME) {
+      nextWorkTime = nextWorkTime.add(new Duration(hours: Constants.MIN_WORKTIME));
     }
-    DateTime nextTimeWork = date.add(new Duration(minutes: Constants.WORKTIME_SPAN));
-    if(nextTimeWork.hour > Constants.MAX_WORKTIME){
-      nextTimeWork.add(new Duration(days: 1));
-      return new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
-    }else if(nextTimeWork.hour < Constants.MIN_WORKTIME){
-      return new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
-    }else{
-      return nextTimeWork;
-    }
+    return nextWorkTime;
   }
 
 
-  //TODO ragiona sul time e le ore lavorative [Constants.MIN_WORKTIME] -> [Constants.MAX_WORKTIME]
-
+  //TODO to check
   static DateTime addWorkTime(DateTime time, {int hour, int minutes}) {
     DateTime nextTimeWork;
     if(hour != null){
