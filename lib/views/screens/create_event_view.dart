@@ -530,9 +530,7 @@ class _timeControls extends StatelessWidget {
                 child: Switch(
                     value: event.isAllDayLong(),
                     activeColor: black,
-                    onChanged: (value) {
-                      if (!context.bloc<CreateEventCubit>().setAlldayLong(value))
-                        PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
+                    onChanged: context.bloc<CreateEventCubit>().setAlldayLong
                     })) : Container()
           ],));
 

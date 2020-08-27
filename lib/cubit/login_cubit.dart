@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/auth/email.dart';
 import 'package:venturiautospurghi/models/auth/password.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/repositories/firebase_auth_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 
 part 'login_state.dart';
 

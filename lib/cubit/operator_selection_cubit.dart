@@ -2,92 +2,60 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 
 part 'operator_selection_state.dart';
 
 class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   final CloudFirestoreService _databaseRepository;
   final Event _event;
-  final Account _account;
-  List<Account> operators;
+  final bool isTriState;
 
-  OperatorSelectionCubit(this._databaseRepository, this._event, this._account)
-      : assert(_databaseRepository != null && _account != null),
+  OperatorSelectionCubit(this._databaseRepository, this._event, this.isTriState)
+      : assert(_databaseRepository != null && _event != null),
         super(LoadingOperators()){
       getOperators();
   }
 
-
-
-  bool onTap(Account op){
-    print(sel[op]);
-    setState(() {
-      if(sel[op]==false) sel[op]=true;
-      else if(sel[op]==true && !superChecked && widget.tristate){
-        superChecked = true;
-        sel[op]=null;
-      }else{
-        if(sel[op]==null) superChecked = false;
-        sel[op]=false;
-      }
-    });
+  bool onTap(Account operator) {
+    if(Constants.debug) print("${operator.name} ${operator.surname} selected");
+    ReadyOperators state = (this.state as ReadyOperators);
+    if(state.selectionList.containsKey(operator.id)) {
+      int newValue = (state.selectionList[operator.id]+1) % (!isTriState || state.primaryOperatorSelected? 2 : 3);
+      if(newValue == 2) state.primaryOperatorSelected = true;
+      else if(newValue == 0 && state.selectionList[operator.id] == 2) state.primaryOperatorSelected = false;
+    }
+    //TODO does it need an emit or the checkbox is automatically updated?
   }
 
+  //TODO this getOperators should be on a stream
   void getOperators() async {
     List<Account> operators = await _databaseRepository.getOperatorsFree(_event.id??"", _event.start, _event.end);
-    emit(ReadyOperators(operators));
+    emit(ReadyOperators(operators,event:_event));
   }
 
-
-
-  Event getOperatorsSelected(){
-    //Input Object Account
-    //Output Object Map
-    List<String> selectedOperatorsId = [];
-    List<dynamic> selectedSubOperators = [];
-    Account selectedOperator = null;
-    sel.keys.forEach((k){
-      if(sel[k] == true){
-        selectedOperatorsId.add(k.id);
-        selectedSubOperators.add(k.toDocument());
-      }else if(widget.supportPrimaryOperator && sel[k] == null){
-        selectedOperatorsId.add(k.id);
-        selectedOperator = k;
-      }
+  void saveSelectionToEvent(){
+    ReadyOperators state = (this.state as ReadyOperators);
+    List<Account> tempOperators = state.operators;
+    List<Account> subOperators = List();
+    state.selectionList.forEach((key, value) {
+      Account tempAccount = tempOperators.firstWhere((account) => account.id == key);
+      if(value == 1) subOperators.add(tempAccount);
+      else if(value == 2) _event.operator = tempAccount;
+      tempOperators.remove(tempAccount);
     });
-    if(widget.supportPrimaryOperator) {
-      widget.event.idOperator = selectedOperator.id;
-      widget.event.operator = selectedOperator.toDocument();
+    _event.suboperators = subOperators;
+  }
+
+  bool validateAndSave() {
+    if(!isTriState || (state as ReadyOperators).primaryOperatorSelected) {
+      saveSelectionToEvent();
+      return true;
+    } else {
+      PlatformUtils.notifyErrorMessage("Seleziona l'operatore principale, tappando due volte");
+      return false;
     }
-    widget.event.idOperators = selectedOperatorsId;
-    widget.event.suboperators = selectedSubOperators;
-    return widget.event;
-  }
-
-  void getOperatorsDB() async {
-    //Input Object Account
-    //Output Object Map
-    OperatorsRepository repo = OperatorsRepository();
-    if(widget.supportPrimaryOperator)
-      operators = await repo.getOperatorsFree(widget.event.id, widget.event.start, widget.event.end);
-    else
-      operators = await repo.getOperators();
-    operators.forEach((operator){
-      if(operator!=null) {
-        if (widget.event.idOperator == operator.id) {
-          sel[operator] = null;
-          superChecked = true;
-        }else if (widget.event.idOperators.contains(operator.id))
-          sel[operator] = true;
-        else
-          sel[operator] = false;
-      }
-    });
-    print(widget.event.idOperator);
-    print(widget.event.idOperators);
-    print(operators);
-    setState(() {});
   }
 }

@@ -129,7 +129,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     state.event.suboperators = new List();
   }
 
-  bool setAlldayLong(value) {
+  void setAlldayLong(value) {
     if(TimeUtils.getNextWorkTimeSpan(TimeUtils.truncateDate(state.event.start, "day")).isAfter(DateTime.now())) {
       if(value) {
         state.event.start = TimeUtils.truncateDate(state.event.start, "day").add(Duration(hours: Constants.MIN_WORKTIME));
@@ -140,10 +140,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       }
       _removeAllOperators();
       emit(state);
-      return true;
     }else{
       //TODO segnala all'utente di cambiare data prima di settare alldaylong forse bisogna fere emit del valore a false
-      return false;
+      PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
     }
   }
 
@@ -187,7 +186,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void addOperatorDialog(BuildContext context) async {
     if (!formTimeControlsKey.currentState.validate())
       return PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
-    PlatformUtils.navigator(context, new OperatorSelection(state.event, true)); //TODO it's a reference pass?
+    PlatformUtils.navigator(context, new OperatorSelection(state.event, )); //TODO it's a reference pass?
     emit(state);
   }
 }

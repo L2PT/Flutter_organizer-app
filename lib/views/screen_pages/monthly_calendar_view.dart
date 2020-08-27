@@ -16,7 +16,7 @@ import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
+import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 
 class MonthlyCalendar extends StatefulWidget {
   final DateTime month;

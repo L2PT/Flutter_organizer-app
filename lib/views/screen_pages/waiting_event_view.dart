@@ -8,7 +8,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
+import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 
 class waitingEvent extends StatefulWidget {

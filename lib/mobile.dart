@@ -9,7 +9,7 @@ import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/persistent_notification_widget.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
+import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'utils/theme.dart';
 

@@ -21,7 +21,6 @@ import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/view/create_event_view.dart';
-import 'file:///C:/Users/Gio/Desktop/Flutter_organizer-app/lib/views/widgets/splash_screen.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 //import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';

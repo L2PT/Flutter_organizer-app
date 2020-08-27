@@ -1,66 +1,60 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/operator_selection_cubit.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
-import 'package:venturiautospurghi/views/widgets/switch_widget.dart';
+import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
 class OperatorSelection extends StatelessWidget {
   final Event _event;
-  final bool supportPrimaryOperator;
+  final bool requirePrimaryOperator;
 
-  OperatorSelection(this._event, {this.supportPrimaryOperator = false});
+  OperatorSelection(this._event, {this.requirePrimaryOperator = false});
 
 
   @override
   Widget build(BuildContext context) {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    var account = BlocProvider.of<AuthenticationBloc>(context).account;
-
-    Widget content = Container();
-
-    Widget loginPage = Container();
 
     return new Scaffold(
       resizeToAvoidBottomPadding: false,
       backgroundColor: white,
       body: new BlocProvider(
-          create: (_) => OperatorSelectionCubit(repository, _event, account),
-          child: loginPage
+          create: (_) => OperatorSelectionCubit(repository, _event, requirePrimaryOperator),
+          child: operatorSelectableList()
       ),
     );
   }
 }
 
+class operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-  List<Widget> buildOperatorsList = context.bloc<OperatorSelectionCubit>().operators.map((operator) => new ListTileOperator(
-      operator,
-      checkbox: context.bloc<OperatorSelectionCubit>().supportPrimaryOperator?2:1,
-      isChecked: sel[operator],
-      onTap: context.bloc<OperatorSelectionCubit>().onTap(operator))).toList();
+    List<Widget> buildOperatorsList = (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators.map((operator) => new ListTileOperator(
+        operator,
+        checkbox: context.bloc<OperatorSelectionCubit>().isTriState?2:1,
+        isChecked: (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id],
+        onTap: context.bloc<OperatorSelectionCubit>().onTap(operator))).toList();
+
+    void onExit(bool out) {
+      Navigator.pop(context, out);
+    }
 
     return Scaffold(
         appBar: AppBar(
             title: Text('OPERATORI DISPONIBILI',style: title_rev,),
             leading: IconButton(icon:Icon(Icons.arrow_back, color: white),
-              onPressed:() => Navigator.pop(context, false),
+              onPressed: () => onExit(false)
             )
         ),
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.check, size: 40,),
           backgroundColor: black,
-          onPressed:(){if(!supportPrimaryOperator || superChecked)Navigator.pop(context, true);else
-            return PlatformUtils.notifyErrorMessage("Seleziona l' operatore principale, tappando due volte");
-          },
+          onPressed:(){if(context.bloc<OperatorSelectionCubit>().validateAndSave()) onExit(true);},
     ),
         body: Material(
         elevation: 12.0,
@@ -72,12 +66,16 @@ class OperatorSelection extends StatelessWidget {
           children: <Widget>[
             SizedBox(height: 15.0),
             Padding(padding: EdgeInsets.only(left: 20), child: Text("Aggiungi gli operatori disponibili", style: label,)),
-            Expanded(
-              child: ListView(
-                padding: new EdgeInsets.symmetric(vertical: 8.0),
-                children: buildOperatorsList ),
-            )
-          ],
+            BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(
+            buildWhen: (previous, current) => previous != current,
+            builder: (context, state) {
+              return (state is ReadyOperators)? Expanded(
+                child: ListView(
+                    padding: new EdgeInsets.symmetric(vertical: 8.0),
+                    children: buildOperatorsList),
+              ):LoadingScreen();
+            })
+          ]
         )
       )
     );
