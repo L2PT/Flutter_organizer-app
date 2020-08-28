@@ -1,128 +1,98 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
+import 'package:venturiautospurghi/cubit/operator_list/operator_list_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
+import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
-class OperatorList extends StatefulWidget {
-  OperatorList({Key key}) : super(key: key);
-
-  @override
-  _OperatorListState createState() => new _OperatorListState();
-}
-
-class _OperatorListState extends State<OperatorList> {
-  final dateFormat = DateFormat("dd-MM-yy");
-  final timeFormat = DateFormat("h:mm a");
-  final _filtersKey = new GlobalKey<FormState>();
-  final TextEditingController _stringFilter = new TextEditingController();
-  DateTime _dateFilter = TimeUtils.truncateDate(DateTime.now(), "day");
-  bool _filters = false;
-  bool ready = false;
-
-  _SearchListState() {
-    _stringFilter.text = BlocProvider.of<OperatorsBloc>(context).stringQuery;
-    _stringFilter.addListener(() {
-      if (_stringFilter.text.isEmpty) {
-        BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilterString(null));
-      } else {
-        BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilterString(_stringFilter.text));
-      }
-    });
-  }
-
-  @override
-  void initState() {
-    _SearchListState();
-  }
+class OperatorList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OperatorsBloc, OperatorsState>(
-        builder: (context, state) {
-      if (state is Loaded) {
-        //get data
-        BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilters(null, null));
-        ready = true;
-      } else if (state is Filtered && ready) {
-        return Material(
+    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+
+    Widget content = Column(
+      children: <Widget>[
+        SizedBox(height: 8.0),
+        logo,
+        SizedBox(height: 8.0),
+        _searchBar(),
+        SizedBox(height: 8.0),
+        _filtersBox(),
+        Container(
+          margin: EdgeInsets.only(left: 15),
+          alignment: Alignment.centerLeft,
+          child: Text("Tutti gli operatori liberi", style: label.copyWith(fontWeight: FontWeight.bold),),
+        ),
+        _operatorList()
+      ],
+    );
+
+    return new BlocProvider(
+        create: (_) => OperatorListCubit(repository),
+        child: Material(
             elevation: 12.0,
             borderRadius: new BorderRadius.only(
                 topLeft: new Radius.circular(16.0),
                 topRight: new Radius.circular(16.0)),
-            child: Column(
+            child: content
+        )
+    );
+  }
+}
+
+class _searchBar extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    Widget searchField = Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: DecoratedBox(
+            decoration: BoxDecoration(
+                color: black, borderRadius: BorderRadius.all(Radius.circular(15.0))),
+            child: Row(
               children: <Widget>[
-                SizedBox(height: 8.0),
-                logo,
-                Padding(padding: const EdgeInsets.all(8.0), child: searchBar()),
-                Visibility(
-                  child: filtersBox(),
-                  visible: _filters,
-                ),
-                Container(
-                  margin: EdgeInsets.only(left: 15),
-                  alignment: Alignment.centerLeft,
-                  child: Text("Tutti gli operatori liberi", style: label.copyWith(fontWeight: FontWeight.bold),),
-                ),
                 Expanded(
-                  child: ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      height: 2,
-                      thickness: 1,
-                      indent: 15,
-                      endIndent: 15,
-                      color: grey_light,
+                  child: TextField(
+                    onChanged: context.bloc<OperatorListCubit>().onSearchNameChanged,
+                    style: new TextStyle(color: white),
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      prefixIcon: new Icon(
+                        Icons.search,
+                        color: white,
+                      ),
+                      hintText: "Cerca un operatore",
                     ),
-                    physics: BouncingScrollPhysics(),
-                    padding: new EdgeInsets.symmetric(vertical: 8.0),
-                    itemCount: state.operators.length,
-                    itemBuilder: (context, index) =>
-                        new ChildItem(state.operators[index]),
                   ),
+                ),
+                IconButton(
+                    icon: new Icon((!context.bloc<OperatorListCubit>().state.filtersBoxVisibile) ? Icons.tune : Icons.keyboard_arrow_up, color: white),
+                    onPressed: context.bloc<OperatorListCubit>().showFiltersBox
                 ),
               ],
-            ));
-      }
-      return LoadingScreen();
-    });
+            )));
+
+    return BlocBuilder<OperatorListCubit, OperatorListState>(
+      buildWhen: (previous, current) => previous != current,
+      builder: (context, state) {
+        return searchField;
+      },
+    );
   }
 
-  Widget searchBar() {
-    return DecoratedBox(
-        decoration: BoxDecoration(
-            color: black, borderRadius: BorderRadius.all(Radius.circular(15.0))),
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: TextField(
-                style: new TextStyle(color: white),
-                controller: _stringFilter,
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  prefixIcon: new Icon(
-                    Icons.search,
-                    color: white,
-                  ),
-                  hintText: "Cerca un operatore",
-                ),
-              ),
-            ),
-            IconButton(
-              icon: new Icon((!_filters) ? Icons.tune : Icons.keyboard_arrow_up,
-                  color: white),
-              onPressed: () {
-                setState(() {
-                  _filters = !_filters;
-                });
-              },
-            ),
-          ],
-        ));
-  }
+}
 
-  Widget filtersBox() {
+class _filtersBox extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
         margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
         padding: const EdgeInsets.only(
@@ -139,144 +109,85 @@ class _OperatorListState extends State<OperatorList> {
           ),
           Padding(
               padding: EdgeInsets.only(top: 5.0),
-              child: new Form(
-                  key: this._filtersKey,
-                  child: Row(
-                    children: <Widget>[
-                      Icon(Icons.date_range),
-                      Expanded(
-                          child: DateTimeField(
-                        decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    width: 0.0, style: BorderStyle.none))),
-                        style: subtitle_rev,
-                        resetIcon: Icon(
-                          Icons.clear,
-                          color: white,
+              child: Row(
+                children: <Widget>[
+                  Icon(Icons.date_range),
+                  Expanded(
+                      child: GestureDetector(
+                        child: TextFormField(
+                          enabled: false,
+                          cursorColor: black,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                              hintText: '01 Sett ' + DateTime
+                                  .now()
+                                  .year
+                                  .toString(), hintStyle: label, border: InputBorder.none
+                          ),
+                          style: title,
+                          initialValue: TimeUtils.truncateDate(context.bloc<OperatorListCubit>().state.searchTimeField, "day").toString(),
                         ),
-                        format: dateFormat,
-                        initialValue: _dateFilter,
-                        enabled: true,
-                        readOnly: true,
-                        onShowPicker: (context, currentValue) {
-                          return showDatePicker(
-                              context: context,
-                              firstDate:
-                                  TimeUtils.truncateDate(DateTime.now(), "day"),
-                              initialDate: currentValue != null
-                                  ? currentValue.year > 2000
-                                      ? currentValue
-                                      : DateTime(
-                                          2000 + currentValue.year,
-                                          currentValue.month,
-                                          currentValue.day,
-                                          currentValue.hour,
-                                          currentValue.minute)
-                                  : TimeUtils.truncateDate(DateTime.now(), "day"),
-                              lastDate: DateTime(3000));
-                        },
-                        onChanged: (v) {
-                          print(v);
-                        },
-                        onSaved: (DateTime value) => _dateFilter = value != null
-                            ? value.year > 2000
-                                ? value
-                                : DateTime(2000 + value.year, value.month,
-                                    value.day, value.hour, value.minute)
-                            : null,
-                      )),
-                      Icon(Icons.watch_later),
-                      Expanded(
-                        child: DateTimeField(
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        width: 0.0, style: BorderStyle.none))),
-                            style: subtitle_rev,
-                            resetIcon: Icon(
-                              Icons.clear,
-                              color: white,
+                        onTap: () =>
+                            DatePicker.showDatePicker(context,
+                              showTitleActions: true,
+                              currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
+                              locale: LocaleType.it,
+                              onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchDateChanged(date),
                             ),
-                            format: timeFormat,
-                            initialValue: DateTime(0),
-                            enabled: true,
-                            readOnly: true,
-                            onShowPicker: (context, currentValue) async {
-                              final time = await showTimePicker(
-                                context: context,
-                                initialTime: TimeOfDay.fromDateTime(
-                                    currentValue ?? DateTime(0)),
-                              );
-                              return DateTimeField.convert(time);
-                            },
-                            onSaved: (DateTime value) => _dateFilter =
-                                _dateFilter != null
-                                    ? value != null
-                                        ? _dateFilter.add(Duration(
-                                            hours: value.hour,
-                                            minutes: value.minute))
-                                        : _dateFilter
-                                    : null),
-                      ),
-                    ],
-                  ))),
-          Align(
-              alignment: Alignment.bottomRight,
-              child: RaisedButton(
-                child: new Text('FILTRA', style: subtitle_rev),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                elevation: 15,
-                onPressed: () => _applyFilters(),
-              ))
+                      )),
+                  Icon(Icons.watch_later),
+                  Expanded(
+                      child: GestureDetector(
+                        child: TextFormField(
+                          enabled: false,
+                          cursorColor: black,
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                              hintText: '10:00', hintStyle: label, border: InputBorder.none
+                          ),
+                          style: title,
+                          initialValue: context.bloc<OperatorListCubit>().state.searchTimeField.hour.toString() + " " + context.bloc<OperatorListCubit>().state.searchTimeField.minute.toString(),
+                        ),
+                        onTap: () =>
+                            DatePicker.showTimePicker(context,
+                              showTitleActions: true,
+                              currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
+                              locale: LocaleType.it,
+                              onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchDateChanged(date),
+                            ),
+                      ))
+                ],
+              )),
         ]));
-  }
-
-  Future _applyFilters() async {
-    if (this._filtersKey.currentState.validate()) {
-      _filtersKey.currentState.save();
-      _filters = false;
-      print(_dateFilter);
-      BlocProvider.of<OperatorsBloc>(context).add(ApplyOperatorFilterDate(_dateFilter));
-    }
   }
 }
 
-class ChildItem extends StatelessWidget {
-  final Account operator;
-
-  ChildItem(this.operator);
+class _operatorList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //TOMAYBEDO add icons by account's properties
-    return GestureDetector(
-      onTap: () => BlocProvider.of<MobileBloc>(context).add(
-          NavigateEvent(Constants.dailyCalendarRoute, [operator, null])),
-      child: Container(
-        height: 50,
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(right: 10.0),
-              padding: EdgeInsets.all(3.0),
-              child: Icon(
-                Icons.work,
-                color: yellow,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                color: black,
-              ),
-            ),
-            Text(operator.surname.toUpperCase() + " ", style: title),
-            Text(operator.name, style: subtitle),
+    onTileTap(Account operator) {
+      context.bloc<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, [operator, null]));
+    }
 
-          ],
-        ),
-      ),
+    Widget buildOperatorList = ListView.separated(
+      separatorBuilder: (context, index) =>
+          Divider(height: 2, thickness: 1, indent: 15, endIndent: 15, color: grey_light),
+      physics: BouncingScrollPhysics(),
+      padding: new EdgeInsets.symmetric(vertical: 8.0),
+      itemCount: (context.bloc<OperatorListCubit>().state as ReadyOperators).filteredOperators.length,
+      itemBuilder: (context, index) =>
+      new ListTileOperator((context.bloc<OperatorListCubit>().state as ReadyOperators).filteredOperators[index], onTap: onTileTap),
+    );
+
+    return BlocBuilder<OperatorListCubit, OperatorListState>(
+      buildWhen: (previous, current) => previous != current,
+      builder: (context, state) {
+        return (state is ReadyOperators)? new Expanded(
+            child: buildOperatorList
+        ) : LoadingScreen();
+      },
     );
   }
+
 }
