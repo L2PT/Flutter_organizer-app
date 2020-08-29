@@ -4,6 +4,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/persistent_notification/persistent_notification_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
@@ -19,6 +20,7 @@ class PersistentNotification extends StatelessWidget {
   Widget build(BuildContext context) {
     final CloudFirestoreService repository = context.repository<CloudFirestoreService>();
     final Account account = context.bloc<AuthenticationBloc>().account;
+
     return new BlocProvider(
       create: (_) => PersistentNotificationCubit(repository, account),
       child: Stack(
@@ -66,7 +68,7 @@ class _notificationWidget extends StatelessWidget {
       hourSpan: 0,
       e: context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0],
       hourHeight: 160,
-      actionEvent: (ev) => Utils.PushViewDetailsEvent(context, context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0]),
+      actionEvent: (event) => PlatformUtils.navigator(context, context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0]),
     );
 
     return BlocBuilder<PersistentNotificationCubit, PersistentNotificationState>(

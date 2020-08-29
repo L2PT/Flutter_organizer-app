@@ -30,7 +30,7 @@ class MenuLayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MobileBloc, MobileState>(builder: (context, state) {
-      currentViewRoute = context.bloc<MobileBloc>().actualRoute;
+      currentViewRoute = context.bloc<MobileBloc>().state.route;
       return Container(
           color: black,
           child: Column(

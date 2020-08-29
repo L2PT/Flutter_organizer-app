@@ -6,10 +6,10 @@ abstract class MobileEvent extends Equatable {
 }
 
 class NavigateEvent extends MobileEvent {
-  final String route;
-  final dynamic arg;
+  String route;
+  dynamic arg;
 
-  NavigateEvent(this.route, [this.arg]) : super([route,arg]);
+  NavigateEvent(this.route, [this.arg]) : super();
 
   @override
   List<Object> get props => [route,arg];

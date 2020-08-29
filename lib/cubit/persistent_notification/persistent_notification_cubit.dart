@@ -18,4 +18,6 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
       emit(PersistentNotificationState(waitingEventsList));
     });
   }
+
+  //TODO can i remove the variables?
 }
