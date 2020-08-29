@@ -24,11 +24,10 @@ class TimeUtils {
 
     DateTime nextWorkTime = date.add(new Duration(minutes: Constants.WORKTIME_SPAN));
     if(nextWorkTime.hour > Constants.MAX_WORKTIME){
-      nextWorkTime = truncateDate(nextWorkTime, "day");
-      nextWorkTime = nextWorkTime.add(new Duration(days: 1, hours: Constants.MIN_WORKTIME));
+      nextWorkTime.add(new Duration(days: 1));
+      nextWorkTime = new DateTime(nextWorkTime.year,nextWorkTime.month, nextWorkTime.day, Constants.MIN_WORKTIME);
     }else if(nextWorkTime.hour < Constants.MIN_WORKTIME) {
-      nextWorkTime = truncateDate(nextWorkTime, "day");
-      nextWorkTime = nextWorkTime.add(new Duration(hours: Constants.MIN_WORKTIME));
+      nextWorkTime = new DateTime(nextWorkTime.year,nextWorkTime.month, nextWorkTime.day, Constants.MIN_WORKTIME);
     }
     return nextWorkTime;
   }
@@ -45,12 +44,12 @@ class TimeUtils {
     }
     if(nextTimeWork.hour > Constants.MAX_WORKTIME){
       nextTimeWork.add(new Duration(days: 1));
-      return new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
+      nextTimeWork = new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
     }else if(nextTimeWork.hour < Constants.MIN_WORKTIME){
-    return new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
-    }else{
-    return nextTimeWork;
+      nextTimeWork = new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
     }
+    return nextTimeWork;
+
   }
 }
 
