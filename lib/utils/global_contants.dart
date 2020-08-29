@@ -20,6 +20,7 @@ class Constants {
   static const String detailsEventViewRoute = 'view/details_event';
   static const String createEventViewRoute = 'view/form_event_creator';
   static const String waitingEventListRoute = 'view/waiting_event_list';
+  static const String waitingNotificationRoute = 'view/persistent_notification';
   static const String historyEventListRoute = 'view/history_event_list';
   static const String profileRoute = 'view/profile';
   static const String resetCodeRoute = 'view/reset_code_page';

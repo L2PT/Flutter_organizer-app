@@ -41,7 +41,7 @@ class CloudFirestoreService {
     listEvents.forEach((event) {
       if (event.id != eventIdToIgnore) {
         if (event.isBetweenDate(startFrom, endTo)) {
-          event.idOperators.forEach((idOperator) {
+          [event.operator, ...event.suboperators].map((e) => e["id"]).forEach((idOperator) {
             bool checkDelete = false;
             for (int i = 0; i < accounts.length && !checkDelete; i++) {
               if (accounts.elementAt(i).id == idOperator) {
@@ -102,8 +102,8 @@ class CloudFirestoreService {
     });
   }
 
-  Stream<List<Event>> subscribeEventsByOperatorAcceptedOrAbove(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
+  Stream<List<Event>> subscribeEventsByOperatorAcceptedOrBelow(String idOperator) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
     });

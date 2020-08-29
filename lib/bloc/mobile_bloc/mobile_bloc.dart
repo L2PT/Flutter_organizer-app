@@ -10,13 +10,15 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_list_view.dart';
+import 'package:venturiautospurghi/views/screens/persistent_notification_view.dart';
 import 'package:venturiautospurghi/views/screens/register_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/waiting_event_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/waiting_event_list_view.dart';
 
 part 'mobile_event.dart';
 
@@ -31,7 +33,7 @@ part 'mobile_state.dart';
 class MobileBloc extends Bloc<MobileEvent, MobileState> {
   final CloudFirestoreService _databaseRepository;
   final Account _account;
-  StreamSubscription<AuthUser> _notificationSubscription;
+  StreamSubscription<List<Event>> _notificationSubscription;
   String actualRoute;
 
   MobileBloc({
@@ -40,18 +42,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   })  : assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository,
         _account = account,
-        super(NotReady()) {
-    _notificationSubscription = _databaseRepository.onNewNotificationIncoming.listen(
-          //TODO check if the add below works or you had to trigger every time the [NotificationWaitingState]
-          (notification) {
-            if(this.state is NotificationWaitingState) (this.state as NotificationWaitingState).events.add(notification);
-            else add(NotificationWaitingState(List<Event>.of(notification)));
-
-          }
-    );
-
-    //TODO other standard stuff
-  }
+        super(NotReady());
 
   @override
   Stream<MobileState> mapEventToState(MobileEvent event) async* {
@@ -63,104 +54,43 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
     }
   }
 
-  ///Update the view, the logic is here!!! not in the view
-
+  ///Map for the navigation event to update the view
   Stream<MobileState> _mapUpdateViewToState(NavigateEvent event) async* {
-    dynamic content;
-    var subscription;
-    var subscriptionArgs;
-    int bloctype;
-    actualRoute = event.route;
+    if(this.state is NotificationWaitingState) {
+      if(event.route != Constants.waitingNotificationRoute && event.route != Constants.waitingEventListRoute){
+        event.route = Constants.waitingNotificationRoute;
+      }
+    }
+
     switch(event.route) {
       case Constants.detailsEventViewRoute: yield OutBackdropState(event.route, DetailsEvent(event.arg)); break;
-      case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.args)); break;
+      case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.arg)); break;
       case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
-      case Constants.homeRoute: {
-        if(_account.supervisor) {
-          content = OperatorList();
-          subscription = eventsRepository.subscribeEvents;
-          bloctype = Constants.OPERATORS_BLOC;
-        }else{
-          content = DailyCalendar(null);
-          subscription = eventsRepository.eventsByOperatorAcceptedOrAbove;
-          subscriptionArgs = user.id;
-          bloctype = Constants.EVENTS_BLOC;
-        }
-      } break;
-      case Constants.monthlyCalendarRoute: {
-        content = MonthlyCalendar(event.arg);
-        if(operator != null || !isSupervisor){
-          subscription = eventsRepository.eventsByOperator;
-          subscriptionArgs = !isSupervisor?user.id:operator.id;
-        }else
-          subscription = eventsRepository.subscribeEvents;
-        bloctype = Constants.EVENTS_BLOC;
-      } break;
-      case Constants.dailyCalendarRoute: {
-        //arg 1: operator
-        //arg 2: day
-        if(event.arg!=null && event.arg[0]!=null)
-          operator = event.arg[0];
-        if(event.arg!=null && event.arg[1]!=null)
-          day = event.arg[1];
-        else
-          day=TimeUtils.truncateDate(DateTime.now(),"day");
-        content = DailyCalendar(event.arg[1]);
-        if(isSupervisor)
-          subscription = eventsRepository.eventsByOperator;
-        else
-          subscription = eventsRepository.eventsByOperatorAcceptedOrAbove;
-        subscriptionArgs = !isSupervisor?user.id:operator.id;
-        bloctype = Constants.EVENTS_BLOC;
-      } break;
-      case Constants.profileRoute: {
-        //content = Profile;
-      }
-      break;
-      case Constants.registerRoute: {
-        bloctype = Constants.OUT_OF_BLOC;
-        content = Register();
-      }
-      break;
-      case Constants.operatorListRoute: {
-        content = OperatorList();
-        subscription = eventsRepository.subscribeEvents;
-        bloctype = Constants.OPERATORS_BLOC;
-      }
-      break;
-      case Constants.createEventViewRoute: {
-        bloctype = Constants.OUT_OF_BLOC;
-        content = CreateEvent(null);
-      }
-      break;
-      case Constants.waitingEventListRoute: {
-        //pay attention this works only for Operators
-        content = waitingEvent();
-        subscription = eventsRepository.eventsWaiting;
-        subscriptionArgs = user.id;
-        bloctype = Constants.EVENTS_BLOC;
-      }
-      break;
-      case Constants.historyEventListRoute: {
-        //pay attention this works only for Operators
-        content = History();
-        subscription = eventsRepository.eventsHistory;
-        bloctype = Constants.EVENTS_BLOC;
-      }
-      break;
-      default: {content = DailyCalendar(null);}
+      case Constants.waitingNotificationRoute: yield NotificationWaitingState(event.route, PersistentNotification()); break;
+      case Constants.homeRoute: yield InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar(null) ); break;
+      case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg) ); break;
+      case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg) ); break;
+      case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
+      case Constants.operatorListRoute: yield InBackdropState(event.route, OperatorList()); break;
+      case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
+      case Constants.waitingEventListRoute: yield (state is InBackdropState? InBackdropState(event.route, WaitingEventList()) : NotificationWaitingState(event.route, WaitingEventList())); break;
+      case Constants.historyEventListRoute:  yield InBackdropState(event.route, History()); break;
+      default: yield InBackdropState(event.route, DailyCalendar()); break;
       break;
     }
-    yield Ready(event.route, content, subscription, subscriptionArgs, bloctype); //cambia lo stato
-
   }
 
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
-  Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-    //TODO is it really necessary? maybe
-    //await eventsRepository.init();
-    add(NavigateEvent(Constants.homeRoute,null));
+  Stream<MobileState> _mapInitAppToState(InitAppEvent event) {
+    add(NavigateEvent(Constants.homeRoute,null)); //TODO this command order is right?
+    if (!_account.supervisor) {
+      _notificationSubscription =
+          _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications) async* {
+        if (notifications.length > 0 && !(this.state is NotificationWaitingState)) yield NavigateEvent(Constants.waitingEventListRoute);
+        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) yield NavigateEvent(Constants.homeRoute);
+      });
+    }
   }
 
 }

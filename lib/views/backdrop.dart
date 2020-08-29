@@ -17,9 +17,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/bloc/operators_bloc/operators_bloc.dart';
 import 'package:venturiautospurghi/models/linkmenu.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/backdrop_menu.dart';
@@ -66,8 +64,8 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
             appBar: AppBar(
               title: new Text(
                   (account.supervisor
-                          ? (menuResponsabile[bloc.actualRoute] ?? menuResponsabile[Constants.homeRoute])
-                          : (menuOperatore[bloc.actualRoute] ?? menuOperatore[Constants.homeRoute]))
+                          ? (menuResponsabile[bloc.state.route] ?? menuResponsabile[Constants.homeRoute])
+                          : (menuOperatore[bloc.state.route] ?? menuOperatore[Constants.homeRoute]))
                       .textLink
                       .toUpperCase(),
                   style: title_rev),

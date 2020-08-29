@@ -1,0 +1,31 @@
+la waiting_event_list diventerà non solo per i waiting ma sarà raggruppata per tipologia
+-- waiting
+    data 1
+        evento 1
+        evento 2
+    data 2
+        evento 3
+-- accettati
+    data 1
+        evento 4
+    data 2
+        evento 5
+        evento 6
+
+
+altrimenti quella sezione viene vista solo durante la presenza di una notifica persistente e nel caso uno clicchi la sezione dal menu ovviemente sarebbe vuota perchè non ha inotichie in attesa
+
+
+inoltre la waiting sarà anche disponibile per i supervisori che potranno visionare gli eventi esistenti divisi per stato e (sub) per operatore
+ -- waiting
+     operatore 1
+         evento 1
+         evento 2
+     operatore 2
+         evento 3
+ -- accettati
+     operatore 1
+         evento 4
+     operatore 2
+         evento 5
+         evento 6

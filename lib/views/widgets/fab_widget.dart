@@ -16,7 +16,7 @@ class Fab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Account account = context.bloc<AuthenticationBloc>().account;
-    String route = context.bloc<MobileBloc>().actualRoute;
+    String route = context.bloc<MobileBloc>().state.route;
     CloudFirestoreService repository = context.repository<CloudFirestoreService>();
 
     return new BlocProvider(

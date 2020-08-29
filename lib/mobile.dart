@@ -45,13 +45,15 @@ class _MyAppState extends State<MyApp> {
                       MobileBloc(
                           account: context.bloc<AuthenticationBloc>().account,
                           databaseRepository: databaseRepository)..add(InitAppEvent()),
-                      child: BlocBuilder<MobileBloc, MobileState>(builder: (context, state) {
+                      child: BlocBuilder<MobileBloc, MobileState>(
+                        builder: (context, state) {
                         if (state is InBackdropState) {
                           return Backdrop();
                         } else if (state is OutBackdropState) {
                           return state.content;
                         } else if (state is NotificationWaitingState) {
-                          return PersistentNotification();
+                          return state.content;
+                          //TODO do you like the idea to put a stack and a second builder
                         }
                         return MaterialApp(
                             title: Constants.title,

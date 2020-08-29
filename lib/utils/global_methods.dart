@@ -32,7 +32,6 @@ class TimeUtils {
     return nextWorkTime;
   }
 
-
   //TODO to check
   static DateTime addWorkTime(DateTime time, {int hour, int minutes}) {
     DateTime nextTimeWork;
@@ -71,15 +70,4 @@ class Utils {
     }
     return double.tryParse(str) != null;
   }
-
-  static void PushViewDetailsEvent(BuildContext context, Event ev) async {
-    final result = await Navigator.pushNamed(context, Constants.detailsEventViewRoute, arguments: ev);
-    if(result == Constants.DELETE_SIGNAL) {
-      EventsRepository().deleteEvent(ev);
-    }
-    if(result == Constants.MODIFY_SIGNAL) {
-      Navigator.pushNamed(context, Constants.createEventViewRoute, arguments: ev);
-    }
-  }
-
 }
