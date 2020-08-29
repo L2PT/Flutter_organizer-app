@@ -35,7 +35,7 @@ class ReadyOperators extends OperatorSelectionState {
         }
       });
     }
-  };
+  }
 
   @override
   List<Object> get props => [operators, selectionList, primaryOperatorSelected];
