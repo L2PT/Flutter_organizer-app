@@ -55,20 +55,6 @@ class TimeUtils {
 
 class Utils {
 
-  static Future<Color> getColor(arg) async {
-    Map <String,dynamic> categories;
-    var doc = await PlatformUtils.fireDocument(Constants.tabellaCostanti, "Categorie").get();
-    if (doc.exists) {
-      categories = PlatformUtils.extractFieldFromDocument(null, doc);
-      categories['default'] = Constants.fallbackHexColor;
-    } else {
-      print("No categories!");
-    }
-    return HexColor((arg != null && categories[arg] != null)
-        ? categories[arg]
-        : categories['default']);
-  }
-
   static Event getEventWithCurrentDay(DateTime day){
     day = TimeUtils.truncateDate(day, "day");
     if(DateTime.now().isAfter(day)) day = TimeUtils.truncateDate(DateTime.now(), "day");
@@ -96,14 +82,4 @@ class Utils {
     }
   }
 
-}
-class HexColor extends Color {
-  static int _getColorFromHex(String hexColor) {
-    hexColor = hexColor.toUpperCase().replaceAll("#", "");
-    if (hexColor.length == 6) {
-      hexColor = "FF" + hexColor;
-    }
-    return int.parse(hexColor, radix: 16);
-  }
-  HexColor(final String hexColor) : super(_getColorFromHex(hexColor));
 }

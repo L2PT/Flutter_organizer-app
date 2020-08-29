@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/cubit/operator_selection_cubit.dart';
+import 'package:venturiautospurghi/cubit/operator_selection/operator_selection_cubit.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -24,13 +24,13 @@ class OperatorSelection extends StatelessWidget {
       backgroundColor: white,
       body: new BlocProvider(
           create: (_) => OperatorSelectionCubit(repository, _event, requirePrimaryOperator),
-          child: operatorSelectableList()
+          child: _operatorSelectableList()
       ),
     );
   }
 }
 
-class operatorSelectableList extends StatelessWidget {
+class _operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
