@@ -26,5 +26,14 @@ extension ListExtensions on Iterable {
     this.map((element)=>{ a[element].add(element) });
     return a.values.toList();
   }
-
+  @override
+  //TODO to test
+  Map<Y,int> countBy<Y>(Y Function(dynamic) fn) {
+    Map<Y,int> a = Map();
+    this.forEach((element) {
+      Y key = fn(element);
+      a[key] = (a[key] ?? 0) +1;
+    });
+    return a;
+  }
 }

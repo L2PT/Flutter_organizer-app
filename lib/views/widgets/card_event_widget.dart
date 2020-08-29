@@ -6,14 +6,12 @@ import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/repository/events_repository.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 
-a
 class cardEvent extends StatefulWidget {
   final Event e;
   final int hourSpan;

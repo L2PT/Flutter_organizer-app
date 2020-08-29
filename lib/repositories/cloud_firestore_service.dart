@@ -74,7 +74,7 @@ class CloudFirestoreService {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Future<Map<String, String>> getCategories() async {
+  Future<Map<String, String>> _getCategories() async {
     return (await _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get()).data();
   }
 
@@ -145,8 +145,12 @@ class CloudFirestoreService {
     return docRef.id;
   }
 
-  void updateEvent(String id, dynamic data) async {
+  void updateEvent(String id, dynamic data) {
     _collectionEventi.doc(id).update(data);
+  }
+
+  void updateEventField(String id, String field, dynamic data) {
+    _collectionEventi.doc(id).update(Map.of({field:data}));
   }
 
   void deleteEvent(Event e) async {

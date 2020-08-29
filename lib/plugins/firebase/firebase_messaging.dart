@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -13,94 +16,99 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:http/http.dart' as http;
 
 class FirebaseMessagingService {
-
+  final CloudFirestoreService _databaseRepository;
   FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  Account account;
+  BuildContext context;
 
-  void firebaseCloudMessaging_Listeners(String email, BuildContext context) {
-    if (Platform.isIOS) iOS_Permission();
+  FirebaseMessagingService(this._databaseRepository);
+
+  void init(Account account, BuildContext context) async {
+    this.account = account;
+    this.context = context;
+    if (Platform.isIOS) requestiOSPermission();
     //check if token is up to date
-    _firebaseMessaging.getToken().then((token) async {
-//    QuerySnapshot documents = (await Firestore.instance.collection(Constants.tabellaUtenti).getDocuments());
-//    for (DocumentSnapshot document in documents.documents) {
-//      if (document != null && document.data['Email'] == email) {
-//        if (document.data['Token'] != token) {
-//          Firestore.instance
-//              .collection(Constants.tabellaUtenti)
-//              .document(document.documentID)
-//              .updateData(<String, dynamic>{"Token": token});
-//        }
-//        break;
-//      }
-//    }
-      print("token: " + token);
-    });
-
+    String token = await _firebaseMessaging.getToken();
+    if(token != account.token) {
+      _databaseRepository.updateOperator(account.id, "Token", token);
+      if(Constants.debug) print("New token: " + token);
+    }
+    //configure behaviour handlers
     _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print('on message: $message');
-        if (!message['data']['id'].isNullOrEmpty()) {
-          Event event = await EventsRepository().getEvent(message['data']['id']);
-          EventsRepository().updateEvent(event, "Stato", Status.Delivered);
-          Account operator = Account.fromMap(event.idOperator, event.operator);
-          Utils.notify(
-              token: Account
-                  .fromMap(event.idSupervisor, event.supervisor)
-                  .token,
-              title: "L'avviso è stato cosegnato a " + operator.surname + " " + operator.name);
-        } else {
-          Fluttertoast.showToast(
-              msg: message["notification"]["title"],
-              toastLength: Toast.LENGTH_SHORT,
-              gravity: ToastGravity.CENTER,
-              timeInSecForIos: 1,
-              backgroundColor: black,
-              textColor: white,
-              fontSize: 16.0);
-        }
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print('on resume: $message');
-        if (!message['data']['id'].isNullOrEmpty()) {
-          Event event = await EventsRepository().getEvent(message['data']['id']);
-          EventsRepository().updateEvent(event, "Stato", Status.Delivered);
-          Account operator = Account.fromMap(event.idOperator, event.operator);
-          Utils.notify(
-              token: Account
-                  .fromMap(event.idSupervisor, event.supervisor)
-                  .token,
-              title: "L'avviso è stato cosegnato a " + operator.surname + " " + operator.name);
-          Utils.PushViewDetailsEvent(context, event);
-        }
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print('on launch: $message');
-        if (!message['data']['id'].isNullOrEmpty()) {
-          Event event = await EventsRepository().getEvent(message['data']['id']);
-          EventsRepository().updateEvent(event, "Stato", Status.Delivered);
-          Account operator = Account.fromMap(event.idOperator, event.operator);
-          Utils.notify(
-              token: Account
-                  .fromMap(event.idSupervisor, event.supervisor)
-                  .token,
-              title: "L'avviso è stato cosegnato a " + operator.surname + " " + operator.name);
-          Utils.NavigateTo(context, Constants.waitingEventListRoute, event);
-        }
-      },
+      onMessage: onMessageHandler,
+      onResume: onResumeHandler,
+      onLaunch: onLaunchHandler,
+      onBackgroundMessage: onBackgroundMessageHandler,
     );
   }
 
-  void iOS_Permission() {
+  Future<dynamic> onMessageHandler(Map<String, dynamic> message) async {
+    if(Constants.debug) print('on message: $message');
+    if (_isFeedbackNotification(message)) {
+      Fluttertoast.showToast(
+          msg: message["notification"]["title"],
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.CENTER,
+          backgroundColor: black,
+          textColor: white,
+          fontSize: 16.0);
+    } else {
+      _updateEventAndSendFeedback(message, Status.Delivered);
+    }
+  }
+
+  Future<dynamic> onResumeHandler(Map<String, dynamic> message) async {
+    if(Constants.debug) print('on resume: $message');
+    _openTheEvent(message);
+  }
+
+  Future<dynamic> onLaunchHandler(Map<String, dynamic> message) async {
+    if(Constants.debug) print('on launch: $message');
+    _openTheEvent(message);
+  }
+
+  Future<dynamic> onBackgroundMessageHandler(Map<String, dynamic> message) async {
+    if(Constants.debug) print('on background message: $message');
+    if (!_isFeedbackNotification(message))
+      _updateEventAndSendFeedback(message, Status.Delivered);
+  }
+
+  void requestiOSPermission() {
     _firebaseMessaging.requestNotificationPermissions(IosNotificationSettings(sound: true, badge: true, alert: true));
     _firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings settings) {
       print("Settings registered: $settings");
     });
   }
 
-  static void sendNotification(
-      {token = "eGIwmXLpg_c:APA91bGkJI5Nargw6jjiuO9XHxJYcJRL1qfg0CjmnblAsZQ8k-kPQXCCkalundHtsdS21_clryRplzXaSgCj6PM1geEmXttijdSCWQuMQWUHpjPZ9nJOaNFqC6Yq6Oa5WixzyObXr8gt",
-        title = "Nuovo incarico assegnato",
-        description = "Clicca la notifica per vedere i dettagli",
-        eventId = ""}) async {
+  bool _isFeedbackNotification(Map<String, dynamic> message){
+    return message['data']['id'].isNullOrEmpty();
+  }
+
+  Future<Event> _updateEventAndSendFeedback(Map<String, dynamic> message, int newStatus) async {
+    _databaseRepository.updateEventField(message['data']['id'], "Stato", newStatus);
+    _databaseRepository.getEvent(message['data']['id']);
+    Event event = await _databaseRepository.getEvent(message['data']['id']);
+    Account supervisor = Account.fromMap((event.supervisor as Account).id, event.operator); //get here to prevent old token
+    sendNotification(
+        token: supervisor.token,
+        title: "L'avviso è stato cosegnato a ${(event.operator as Account).surname} ${(event.operator as Account).name}");
+    return event;
+  }
+
+  //TODO to test the expected behaviour is the app opens in notification status and automatically to the event
+  void _openTheEvent(Map<String, dynamic> message) async {
+    if (_isFeedbackNotification(message) && account.supervisor) {
+      context.bloc<MobileBloc>().add(NavigateEvent(Constants.waitingEventListRoute, null));
+    } else {
+      Event event = await _databaseRepository.getEvent(message['data']['id']);
+      Utils.PushViewDetailsEvent(context, event);
+    }
+  }
+
+  static void sendNotification( {token = "",
+      title = "Nuovo incarico assegnato",
+      description = "Clicca la notifica per vedere i dettagli",
+      eventId = ""}) async {
     String url = "https://fcm.googleapis.com/fcm/send";
     String json = "";
     Map<String, String> notification = new Map<String, String>();

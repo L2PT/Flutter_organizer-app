@@ -6,10 +6,11 @@ import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/cubit/create_event_cubit.dart';
+import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -281,21 +282,22 @@ class _geoLocationOptionsList extends StatelessWidget {
 class _fileStorageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildFilesList = context
-        .bloc<CreateEventCubit>()
-        .state
-        .documents
-        .keys
-        .map((name) {
-      return new ListTile(
-        title: new Text(name),
-        subtitle: new Text(name),
-        trailing: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () => context.bloc<CreateEventCubit>().removeDocument(name),
-        ),
-      );
-    }).expand((element) => [element, new Divider()]).toList(); //TODO maybe? .removeLast();
+
+    List<Widget> buildFilesList = ListView.separated(
+      separatorBuilder: (context, index) => new Divider(),
+      physics: BouncingScrollPhysics(),
+      itemCount: context.bloc<CreateEventCubit>().state.documents.keys.length,
+      itemBuilder: (context, index) =>
+          ListTile(
+            title: new Text(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
+            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index)),
+            trailing: IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () => context.bloc<CreateEventCubit>().removeDocument(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
+            ),
+          )
+    ).buildSlivers(context);
+    //TODO the list is builded rightly? maybe we can remove the scrollbar
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.documents != current.documents,
@@ -531,7 +533,7 @@ class _timeControls extends StatelessWidget {
                     value: event.isAllDayLong(),
                     activeColor: black,
                     onChanged: context.bloc<CreateEventCubit>().setAlldayLong
-                    })) : Container()
+                    )) : Container()
           ],));
 
     return new Form(

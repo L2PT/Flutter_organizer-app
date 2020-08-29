@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/cubit/fab_cubit.dart';
+import 'package:venturiautospurghi/cubit/fab_widget/fab_cubit.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';

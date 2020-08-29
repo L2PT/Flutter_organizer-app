@@ -29,7 +29,6 @@ import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/views/widgets/persistent_notification_widget.dart';
 import '../utils/theme.dart';
 
 //HANDLE cambia questa velocità
