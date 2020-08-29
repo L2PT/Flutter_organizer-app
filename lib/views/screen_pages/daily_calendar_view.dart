@@ -8,26 +8,211 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
+import 'package:venturiautospurghi/cubit/daily_calendar/daily_calendar_cubit.dart';;
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
+import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
 //HANDLE cambia questa costante per modifcare la grandezza degli eventi
 const double minEventHeight = 60.0;
 
-class DailyCalendar extends StatefulWidget {
+class DailyCalendar extends StatelessWidget {
   DateTime day;
   DailyCalendar([this.day,Key key]) : super(key: key);
 
   @override
   _DailyCalendarState createState() => _DailyCalendarState();
-}
+
+  @override
+  Widget build(BuildContext context) {
+    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var account = BlocProvider.of<AuthenticationBloc>(context).account;
+    var calendarController = CalendarController();
+    var _animationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+    );
+    Map<DateTime, List> _events;
+
+    Widget _buildTableCalendarWithBuilders(CalendarController _calendarController, Map<DateTime, List> _events, DateTime _selectedDay, AnimationController _animationController) {
+      return TableCalendar(
+        locale: 'it_IT',
+        calendarController: _calendarController,
+        events: _events,
+        initialCalendarFormat: CalendarFormat.week,
+        formatAnimation: FormatAnimation.slide,
+        startingDayOfWeek: StartingDayOfWeek.monday,
+        availableGestures: AvailableGestures.horizontalSwipe,
+        availableCalendarFormats: {CalendarFormat.week: ''},
+        initialSelectedDay: _selectedDay,
+        builders: CalendarBuilders(
+          selectedDayBuilder: (context, date, _) {
+            return FadeTransition(
+              opacity: Tween(begin: 0.0, end: 1.0).animate(
+                  _animationController),
+              child: Container(
+                decoration: BoxDecoration(
+                    border: Border(
+                        bottom: BorderSide(
+                            color: black,
+                            width: 3
+                        )
+                    )
+                ),
+                child: Center(
+                  child: Text(
+                      '${date.day}',
+                      style: const TextStyle(fontWeight: FontWeight.bold,
+                          color: Color(0xFF333333),
+                          fontSize: 18)
+                  ),
+                ),
+              ),
+            );
+          },
+          todayDayBuilder: (context, date, _) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: grey_light,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Center(child: Text(
+                  '${date.day}',
+                  style: const TextStyle(fontWeight: FontWeight.bold,
+                      color: Color(0xFF333333),
+                      fontSize: 18)
+              ),
+              ),
+            );
+          },
+          holidayDayBuilder: (context, date, _) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: green,
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: Center(child: Text(
+                  '${date.day}',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: white, fontSize: 18)
+              ),
+              ),
+            );
+          },
+          markersBuilder: (context, date, events, holidays) {
+            final children = <Widget>[];
+            if (events.isNotEmpty && false) {
+              children.add(
+                Positioned(
+                  right: 1,
+                  bottom: 1,
+                  child: _buildEventsMarker(date, events, _calendarController),
+                ),
+              );
+            }
+            if (holidays.isNotEmpty && false) {
+              children.add(
+                Positioned(
+                  right: -2,
+                  top: -2,
+                  child: _buildHolidaysMarker(),
+                ),
+              );
+            }
+            return children;
+          },
+        ),
+        onDaySelected: (date, events) {
+          _onDaySelected(date, events);
+          _animationController.forward(from: 0.0);
+        },
+        onVisibleDaysChanged: _onVisibleDaysChanged,
+        selectNext: () {
+          context.bloc<MobileBloc>().add( NavigateEvent(Constants.monthlyCalendarRoute, _selectedDay));
+        },
+        selectPrevious: () {},
+      );
+    }
+
+    Widget buildDailyEventCalendar = Column(
+        mainAxisSize: MainAxisSize.max,
+        children:
+        <Widget>[
+          _buildTableCalendarWithBuilders(calendarController, _events, this.day, _animationController),
+          const SizedBox(height: 8.0),
+          Expanded(child: _buildEventList()),
+        ]);
+
+
+
+
+    return new BlocProvider(
+        create: (_) => DailyCalendarCubit(repository, day, account),
+        child: Material(
+          elevation: 12.0,
+          borderRadius: new BorderRadius.only(
+              topLeft: new Radius.circular(16.0),
+              topRight: new Radius.circular(16.0)),
+          child:
+              BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
+                buildWhen: (previous, current) => previous != current,
+                builder: (context, state) {
+                  if(state is DailyCalendarReady) {
+                    _events = state.events;
+                    _animationController.forward();
+                    return buildDailyEventCalendar;
+                  } else return LoadingScreen();
+                },
+              )
+        ));
+  }
+
+  }
+
+
+  Widget _buildEventsMarker(DateTime date, List events, CalendarController _calendarController) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      decoration: BoxDecoration(
+        shape: BoxShape.rectangle,
+        color: _calendarController.isSelected(date)
+            ? Colors.brown[500]
+            : _calendarController.isToday(date) ? Colors.brown[300] : Colors.blue[400],
+      ),
+      width: 16.0,
+      height: 16.0,
+      child: Center(
+        child: Text(
+          '${events.length}',
+          style: TextStyle().copyWith(
+            color: Colors.white,
+            fontSize: 12.0,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHolidaysMarker() {
+    return Icon(
+      Icons.add_box,
+      size: 20.0,
+      color: Colors.blueGrey[800],
+    );
+  }
+
+
+  //PARTE VECCHIO NON GUARDARE !!!!!!!!!!!!!!!!
 
 class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateMixin {
   Map<DateTime, List> _events;
@@ -44,7 +229,6 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
   void initState() {
     super.initState();
     account = BlocProvider.of<AuthenticationBloc>(context).account;
-    _selectedDay = widget.day!=null?widget.day:TimeUtils.truncateDate(DateTime.now(), "day");
     _events = Map();
     _calendarController = CalendarController();
     _animationController = AnimationController(
@@ -82,9 +266,18 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  _buildTableCalendarWithBuilders(),
-                  const SizedBox(height: 8.0),
-                  Expanded(child: _buildEventList()),
+                  BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
+                    buildWhen: (previous, current) => previous != current,
+                    builder: (context, state) {
+                      if(state is DailyCalendarReady) {
+                          _buildTableCalendarWithBuilders();
+                          const SizedBox(height: 8.0),
+                          Expanded(child: _buildEventList()),
+                          eventsGroupedByDay = state.events.groupBy((event) => TimeUtils.truncateDate(event.start, "day"));
+                          return buildGroupEventList;
+                      } else return LoadingScreen();
+                    },
+                  )
                 ],
               ),
             );
@@ -93,6 +286,9 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
         }
     );
   }
+
+
+
 
   //--CALENDAR
   Widget _buildTableCalendarWithBuilders() {
