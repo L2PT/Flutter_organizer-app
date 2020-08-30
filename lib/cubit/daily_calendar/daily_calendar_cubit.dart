@@ -18,8 +18,8 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   }
 
   void getEventsDay(DateTime day, Account _account) async {
-    Map<DateTime, List> eventsMap = Map();
-    List<Event> events;
+    Map<DateTime, List> eventsMap = {};
+    List<Event> events = [];
     _databaseRepository.subscribeEventsByOperator(_account.id).listen((eventsList) {
       eventsList.forEach((singleEvent){
         if(singleEvent.isBetweenDate(day, day.add(Duration(days: 1)))){
