@@ -142,7 +142,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
           builder: (context) => new Alert(
             title: "ESCI",
             content: new Text( 'Vuoi uscire dall\'app?', style: label, ),
-            action: Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+            actions: <Widget>[
               FlatButton(
                 child: new Text('No', style: label),
                 onPressed: () {
@@ -157,7 +157,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
                 elevation: 15,
                 onPressed: () => Navigator.of(context).pop(true),
               ),
-            ]),
+            ],
           ),
         ) ??
         false;

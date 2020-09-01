@@ -10,17 +10,18 @@ import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 part 'fab_state.dart';
 
 class FabCubit extends Cubit<FabState> {
-  FabCubit(this._databaseRepository, this._account, this._route)
+  FabCubit(this.context, this._databaseRepository, this._account, this._route)
       : assert(_databaseRepository != null && _account != null && _route != null),
         super(FabState(_route, _account.supervisor)) {
     if(state.isSupervisor) {
-      if(state.route == Constants.detailsEventViewRoute) content = Fab_details_super();
+      if(state.route == Constants.detailsEventViewRoute) content = Fab_details_super(_context);
       else if(state.route == Constants.dailyCalendarRoute) content = Fab_daily_super();
     } else {
       if(state.route == Constants.detailsEventViewRoute) content = Fab_details_oper();
     }
   }
 
+  final BuildContext _context;
   final CloudFirestoreService _databaseRepository;
   final Account _account;
   final String _route;

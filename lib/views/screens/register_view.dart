@@ -269,7 +269,6 @@ class RegisterState extends State<Register> {
     });
   }
 
-  //TODO i'm not sure about the timer redirect
   void _register() async {
     RepositoryProvider.of<FirebaseAuthService>(context).createAccount(
       _emailController.text,

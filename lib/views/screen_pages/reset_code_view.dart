@@ -1,62 +1,25 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-//import 'package:flutter_web/material.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
+import 'package:venturiautospurghi/cubit/reset_auth_account/reset_auth_account_cubit.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pin_input_text_field/pin_input_text_field.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:venturiautospurghi/bloc/backdrop_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
-//https://developers.google.com/identity/sms-retriever/verify
-
-class ResetCode extends StatefulWidget {
-  String code;
-
-  @override
-  State<StatefulWidget> createState(){
-    return new _ResetCodeState();
-  }
-
-  ResetCode(this.code){
-    createState();
-  }
-}
-
-class _ResetCodeState extends State<ResetCode> {
-  String _signature;
-  String _code;
-  @override
-  void  initState(){
-    super.initState();
-    SmsAutoFill().listenForCode;
-  }
-
-  @override
-  void codeUpdated() {
-    setState(() {
-      _code = SmsAutoFill().code as String;
-    });
-    //maybe non serve a niente setState
-    //maybe il setState fa partire il onCodeChange del Widget e non serve chiamare code checker
-    codeChecker(SmsAutoFill().code as String);
-  }
-
-  void codeChecker(String code) async{
-      _signature = await SmsAutoFill().getAppSignature;
-      setState((){});
-      if(widget.code == code || Constants.debug){
-        //BlocProvider.of<MobileBloc>(context).dispatch(NavigateEvent(Constants.dailyCalendarRoute,[operator,null]));
-      }
-  }
-  void sendMail(){int a=4;}
-  void sendMessage(){int a=4;}
+class ResetAuthAccount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData.light(),
-      home: Scaffold(
+    FirebaseAuthService authentication = context.repository<FirebaseAuthService>();
+    CloudFirestoreService repository = context.repository<CloudFirestoreService>();
+
+    Widget content = Scaffold(
         appBar: AppBar(
           title: const Text('Reset'),
         ),
@@ -67,53 +30,65 @@ class _ResetCodeState extends State<ResetCode> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              SizedBox(
-                  height: 10.0
-              ),
+              SizedBox(height: 10.0),
               TextField(
+                controller: context
+                    .bloc<ResetAuthAccountCubit>()
+                    .emailController,
                 enabled: false,
                 decoration: InputDecoration(
-                  labelText: "a@gmail.it",
+                  hintText: "Email",
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.email),
-                    onPressed: (){sendMail();}
+                      icon: Icon(Icons.email),
+                      onPressed: context.bloc<ResetAuthAccountCubit>().sendEmailReset
                   ),
                 ),
               ),
+              Text("or", style: subtitle),
               TextField(
+                controller: context
+                    .bloc<ResetAuthAccountCubit>()
+                    .phoneController,
                 enabled: false,
                 decoration: InputDecoration(
-                  labelText: "333 895 2549",
+                  hintText: "Telefono",
                   suffixIcon: IconButton(
-                    icon: Icon(Icons.phone_android),
-                    onPressed: (){sendMessage();}
+                      icon: Icon(Icons.phone_android),
+                      onPressed: context.bloc<ResetAuthAccountCubit>().sendPhoneVerification
                   ),
                 ),
               ),
-              SizedBox(
-                  height: 50.0
-              ),
+              SizedBox(height: 50.0),
               PinFieldAutoFill(
-                decoration: UnderlineDecoration(
-                    textStyle: TextStyle(fontSize: 20, color: Colors.black)),
-                onCodeSubmitted: codeChecker,
-                codeLength: 6//code length, default 6
+                  controller: context.bloc<ResetAuthAccountCubit>().codeController,
+                  decoration: UnderlineDecoration(
+                      textStyle: TextStyle(fontSize: 20, color: Colors.black)),
+                  onCodeSubmitted: context.bloc<ResetAuthAccountCubit>().checkCode,
+                  codeLength: 6 //code length, default 6
               ),
               Spacer(),
-              Divider(
-                  height: 10.0
-              ),
-              SizedBox(
-                  height: 4.0
-              ),
-              Text("App Signature : $_signature"),
-              SizedBox(
-                  height: 4.0
-              ),
+              Divider(height: 10.0),
             ],
           ),
-        ),
-      ),
+        )
+    );
+
+    Widget builder = BlocBuilder<ResetAuthAccountCubit, ResetAuthAccountState>(
+      buildWhen: (previous, current) => current is CodeVerifiedState,
+      builder: (context, state) {
+      if(state is CodeVerifiedState){
+        Timer(Duration(seconds: 3), () => context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null)));
+        return LoadingScreen();
+      } else return content;
+      },
+    );
+
+    return new BlocProvider(
+      create: (_) => ResetAuthAccountCubit(authentication, repository),
+      child: MaterialApp(
+        theme: ThemeData.light(),
+        home: builder
+      )
     );
   }
 }

@@ -46,7 +46,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     try {
       var user = await _authenticationRepository.currentUser();
       if (user != null) {
-        account = await getAccount(user.email);
+        account = await _getAccount(user.email);
         isSupervisor = account.supervisor;
         yield Authenticated(account, isSupervisor);
       } else {
@@ -59,7 +59,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
     var user = event.user;
-    account = await getAccount(user.email);
+    account = await _getAccount(user.email);
     isSupervisor = account.supervisor;
     if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
   }
@@ -73,7 +73,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   /// user logged in. The Firebase AuthUser uid must be the same as the id of the
   /// document in the "Utenti" [Constants.tabellaUtenti] collection.
   /// However the mail is also an unique field.
-  Future<Account> getAccount(String email) async {
+  Future<Account> _getAccount(String email) async {
     var query = FirebaseFirestore.instance.collection("Utenti").where('Email', isEqualTo: email);
     var result = await query.get();
     var docs = result.docs;

@@ -4,6 +4,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/persistent_notification/persistent_notification_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
@@ -63,12 +64,14 @@ class _notificationWidget extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Widget singleNotificationWidget = cardEvent(
-      buttonArea: true,
+      event: context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0],
       dateView: true,
-      hourSpan: 0,
-      e: context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0],
+      hourGridSpan: 0,
       hourHeight: 160,
-      actionEvent: (event) => PlatformUtils.navigator(context, context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0]),
+      buttonArea: <String,Function(Event)>{
+        "Rifiuta":context.bloc<PersistentNotificationCubit>().cardActionReject,
+        "Conferma":context.bloc<PersistentNotificationCubit>().cardActionConfirm},
+      onTapAction: (event) => PlatformUtils.navigator(context, context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0]),
     );
 
     return BlocBuilder<PersistentNotificationCubit, PersistentNotificationState>(

@@ -196,4 +196,16 @@ class Status {
         return Icons.assistant_photo;
     }
   }
+
+  static String getText(int status){
+    switch(status){
+      case Status.Deleted: return "Eliminato";
+      case Status.New: return "Nuovo";
+      case Status.Delivered: return "Consegnato";
+      case Status.Seen: return "Visualizzato";
+      case Status.Accepted: return "Accettato";
+      case Status.Refused: return "Rifiutato";
+      case Status.Ended: return "Terminato";
+    }
+  }
 }

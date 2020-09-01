@@ -2,7 +2,9 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 
 part 'persistent_notification_state.dart';
 
@@ -19,5 +21,16 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
     });
   }
 
-  //TODO can i remove the variables?
+  void cardActionConfirm(Event event) {
+    event.status = Status.Accepted;
+    _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Accepted);
+    FirebaseMessagingService.sendNotification(token:Account.fromMap("", event.supervisor).token, title: "${_account.surname} ${_account.name} ha accettato un lavoro");
+  }
+
+  void cardActionReject(Event event, ) {
+      event.status = Status.Refused;
+      _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Accepted);
+      FirebaseMessagingService.sendNotification(token:Account.fromMap("", event.supervisor).token, title: "${_account.surname} ${_account.name}  ha rifiutato un lavoro");
+  }
+
 }

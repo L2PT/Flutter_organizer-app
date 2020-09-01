@@ -166,12 +166,12 @@ class _listTileEvent extends StatelessWidget {
       Expanded(
         flex: 9,
         child: cardEvent(
-          e: event,
+          event: event,
           dateView: false,
           hourHeight: 140,
-          hourSpan: 0,
-          buttonArea: true,
-          actionEvent: (event)=> PlatformUtils.navigator(context, event),
+          hourGridSpan: 0,
+          buttonArea: <String,Function(Event)>{"Rifiuta":context.bloc<WaitingEventListCubit>().cardActionReject,"Conferma":context.bloc<WaitingEventListCubit>().cardActionConfirm},
+          onTapAction: (event)=> PlatformUtils.navigator(context, event),
         ),
       ),
       SizedBox(height: 15)

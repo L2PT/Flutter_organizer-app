@@ -182,6 +182,10 @@ class CloudFirestoreService {
     _cloudFirestore.runTransaction(createTransaction);
   }
 
+  String getUserEmailByPhone(String phoneNumber) {
+    //TODO
+  }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

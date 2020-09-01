@@ -85,7 +85,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                             e: event,
                             dateView: true,
                             hourHeight: 120,
-                            hourSpan: 0,
+                            hourGridSpan: 0,
                             buttonArea: false,
                             actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
                           ))).toList()
@@ -194,7 +194,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
                                       e: event,
                                       dateView: true,
                                       hourHeight: 120,
-                                      hourSpan: 0,
+                                      hourGridSpan: 0,
                                       buttonArea: false,
                                       actionEvent: (ev)=> Utils.PushViewDetailsEvent(context, ev),
                                     ))).toList()

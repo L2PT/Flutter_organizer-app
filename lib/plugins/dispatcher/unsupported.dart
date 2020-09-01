@@ -35,6 +35,7 @@ abstract class PlatformUtils {
   static dynamic navigator(context, content) => null;
 
   static dynamic notifyErrorMessage(msg) => null;
+  static dynamic notifyInfoMessage(message) => null;
 
   static Event EventFromMap(id, color, json) => null;
 

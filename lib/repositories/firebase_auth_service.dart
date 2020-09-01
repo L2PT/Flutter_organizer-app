@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../models/auth/authuser.dart';
@@ -24,7 +25,7 @@ class FirebaseAuthService {
   }
 
   Stream<AuthUser> get onAuthStateChanged {
-    return _firebaseAuth.onAuthStateChanged.map(_userFromFirebase);
+    return _firebaseAuth.idTokenChanges().map(_userFromFirebase);
   }
 
   Future<AuthUser> signInWithEmailAndPassword(String email, String password) async {
@@ -52,15 +53,19 @@ class FirebaseAuthService {
     return _userFromFirebase(user);
   }
 
-  void sendPasswordReset(String text) {
-    //TODO
+  void sendPasswordReset(String email) {
+    _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
+  void sendPhoneVerificationCode(String email) {
+    _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
   Future<AuthUser> createAccount(String text, String passwordNewUsers, {String displayName}) {
     //TODO
   }
 
-  void signInWithToken(String email, token) {
-    //TODO
+  void signInWithToken( token) {
+    _firebaseAuth.signInWithCustomToken(token);
   }
 }

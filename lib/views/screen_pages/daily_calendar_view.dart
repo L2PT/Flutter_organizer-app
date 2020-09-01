@@ -538,7 +538,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                 child: cardEvent(
                   e: _selectedEvents[0],
                   hourHeight: 120,
-                  hourSpan: 0,
+                  hourGridSpan: 0,
                   actionEvent: (ev) => Utils.PushViewDetailsEvent(context, ev),
                   buttonArea: false,
                   dateView: true,
@@ -565,7 +565,7 @@ class _DailyCalendarState extends State<DailyCalendar> with TickerProviderStateM
                   flex: 8,
                   child: cardEvent(
                     e: e,
-                    hourSpan: _gridHourSpan,
+                    hourGridSpan: _gridHourSpan,
                     hourHeight: _gridHourHeight,
                     selectedDay: _selectedDay,
                     actionEvent: (ev) => Utils.PushViewDetailsEvent(context, ev),

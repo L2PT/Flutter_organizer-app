@@ -277,9 +277,7 @@ class _resetPasswordText extends StatelessWidget {
               return new Alert(
                 title: "RESET PASSWORD",
                 content: new Text(resetMessage, style: label,),
-                action: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
+                actions: <Widget>[
                       FlatButton(
                         child: new Text('ANNULLA', style: label),
                         onPressed: () {
@@ -301,7 +299,7 @@ class _resetPasswordText extends StatelessWidget {
                           Navigator.of(context).pop(false);
                         },
                       ),
-                    ]),
+                    ],
               );
             }
         );

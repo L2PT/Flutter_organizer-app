@@ -10,6 +10,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
@@ -22,8 +23,6 @@ import 'package:venturiautospurghi/views/screens/register_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
-import 'bloc/events_bloc/events_bloc.dart';
-import 'bloc/operators_bloc/operators_bloc.dart';
 import 'bloc/web_bloc/web_bloc.dart';
 
 @JS()
@@ -85,7 +84,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    var repository = RepositoryProvider.of<FirebaseAuthService>(context);
+    var databaseRepository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var authentication = RepositoryProvider.of<FirebaseAuthService>(context);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -93,31 +93,34 @@ class _MyAppState extends State<MyApp> {
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           if (state is Unauthenticated) {
-            String c = ReadCookieJarJs(COOKIE_PATH);
-            if(!c.isNullOrEmpty()){
-              Map<String, dynamic> map = jsonDecode(c);
-              AuthUser u = AuthUser.fromMap(map);
+            String token = ReadCookieJarJs(COOKIE_PATH);
+            if (!token.isNullOrEmpty()) {
               WriteCookieJarJs(COOKIE_PATH, "");
-              repository.signInWithToken(u.email,u.token);
+              authentication.signInWithToken(token);
               return LoadingScreen();
             }
             jQuery("#calendar").html("");
             return LogIn();
           } else if (state is Authenticated) {
-            if(!Constants.debug) WriteCookieJarJs(COOKIE_PATH, jsonEncode(state.user));
-            return BlocProvider(
-              create: (context) {
-                return WebBloc(state.user, state.user.supervisor)..add(InitAppEvent());
-              },
-              child: MyAppWeb(),
-            );
+            if (!Constants.debug) WriteCookieJarJs(COOKIE_PATH, state.token);
+            return RepositoryProvider.value(
+              value: databaseRepository,
+              child: BlocProvider(
+                create: (context) {
+                  return WebBloc(
+                      account: context.bloc<AuthenticationBloc>().account,
+                      databaseRepository: databaseRepository)..add(InitAppEvent());
+                },
+                child: MyAppWeb(),
+              ));
           }
           return SplashScreen();
-        },
+          },
       ),
     );
   }
 }
+
 class MyAppWeb extends StatefulWidget {
   const MyAppWeb({Key key}) : super(key: key);
 
@@ -157,7 +160,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
 
   @override
   Widget build(BuildContext context) {
-    final repo = BlocProvider.of<WebBloc>(context).eventsRepository;
+
 
     return new Scaffold(
         backgroundColor: Color(0x00000000),
@@ -260,7 +263,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin{
                                 IconButton(
                                   icon: Icon(Icons.exit_to_app,),
                                   onPressed: (){
-                                    WriteCookieJar("user", "");
+                                    WriteCookieJarJs(COOKIE_PATH, "");
                                     BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());
                                   },
                                 ),

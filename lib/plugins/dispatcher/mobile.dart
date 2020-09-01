@@ -8,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -70,8 +71,8 @@ abstract class PlatformUtils {
     return a;
   }
 
-  static dynamic navigator(context, content) async {
-    return await Navigator.push(context, new MaterialPageRoute(builder: (BuildContext context) => content ));
+  static dynamic navigator(context, route, arg) async {
+    context.bloc<MobileBloc>().add(NavigateEvent(route, arg));
   }
 
   static dynamic notifyErrorMessage(msg) {
@@ -80,6 +81,17 @@ abstract class PlatformUtils {
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
         backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0
+    );
+  }
+
+  static dynamic notifyInfoMessage(msg) {
+    return Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: Colors.black,
         textColor: Colors.white,
         fontSize: 16.0
     );

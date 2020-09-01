@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:js/js.dart';
+import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart' as E;
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
@@ -105,15 +106,8 @@ class PlatformUtils {
     return Map.fromIterable(a, key: (s) => s.split("/").last, value: (s) => s);
   }
 
-  static dynamic navigator(context, content) async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(contentPadding: EdgeInsets.all(0),content:Container(height:650, width:400, child: content),
-        );
-      },
-    );
+  static dynamic navigator(context, route, arg) async {
+    context.bloc<WebBloc>().add(NavigateEvent(route, arg));
   }
 
   static dynamic notifyErrorMessage(msg) {

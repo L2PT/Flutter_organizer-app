@@ -13,11 +13,12 @@ class Uninitialized extends AuthenticationState {
 class Authenticated extends AuthenticationState {
   final Account user;
   final bool isSupervisor;
+  final String token;
 
-  Authenticated([this.user,this.isSupervisor]) : super([user,isSupervisor]);
+  Authenticated([this.user,this.isSupervisor, this.token]) : super([user,isSupervisor,token]);
 
   @override
-  List<Object> get props => [this.user,this.isSupervisor];
+  List<Object> get props => [this.user,this.isSupervisor,this.token];
 }
 
 class Unauthenticated extends AuthenticationState {

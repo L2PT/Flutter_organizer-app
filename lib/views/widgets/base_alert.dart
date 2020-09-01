@@ -6,9 +6,9 @@ import 'package:venturiautospurghi/utils/theme.dart';
 class Alert extends StatelessWidget {
   final Widget content;
   final String title;
-  final Widget action;
+  final List<Widget> actions;
 
-  Alert({this.content, this.title, this.action, Key key}) : super(key: key);
+  Alert({this.content, this.title, this.actions, Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +33,7 @@ class Alert extends StatelessWidget {
         ),
       ),
       content: content,
-      actions: <Widget>[
-        action,
-      ],
+      actions: actions,
     );
   }
 }

@@ -46,13 +46,7 @@ class FirebaseMessagingService {
   Future<dynamic> onMessageHandler(Map<String, dynamic> message) async {
     if(Constants.debug) print('on message: $message');
     if (_isFeedbackNotification(message)) {
-      Fluttertoast.showToast(
-          msg: message["notification"]["title"],
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
-          backgroundColor: black,
-          textColor: white,
-          fontSize: 16.0);
+      PlatformUtils.notifyInfoMessage(message["notification"]["title"]);
     } else {
       _updateEventAndSendFeedback(message, Status.Delivered);
     }
