@@ -106,7 +106,7 @@ class PlatformUtils {
     return Map.fromIterable(a, key: (s) => s.split("/").last, value: (s) => s);
   }
 
-  static dynamic navigator(context, route, arg) async {
+  static dynamic navigator(context, route, [arg]) async {
     context.bloc<WebBloc>().add(NavigateEvent(route, arg));
   }
 

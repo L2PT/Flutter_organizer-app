@@ -1,9 +1,27 @@
+const var homeRoute = '/';
+const var monthlyCalendarRoute = 'view/monthly_calendar';
+const var dailyCalendarRoute = 'view/daily_calendar';
+const var operatorListRoute = 'view/op_list';
+const var registerRoute = 'view/register';
+const var detailsEventViewRoute = 'view/details_event';
+const var createEventViewRoute = 'view/form_event_creator';
+const var waitingEventListRoute = 'view/waiting_event_list';
+const var waitingNotificationRoute = 'view/persistent_notification';
+const var historyEventListRoute = 'view/history_event_list';
+const var profileRoute = 'view/profile';
+const var resetCodeRoute = 'view/reset_code_page';
+const var logInRoute = 'view/log_in';
+const var logOut = 'log_out';
+
+
 var calendar;
-var db;
+const db;
+const storage;
 var categories;
 var dart;
 var idUtente;
-$(function() { // document ready
+
+$(function() {
 
     var firebaseConfig = {
               apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
@@ -19,28 +37,34 @@ $(function() { // document ready
     db = firebase.firestore();
     storage = firebase.storage();
 
-    initCategories();
-
-    /* initialize the calendar
-    -----------------------------------------------------------------*/
-    //this will be done after login
-
-//              $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matteo', eventColor: 'orange' },);
-//              $('#calendar').fullCalendar('today');
-
-    $(document).on('click',".fc-resource-header-postfix",function(){
-        showDialogByContext_dart("add_operator",null);
+    //Initialize Categories
+    var docRef = db.collection("Costanti").doc("Categorie");
+    docRef.get().then(function(doc) {
+        if (doc.exists) {
+            categories = doc.data();
+            categories['default'] = '#fda90a';
+        } else {
+            console.log("No categories!");
+        }
+    }).catch(function(error) {
+        console.log("Error getting categories:", error);
     });
 
+    //Initialize the calendar controls
+    $(document).on('click',".fc-resource-header-postfix",function(){
+        showDialogByContext_dart(operatorListRoute,null);
+    });
     $(document).on('click',".fc-resource-postfix",function(){
         var id = $(this).closest('tr').data("resource-id")
         removeResource(id)
     });
 
+});
 
-  });
-
+//Initialize the calendar (this will be called after login) <-- Dart
 function initCalendar(){
+//   $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matteo', eventColor: 'orange' },);
+//   $('#calendar').fullCalendar('today');
      $('#calendar').fullCalendar({
         timezone:'local',
         local: 'it',
@@ -75,10 +99,9 @@ function initCalendar(){
         },
         eventDrop: function(event) { // called when an event (already on the calendar) is moved
             console.log('eventDrop', event);
-            dartCallback("stampa da js");
         },
         eventClick: function(calEvent, jsEvent, view) {//tell to dart to open the modal
-            showDialogByContext_dart("event",JSON.stringify(calEvent, censor(calEvent)))
+            showDialogByContext_dart(detailsEventViewRoute, JSON.stringify(calEvent, censorMap(calEvent)))
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
@@ -87,25 +110,11 @@ function initCalendar(){
         });
 }
 
-function initCategories(){
-    var docRef = db.collection("Costanti").doc("Categorie");
-    docRef.get().then(function(doc) {
-        if (doc.exists) {
-            categories = doc.data();
-            categories['default'] = '#fda90a';
-        } else {
-            console.log("No categories!");
-        }
-    }).catch(function(error) {
-        console.log("Error getting categories:", error);
-    });
-}
-
 function readResources(callback){
     var docRef = db.collection("Utenti").doc(idUtente);
     docRef.get().then(function(doc) {
         if (doc.exists) {
-            var arr = doc.data().OperatoriWeb
+            var arr = doc.data().OperatoriWeb;
             var res = [];
             for( var i = 0; i < arr.length; i++){
                 if(typeof(arr[i].title) == 'undefined'){
@@ -137,51 +146,57 @@ function readEvents(start, end, timezone, callback){
        callback(evs);
    });
 }
-
+function mapEventObj(eventData){
+    if(eventData!=null){
+        var e = eventData;
+        e.resourceId = e.IdOperatore;//TODO
+        e.resourceIds = e.IdOperatori;
+        e.title = e.Titolo;
+        e.url = e.Categoria;
+        e.color = getColor(e.Categoria);
+        e.start = new Date(e.DataInizio.seconds*1000).toISOString()//TODO
+        e.end = new Date(e.DataFine.seconds*1000).toISOString()
+        return e;
+    }
+}
 function removeResource(res){
     calendar.removeResource(res).then(function(value){
-        removeResource_dart(res);
+        //TODO removeResource_dart(res);
+//          dynamic j = null;
+//            for(dynamic o in account.webops){
+//              if(Account.fromMap(null, o).id == res) j=o;
+//            }
+//            if(j!=null) account.webops.remove(j);
+//            OperatorsRepository().updateOperator(account.id, "OperatoriWeb", account.webops);
     });
 }
 
-function addResource(res){
+//<-- Dart
+function addResources(res){
     res.forEach(function(i){
         i.title = i["surname"]+" "+i["name"];
         calendar.addResource(i);
     })
 }
-
+//<-- Dart
 async function storageOpenUrl(path){
     var downloadUrl = await storage.ref().child(path).getDownloadURL();
     window.open(downloadUrl);
 }
-
+//<-- Dart
 async function storageGetFiles(path){
     var a = (await storage.ref().child(path).listAll());
     return a;
 }
-
+//<-- Dart
 function storagePutFile(path, file){
     storage.ref().child(path).put(file);
 }
-
+//<-- Dart
 function storageDelFile(path){
     storage.ref().child(path).delete();
 }
 
-function mapEventObj(eventData){
-    if(eventData!=null){
-        var e = eventData;
-        e.resourceId = e.IdOperatore;
-        e.resourceIds = e.IdOperatori;
-        e.title = e.Titolo;
-        e.url = e.Categoria;
-        e.color = getColor(e.Categoria);
-        e.start = new Date(e.DataInizio.seconds*1000).toISOString()
-        e.end = new Date(e.DataFine.seconds*1000).toISOString()
-        return e;
-    }
-}
 
 /*-------------------------------------------------------------------*/
                         /*--UTILITIES--*/
@@ -197,7 +212,7 @@ function formatDate(date) {
       return year + '-' + ((monthIndex/10<1)?0+''+monthIndex:monthIndex) + '-' + ((day/10<1)?0+''+day:day);
 }
 
-function censor(censor) {
+function censorMap(censor) {
   var i = 0;
 
   return function(key, value) {

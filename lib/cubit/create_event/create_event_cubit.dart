@@ -186,7 +186,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void addOperatorDialog(BuildContext context) async {
     if (!formTimeControlsKey.currentState.validate())
       return PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
-    PlatformUtils.navigator(context, new OperatorSelection(state.event, )); //TODO it's a reference pass?
+    PlatformUtils.navigator(context, new OperatorSelection(state.event)); //TODO to check if it's a reference pass
     emit(state);
   }
 }

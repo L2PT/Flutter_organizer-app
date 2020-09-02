@@ -71,7 +71,7 @@ abstract class PlatformUtils {
     return a;
   }
 
-  static dynamic navigator(context, route, arg) async {
+  static dynamic navigator(context, route, [arg]) async {
     context.bloc<MobileBloc>().add(NavigateEvent(route, arg));
   }
 

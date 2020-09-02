@@ -2,23 +2,27 @@ part of 'web_bloc.dart';
 
 @immutable
 abstract class WebState extends Equatable {
-  WebState([List props = const []]);
+  final String route;
+  final dynamic content;
+
+  WebState(this.route, this.content);
+
+  @override
+  List<Object> get props => [route,content];
 }
 
 class Ready extends WebState {
-  final String route;
-  final dynamic content;
-  final dynamic subscription;
-  final dynamic subscriptionArgs;
-  final int subtype;
 
-  Ready([this.route, this.content, this.subscription, this.subscriptionArgs, this.subtype]) : super([route,content,subscription,subscriptionArgs,subtype]);
+  Ready(String route, content) : super(route, content);
 
-  @override
-  List<Object> get props => [route,content,subscription,subscriptionArgs,subtype];
+}
+
+class DialogReady extends WebState {
+
+  DialogReady(String route, content) : super(route, content);
+
 }
 
 class NotReady extends WebState {
-  @override
-  List<Object> get props => [];
+  NotReady() : super(null, null);
 }

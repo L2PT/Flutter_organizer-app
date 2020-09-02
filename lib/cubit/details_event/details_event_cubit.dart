@@ -36,6 +36,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   }
 
   void deleteEvent() {
+    _databaseRepository.deleteEvent(state.event);
     Navigator.pop(context);
   }
 

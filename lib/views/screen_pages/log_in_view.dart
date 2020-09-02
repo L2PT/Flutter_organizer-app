@@ -10,7 +10,6 @@ import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
-import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class LogIn extends StatelessWidget {
@@ -42,10 +41,7 @@ class LogIn extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Container(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height / 8,
+            height: MediaQuery.of(context).size.height / 8,
             width: double.infinity,
             color: black,
             child: CustomPaint(

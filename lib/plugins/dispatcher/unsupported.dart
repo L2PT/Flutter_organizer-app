@@ -32,7 +32,7 @@ abstract class PlatformUtils {
   static Future<String> filePicker() => null;
   static Future<Map<String,String>> multiFilePicker() => null;
 
-  static dynamic navigator(context, content) => null;
+  static dynamic navigator(context, route, [arg]) => null;
 
   static dynamic notifyErrorMessage(msg) => null;
   static dynamic notifyInfoMessage(message) => null;
