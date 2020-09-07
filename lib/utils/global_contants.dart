@@ -69,6 +69,8 @@ class Constants {
   static const int MIN_WORKTIME = 6;
   static const int MAX_WORKTIME = 21;
   static const int WORKTIME_SPAN = 30;
+  //HANDLE cambia questa costante per modifcare la grandezza degli eventi
+  static const double MIN_EVENT_HEIGHT = 60.0;
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
 
