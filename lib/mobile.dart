@@ -29,7 +29,7 @@ class _MyAppState extends State<MyApp> {
           if (state is Unauthenticated) {
             return LogIn();
           } else if (state is Authenticated) {
-            CloudFirestoreService databaseRepository = CloudFirestoreService();
+            CloudFirestoreService databaseRepository = context.bloc<AuthenticationBloc>().getRepository();
             FirebaseMessagingService notificationService = FirebaseMessagingService(databaseRepository)
               ..init(context.bloc<AuthenticationBloc>().account, context);
             return RepositoryProvider.value(

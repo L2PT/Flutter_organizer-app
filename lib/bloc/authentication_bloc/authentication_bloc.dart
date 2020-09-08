@@ -6,6 +6,7 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 
@@ -15,6 +16,7 @@ part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FirebaseAuthService _authenticationRepository;
+  CloudFirestoreService _repository;
   StreamSubscription<AuthUser> _userSubscription;
   Account account = null;
   bool isSupervisor = false;
@@ -43,10 +45,11 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   }
 
   Stream<AuthenticationState> _mapAppStartedToState() async* {
+    _repository = await CloudFirestoreService.create();
     try {
       var user = await _authenticationRepository.currentUser();
       if (user != null) {
-        account = await _getAccount(user.email);
+        account = await _repository.getAccount(user.email);
         isSupervisor = account.supervisor;
         yield Authenticated(account, isSupervisor);
       } else {
@@ -59,7 +62,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
     var user = event.user;
-    account = await _getAccount(user.email);
+    account = await _repository.getAccount(user.email);
     isSupervisor = account.supervisor;
     if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
   }
@@ -69,19 +72,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     _authenticationRepository.signOut();
   }
 
-  /// Function to retrieve from the database the information associated with the
-  /// user logged in. The Firebase AuthUser uid must be the same as the id of the
-  /// document in the "Utenti" [Constants.tabellaUtenti] collection.
-  /// However the mail is also an unique field.
-  Future<Account> _getAccount(String email) async {
-    var query = FirebaseFirestore.instance.collection("Utenti").where('Email', isEqualTo: email);
-    var result = await query.get();
-    var docs = result.docs;
-    for (QueryDocumentSnapshot doc in docs) {
-      if (doc != null) {
-        return Account.fromMap(doc.id, doc.data());
-      }
-    }
+  CloudFirestoreService getRepository(){
+    if(state is Authenticated) return _repository;
   }
 
   @override
