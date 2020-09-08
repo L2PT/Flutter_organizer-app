@@ -34,13 +34,13 @@ class FirebaseMessagingService {
       _databaseRepository.updateOperator(account.id, "Token", token);
       if(Constants.debug) print("New token: " + token);
     }
-    //configure behaviour handlers
-    _firebaseMessaging.configure(
-      onMessage: onMessageHandler,
-      onResume: onResumeHandler,
-      onLaunch: onLaunchHandler,
-      onBackgroundMessage: onBackgroundMessageHandler,
-    );
+    //configure behaviour handlers TODO
+//    _firebaseMessaging.configure(
+//      onMessage: onMessageHandler,
+//      onResume: onResumeHandler,
+//      onLaunch: onLaunchHandler,
+//      onBackgroundMessage: onBackgroundMessageHandler,
+//    );
   }
 
   Future<dynamic> onMessageHandler(Map<String, dynamic> message) async {
@@ -62,10 +62,10 @@ class FirebaseMessagingService {
     _openTheEvent(message);
   }
 
-  Future<dynamic> onBackgroundMessageHandler(Map<String, dynamic> message) async {
-    if(Constants.debug) print('on background message: $message');
-    if (!_isFeedbackNotification(message))
-      _updateEventAndSendFeedback(message, Status.Delivered);
+  static Future<dynamic> onBackgroundMessageHandler(Map<String, dynamic> message) async {
+    if(Constants.debug) print('on background message: $message');//TODO
+//    if (!_isFeedbackNotification(message))
+//      _updateEventAndSendFeedback(message, Status.Delivered);
   }
 
   void requestiOSPermission() {

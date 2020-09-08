@@ -20,7 +20,7 @@ class CloudFirestoreService {
       : _cloudFirestore = cloudFirestore ??  cf.FirebaseFirestore.instance {
     _collectionUtenti = _cloudFirestore.collection(Constants.tabellaUtenti) ;
     _collectionEventi = _cloudFirestore.collection(Constants.tabellaEventi);
-    _collectionSubStoricoEventi = _cloudFirestore.collectionGroup(Constants.subtabellaStorico);
+//    _collectionSubStoricoEventi = _cloudFirestore.collectionGroup(Constants.subtabellaStorico);
     _collectionStoricoEliminati = _cloudFirestore.collection(Constants.tabellaEventiEliminati);
     _collectionStoricoTerminati = _cloudFirestore.collection(Constants.tabellaEventiTerminati);
     _collectionStoricoRifiutati = _cloudFirestore.collection(Constants.tabellaEventiRifiutati);
@@ -98,7 +98,7 @@ class CloudFirestoreService {
   Stream<List<Event>> subscribeEventsByOperator(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
   }
 

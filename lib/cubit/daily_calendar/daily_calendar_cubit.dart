@@ -13,49 +13,53 @@ part 'daily_calendar_state.dart';
 
 class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   final CloudFirestoreService _databaseRepository;
-  DateTime _selectedDay;
   final Account _account;
+  final Account _operator;
+  List<Event> _events;
+  CalendarController calendarController = new CalendarController();
 
-  DailyCalendarCubit(this._databaseRepository,this._selectedDay, this._account)
+  DailyCalendarCubit(this._databaseRepository, this._account, this._operator, DateTime _selectedDay)
       : assert(_databaseRepository != null),
-        super(DailyCalendarLoading()){
-    getEventsDay(this._selectedDay, this._account);
-  }
-
-  void getEventsDay(DateTime day, Account _account) async {
-    Map<DateTime, List> eventsMap = {};
-    List<Event> events = [];
-    _databaseRepository.subscribeEventsByOperator(_account.id).listen((eventsList) {
-      eventsList.forEach((singleEvent){
-        if(singleEvent.isBetweenDate(day, day.add(Duration(days: 1)))){
-          events.add(singleEvent);
-        }
-      });
-      eventsMap[this._selectedDay] = events;
-      emit(DailyCalendarReady(this._selectedDay,eventsMap));
+        super(DailyCalendarLoading(_selectedDay)){
+    _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
+      _events = eventsList;
+      evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
     });
   }
 
-  //This function initialize the variables to show properly the grid behind the events
-
-  void onDaySelected(DateTime day, List events) {
-    if(Constants.debug) print("${day} selected");
-    DailyCalendarReady state = (this.state as DailyCalendarReady);
-    this._selectedDay = TimeUtils.truncateDate(day, "day");
-    state.events[this._selectedDay] = events;
-    emit(DailyCalendarReady(this._selectedDay,state.events));
+  void onDaySelected(DateTime day) {
+    day = TimeUtils.truncateDate(day, "day");
+    if(Constants.debug) print("$day selected");
+    if(state is DailyCalendarLoading) state.selectedDay = day;
+    else emit(DailyCalendarReady((state as DailyCalendarReady).eventsMap, day));
   }
 
-  int minDailyHour(DateTime start) {
-    DailyCalendarReady state = (this.state as DailyCalendarReady);
-    return state.minDailyHour(start);
+  void onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
+    if(state is DailyCalendarReady)
+      evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
   }
 
-  int maxDailyHour(DateTime end) {
-    DailyCalendarReady state = (this.state as DailyCalendarReady);
-    return state.maxDailyHour(end);
+  void evaluateEventsMap(DateTime first, DateTime last){
+    Map<DateTime, List<Event>> eventsMap;
+    //TODO fill here the map
+//    if(eventsMap == null) {
+//      _events.forEach((singleEvent) {
+//        if (singleEvent.isBetweenDate(selectedDay, selectedDay.add(Duration(days: 1)))) {
+//          events.add(singleEvent);
+//        }
+//      });
+//    }
+    emit(DailyCalendarReady(eventsMap, state.selectedDay));
   }
 
-  void onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {}
+  static int minDailyHour(DateTime start, DateTime today) {
+    return (start.day != today.day ? Constants.MIN_WORKTIME * 60 : max<int>(
+        Constants.MIN_WORKTIME * 60, start.hour * 60 + start.minute));
+  }
+
+  static int maxDailyHour(DateTime end, DateTime today) {
+    return (end.day != today.day ? Constants.MAX_WORKTIME * 60 : min<int>(
+        Constants.MAX_WORKTIME * 60, end.hour * 60 + end.minute));
+  }
 
 }

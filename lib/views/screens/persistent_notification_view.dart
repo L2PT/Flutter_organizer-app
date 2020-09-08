@@ -13,6 +13,8 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/operator_list_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
@@ -39,7 +41,7 @@ class PersistentNotification extends StatelessWidget {
                 body: Stack(
                   fit: StackFit.expand,
                   children: <Widget>[
-                    DailyCalendar(),
+                    Profile(),
                   ],
                 )), Container(
               decoration:
@@ -66,7 +68,7 @@ class _notificationWidget extends StatelessWidget {
     Widget singleNotificationWidget = cardEvent(
       event: context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0],
       dateView: true,
-      hourGridSpan: 0,
+      gridHourSpan: 0,
       hourHeight: 160,
       buttonArea: <String,Function(Event)>{
         "Rifiuta":context.bloc<PersistentNotificationCubit>().cardActionReject,

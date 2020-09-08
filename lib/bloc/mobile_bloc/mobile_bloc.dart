@@ -68,15 +68,15 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.arg)); break;
       case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
       case Constants.waitingNotificationRoute: yield NotificationWaitingState(event.route, PersistentNotification()); break;
-      case Constants.homeRoute: yield InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar(null) ); break;
-      case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg) ); break;
-      case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg) ); break;
+      case Constants.homeRoute: yield InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar() ); break;
+      case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, Profile() ); break;
+      case Constants.dailyCalendarRoute: yield InBackdropState(event.route, Profile() ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
       case Constants.operatorListRoute: yield InBackdropState(event.route, OperatorList()); break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield (state is InBackdropState? InBackdropState(event.route, WaitingEventList()) : NotificationWaitingState(event.route, WaitingEventList())); break;
-      case Constants.historyEventListRoute:  yield InBackdropState(event.route, History()); break;
-      default: yield InBackdropState(event.route, DailyCalendar()); break;
+      case Constants.historyEventListRoute:  yield InBackdropState(event.route, Profile()); break;
+      default: yield InBackdropState(event.route, Profile()); break;
       break;
     }
   }

@@ -15,7 +15,7 @@ class cardEvent extends StatelessWidget {
   final DateTime selectedDay;
   final void Function(Event) onTapAction;
   final Map<String, Function(Event)> buttonArea;
-  final int hourGridSpan;
+  final int gridHourSpan;
   final double hourHeight;
   final bool dateView;
 
@@ -23,9 +23,9 @@ class cardEvent extends StatelessWidget {
     this.selectedDay,
     this.onTapAction,
     this.buttonArea,
-    this.hourGridSpan = 0,
+    this.gridHourSpan = 0,
     this.hourHeight = 160,
-    this.dateView = false}): assert(hourGridSpan!=0?selectedDay!=null:true);
+    this.dateView = false}): assert(gridHourSpan!=0?selectedDay!=null:true);
 
 
   @override
@@ -53,7 +53,7 @@ class cardEvent extends StatelessWidget {
       double paddingContainer;
       double heightBar;
 
-      if (hourGridSpan == 0) {
+      if (gridHourSpan == 0) {
         containerHeight = hourHeight;
         paddingContainer = 15;
         heightBar = 60;
@@ -154,8 +154,8 @@ class cardEvent extends StatelessWidget {
       } else {
         hoursDurationEvent = (((event.end.day!=selectedDay.day?Constants.MAX_WORKTIME*60:min<int>(Constants.MAX_WORKTIME*60,event.end.hour * 60 + event.end.minute)) -
             (event.start.day!=selectedDay.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,event.start.hour * 60 + event.start.minute))) / 60);
-        containerHeight = hoursDurationEvent / hourGridSpan * hourHeight;
-        paddingContainer = 5 * hoursDurationEvent / hourGridSpan;
+        containerHeight = hoursDurationEvent / gridHourSpan * hourHeight;
+        paddingContainer = 5 * hoursDurationEvent / gridHourSpan;
         heightBar = 40;
 
         card = Card(

@@ -9,6 +9,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/operator_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
@@ -44,7 +45,7 @@ class WebBloc extends Bloc<WebEvent, WebState> {
   Stream<WebState> _mapUpdateViewToState(NavigateEvent event) async* {
     switch(event.route){
       case Constants.homeRoute: yield Ready(event.route, null); break;
-      case Constants.historyEventListRoute: yield Ready(event.route, History()); break;
+      case Constants.historyEventListRoute: yield Ready(event.route, OperatorList()); break;
       case Constants.detailsEventViewRoute: yield DialogReady(event.route, DetailsEvent((state.content is Event)?state.content:_getEventFromJson(state.content))); break;
       case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(state.content)); break;
       case Constants.monthlyCalendarRoute: yield DialogReady(event.route, TableCalendarWithBuilders()); break;

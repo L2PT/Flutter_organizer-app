@@ -1,22 +1,22 @@
-const var homeRoute = '/';
-const var monthlyCalendarRoute = 'view/monthly_calendar';
-const var dailyCalendarRoute = 'view/daily_calendar';
-const var operatorListRoute = 'view/op_list';
-const var registerRoute = 'view/register';
-const var detailsEventViewRoute = 'view/details_event';
-const var createEventViewRoute = 'view/form_event_creator';
-const var waitingEventListRoute = 'view/waiting_event_list';
-const var waitingNotificationRoute = 'view/persistent_notification';
-const var historyEventListRoute = 'view/history_event_list';
-const var profileRoute = 'view/profile';
-const var resetCodeRoute = 'view/reset_code_page';
-const var logInRoute = 'view/log_in';
-const var logOut = 'log_out';
+const homeRoute = '/';
+const monthlyCalendarRoute = 'view/monthly_calendar';
+const dailyCalendarRoute = 'view/daily_calendar';
+const operatorListRoute = 'view/op_list';
+const registerRoute = 'view/register';
+const detailsEventViewRoute = 'view/details_event';
+const createEventViewRoute = 'view/form_event_creator';
+const waitingEventListRoute = 'view/waiting_event_list';
+const waitingNotificationRoute = 'view/persistent_notification';
+const historyEventListRoute = 'view/history_event_list';
+const profileRoute = 'view/profile';
+const resetCodeRoute = 'view/reset_code_page';
+const logInRoute = 'view/log_in';
+const logOut = 'log_out';
 
 
 var calendar;
-const db;
-const storage;
+var db;
+var storage;
 var categories;
 var dart;
 var idUtente;

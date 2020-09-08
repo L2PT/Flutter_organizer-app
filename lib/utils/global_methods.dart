@@ -1,7 +1,5 @@
 library App.utils;
 
-import 'dart:convert';
-import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 

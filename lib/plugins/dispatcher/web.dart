@@ -16,12 +16,6 @@ import 'package:universal_html/html.dart';
 import 'package:universal_html/prefer_universal/html.dart';
 import 'package:js_shims/js_shims.dart';
 
-@JS()
-external void storageOpenUrlJs(dynamic path);
-external void storageGetUrlJs(dynamic path);
-external void storagePutFileJs(dynamic path, dynamic file);
-external void storageDelFileJs(dynamic path);
-
 class PlatformUtils {
   PlatformUtils._();
 
@@ -53,14 +47,18 @@ class PlatformUtils {
   static const dynamic Dir = null;
 
   static dynamic storageGetUrl(path){
-    storageOpenUrlJs(path);
+//    storageOpenUrlJs(path);
+    return null;
+  }
+  static dynamic storageGetFiles(path){
+//    storageOpenUrlJs(path);
     return null;
   }
   static void storagePutFile(path, file){
-    storagePutFileJs(path, file);
+//    storagePutFileJs(path, file);
   }
   static void storageDelFile(path){
-    storageDelFileJs(path);
+//    storageDelFileJs(path);
   }
 
   static void download(url,filename) => null;
@@ -111,7 +109,11 @@ class PlatformUtils {
   }
 
   static dynamic notifyErrorMessage(msg) {
-    showAlertJs(msg);
+//    showAlertJs(msg);
+  }
+
+  static dynamic notifyInfoMessage(msg) {
+//    showAlertJs(msg);
   }
 
   static E.Event EventFromMap(id, color, json) => E.Event.fromMap(id, color, json);

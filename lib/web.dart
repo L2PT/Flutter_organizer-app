@@ -317,6 +317,7 @@ class _buildWebPage extends StatelessWidget {
                               child: Row(children: <Widget>[
                                 IconButton(
                                   icon: Icon(Icons.person, color: white),
+                                  onPressed: () => context.bloc<AuthenticationBloc>().add(LoggedOut()),
                                 ),
                                 Text(account.surname?.toUpperCase(), textAlign: TextAlign.right,style: title_rev),
                                 SizedBox(width: 5,),

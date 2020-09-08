@@ -57,20 +57,11 @@ class Constants {
   // TABLE COSTANTI
   static const String tabellaCostanti_Categorie = 'Categorie';
 
-
-  // INSIDE EVENTS SWITCHES
-  static const int EVENTS_BLOC = 0;
-  static const int OPERATORS_BLOC = 1;
-  static const int OUT_OF_BLOC = 2;
-
-  static const String DELETE_SIGNAL = "delete_event_signal";
-  static const String MODIFY_SIGNAL = "modify_event_signal";
-
+  // HANDLES
   static const int MIN_WORKTIME = 6;
   static const int MAX_WORKTIME = 21;
   static const int WORKTIME_SPAN = 30;
-  //HANDLE cambia questa costante per modifcare la grandezza degli eventi
-  static const double MIN_EVENT_HEIGHT = 60.0;
+  static const double MIN_CALENDAR_EVENT_HEIGHT = 60.0;
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
 

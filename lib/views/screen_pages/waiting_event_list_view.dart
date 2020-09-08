@@ -169,7 +169,7 @@ class _listTileEvent extends StatelessWidget {
           event: event,
           dateView: false,
           hourHeight: 140,
-          hourGridSpan: 0,
+          gridHourSpan: 0,
           buttonArea: <String,Function(Event)>{"Rifiuta":context.bloc<WaitingEventListCubit>().cardActionReject,"Conferma":context.bloc<WaitingEventListCubit>().cardActionConfirm},
           onTapAction: (event)=> PlatformUtils.navigator(context, event),
         ),

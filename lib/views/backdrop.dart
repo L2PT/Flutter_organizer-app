@@ -50,7 +50,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0);
+    _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
   }
 
   @override
@@ -78,7 +78,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
                 ),
               ),
             ),
-            floatingActionButton: Fab(),
+            floatingActionButton: Container(),//Fab(),
             body: _buildStack((bloc.state as InBackdropState).content)));
   }
 
