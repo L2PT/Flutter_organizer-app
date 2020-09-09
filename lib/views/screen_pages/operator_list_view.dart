@@ -170,7 +170,7 @@ class _operatorList extends StatelessWidget {
       context.bloc<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, [operator, null]));
     }
 
-    Widget buildOperatorList = ListView.separated(
+    Widget buildOperatorList() => ListView.separated(
       separatorBuilder: (context, index) =>
           Divider(height: 2, thickness: 1, indent: 15, endIndent: 15, color: grey_light),
       physics: BouncingScrollPhysics(),
@@ -184,7 +184,7 @@ class _operatorList extends StatelessWidget {
       buildWhen: (previous, current) => previous != current,
       builder: (context, state) {
         return (state is ReadyOperators)? new Expanded(
-            child: buildOperatorList
+            child: buildOperatorList()
         ) : LoadingScreen();
       },
     );

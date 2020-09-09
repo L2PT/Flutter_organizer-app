@@ -4,7 +4,8 @@ library jquery;
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart' as E;
@@ -104,7 +105,7 @@ class PlatformUtils {
     return Map.fromIterable(a, key: (s) => s.split("/").last, value: (s) => s);
   }
 
-  static dynamic navigator(context, route, [arg]) async {
+  static dynamic navigator(BuildContext context, route, [arg]) async {
     context.bloc<WebBloc>().add(NavigateEvent(route, arg));
   }
 

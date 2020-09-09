@@ -14,7 +14,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   final bool isTriState;
 
   OperatorSelectionCubit(this._databaseRepository, this._event, this.isTriState)
-      : assert(_databaseRepository != null && _event != null),
+      : assert(_databaseRepository != null),
         super(LoadingOperators()){
       getOperators();
   }

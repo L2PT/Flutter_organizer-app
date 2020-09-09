@@ -2,6 +2,7 @@
 library jquery;
 import 'dart:convert';
 import 'dart:js' as js;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
@@ -21,7 +22,7 @@ import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/web_bloc/web_bloc.dart';
 
 @JS()
-external void initCalendar();
+external void init(String idUtente);
 external dynamic addResources(dynamic data);
 
 @JS()
@@ -81,9 +82,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    var databaseRepository = RepositoryProvider.of<CloudFirestoreService>(context);
     var authentication = RepositoryProvider.of<FirebaseAuthService>(context);
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: customLightTheme,
@@ -99,6 +98,7 @@ class _MyAppState extends State<MyApp> {
             jQuery("#calendar").html("");
             return LogIn();
           } else if (state is Authenticated) {
+            var databaseRepository = context.bloc<AuthenticationBloc>().getRepository();
             if (!Constants.debug) WriteCookieJarJs(COOKIE_PATH, state.token);
             return RepositoryProvider.value(
               value: databaseRepository,
@@ -133,8 +133,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin {
     super.initState();
     js.context['showDialogByContext_dart'] = this.showDialogByContext;
     //TODO try to pass the [Constants] class
-    initCalendar();
-    context.bloc<WebCubit>().getDateCalendar(jQueryDate());
+    init(context.bloc<AuthenticationBloc>().account.id);
   }
 
   void showDialogByContext(String dialogType, dynamic param) {
@@ -157,7 +156,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin {
                     builder: (context, state) {
                       if (state is Ready) {
                         return _buildWebPage();
-                      }
+                      } else context.bloc<WebCubit>().getDateCalendar(jQueryDate());
                       return Container(
                         child: SplashScreen(),
                       );
@@ -192,7 +191,7 @@ class _buildWebPage extends StatelessWidget {
             width: 180,
             margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
             child: RaisedButton(
-                onPressed: PlatformUtils.navigator(context, Constants.createEventViewRoute, account),
+                onPressed: () => PlatformUtils.navigator(context, Constants.createEventViewRoute, account),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
                   children: <Widget>[
@@ -253,7 +252,7 @@ class _buildWebPage extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                     child: RaisedButton(
-                        onPressed: PlatformUtils.navigator(context, Constants.monthlyCalendarRoute),
+                        onPressed: () => PlatformUtils.navigator(context, Constants.monthlyCalendarRoute),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
                           children: <Widget>[
@@ -326,7 +325,7 @@ class _buildWebPage extends StatelessWidget {
                                 FlatButton(
                                     color: whiteoverlapbackground,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                                    onPressed: PlatformUtils.navigator(context, Constants.registerRoute),
+                                    onPressed: ()=>PlatformUtils.navigator(context, Constants.registerRoute),
                                     child: Row(
                                       children: <Widget>[
                                         Icon(Icons.person_add, color: white,),
@@ -372,7 +371,7 @@ class _buildWebPage extends StatelessWidget {
           child:Column(
               children: <Widget>[
                 navbar,
-                context.bloc<WebBloc>().state.content
+                context.bloc<WebBloc>().state.content??Container()
               ]
           )
       );
@@ -381,23 +380,28 @@ class _buildWebPage extends StatelessWidget {
 }
 
 
-class _buildDialogWeb {
+class _buildDialogWeb extends StatelessWidget{
+
   final BuildContext parentContext;
+
   _buildDialogWeb(this.parentContext) {
     jQuery('#wrap').css(CssOptions(zIndex: -1));
-    showDialog(
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await showDialog(
       context: parentContext,
       builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          contentPadding: EdgeInsets.all(0),
-          content: Container(
-              height:650, width:400,
-              child: Scaffold(
-                  body: parentContext.bloc<WebBloc>().state.content
-              )
-          ),
-        );
+          return RepositoryProvider<CloudFirestoreService>.value(value: RepositoryProvider.of<CloudFirestoreService>(parentContext),
+           child: BlocProvider.value(value: BlocProvider.of<WebBloc>(parentContext),
+             child: AlertDialog(
+               contentPadding: EdgeInsets.all(0),
+               content: Container(
+                   height:650, width:400,
+                   child: Scaffold(
+                       body: parentContext.bloc<WebBloc>().state.content
+                   )
+               ),
+             )
+           ));
       },
     ).then((onValue) async {
       jQuery('#wrap').css(CssOptions(zIndex: 1));
@@ -434,6 +438,11 @@ class _buildDialogWeb {
         }
       }
     });
+    });
+  }
 
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }

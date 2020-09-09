@@ -43,13 +43,10 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
   Widget build(BuildContext context) {
     CloudFirestoreService repository = RepositoryProvider.of<
         CloudFirestoreService>(context);
-    Account account = BlocProvider
-        .of<AuthenticationBloc>(context)
-        .account;
+    Account account = BlocProvider.of<AuthenticationBloc>(context).account;
 
     return new BlocProvider(
-        create: (_) =>
-            MonthlyCalendarCubit(repository, account, operator, month),
+        create: (_) => MonthlyCalendarCubit(repository, account, operator, month),
         child: Material(
             elevation: 12.0,
             borderRadius: new BorderRadius.only(
@@ -60,7 +57,7 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
                 Positioned.fill(
                     child:
                     BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
-                        buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType),
+                        buildWhen: (previous, current) => previous != current,
                         builder: (context, state) {
                           return !(state is MonthlyCalendarReady) ? Center(
                               child: CircularProgressIndicator()) :
@@ -70,7 +67,8 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
             )));
   }
 }
-  class _contentTableCalendar extends StatelessWidget {
+
+class _contentTableCalendar extends StatelessWidget {
     var _animationController;
 
     _contentTableCalendar(_MonthlyCalendarViewState ticker){
@@ -79,21 +77,17 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
 
     @override
     Widget build(BuildContext context) {
-      return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
-        buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
-            previous.eventsMap != current.eventsMap,
-          builder: (context, state) {
             return TableCalendar(
               rowHeight: 85,
               locale: 'it_IT',
               calendarController: context.bloc<MonthlyCalendarCubit>().calendarController,
-              events: state.eventsMap,
+              events: context.bloc<MonthlyCalendarCubit>().state.eventsMap,
               initialCalendarFormat: CalendarFormat.month,
               formatAnimation: FormatAnimation.slide,
               startingDayOfWeek: StartingDayOfWeek.monday,
               availableGestures: AvailableGestures.horizontalSwipe,
               availableCalendarFormats: {CalendarFormat.month: ''},
-              initialSelectedDay: state.selectedMonth,
+              initialSelectedDay: context.bloc<MonthlyCalendarCubit>().state.selectedMonth,
               headerStyle: HeaderStyle(
                   rightChevronIcon: Icon(null)
               ),
@@ -160,8 +154,6 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
               selectNext: (){},
               selectPrevious: (){},
             );
-          }
-      );
     }
 
   Widget _buildEventsMarker(DateTime date, List events) {

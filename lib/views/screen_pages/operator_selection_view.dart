@@ -9,10 +9,10 @@ import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
 class OperatorSelection extends StatelessWidget {
-  final Event _event;
+  Event _event;
   final bool requirePrimaryOperator;
 
-  OperatorSelection(this._event, {this.requirePrimaryOperator = false});
+  OperatorSelection([Event _event, this.requirePrimaryOperator = false]) : this._event = _event ?? new Event.empty();
 
 
   @override
@@ -34,7 +34,7 @@ class _operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    List<Widget> buildOperatorsList = (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators.map((operator) => new ListTileOperator(
+    List<Widget> buildOperatorsList() => (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators.map((operator) => new ListTileOperator(
         operator,
         checkbox: context.bloc<OperatorSelectionCubit>().isTriState?2:1,
         isChecked: (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id],
@@ -72,7 +72,7 @@ class _operatorSelectableList extends StatelessWidget {
               return (state is ReadyOperators)? Expanded(
                 child: ListView(
                     padding: new EdgeInsets.symmetric(vertical: 8.0),
-                    children: buildOperatorsList),
+                    children: buildOperatorsList()),
               ):LoadingScreen();
             })
           ]

@@ -61,6 +61,11 @@ $(function() {
 
 });
 
+function init(idUtente){
+    this.idUtente = idUtente;
+    initCalendar();
+}
+
 //Initialize the calendar (this will be called after login) <-- Dart
 function initCalendar(){
 //   $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matteo', eventColor: 'orange' },);

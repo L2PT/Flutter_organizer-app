@@ -21,8 +21,5 @@ class MonthlyCalendarReady extends MonthlyCalendarState {
   List<Event> selectedEvents() => eventsMap[selectedMonth] ?? [];
 
   MonthlyCalendarReady(Map eventsMap, DateTime selectMonth)
-      : super(selectMonth, eventsMap) {
-    //the verticalGridEvents need the events of the selectedDay ordered
-    eventsMap[selectMonth].sort((a, b) => a.start.compareTo(b.start));
-  }
+      : super(selectMonth, eventsMap);
 }
