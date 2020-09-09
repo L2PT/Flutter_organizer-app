@@ -10,9 +10,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
+import 'package:venturiautospurghi/cubit/monthly_calendar/monthly_calendar_cubit.dart';
+import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/plugin/table_calendar/table_calendar.dart';
-import 'package:venturiautospurghi/bloc/events_bloc/events_bloc.dart';
+import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -20,156 +24,145 @@ import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 
 class MonthlyCalendar extends StatefulWidget {
   final DateTime month;
-  MonthlyCalendar(this.month, {Key key}) : super(key: key);
+  final Account operator;
+
+  MonthlyCalendar([this.month, this.operator, Key key]) : super(key: key);
 
   @override
-  _MonthlyCalendarState createState() => _MonthlyCalendarState();
+  _MonthlyCalendarViewState createState() => _MonthlyCalendarViewState(this.month,this.operator);
 }
 
-class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderStateMixin {
-  Map<DateTime, List> _events;
-  DateTime _selectedMonth;
-  AnimationController _animationController;
-  CalendarController _calendarController;
-  bool ready = false;
+class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProviderStateMixin {
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedMonth = widget.month!=null?widget.month:TimeUtils.truncateDate(DateTime.now(), "day");
-    _events = Map();
-    _calendarController = CalendarController();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 400),
-    );
-    _animationController.forward();
-  }
+  final DateTime month;
+  final Account operator;
 
-  @override
-  void dispose() {
-    _animationController.dispose();
-    _calendarController.dispose();
-    super.dispose();
-  }
+  _MonthlyCalendarViewState(this.month, this.operator);
 
-      //MAIN BUILEDER METHODS
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<EventsBloc, EventsState>(
-        builder: (context, state) {
-          if (state is Loaded) {
-            //get data
-            BlocProvider.of<EventsBloc>(context).add(FilterEventsByMonth(TimeUtils.truncateDate(_selectedMonth, "month")));
-            ready = true;
-          }else if(state is Filtered && ready){
-            spreadEventsInMonth(state.events);
-            return new Material(
-              elevation: 12.0,
-              borderRadius: new BorderRadius.only(
-                  topLeft: new Radius.circular(16.0),
-                  topRight: new Radius.circular(16.0)),
-                child: Stack(children: <Widget>[
-                  Positioned.fill( child:_buildTableCalendarWithBuilders(),),
-                ],)
+    CloudFirestoreService repository = RepositoryProvider.of<
+        CloudFirestoreService>(context);
+    Account account = BlocProvider
+        .of<AuthenticationBloc>(context)
+        .account;
+
+    return new BlocProvider(
+        create: (_) =>
+            MonthlyCalendarCubit(repository, account, operator, month),
+        child: Material(
+            elevation: 12.0,
+            borderRadius: new BorderRadius.only(
+                topLeft: new Radius.circular(16.0),
+                topRight: new Radius.circular(16.0)),
+            child: Stack(
+              children: <Widget>[
+                Positioned.fill(
+                    child:
+                    BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
+                        buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType),
+                        builder: (context, state) {
+                          return !(state is MonthlyCalendarReady) ? Center(
+                              child: CircularProgressIndicator()) :
+                          _contentTableCalendar(this);
+                        })),
+              ],
+            )));
+  }
+}
+  class _contentTableCalendar extends StatelessWidget {
+    var _animationController;
+
+    _contentTableCalendar(_MonthlyCalendarViewState ticker){
+      _animationController = AnimationController(duration: const Duration(milliseconds: 400), vsync: ticker);
+    }
+
+    @override
+    Widget build(BuildContext context) {
+      return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
+        buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
+            previous.eventsMap != current.eventsMap,
+          builder: (context, state) {
+            return TableCalendar(
+              rowHeight: 85,
+              locale: 'it_IT',
+              calendarController: context.bloc<MonthlyCalendarCubit>().calendarController,
+              events: state.eventsMap,
+              initialCalendarFormat: CalendarFormat.month,
+              formatAnimation: FormatAnimation.slide,
+              startingDayOfWeek: StartingDayOfWeek.monday,
+              availableGestures: AvailableGestures.horizontalSwipe,
+              availableCalendarFormats: {CalendarFormat.month: ''},
+              initialSelectedDay: state.selectedMonth,
+              headerStyle: HeaderStyle(
+                  rightChevronIcon: Icon(null)
+              ),
+              builders: CalendarBuilders(
+                selectedDayBuilder: (context, date, _) {
+                  return FadeTransition(
+                    opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                        color: black,
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: Center(
+                        child:Text(
+                            '${date.day}',
+                            style: const TextStyle(fontWeight: FontWeight.bold, color: white,fontSize: 18)
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                todayDayBuilder: (context, date, _) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 20),
+                    decoration: BoxDecoration(
+                      color: grey_light,
+                      borderRadius: BorderRadius.circular(100.0),
+                    ),
+                    child: Center(child:Text(
+                        '${date.day}',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
+                    ),
+                    ),
+                  );
+                },
+                markersBuilder: (context, date, events, holidays) {
+                  final children = <Widget>[];
+                  if (events.isNotEmpty) {
+                    children.add(
+                        Positioned(
+                          top: 1,
+                          right: 1,
+                          child: _buildEventsMarker(date, events),
+                        )
+                    );
+                  }
+                  if (holidays.isNotEmpty && false) {
+                    children.add(
+                      Positioned(
+                        right: -2,
+                        top: -2,
+                        child: _buildHolidaysMarker(),
+                      ),
+                    );
+                  }return children;
+                },
+              ),
+              onDaySelected: (date, events) {
+                 context.bloc<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, date));
+                _animationController.forward(from: 0.0);
+              },
+              onVisibleDaysChanged: context.bloc<MonthlyCalendarCubit>().onVisibleDaysChanged,
+              selectNext: (){},
+              selectPrevious: (){},
             );
           }
-          return LoadingScreen();
-        }
-    );
-  }
-
-  void spreadEventsInMonth(List<Event> monthlyEvents){
-    _events = Map();
-    monthlyEvents.forEach((monthlyEvent){
-      for(int i in List<int>.generate(max(1,monthlyEvent.end.difference(monthlyEvent.start).inDays), (i) => i + 1)){
-        DateTime month = TimeUtils.truncateDate(monthlyEvent.start, "month");
-        DateTime dateIndex = month.toUtc().add(Duration(days:monthlyEvent.start.day+i-2)).add(month.timeZoneOffset);
-        if(_events[dateIndex]==null)_events[dateIndex]=List();
-        _events[dateIndex].add(monthlyEvent);
-      }
-    });
-  }
-
-        //--CALENDAR
-  Widget _buildTableCalendarWithBuilders() {
-    return TableCalendar(
-      rowHeight: 85,
-      locale: 'it_IT',
-      calendarController: _calendarController,
-      subscribeEvents: _events,
-      initialCalendarFormat: CalendarFormat.month,
-      formatAnimation: FormatAnimation.slide,
-      startingDayOfWeek: StartingDayOfWeek.monday,
-      availableGestures: AvailableGestures.horizontalSwipe,
-      availableCalendarFormats: {CalendarFormat.month: ''},
-      initialSelectedDay: _selectedMonth,
-      headerStyle: HeaderStyle(
-        rightChevronIcon: Icon(null)
-      ),
-      builders: CalendarBuilders(
-        selectedDayBuilder: (context, date, _) {
-          return FadeTransition(
-            opacity: Tween(begin: 0.0, end: 1.0).animate(_animationController),
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 5),
-              decoration: BoxDecoration(
-                color: black,
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-              child: Center(
-                child:Text(
-                  '${date.day}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: white,fontSize: 18)
-              ),
-              ),
-            ),
-          );
-        },
-        todayDayBuilder: (context, date, _) {
-          return Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8,vertical: 20),
-            decoration: BoxDecoration(
-              color: grey_light,
-              borderRadius: BorderRadius.circular(100.0),
-          ),
-            child: Center(child:Text(
-              '${date.day}',
-              style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF333333),fontSize: 18)
-            ),
-            ),
-          );
-        },
-        markersBuilder: (context, date, events, holidays) {
-          final children = <Widget>[];
-          if (events.isNotEmpty) {
-            children.add(
-              Positioned(
-                top: 1,
-                right: 1,
-                child: _buildEventsMarker(date, events),
-              )
-            );
-          }
-          if (holidays.isNotEmpty && false) {
-            children.add(
-              Positioned(
-                right: -2,
-                top: -2,
-                child: _buildHolidaysMarker(),
-              ),
-            );
-          }return children;
-        },
-      ),
-      onDaySelected: (date, events) {
-        _onDaySelected(date, events);
-        _animationController.forward(from: 0.0);
-      },
-      onVisibleDaysChanged: _onVisibleDaysChanged,
-      selectNext: (){},
-      selectPrevious: (){},
-    );
-  }
+      );
+    }
 
   Widget _buildEventsMarker(DateTime date, List events) {
     return AnimatedContainer(
@@ -203,14 +196,6 @@ class _MonthlyCalendarState extends State<MonthlyCalendar> with TickerProviderSt
     );
   }
 
-      //METODI DI CALLBACK
-  void _onDaySelected(DateTime day, List events) {
-    //reformat since is a UTC
-    Utils.NavigateTo(context, Constants.dailyCalendarRoute, [null,TimeUtils.truncateDate(day,"day")]);
-  }
 
-  void _onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-    BlocProvider.of<EventsBloc>(context).add(FilterEventsByMonth(TimeUtils.truncateDate(first,"month")));
-  }
 
 }

@@ -41,14 +41,15 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
 
   void evaluateEventsMap(DateTime first, DateTime last){
     Map<DateTime, List<Event>> eventsMap;
-    //TODO fill here the map
-//    if(eventsMap == null) {
-//      _events.forEach((singleEvent) {
-//        if (singleEvent.isBetweenDate(selectedDay, selectedDay.add(Duration(days: 1)))) {
-//          events.add(singleEvent);
-//        }
-//      });
-//    }
+    List<Event> events;
+    if(this._events != null){
+      _events.forEach((singleEvent) {
+        if (singleEvent.isBetweenDate(first, last)) {
+          events.add(singleEvent);
+        }
+      });
+      eventsMap[first] = _events;
+    }
     emit(DailyCalendarReady(eventsMap, state.selectedDay));
   }
 
