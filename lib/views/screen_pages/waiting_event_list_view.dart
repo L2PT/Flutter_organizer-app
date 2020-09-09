@@ -58,7 +58,7 @@ class _eventList extends StatelessWidget{
       context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, [null, date]));
     }
 
-    Widget buildGroupEventList = ListView.builder(
+    Widget buildGroupEventList() => ListView.builder(
       physics: BouncingScrollPhysics(),
       itemCount: eventsGroupedByDay.length,
       itemBuilder: (context, index) => _listGroup(eventsGroupedByDay[index]),);
@@ -91,7 +91,7 @@ class _eventList extends StatelessWidget{
         if(state is ReadyEvents) {
           if(state.events.length > 0) {
             eventsGroupedByDay = state.events.groupBy((event) => TimeUtils.truncateDate(event.start, "day"));
-            return buildGroupEventList;
+            return buildGroupEventList();
           } else return noContent;
         } else return LoadingScreen();
       },

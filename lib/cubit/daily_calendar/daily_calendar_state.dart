@@ -24,7 +24,7 @@ class DailyCalendarReady extends DailyCalendarState {
 
   DailyCalendarReady(Map eventsMap, DateTime selectedDay) : super(selectedDay, eventsMap) {
     //the verticalGridEvents need the events of the selectedDay ordered
-    eventsMap[selectedDay].sort((a, b) => a.start.compareTo(b.start));
+    eventsMap[selectedDay]?.sort((a, b) => a.start.compareTo(b.start));
     _calculateGridDimensions();
   }
 

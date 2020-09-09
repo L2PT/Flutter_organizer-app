@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 
 class Event {
   String _id = "";
@@ -40,13 +41,13 @@ class Event {
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"",
     _title = json["Titolo"],
     _description = json["Descrizione"],
-    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"]["seconds"]*1000),
-    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"]["seconds"]*1000),
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000),
+    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000),
     _address = json["Indirizzo"],
-    _documents = json["Documenti"],
+    _documents = json["Documenti"] == ""?[]:json["Documenti"],
     _status = json["Stato"],
     _category = json["Categoria"],
-    _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"",
+    _color = (!color.isNullOrEmpty())?color:(json.containsKey("color"))?json["color"]:"",
     _supervisor = json["Responsabile"],
     _operator = json["Operatore"],
     _suboperators = json["SubOperatori"],

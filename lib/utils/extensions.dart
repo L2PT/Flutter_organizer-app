@@ -20,10 +20,9 @@ extension DateTimeExtensions on DateTime {
 }
 extension ListExtensions on Iterable {
   @override
-  //TODO to test
   List<List<T>> groupBy<T, Y>(Y Function(dynamic) fn) {
     Map<Y,List<T>> a = Map.fromIterable(this, key: fn, value: (e)=>List());
-    this.map((element)=>{ a[element].add(element) });
+    this.forEach((element)=>{ a[fn.call(element)].add(element) });
     return a.values.toList();
   }
   @override

@@ -330,7 +330,7 @@ class _verticalEventsGrid extends StatelessWidget {
         builder: (context, state) {
           return !(state is DailyCalendarReady) ? Center(child: CircularProgressIndicator()) :
           ListView(
-            shrinkWrap: true,
+            shrinkWrap: true,//TODO remove and fix the viewport
             children: <Widget>[
               Stack(
                   children: <Widget>[

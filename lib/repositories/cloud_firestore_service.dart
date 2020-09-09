@@ -8,19 +8,19 @@ class CloudFirestoreService {
   final cf.FirebaseFirestore _cloudFirestore;
   cf.CollectionReference _collectionUtenti;
   cf.CollectionReference _collectionEventi;
-  cf.CollectionReference _collectionSubStoricoEventi;
+  cf.Query _collectionSubStoricoEventi;
   cf.CollectionReference _collectionStoricoEliminati;
   cf.CollectionReference _collectionStoricoTerminati;
   cf.CollectionReference _collectionStoricoRifiutati;
   cf.CollectionReference _collectionCostanti;
 
-  Map<String,String> categories;
+  Map<String,dynamic> categories;
 
   CloudFirestoreService({cf.FirebaseFirestore cloudFirestore})
       : _cloudFirestore = cloudFirestore ??  cf.FirebaseFirestore.instance {
     _collectionUtenti = _cloudFirestore.collection(Constants.tabellaUtenti) ;
     _collectionEventi = _cloudFirestore.collection(Constants.tabellaEventi);
-//    _collectionSubStoricoEventi = _cloudFirestore.collectionGroup(Constants.subtabellaStorico);
+    _collectionSubStoricoEventi = _cloudFirestore.collectionGroup(Constants.subtabellaStorico);
     _collectionStoricoEliminati = _cloudFirestore.collection(Constants.tabellaEventiEliminati);
     _collectionStoricoTerminati = _cloudFirestore.collection(Constants.tabellaEventiTerminati);
     _collectionStoricoRifiutati = _cloudFirestore.collection(Constants.tabellaEventiRifiutati);
@@ -31,6 +31,14 @@ class CloudFirestoreService {
     CloudFirestoreService instance = CloudFirestoreService(cloudFirestore:cloudFirestore);
     instance.categories = await instance._getCategories();
     return instance;
+  }
+
+  /// Function to retrieve from the database the information associated with the
+  /// user logged in. The Firebase AuthUser uid must be the same as the id of the
+  /// document in the "Utenti" [Constants.tabellaUtenti] collection.
+  /// However the mail is also an unique field.
+  Future<Account> getAccount(String email) async {
+    return _collectionUtenti.where('Email', isEqualTo: email).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data())).first);
   }
 
   Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime startFrom, DateTime endTo) async {
@@ -74,8 +82,8 @@ class CloudFirestoreService {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  Future<Map<String, String>> _getCategories() async {
-    return (await _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get()).data();
+  Future<Map<String, dynamic>> _getCategories() async {
+    return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data());
   }
 
   Future<Event> getEvent(String id) async {
@@ -105,14 +113,14 @@ class CloudFirestoreService {
   Stream<List<Event>> subscribeEventsByOperatorAcceptedOrBelow(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsByOperatorWaiting(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Seen).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
   }
 
@@ -121,22 +129,23 @@ class CloudFirestoreService {
   Stream<List<Event>> eventsHistory() {
     return _collectionSubStoricoEventi.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
-    });  }
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+    });
+  }
 
   /*TODO i would like to know if the stream need to update (only the change come from into the stream)
          the data or refresh (every time a change occour the full data list come into the stream) */
   Stream<List<Event>> subscribeEventsDeleted() {
     return _collectionStoricoEliminati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsEnded() {
     return _collectionStoricoTerminati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
   }
 
