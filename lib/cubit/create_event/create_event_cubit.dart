@@ -25,7 +25,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   _eventType _type;
   bool canModify;
-  Map<String,String> categories;
+  Map<String,dynamic> categories;
 
   CreateEventCubit([this._databaseRepository, this._account, Event event])
       : assert(_databaseRepository != null && _account != null), super(CreateEventState(event)) {
@@ -184,9 +184,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   void addOperatorDialog(BuildContext context) async {
-    if (!formTimeControlsKey.currentState.validate())
-      return PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
-    PlatformUtils.navigator(context, new OperatorSelection(state.event)); //TODO to check if it's a reference pass
+    // if (!formTimeControlsKey.currentState.validate())//TODO time check
+    //   return PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
+    PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);
     emit(state);
   }
 }

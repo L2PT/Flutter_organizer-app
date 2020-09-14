@@ -7,7 +7,7 @@ abstract class WebEvent extends Equatable {
 
 class NavigateEvent extends WebEvent {
   final String route;
-  final dynamic arg;
+  dynamic arg;
 
   NavigateEvent(this.route, this.arg) : super([route,arg]);
 

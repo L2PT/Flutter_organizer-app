@@ -10,13 +10,13 @@ class LoadingOperators extends OperatorSelectionState {
 }
 
 class ReadyOperators extends OperatorSelectionState {
-  final List<Account> operators;
+  List<Account> operators;
   Map<String,int> selectionList = Map();
   bool primaryOperatorSelected = false;
 
-  ReadyOperators(this.operators, {Event event, Map<String, int> preSelectedList}) {
-    operators.forEach((operator) { selectionList[operator.id] = 0; });
+  ReadyOperators(this.operators, {Event event}) {
     if(event != null) {
+      operators.forEach((operator) { selectionList[operator.id] = 0; });
       event.suboperators.forEach((suboperator) {
         if(selectionList.containsKey((suboperator as Account).id))
           selectionList[(suboperator as Account).id] = 1;
@@ -26,15 +26,12 @@ class ReadyOperators extends OperatorSelectionState {
         primaryOperatorSelected = true;
       }
     }
-    if(preSelectedList != null) {
-      preSelectedList.forEach((id, value) {
-        if(selectionList.containsKey(id)) {
-          selectionList[id] = value;
-          if(value == 2)
-            primaryOperatorSelected = true;
-        }
-      });
-    }
+  }
+
+  ReadyOperators.updateSelection(ReadyOperators state, Map<String, int> preSelectedList) {
+    operators = state.operators;
+    selectionList = preSelectedList;
+    primaryOperatorSelected = state.primaryOperatorSelected;
   }
 
   @override

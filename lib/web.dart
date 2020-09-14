@@ -191,7 +191,7 @@ class _buildWebPage extends StatelessWidget {
             width: 180,
             margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
             child: RaisedButton(
-                onPressed: () => PlatformUtils.navigator(context, Constants.createEventViewRoute, account),
+                onPressed: () => PlatformUtils.navigator(context, Constants.createEventViewRoute),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
                   children: <Widget>[
@@ -390,12 +390,13 @@ class _buildDialogWeb extends StatelessWidget{
       await showDialog(
       context: parentContext,
       builder: (BuildContext context) {
+          parentContext.bloc<WebBloc>().dialogCounter++;
           return RepositoryProvider<CloudFirestoreService>.value(value: RepositoryProvider.of<CloudFirestoreService>(parentContext),
            child: BlocProvider.value(value: BlocProvider.of<WebBloc>(parentContext),
              child: AlertDialog(
                contentPadding: EdgeInsets.all(0),
                content: Container(
-                   height:650, width:400,
+                   height:655, width:400,
                    child: Scaffold(
                        body: parentContext.bloc<WebBloc>().state.content
                    )
@@ -404,36 +405,21 @@ class _buildDialogWeb extends StatelessWidget{
            ));
       },
     ).then((onValue) async {
-      jQuery('#wrap').css(CssOptions(zIndex: 1));
-      if(onValue != null && onValue != false){
+      if(--parentContext.bloc<WebBloc>().dialogCounter == 0) jQuery('#wrap').css(CssOptions(zIndex: 1));
+      if(onValue != null && (!(onValue is bool) || onValue != false)){
         switch(parentContext.bloc<WebBloc>().state.route) {
           case Constants.monthlyCalendarRoute :{
             jQuery('#calendar').fullCalendar('gotoDate', onValue);
             parentContext.bloc<WebCubit>().getDateCalendar(jQueryDate());
           }break;
-          case Constants.operatorListRoute :{
+          case Constants.addWebOperatorRoute :{
             Event event = onValue as Event;
             Account account = parentContext.bloc<AuthenticationBloc>().account;
-            //TODO this map is obviusly to check
-            //update local
-//            int i = 0;
-//            for(dynamic o in e.suboperators){
-//              Account a=Account.fromMap(e.idOperators[i++], o);
-//              a.webops=[];
-//              bool found = false;
-//              for(dynamic webop in account.webops){
-//                Account b=Account.fromMap(null, webop);
-//                if (a.id == b.id){
-//                  found = true; break;
-//                }
-//              }
-//              if(!found) account.webops.add(a.toMap());
-//            }
+            account.webops = event.suboperators;
             //update firestore
             parentContext.bloc<WebCubit>().updateAccount(account.webops);
             //update calendar js
-//            i = 0;
-            addResources(event.suboperators.map((subOperator){Account a=Account.fromMap("", subOperator);a.webops=[];return a;}).toList());
+            addResources(account.webops.map((webOp){ webOp.webops = []; return webOp;}).toList());
           }break;
         }
       }

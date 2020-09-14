@@ -42,7 +42,7 @@ class CloudFirestoreService {
   }
 
   Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime startFrom, DateTime endTo) async {
-    final List<Account> accounts = await this.getOperators();
+    List<Account> accounts = await this.getOperators();
 
     final List<Event> listEvents = await this.getEvents();
 
@@ -85,8 +85,9 @@ class CloudFirestoreService {
   Future<Map<String, dynamic>> _getCategories() async {
     return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data());
   }
-  Future<String> getUfficio() async {
-    return _collectionCostanti.doc(Constants.tabellaCostanti_Telefoni).get().then((document) => document.data()["ufficio"]);
+
+  Future<Map<String, dynamic>> getPhoneNumbers() async {
+    return _collectionCostanti.doc(Constants.tabellaCostanti_Telefoni).get().then((document) => document.data());
   }
 
   Future<Event> getEvent(String id) async {

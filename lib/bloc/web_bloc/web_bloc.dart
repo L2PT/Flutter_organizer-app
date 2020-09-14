@@ -24,6 +24,7 @@ class WebBloc extends Bloc<WebEvent, WebState> {
   final CloudFirestoreService _databaseRepository;
   final Account _account;
   String actualRoute;
+  int dialogCounter=0;
 
   WebBloc({
     @required CloudFirestoreService databaseRepository,
@@ -32,6 +33,7 @@ class WebBloc extends Bloc<WebEvent, WebState> {
         _databaseRepository = databaseRepository,
         _account = account,
         super(NotReady());
+
 
   @override
   Stream<WebState> mapEventToState(WebEvent event) async* {
@@ -47,11 +49,12 @@ class WebBloc extends Bloc<WebEvent, WebState> {
     switch(event.route){
       case Constants.homeRoute: yield Ready(event.route, null); break;
       case Constants.historyEventListRoute: yield Ready(event.route, OperatorList()); break;
-      case Constants.detailsEventViewRoute: yield DialogReady(event.route, DetailsEvent((state.content is Event)?state.content:_getEventFromJson(state.content))); break;
-      case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(state.content)); break;
+      case Constants.detailsEventViewRoute: yield DialogReady(event.route, DetailsEvent((event.arg is Event)?event.arg:_getEventFromJson(event.arg))); break;
+      case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(event.arg)); break;
       case Constants.monthlyCalendarRoute: yield DialogReady(event.route, TableCalendarWithBuilders()); break;
       case Constants.registerRoute: yield DialogReady(event.route, Register()); break;
-      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection());
+      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection((event.arg is List)?event.arg[0]:event.arg, (event.arg is List)?event.arg[1]:false)); break;
+      case Constants.addWebOperatorRoute:  yield DialogReady(event.route, OperatorSelection()); break;
     }
   }
 

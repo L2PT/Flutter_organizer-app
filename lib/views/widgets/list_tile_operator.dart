@@ -15,7 +15,7 @@ class ListTileOperator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: checkbox==0? onTap?.invoke(operator):null,
+      onTap: checkbox==0? onTap?.call(operator):null,
       child: Container(
         height: 50,
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -33,9 +33,9 @@ class ListTileOperator extends StatelessWidget {
             Text(operator.surname.toUpperCase() + " ", style: title),
             Text(operator.name, style: subtitle),
             Expanded(child: Container(),),
-            checkbox>=2?CheckboxTriState(onChanged: (v)=>onTap?.invoke(operator), //TODO does it work?
+            checkbox>=2?CheckboxTriState(onChanged: (v)=>onTap?.call(operator),
               value: isChecked>0?true:false, tristate: isChecked>=2?true:false, activeColor: black, checkColor: white, superColor: yellow,):
-            checkbox>=1?Checkbox(onChanged: (v)=>onTap?.invoke(operator),
+            checkbox>=1?Checkbox(onChanged: (v)=>onTap?.call(operator),
               value: isChecked>0?true:false, activeColor: black, checkColor: white,):
             Container(),
           ],

@@ -2,6 +2,7 @@ const homeRoute = '/';
 const monthlyCalendarRoute = 'view/monthly_calendar';
 const dailyCalendarRoute = 'view/daily_calendar';
 const operatorListRoute = 'view/op_list';
+const addWebOperatorRoute = 'view/op_web_list';
 const registerRoute = 'view/register';
 const detailsEventViewRoute = 'view/details_event';
 const createEventViewRoute = 'view/form_event_creator';
@@ -52,7 +53,7 @@ $(function() {
 
     //Initialize the calendar controls
     $(document).on('click',".fc-resource-header-postfix",function(){
-        showDialogByContext_dart(operatorListRoute,null);
+        showDialogByContext_dart(addWebOperatorRoute,null);
     });
     $(document).on('click',".fc-resource-postfix",function(){
         var id = $(this).closest('tr').data("resource-id")

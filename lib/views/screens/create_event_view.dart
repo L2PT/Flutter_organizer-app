@@ -28,9 +28,67 @@ class CreateEvent extends StatelessWidget {
   Widget build(BuildContext context) {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
     var account = BlocProvider.of<AuthenticationBloc>(context).account;
+
+    void _onBackPressed() {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null));
+      }
+    }
+
+    void _onSavePressed() async {
+      if (await context.bloc<CreateEventCubit>().saveEvent())
+        Navigator.pop(context);
+    }
+
+    return new BlocProvider(
+        create: (_) => CreateEventCubit(repository, account, _event),
+        child: WillPopScope(
+            onWillPop:  () {_onBackPressed(); },
+            child: new Scaffold(
+                extendBody: true,
+                resizeToAvoidBottomInset: false,
+                appBar: new AppBar(
+                  leading: new BackButton(
+                    onPressed: _onBackPressed,
+                  ),
+                  title: new Text(
+                    _event == null ? 'NUOVO EVENTO' : 'MODIFICA EVENTO',
+                    style: title_rev,
+                  ),
+                  actions: <Widget>[
+                    new Container(
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.all(15.0),
+                        child: RaisedButton(
+                          child: new Text('SALVA', style: subtitle_rev),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
+                          elevation: 5,
+                          onPressed: _onSavePressed,
+                        ))
+                  ],
+                ),
+                body: BlocBuilder<CreateEventCubit, CreateEventState>(
+                    buildWhen: (previous, current) => previous.locations != current.locations,
+                    builder: (context, state) {
+                      return context.bloc<CreateEventCubit>().state.isLoading() ?
+                      LoadingScreen() : _formInputList();   //TODO maybe a success animation can be added
+                    })
+        ))
+    );
+  }
+}
+
+class _formInputList extends StatelessWidget{
+  double iconWidth = CreateEvent.iconWidth;
+
+  @override
+  Widget build(BuildContext context) {
     Event event = context.bloc<CreateEventCubit>().state.event;
 
-    Widget content = SingleChildScrollView(
+    return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: new Form(
@@ -171,69 +229,15 @@ class CreateEvent extends StatelessWidget {
           ])),
     );
 
-    void _onBackPressed() {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      } else {
-        context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null));
-      }
-    }
-
-    void _onSavePressed() async {
-      if (await context.bloc<CreateEventCubit>().saveEvent())
-        Navigator.pop(context);
-    }
-
-    return WillPopScope(
-        onWillPop: () {
-          _onBackPressed;
-        },
-        child: new Scaffold(
-            extendBody: true,
-            resizeToAvoidBottomInset: false,
-            appBar: new AppBar(
-              leading: new BackButton(
-                onPressed: _onBackPressed,
-              ),
-              title: new Text(
-                context.bloc<CreateEventCubit>().isNew() ? 'NUOVO EVENTO' : 'MODIFICA EVENTO',
-                style: title_rev,
-              ),
-              actions: <Widget>[
-                new Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(15.0),
-                    child: RaisedButton(
-                      child: new Text('SALVA', style: subtitle_rev),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
-                      elevation: 5,
-                      onPressed: _onSavePressed,
-                    ))
-              ],
-            ),
-            body: new BlocProvider(
-              create: (_) => CreateEventCubit(repository, account, _event),
-              child: BlocBuilder<CreateEventCubit, CreateEventState>(
-                buildWhen: (previous, current) => previous.locations != current.locations,
-                builder: (context, state) {
-                return context.bloc<CreateEventCubit>().state.isLoading() ?
-                  LoadingScreen() : content;   //TODO maybe a success animation can be added
-                })
-            )
-    ));
   }
 }
+
 
 class _geoLocationOptionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<Widget> buildAutocompleteList =
-    context
-        .bloc<CreateEventCubit>()
-        .state
-        .locations
-        .map((location) {
+    context.bloc<CreateEventCubit>().state.locations.map((location) {
       return GestureDetector(
           onTap: () => context.bloc<CreateEventCubit>().setAddress(location),
           child: Container(
@@ -283,7 +287,7 @@ class _fileStorageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    List<Widget> buildFilesList = ListView.separated(
+    ListView buildFilesList = ListView.separated(
       separatorBuilder: (context, index) => new Divider(),
       physics: BouncingScrollPhysics(),
       itemCount: context.bloc<CreateEventCubit>().state.documents.keys.length,
@@ -296,18 +300,14 @@ class _fileStorageList extends StatelessWidget {
               onPressed: () => context.bloc<CreateEventCubit>().removeDocument(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
             ),
           )
-    ).buildSlivers(context);
-    //TODO the list is builded rightly? maybe we can remove the scrollbar
+    );
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.documents != current.documents,
       builder: (context, state) {
         return new Container(
           height: 60,
-          child: new Scrollbar(
-              child: Column(
-                children: buildFilesList,
-              )),
+          child: buildFilesList
         );
       },
     );
@@ -318,7 +318,7 @@ class _timeControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Event event;
+    Event event = context.bloc<CreateEventCubit>().state.event;
     double iconWidth = CreateEvent.iconWidth;
     Widget dateTimeStartPicker = Row(children: <Widget>[
       Container(
@@ -339,9 +339,7 @@ class _timeControls extends StatelessWidget {
                 hintStyle: label,
                 border: InputBorder.none
             ),
-            style: context
-                .bloc<CreateEventCubit>()
-                .canModify ? title : subtitle,
+            style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,
             initialValue: event.start.toString(),
             validator: (String value) {
               if (value.isNullOrEmpty()) {
@@ -351,9 +349,7 @@ class _timeControls extends StatelessWidget {
             },
           ),
           onTap: () =>
-          context
-              .bloc<CreateEventCubit>()
-              .canModify ?
+          context.bloc<CreateEventCubit>().canModify ?
           DatePicker.showDatePicker(context,
             showTitleActions: true,
             minTime: DateTime.now(),
@@ -605,9 +601,7 @@ class _categoriesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, String> categories = context
-        .bloc<CreateEventCubit>()
-        .categories;
+    Map<String, dynamic> categories = context.bloc<CreateEventCubit>().categories;
     int i = 0;
     List<Widget> buildCategoriesList = categories.map((categoryName, categoryColor) =>
         MapEntry(GestureDetector(

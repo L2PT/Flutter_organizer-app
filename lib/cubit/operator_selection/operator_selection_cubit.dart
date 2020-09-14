@@ -19,18 +19,19 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
       getOperators();
   }
 
-  bool onTap(Account operator) {
+  bool onTap(Account operator) { //TODO to fix
     if(Constants.debug) print("${operator.name} ${operator.surname} selected");
     ReadyOperators state = (this.state as ReadyOperators);
-    if(state.selectionList.containsKey(operator.id)) {
-      int newValue = (state.selectionList[operator.id]+1) % (!isTriState || state.primaryOperatorSelected? 2 : 3);
+    Map<String,int> selectionListUpdated = new Map.from(state.selectionList);
+    if(selectionListUpdated.containsKey(operator.id)) {
+      int newValue = (selectionListUpdated[operator.id]+1) % (!isTriState || state.primaryOperatorSelected? 2 : 3);
       if(newValue == 2) state.primaryOperatorSelected = true;
-      else if(newValue == 0 && state.selectionList[operator.id] == 2) state.primaryOperatorSelected = false;
+      else if(newValue == 0 && selectionListUpdated[operator.id] == 2) state.primaryOperatorSelected = false;
+      selectionListUpdated[operator.id] = newValue;
+      emit(new ReadyOperators.updateSelection(state, selectionListUpdated));
     }
-    //TODO does it need an emit or the checkbox is automatically updated?
   }
 
-  //TODO this getOperators should be on a stream
   void getOperators() async {
     List<Account> operators = await _databaseRepository.getOperatorsFree(_event.id??"", _event.start, _event.end);
     emit(ReadyOperators(operators,event:_event));
@@ -58,4 +59,6 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
       return false;
     }
   }
+
+  Event getEvent() => _event;
 }

@@ -45,7 +45,7 @@ class Event {
     _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000),
     _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000),
     _address = json["Indirizzo"],
-    _documents = json["Documenti"] == ""?[]:json["Documenti"],
+    _documents = json["Documenti"]??[],
     _status = json["Stato"],
     _category = json["Categoria"],
     _color = (!color.isNullOrEmpty())?color:(json.containsKey("color"))?json["color"]:"",

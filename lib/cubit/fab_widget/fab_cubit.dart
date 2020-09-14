@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
@@ -27,16 +29,17 @@ class FabCubit extends Cubit<FabState> {
   final String _route;
   Widget content = SizedBox();
 
-  void callSupervisor(Account supervisor) async {
+  void callSupervisor() async {
+    Account supervisor = _context.bloc<DetailsEventCubit>().state.event.operator;
     if(await canLaunch(supervisor.phone)){
       launch(supervisor.phone);
     }
   }
 
   void callOffice() async {
-    String numUfficio = await _databaseRepository.getUfficio();
-    if(await canLaunch(numUfficio)){
-      launch(numUfficio);
+    String officeNumber = (await _databaseRepository.getPhoneNumbers())["ufficio"];
+    if(await canLaunch(officeNumber)){
+      launch(officeNumber);
     }
   }
 

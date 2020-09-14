@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 
 part 'operator_list_state.dart';
 
@@ -30,14 +31,17 @@ class OperatorListCubit extends Cubit<OperatorListState> {
   void onSearchDateChanged(DateTime value) {
     if(state is ReadyOperators) {
       emit((state as ReadyOperators).assign(searchTimeField: value.add(
-          Duration(hours:state.searchTimeField.hour, minutes:state.searchTimeField.minute))));
+          Duration(hours:state.searchTimeField.hour, minutes:state.searchTimeField.minute)),
+      operators: operators));
     }
   }
 
-  void onSearchTimeChanged(DateTime value) {
+  void onSearchTimeChanged(DateTime value) async {
     if(state is ReadyOperators) {
+      operators = await _databaseRepository.getOperatorsFree("", state.searchTimeField,state.searchTimeField.add(new Duration(minutes: Constants.WORKTIME_SPAN)));
       emit((state as ReadyOperators).assign(searchTimeField: TimeUtils.truncateDate(state.searchTimeField, "day").add(
-          new Duration(hours: value.hour, minutes: value.minute))));
+          new Duration(hours: value.hour, minutes: value.minute)),
+        operators: operators));
     }
   }
 

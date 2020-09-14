@@ -158,7 +158,7 @@ class Fab_details_oper extends StatelessWidget {
                       GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
-                          context.bloc<FabCubit>().callSupervisor(context.bloc<DetailsEventCubit>().state.event.operator);
+                          context.bloc<FabCubit>().callSupervisor();
                         },
                         child: Container(
                           height: 50,

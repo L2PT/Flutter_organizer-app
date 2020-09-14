@@ -34,13 +34,13 @@ class _operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    List<Widget> buildOperatorsList() => (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators.map((operator) => new ListTileOperator(
+    List<Widget> buildOperatorsList() => (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators?.map((operator) => new ListTileOperator(
         operator,
         checkbox: context.bloc<OperatorSelectionCubit>().isTriState?2:1,
         isChecked: (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id],
-        onTap: context.bloc<OperatorSelectionCubit>().onTap(operator))).toList();
+        onTap: context.bloc<OperatorSelectionCubit>().onTap))?.toList();
 
-    void onExit(bool out) {
+    void onExit(dynamic out) {
       Navigator.pop(context, out);
     }
 
@@ -52,9 +52,12 @@ class _operatorSelectableList extends StatelessWidget {
             )
         ),
         floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.check, size: 40,),
+          child: Icon(Icons.check, size: 40,color: white,),
           backgroundColor: black,
-          onPressed:(){if(context.bloc<OperatorSelectionCubit>().validateAndSave()) onExit(true);},
+          onPressed:(){
+            if(context.bloc<OperatorSelectionCubit>().validateAndSave())
+              onExit(context.bloc<OperatorSelectionCubit>().getEvent());
+            },
     ),
         body: Material(
         elevation: 12.0,
@@ -65,16 +68,17 @@ class _operatorSelectableList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 15.0),
-            Padding(padding: EdgeInsets.only(left: 20), child: Text("Aggiungi gli operatori disponibili", style: label,)),
+            Padding(padding: EdgeInsets.only(left: 20), child: Text("Scegli tra gli operatori disponibili", style: label,)),
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(
-            buildWhen: (previous, current) => previous != current,
-            builder: (context, state) {
-              return (state is ReadyOperators)? Expanded(
-                child: ListView(
-                    padding: new EdgeInsets.symmetric(vertical: 8.0),
-                    children: buildOperatorsList()),
-              ):LoadingScreen();
-            })
+              buildWhen: (previous, current) => true,
+              builder: (context, state) {
+                return Expanded(
+                  child: (state is ReadyOperators)? ListView(
+                      padding: new EdgeInsets.symmetric(vertical: 8.0),
+                      children: buildOperatorsList()??[]) :
+                  LoadingScreen()
+                );
+              })
           ]
         )
       )
