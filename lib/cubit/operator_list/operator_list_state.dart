@@ -20,7 +20,14 @@ class ReadyOperators extends OperatorListState {
   List<Account> filteredOperators;
 
   ReadyOperators(List<Account> operators, {String searchNameField, DateTime searchTimeField}) : super(searchNameField, searchTimeField) {
-    //TODO filter here the operator list
+    operators.forEach((operator) {
+      String nomeCognome = operator.name + " " + operator.surname;
+      if(nomeCognome.contains(searchNameField)){
+        //TODO manca il filtro per la data
+        List<Account> operators = await _databaseRepository.getOperatorsFree(_event.id??"", _event.start, _event.end);
+        filteredOperators.add(operator);
+      }
+    });
   }
 
   @override

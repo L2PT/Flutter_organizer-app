@@ -56,6 +56,7 @@ class Constants {
 
   // TABLE COSTANTI
   static const String tabellaCostanti_Categorie = 'Categorie';
+  static const String tabellaCostanti_Telefoni = 'Telefoni';
 
   // HANDLES
   static const int MIN_WORKTIME = 6;

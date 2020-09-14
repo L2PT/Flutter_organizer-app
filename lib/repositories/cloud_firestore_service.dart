@@ -85,6 +85,9 @@ class CloudFirestoreService {
   Future<Map<String, dynamic>> _getCategories() async {
     return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data());
   }
+  Future<String> getUfficio() async {
+    return _collectionCostanti.doc(Constants.tabellaCostanti_Telefoni).get().then((document) => document.data()["ufficio"]);
+  }
 
   Future<Event> getEvent(String id) async {
     return _collectionEventi.doc(id).get().then((document) =>
@@ -144,6 +147,13 @@ class CloudFirestoreService {
 
   Stream<List<Event>> subscribeEventsEnded() {
     return _collectionStoricoTerminati.snapshots().map((snapshot) {
+      var documents = snapshot.docs;
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+    });
+  }
+
+  Stream<List<Event>> subscribeEventsRefuse() {
+    return _collectionStoricoRifiutati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });

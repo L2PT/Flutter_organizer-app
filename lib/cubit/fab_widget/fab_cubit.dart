@@ -27,17 +27,16 @@ class FabCubit extends Cubit<FabState> {
   final String _route;
   Widget content = SizedBox();
 
-  void callSupervisor() async {
-    //TODO call here using the repository to get the number
-    if(await canLaunch("")){
-      launch("");
+  void callSupervisor(Account supervisor) async {
+    if(await canLaunch(supervisor.phone)){
+      launch(supervisor.phone);
     }
   }
 
   void callOffice() async {
-    //TODO call here using the repository to get the number
-    if(await canLaunch("")){
-      launch("");
+    String numUfficio = await _databaseRepository.getUfficio();
+    if(await canLaunch(numUfficio)){
+      launch(numUfficio);
     }
   }
 

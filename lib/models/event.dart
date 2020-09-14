@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/global_contants.dart';
 
 class Event {
   String _id = "";
@@ -164,8 +165,13 @@ class Event {
     }
   }
 
-  isAllDayLong() {
-    //TODO use the constants
+  bool isAllDayLong() {
+    final differenceInHour = this.end.difference(this.start).inHours;
+    final dayDuration = Constants.MAX_WORKTIME - Constants.MIN_WORKTIME;
+    if(differenceInHour >= dayDuration){
+      return true;
+    }
+    return false;
   }
 
 }
