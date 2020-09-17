@@ -41,6 +41,12 @@ class CloudFirestoreService {
     return _collectionUtenti.where('Email', isEqualTo: email).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data())).first);
   }
 
+  Stream<Account> subscribeAccount(String id)  {
+    return _collectionUtenti.doc(id).snapshots().map((user) {
+      return Account.fromMap(user.id, user.data());
+    });
+  }
+
   Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime startFrom, DateTime endTo) async {
     List<Account> accounts = await this.getOperators();
 
@@ -70,10 +76,6 @@ class CloudFirestoreService {
 
   void addOperator(Account u) {
     _collectionUtenti.doc(u.id).set(u.toDocument());
-  }
-
-  void updateOperator(String id, String field, dynamic data) {
-    _collectionUtenti.doc(id).update(Map.of({field:data}));
   }
 
   void deleteOperator(String id) {
@@ -171,6 +173,10 @@ class CloudFirestoreService {
 
   void updateEventField(String id, String field, dynamic data) {
     _collectionEventi.doc(id).update(Map.of({field:data}));
+  }
+
+  Future<void> updateAccountField(String id, String field, dynamic data) async {
+    return _collectionUtenti.doc(id).update(Map.of({field:data}));
   }
 
   void deleteEvent(Event e) async {

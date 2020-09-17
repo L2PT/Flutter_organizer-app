@@ -20,10 +20,20 @@ class CreateEventState extends Equatable {
   _formStatus status;
 
   @override
-  List<Object> get props => [event, locations, documents, status];
+  List<Object> get props => [event.toString(), locations, documents.values, category, status];
 
   bool isLoading() => this.status == _formStatus.loading;
 
-  //TODO maybe here goes an assign
-
+  CreateEventState assign({
+    Event event,
+    List<String> locations,
+    Map<String,String> documents,
+    int category,
+    _formStatus status,
+  }) {
+    var form = CreateEventState(event??this.event);
+    form.category=category??this.category;
+    form.status=status??this.status;
+    return form;
+  }
 }

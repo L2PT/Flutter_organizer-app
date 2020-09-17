@@ -31,7 +31,7 @@ class FirebaseMessagingService {
     //check if token is up to date
     String token = await _firebaseMessaging.getToken();
     if(token != account.token) {
-      _databaseRepository.updateOperator(account.id, "Token", token);
+      _databaseRepository.updateAccountField(account.id, "Token", token);
       if(Constants.debug) print("New token: " + token);
     }
     //configure behaviour handlers TODO

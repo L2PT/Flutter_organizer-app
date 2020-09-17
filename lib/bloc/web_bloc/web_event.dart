@@ -8,8 +8,9 @@ abstract class WebEvent extends Equatable {
 class NavigateEvent extends WebEvent {
   final String route;
   dynamic arg;
+  BuildContext callerContext;
 
-  NavigateEvent(this.route, this.arg) : super([route,arg]);
+  NavigateEvent(this.route, [this.arg, this.callerContext]) : super([route,arg]);
 
   @override
   List<Object> get props => [route,arg];

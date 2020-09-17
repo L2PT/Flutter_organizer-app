@@ -98,8 +98,4 @@ abstract class PlatformUtils {
     );
   }
 
-  static Event EventFromMap(id, color, json) => Event.fromMap(id, color, json);
-
-  static Account AccountFromMap(id, json) => Account.fromMap(id, json);
-
 }

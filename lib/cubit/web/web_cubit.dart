@@ -20,8 +20,8 @@ class WebCubit extends Cubit<WebCubitState> {
     emit(WebCubitState(newDate));
   }
 
-  void updateAccount(List webops) {
-    _databaseRepository.updateEventField(_account.id, "OperatoriWeb", webops);
+  Future<void> updateAccount(List<Account> webOps) async {
+    return await _databaseRepository.updateAccountField(_account.id, "OperatoriWeb", webOps.map((webOp) => webOp.toWebOpDocument()));
   }
 
 }

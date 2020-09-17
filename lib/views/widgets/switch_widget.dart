@@ -7,6 +7,7 @@ import 'dart:math' as math;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:universal_html/js.dart';
 
 
 /// A material design checkbox.
@@ -52,7 +53,7 @@ class CheckboxTriState extends StatefulWidget {
   const CheckboxTriState({
     Key key,
     @required this.value,
-    this.tristate = false,
+    this.tristate = true,
     @required this.onChanged,
     this.superColor,
     this.activeColor,
@@ -237,7 +238,7 @@ class _RenderCheckbox extends RenderToggleable {
     BoxConstraints additionalConstraints,
     ValueChanged<bool> onChanged,
     @required TickerProvider vsync,
-  }) : _oldValue = value,
+  }): _oldValue = value,
         super(
         value: value,
         tristate: tristate,
@@ -254,10 +255,12 @@ class _RenderCheckbox extends RenderToggleable {
 
   @override
   set value(bool newValue) {
-    if (newValue == value)
-      return;
-    _oldValue = value;
-    super.value = newValue;
+    if (newValue == true){
+      if(super.value == true)
+        super.value = null;
+      else
+        super.value = true;
+    }else super.value = false;
   }
 
   @override
@@ -337,42 +340,28 @@ class _RenderCheckbox extends RenderToggleable {
     final double tNormalized = status == AnimationStatus.forward || status == AnimationStatus.completed
         ? position.value
         : 1.0 - position.value;
-
     // Four cases: false to null, false to true, null to false, true to false
-    // Four cases: true to null, false to true, null to false, true to false
     if (_oldValue == false || value == false) {
       final double t = value == false ? 1.0 - tNormalized : tNormalized;
       final RRect outer = _outerRectAt(origin, t);
-      final Paint paint = Paint()..color = _colorAt(t);
-
+      final Paint paint = new Paint()..color = _colorAt(t);
       if (t <= 0.5) {
         _drawBorder(canvas, outer, t, paint);
       } else {
         canvas.drawRRect(outer, paint);
-
         final double tShrink = (t - 0.5) * 2.0;
-        if (_oldValue == null || value == null)
-          _drawCheck(canvas, origin, tShrink, strokePaintSuper);
-        else
-          _drawCheck(canvas, origin, tShrink, strokePaint);
+        _drawCheck(canvas, origin, tShrink, strokePaint);
       }
     } else { // Two cases: null to true, true to null
       final RRect outer = _outerRectAt(origin, 1.0);
-      final Paint paint = Paint() ..color = _colorAt(1.0);
+      final Paint paint = new Paint() ..color = _colorAt(1.0);
       canvas.drawRRect(outer, paint);
-
       if (tNormalized <= 0.5) {
         final double tShrink = 1.0 - tNormalized * 2.0;
-        if (_oldValue == true)
           _drawCheck(canvas, origin, tShrink, strokePaint);
-        else
-          _drawCheck(canvas, origin, tShrink, strokePaintSuper);
       } else {
         final double tExpand = (tNormalized - 0.5) * 2.0;
-        if (value == true)
           _drawCheck(canvas, origin, tExpand, strokePaint);
-        else
-          _drawCheck(canvas, origin, tExpand, strokePaintSuper);
       }
     }
   }

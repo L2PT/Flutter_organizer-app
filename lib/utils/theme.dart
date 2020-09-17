@@ -7,6 +7,7 @@ final title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: black,
 final subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
 const title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: white, );
 final subtitle_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey_light2);
+final subtitle_accent = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: yellow);
 final error = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: red);
 final label = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: black);
 final label_rev = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: white);

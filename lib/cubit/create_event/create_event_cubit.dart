@@ -1,6 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -10,7 +12,6 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
-import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 
 part 'create_event_state.dart';
 
@@ -29,7 +30,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   CreateEventCubit([this._databaseRepository, this._account, Event event])
       : assert(_databaseRepository != null && _account != null), super(CreateEventState(event)) {
-
     _type = (event==null)? _eventType.create : _eventType.modify;
     canModify = isNew() ? true : state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5)));
     categories = _databaseRepository.categories;
@@ -110,8 +110,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
           if(state.documents[key]!=null) {
             //TODO ask if you want to substitute the file and proceed
           } else {
-            state.documents[key] = value;
+            //moved out of the if for the moment
           }
+          state.documents[key] = value;
         });
         emit(state);
     } on Exception catch (e) {
@@ -120,73 +121,115 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void radioValueChanged(int value) {
-    state.category = value;
-    emit(state);
+    emit(state.assign(category: value));
   }
 
-  _removeAllOperators() {
-    state.event.operator = null;
-    state.event.suboperators = new List();
+  _removeAllOperators(Event event) {
+    event.operator = null;
+    event.suboperators = new List();
   }
 
   void setAlldayLong(value) {
+    Event event = Event.fromMap("", "", state.event.toMap());
     if(TimeUtils.getNextWorkTimeSpan(TimeUtils.truncateDate(state.event.start, "day")).isAfter(DateTime.now())) {
       if(value) {
-        state.event.start = TimeUtils.truncateDate(state.event.start, "day").add(Duration(hours: Constants.MIN_WORKTIME));
-        state.event.end = TimeUtils.truncateDate(state.event.start, "day").add(Duration(hours: Constants.MAX_WORKTIME));
+        event.start = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MIN_WORKTIME));
+        event.end = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MAX_WORKTIME));
       } else {
-        state.event.start = TimeUtils.getNextWorkTimeSpan(state.event.start);
-        state.event.end = TimeUtils.addWorkTime(state.event.start, minutes: Constants.WORKTIME_SPAN);
+        event.start = TimeUtils.getNextWorkTimeSpan(event.start);
+        event.end = TimeUtils.addWorkTime(event.start, minutes: Constants.WORKTIME_SPAN);
       }
-      _removeAllOperators();
-      emit(state);
+      _removeAllOperators(event);
+      emit(state.assign(event: event));
     }else{
-      //TODO segnala all'utente di cambiare data prima di settare alldaylong forse bisogna fere emit del valore a false
       PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
     }
   }
 
   setStartDate(DateTime date) {
-    state.event.start = TimeUtils.truncateDate(date, "day");
-    _removeAllOperators();
-    emit(state);
+    Event event = Event.fromMap("", "", state.event.toMap());
+    event.start = date.add(Duration(hours: state.event.start.hour, minutes: state.event.start.minute));
+    _removeAllOperators(event);
+    emit(state.assign(event: event));
   }
+
   setStartTime(DateTime time) {
-    //TODO attention here probably it's just a time and not a DateTime
-    state.event.start = TimeUtils.truncateDate(time, "day");
-    _removeAllOperators();
-    emit(state);
-//    onSaved: (DateTime value) => widget._event.start = value != null
-//        ? TimeUtils.truncateDate(widget._event.start, "day")
-//        .add(Duration(hours: value.hour, minutes: value.minute))
-//        : widget._event.start),
+    Event event = Event.fromMap("", "", state.event.toMap());
+    event.start = time;
+    event.end = TimeUtils.truncateDate(event.end, "day").add(
+        Duration(hours: TimeUtils.getNextWorkTimeSpan(event.start.OlderBetween(event.end)).hour,
+            minutes: TimeUtils.getNextWorkTimeSpan(event.start.OlderBetween(event.end)).minute ));
+    _removeAllOperators(event);
+    emit(state.assign(event: event));
   }
+
   setEndDate(DateTime date) {
-    state.event.start = TimeUtils.truncateDate(date, "day");
-    _removeAllOperators();
-    emit(state);
+    Event event = Event.fromMap("", "", state.event.toMap());
+    event.end = TimeUtils.truncateDate(date, "day");
+    _removeAllOperators(event);
+    emit(state.assign(event: event));
   }
   setEndTime(DateTime time) {
-    //TODO attention here probably it's just a time and not a DateTime
-    state.event.start = TimeUtils.truncateDate(time, "day");
-    _removeAllOperators();
-    emit(state);
-//    onSaved: (DateTime value) => widget._event.end = value != null
-//        ? TimeUtils.truncateDate(widget._event.end, "day")
-//        .add(Duration(hours: value.hour, minutes: value.minute))
-//        : widget._event.end),
+    Event event = Event.fromMap("", "", state.event.toMap());
+    event.end = time.add(Duration(hours: state.event.end.hour, minutes: state.event.end.minute));
+    _removeAllOperators(event);
+    emit(state.assign(event: event));
   }
 
   void removeSuboperatorFromEventList(Account suboperator) {
-    state.event.suboperators.removeWhere((element) => element["id"] == suboperator.id);
-    emit(state);
+    Event event = Event.fromMap("", "", state.event.toMap());
+    List subOps = new List.from(event.suboperators);
+    subOps.removeWhere((element) => element.id == suboperator.id);
+    event.suboperators = subOps;
+    emit(state.assign(event: event));
   }
 
 
   void addOperatorDialog(BuildContext context) async {
+    // //starttime date
+    // is DateTime
+    // //starttime time
+    //
+    // if (event.isAllDayLong()) return null;
+    // if (!value.isNullOrEmpty()) {
+    //   DateTime newTime = value as DateTime;
+    //   DateTime now = DateTime.now();
+    //   if (newTime.hour >= Constants.MIN_WORKTIME && newTime.hour < Constants.MAX_WORKTIME &&
+    //       (TimeUtils.truncateDate(event.start, "day") != TimeUtils.truncateDate(now, "day") ? true :
+    //       (newTime.hour > now.hour || (newTime.hour == now.hour && newTime.minute > now.minute + 5)))) {
+    //     return null;
+    //   }
+    // }
+    // return 'Inserisci un orario valido';
+
+    // //endtime date
+    //
+    // if (event.isAllDayLong()) return null;
+    // if (value.isNullOrEmpty()) {
+    //   return 'Inserisci una data valida';
+    // }
+    // return null;
+    //
+    // //endtime time
+    //
+    // if (event.isAllDayLong()) return null;
+    // if (!value.isNullOrEmpty()) {
+    //   DateTime newTime = value as DateTime;
+    //   DateTime now = DateTime.now();
+    //   if (newTime.hour >= Constants.MIN_WORKTIME && newTime.hour < Constants.MAX_WORKTIME &&
+    //       (TimeUtils.truncateDate(event.start, "day") != TimeUtils.truncateDate(now, "day") ? true :
+    //       (newTime.hour > now.hour || (newTime.hour == now.hour && newTime.minute > now.minute + 5)))) {
+    //     return null;
+    //   }
+    // }
+    //
     // if (!formTimeControlsKey.currentState.validate())//TODO time check
     //   return PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
     PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);
-    emit(state);
+  }
+
+  void forceRefresh() {
+    emit(state.assign(status: _formStatus.loading));
+    emit(state.assign(status: _formStatus.normal));
   }
 }

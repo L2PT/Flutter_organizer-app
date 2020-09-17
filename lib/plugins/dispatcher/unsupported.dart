@@ -37,8 +37,4 @@ abstract class PlatformUtils {
   static dynamic notifyErrorMessage(msg) => null;
   static dynamic notifyInfoMessage(message) => null;
 
-  static Event EventFromMap(id, color, json) => null;
-
-  static Account AccountFromMap(id, json) => null;
-
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/cubit/operator_selection/operator_selection_cubit.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
@@ -13,7 +14,6 @@ class OperatorSelection extends StatelessWidget {
   final bool requirePrimaryOperator;
 
   OperatorSelection([Event _event, this.requirePrimaryOperator = false]) : this._event = _event ?? new Event.empty();
-
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,6 @@ class OperatorSelection extends StatelessWidget {
 class _operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     List<Widget> buildOperatorsList() => (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators?.map((operator) => new ListTileOperator(
         operator,
         checkbox: context.bloc<OperatorSelectionCubit>().isTriState?2:1,

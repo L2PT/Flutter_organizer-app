@@ -8,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
+import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart' as E;
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_contants.dart';
@@ -106,19 +107,15 @@ class PlatformUtils {
   }
 
   static dynamic navigator(BuildContext context, route, [arg]) async {
-    context.bloc<WebBloc>().add(NavigateEvent(route, arg));
+    context.bloc<WebBloc>().add(NavigateEvent(route, arg, context));
   }
 
   static dynamic notifyErrorMessage(msg) {
-//    showAlertJs(msg);
+    showAlertJs(msg);
   }
 
   static dynamic notifyInfoMessage(msg) {
-//    showAlertJs(msg);
+    showAlertJs(msg);
   }
-
-  static E.Event EventFromMap(id, color, json) => E.Event.fromMap(id, color, json);
-
-  static Account AccountFromMap(id, json) => Account.fromMapWeb(id, json);
 
 }

@@ -42,8 +42,8 @@ class Event {
     _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"",
     _title = json["Titolo"],
     _description = json["Descrizione"],
-    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000),
-    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000),
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000),
+    _end = json["DataFine"] is DateTime?json["DataFine"]:DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000),
     _address = json["Indirizzo"],
     _documents = json["Documenti"]??[],
     _status = json["Stato"],
@@ -83,6 +83,8 @@ class Event {
       "Operatore":this.operator,
       "SubOperatori":this.suboperators,
       "Motivazione" : this.motivazione,
+      "IdOperatore" : this.operator.id,
+      "IdOperatori" : [...this.suboperators.map((op) => op.id),operator.id],
     });
   }
 
@@ -174,6 +176,8 @@ class Event {
     return false;
   }
 
+  @override
+  String toString() => _id+_title+_description+_documents.join()+_start.toString()+_end.toString()+_address+(_status??"").toString()+_category+_color+(_supervisor!=null?_supervisor.id:"")+(_operator!=null?_operator.id:"")+_suboperators.map((o) => o.id).join()+(_motivazione??"");
 }
 
 class Status {

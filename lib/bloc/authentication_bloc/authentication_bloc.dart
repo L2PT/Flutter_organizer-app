@@ -50,6 +50,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       var user = await _authenticationRepository.currentUser();
       if (user != null) {
         account = await _repository.getAccount(user.email);
+        _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
         isSupervisor = account.supervisor;
         yield Authenticated(account, isSupervisor);
       } else {
@@ -63,6 +64,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
     var user = event.user;
     account = await _repository.getAccount(user.email);
+    _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
     isSupervisor = account.supervisor;
     if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
   }

@@ -123,6 +123,7 @@ function readResources(callback){
             var arr = doc.data().OperatoriWeb;
             var res = [];
             for( var i = 0; i < arr.length; i++){
+                arr[i].id = arr[i].Id;
                 if(typeof(arr[i].title) == 'undefined'){
                     arr[i].title = arr[i]["Cognome"]+" "+arr[i]["Nome"];
                 }
@@ -155,7 +156,7 @@ function readEvents(start, end, timezone, callback){
 function mapEventObj(eventData){
     if(eventData!=null){
         var e = eventData;
-        e.resourceId = e.IdOperatore;//TODO
+        e.resourceId = e.IdOperatore;
         e.resourceIds = e.IdOperatori;
         e.title = e.Titolo;
         e.url = e.Categoria;
@@ -166,19 +167,24 @@ function mapEventObj(eventData){
     }
 }
 function removeResource(res){
-    calendar.removeResource(res).then(function(value){
-        //TODO removeResource_dart(res);
-//          dynamic j = null;
-//            for(dynamic o in account.webops){
-//              if(Account.fromMap(null, o).id == res) j=o;
-//            }
-//            if(j!=null) account.webops.remove(j);
-//            OperatorsRepository().updateOperator(account.id, "OperatoriWeb", account.webops);
+ var docRef = db.collection("Utenti").doc(idUtente);
+    docRef.get().then(function(doc) {
+        if (doc.exists) {
+            var webOps = doc.data().OperatoriWeb;
+            for(var i=0; i<webOps.length; i++) {
+                if(webOps[i].Id == res) webOps.splice(i, 1);
+            }
+            docRef.update({"OperatoriWeb":webOps}).then(calendar.refetchResources());
+        } else {
+            console.log("No web operator!");
+        }
+    }).catch(function(error) {
+        console.log("Error getting user", error);
     });
 }
 
 //<-- Dart
-function addResources(res){
+function addResources(res){ //-- deprecated
     res.forEach(function(i){
         i.title = i["surname"]+" "+i["name"];
         calendar.addResource(i);
@@ -267,7 +273,7 @@ function storagePutFileJs(path, file){ storagePutFile(path, file); };
 function storageDelFileJs(path){ storageDelFileJs(path); };
 
 function showAlertJs(value) { alert(value);}
-function consolLogJs(value) { console.log(value);}
+function consoleLogJs(value) { console.log(value);}
 
 
 

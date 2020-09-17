@@ -19,14 +19,14 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
       getOperators();
   }
 
-  bool onTap(Account operator) { //TODO to fix
+  bool onTap(Account operator) {
     if(Constants.debug) print("${operator.name} ${operator.surname} selected");
     ReadyOperators state = (this.state as ReadyOperators);
     Map<String,int> selectionListUpdated = new Map.from(state.selectionList);
     if(selectionListUpdated.containsKey(operator.id)) {
-      int newValue = (selectionListUpdated[operator.id]+1) % (!isTriState || state.primaryOperatorSelected? 2 : 3);
+      if(selectionListUpdated[operator.id] == 2) state.primaryOperatorSelected = false;
+      int newValue = (selectionListUpdated[operator.id]+1) % ((isTriState && !state.primaryOperatorSelected)? 3 : 2);
       if(newValue == 2) state.primaryOperatorSelected = true;
-      else if(newValue == 0 && selectionListUpdated[operator.id] == 2) state.primaryOperatorSelected = false;
       selectionListUpdated[operator.id] = newValue;
       emit(new ReadyOperators.updateSelection(state, selectionListUpdated));
     }
@@ -34,7 +34,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
 
   void getOperators() async {
     List<Account> operators = await _databaseRepository.getOperatorsFree(_event.id??"", _event.start, _event.end);
-    emit(ReadyOperators(operators,event:_event));
+    emit(new ReadyOperators(operators,event:_event));
   }
 
   void saveSelectionToEvent(){

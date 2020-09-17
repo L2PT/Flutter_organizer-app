@@ -16,10 +16,12 @@ import 'package:venturiautospurghi/utils/global_contants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/web_bloc/web_bloc.dart';
+import 'cubit/create_event/create_event_cubit.dart';
 
 @JS()
 external void init(String idUtente);
@@ -31,7 +33,7 @@ external dynamic ReadCookieJarJs(String cookie);
 
 @JS()
 external dynamic showAlertJs(dynamic value);
-external dynamic consolLogJs(dynamic value);
+external dynamic consoleLogJs(dynamic value);
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -95,6 +97,7 @@ class _MyAppState extends State<MyApp> {
               authentication.signInWithToken(token);
               return LoadingScreen();
             }
+            if(Constants.debug) context.repository<FirebaseAuthService>().signInWithEmailAndPassword( "giovanni.mimelli@gmail.com", "letstry", );
             jQuery("#calendar").html("");
             return LogIn();
           } else if (state is Authenticated) {
@@ -316,7 +319,7 @@ class _buildWebPage extends StatelessWidget {
                               child: Row(children: <Widget>[
                                 IconButton(
                                   icon: Icon(Icons.person, color: white),
-                                  onPressed: () => context.bloc<AuthenticationBloc>().add(LoggedOut()),
+                                  onPressed: (){},
                                 ),
                                 Text(account.surname?.toUpperCase(), textAlign: TextAlign.right,style: title_rev),
                                 SizedBox(width: 5,),
@@ -390,7 +393,7 @@ class _buildDialogWeb extends StatelessWidget{
       await showDialog(
       context: parentContext,
       builder: (BuildContext context) {
-          parentContext.bloc<WebBloc>().dialogCounter++;
+          parentContext.bloc<WebBloc>().dialogStack.add((parentContext.bloc<WebBloc>().state as DialogReady).callerContext);
           return RepositoryProvider<CloudFirestoreService>.value(value: RepositoryProvider.of<CloudFirestoreService>(parentContext),
            child: BlocProvider.value(value: BlocProvider.of<WebBloc>(parentContext),
              child: AlertDialog(
@@ -405,7 +408,8 @@ class _buildDialogWeb extends StatelessWidget{
            ));
       },
     ).then((onValue) async {
-      if(--parentContext.bloc<WebBloc>().dialogCounter == 0) jQuery('#wrap').css(CssOptions(zIndex: 1));
+      BuildContext caller = parentContext.bloc<WebBloc>().dialogStack.removeLast();
+      if(parentContext.bloc<WebBloc>().dialogStack.length == 0) jQuery('#wrap').css(CssOptions(zIndex: 1));
       if(onValue != null && (!(onValue is bool) || onValue != false)){
         switch(parentContext.bloc<WebBloc>().state.route) {
           case Constants.monthlyCalendarRoute :{
@@ -415,12 +419,14 @@ class _buildDialogWeb extends StatelessWidget{
           case Constants.addWebOperatorRoute :{
             Event event = onValue as Event;
             Account account = parentContext.bloc<AuthenticationBloc>().account;
-            account.webops = event.suboperators;
-            //update firestore
-            parentContext.bloc<WebCubit>().updateAccount(account.webops);
-            //update calendar js
-            addResources(account.webops.map((webOp){ webOp.webops = []; return webOp;}).toList());
+            account.webops = event.suboperators??[];
+            //update firestore and calendarJs
+            parentContext.bloc<WebCubit>().updateAccount(account.webops)
+                .whenComplete((){jQuery('#calendar').fullCalendar("refetchResources", null);});
           }break;
+          case Constants.operatorListRoute :{
+            caller.bloc<CreateEventCubit>().forceRefresh();
+          }
         }
       }
     });

@@ -71,7 +71,7 @@ class CreateEvent extends StatelessWidget {
                   ],
                 ),
                 body: BlocBuilder<CreateEventCubit, CreateEventState>(
-                    buildWhen: (previous, current) => previous.locations != current.locations,
+                    buildWhen: (previous, current) => previous.status != current.status,
                     builder: (context, state) {
                       return context.bloc<CreateEventCubit>().state.isLoading() ?
                       LoadingScreen() : _formInputList();   //TODO maybe a success animation can be added
@@ -316,51 +316,36 @@ class _fileStorageList extends StatelessWidget {
 
 class _timeControls extends StatelessWidget {
 
+
+  DatePickerTheme DatePickerAppTheme = DatePickerTheme(
+    headerColor: black,
+    backgroundColor: white,
+    itemStyle: label,
+    cancelStyle: subtitle,
+    doneStyle: subtitle_accent
+  );
+
   @override
   Widget build(BuildContext context) {
     Event event = context.bloc<CreateEventCubit>().state.event;
     double iconWidth = CreateEvent.iconWidth;
-    Widget dateTimeStartPicker = Row(children: <Widget>[
+
+    Widget dateTimeStartPicker() => Row(children: <Widget>[
       Container(
         width: iconWidth,
         margin: EdgeInsets.only(right: 20.0),
       ),
       Expanded(
         child: GestureDetector(
-          child: TextFormField(
-            enabled: false,
-            cursorColor: black,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-                hintText: 'Lun 1 Set ' + DateTime
-                    .now()
-                    .year
-                    .toString(),
-                hintStyle: label,
-                border: InputBorder.none
-            ),
-            style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,
-            initialValue: event.start.toString(),
-            validator: (String value) {
-              if (value.isNullOrEmpty()) {
-                return 'Inserisci una data valida';
-              }
-              return null;
-            },
-          ),
-          onTap: () =>
-          context.bloc<CreateEventCubit>().canModify ?
+          child: Text(context.bloc<CreateEventCubit>().state.event.start.toString().split(' ').first,
+            style: context.bloc<CreateEventCubit>().canModify ? title : subtitle),
+          onTap: () => context.bloc<CreateEventCubit>().canModify ?
           DatePicker.showDatePicker(context,
             showTitleActions: true,
             minTime: DateTime.now(),
             maxTime: DateTime(3000),
-            theme: DatePickerTheme(
-                headerColor: black,
-                backgroundColor: black_light,
-                itemStyle: label,
-                doneStyle: subtitle),
+            theme: DatePickerAppTheme,
             currentTime: event.start,
-            locale: LocaleType.it,
             onConfirm: (date) => context.bloc<CreateEventCubit>().setStartDate(date),
           ) : null,
         ),
@@ -368,46 +353,20 @@ class _timeControls extends StatelessWidget {
       event.isAllDayLong() ? Container()
           : Expanded(
         child: GestureDetector(
-          child: TextFormField(
-            enabled: false,
-            cursorColor: black,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-                hintText: '10:00', hintStyle: label, border: InputBorder.none
-            ),
-            style: context
-                .bloc<CreateEventCubit>()
-                .canModify ? title : subtitle,
-            initialValue: event.start.hour.toString() + " " + event.start.minute.toString(),
-            validator: (String value) {
-              if (event.isAllDayLong()) return null;
-              if (!value.isNullOrEmpty()) {
-                DateTime newTime = value as DateTime;
-                DateTime now = DateTime.now();
-                if (newTime.hour >= Constants.MIN_WORKTIME && newTime.hour < Constants.MAX_WORKTIME &&
-                    (TimeUtils.truncateDate(event.start, "day") != TimeUtils.truncateDate(now, "day") ? true :
-                    (newTime.hour > now.hour || (newTime.hour == now.hour && newTime.minute > now.minute + 5)))) {
-                  return null;
-                }
-              }
-              return 'Inserisci un orario valido';
-            },
-          ),
-          onTap: () =>
-          context
-              .bloc<CreateEventCubit>()
-              .canModify ?
+          child: Text( context.bloc<CreateEventCubit>().state.event.start.toString().split(' ').last.split('.').first.substring(0,5),
+            style: context.bloc<CreateEventCubit>().canModify ? title : subtitle),
+          onTap: () => context.bloc<CreateEventCubit>().canModify ?
           DatePicker.showTimePicker(context,
             showTitleActions: true,
+            theme: DatePickerAppTheme,
             currentTime: event.start,
-            locale: LocaleType.it,
             onConfirm: (time) => context.bloc<CreateEventCubit>().setStartTime(time),
           ) : null,
         ),
       ),
     ]);
 
-    Widget dateTimeEndPicker = event.isAllDayLong() ? Container()
+    Widget dateTimeEndPicker() => event.isAllDayLong() ? Container()
         : Row(
       children: <Widget>[
         Container(
@@ -416,43 +375,15 @@ class _timeControls extends StatelessWidget {
         ),
         Expanded(
           child: GestureDetector(
-            child: TextFormField(
-              enabled: false,
-              cursorColor: black,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  hintText: 'Lun 1 Set ' + DateTime
-                      .now()
-                      .year
-                      .toString(),
-                  hintStyle: label,
-                  border: InputBorder.none
-              ),
-              style: context
-                  .bloc<CreateEventCubit>()
-                  .canModify ? title : subtitle,
-              initialValue: event.start.toString(),
-              validator: (String value) {
-                if (event.isAllDayLong()) return null;
-                if (value.isNullOrEmpty()) {
-                  return 'Inserisci una data valida';
-                }
-                return null;
-              },
-            ),
+            child: Text(event.start.toString().split(' ').first,
+              style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,),
             onTap: () =>
-            context
-                .bloc<CreateEventCubit>()
-                .canModify ?
+            context.bloc<CreateEventCubit>().canModify ?
             DatePicker.showDatePicker(context,
               showTitleActions: true,
               minTime: TimeUtils.truncateDate(event.start, "day"),
               maxTime: DateTime(3000),
-              theme: DatePickerTheme(
-                  headerColor: black,
-                  backgroundColor: black_light,
-                  itemStyle: label,
-                  doneStyle: subtitle),
+              theme: DatePickerAppTheme,
               currentTime: event.start,
               locale: LocaleType.it,
               onConfirm: (date) => context.bloc<CreateEventCubit>().setEndDate(date),
@@ -461,54 +392,23 @@ class _timeControls extends StatelessWidget {
         ),
         Expanded(
           child: GestureDetector(
-            child: TextFormField(
-              enabled: false,
-              cursorColor: black,
-              keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  hintText: '10:00', hintStyle: label, border: InputBorder.none
-              ),
-              style: context
-                  .bloc<CreateEventCubit>()
-                  .canModify ? title : subtitle,
-              initialValue: TimeUtils
-                  .getNextWorkTimeSpan(event.start.OlderBetween(event.end))
-                  .hour
-                  .toString() +
-                  " - " + TimeUtils
-                  .getNextWorkTimeSpan(event.start.OlderBetween(event.end))
-                  .minute
-                  .toString(),
-              validator: (String value) {
-                if (event.isAllDayLong()) return null;
-                if (!value.isNullOrEmpty()) {
-                  DateTime newTime = value as DateTime;
-                  DateTime now = DateTime.now();
-                  if (newTime.hour >= Constants.MIN_WORKTIME && newTime.hour < Constants.MAX_WORKTIME &&
-                      (TimeUtils.truncateDate(event.start, "day") != TimeUtils.truncateDate(now, "day") ? true :
-                      (newTime.hour > now.hour || (newTime.hour == now.hour && newTime.minute > now.minute + 5)))) {
-                    return null;
-                  }
-                }
-                return 'Inserisci un orario valido';
-              },
+            child: Text(context.bloc<CreateEventCubit>().state.event.end.toString().split(' ').last.split('.').first.substring(0,5),
+              style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,
             ),
-            onTap: () =>
-            context
-                .bloc<CreateEventCubit>()
-                .canModify ?
+            onTap: (){if(context.bloc<CreateEventCubit>().canModify)
             DatePicker.showTimePicker(context,
               showTitleActions: true,
+              theme: DatePickerAppTheme,
               currentTime: TimeUtils.getNextWorkTimeSpan(event.start.OlderBetween(event.end)),
               locale: LocaleType.it,
               onConfirm: (time) => context.bloc<CreateEventCubit>().setEndTime(time),
-            ) : null,
+            );},
           ),
         )
       ],
     );
 
-    Widget allDayFlag = Container(
+    Widget allDayFlag() => Container(
         margin: EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: <Widget>[
@@ -535,14 +435,14 @@ class _timeControls extends StatelessWidget {
     return new Form(
       key: context.bloc<CreateEventCubit>().formTimeControlsKey,
       child: BlocBuilder<CreateEventCubit, CreateEventState>(
-        buildWhen: (previous, current) => previous.event != current.event,
+        buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
           event = context.bloc<CreateEventCubit>().state.event;
           return Container(child:
           Column(children: <Widget>[
-            allDayFlag,
-            dateTimeStartPicker,
-            dateTimeEndPicker,
+            allDayFlag(),
+            dateTimeStartPicker(),
+            dateTimeEndPicker(),
           ]));
         },
       )
@@ -554,10 +454,9 @@ class _operatorsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildOperatorsList = (context.bloc<CreateEventCubit>().state.event.operator != null
+    List<Widget> buildOperatorsList() => (context.bloc<CreateEventCubit>().state.event.operator != null
         ? [context.bloc<CreateEventCubit>().state.event.operator, ...context.bloc<CreateEventCubit>().state.event.suboperators]
         : context.bloc<CreateEventCubit>().state.event.suboperators).map((operator) {
-      Account entity = Account.fromMap("", operator);
       return Container(
         height: 50,
         margin: EdgeInsets.symmetric(horizontal: 15),
@@ -573,25 +472,25 @@ class _operatorsList extends StatelessWidget {
                 color: black,
               ),
             ),
-            Text(entity.surname.toUpperCase() + " ", style: title),
-            Text(entity.name, style: subtitle),
+            Text(operator.surname.toUpperCase() + " ", style: title),
+            Text(operator.name, style: subtitle),
             Expanded(
               child: Container(),
             ),
             operator != context.bloc<CreateEventCubit>().state.event.operator && context.bloc<CreateEventCubit>().canModify ?
             IconButton(
               icon: Icon(Icons.delete, color: black, size: 25),
-              onPressed: () => context.bloc<CreateEventCubit>().removeSuboperatorFromEventList(entity)
+              onPressed: () => context.bloc<CreateEventCubit>().removeSuboperatorFromEventList(operator)
             ) : Container()
           ],
         ),
       );
-    }).toList();
+    })?.toList();
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
-      buildWhen: (previous, current) => previous.event != previous.event,
+      buildWhen: (previous, current) => previous.event.toString() != previous.event.toString(),
       builder: (context, state) {
-        return Container(child: Column(children: buildOperatorsList));
+        return Container(child: Column(children: buildOperatorsList()??[]));
       },
     );
   }
@@ -601,18 +500,14 @@ class _categoriesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> categories = context.bloc<CreateEventCubit>().categories;
     int i = 0;
-    List<Widget> buildCategoriesList = categories.map((categoryName, categoryColor) =>
+    List<Widget> buildCategoriesList() => context.bloc<CreateEventCubit>().categories.map((categoryName, categoryColor) =>
         MapEntry(GestureDetector(
             onTap: () => context.bloc<CreateEventCubit>().radioValueChanged(i),
             child: Container(
                 margin: EdgeInsets.symmetric(vertical: 5),
                 decoration: BoxDecoration(
-                    color: (context
-                        .bloc<CreateEventCubit>()
-                        .state
-                        .category == i) ? black : white,
+                    color: (context.bloc<CreateEventCubit>().state.category == i) ? black : white,
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(color: grey)),
                 child: Row(children: <Widget>[
@@ -633,15 +528,13 @@ class _categoriesList extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(5.0)), color: HexColor(categoryColor)),
                   ),
                   new Text(categoryName.toUpperCase(),
-                      style: (context
-                          .bloc<CreateEventCubit>()
-                          .state
-                          .category == i) ? subtitle_rev : subtitle.copyWith(color: black)),
+                      style: (context.bloc<CreateEventCubit>().state.category == i) ? subtitle_rev : subtitle.copyWith(color: black)),
                 ]))), i++)).keys.toList();
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
-      buildWhen: (previous, current) => previous != current,
+      buildWhen: (previous, current) => previous.category != current.category,
       builder: (context, state) {
+        i=0;
         return Container(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -650,7 +543,7 @@ class _categoriesList extends StatelessWidget {
                   alignment: Alignment.topLeft,
                   margin: EdgeInsets.only(top: 5.0, right: 20.0),
                   child: Text("Tipologia", style: title)),
-              Expanded(child: Column(children: buildCategoriesList))
+              Expanded(child: Column(children: buildCategoriesList()))
             ],
           ),
         );
