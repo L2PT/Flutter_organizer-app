@@ -13,22 +13,22 @@ part 'monthly_calendar_state.dart';
 
 class MonthlyCalendarCubit extends Cubit<MonthlyCalendarState> {
   final CloudFirestoreService _databaseRepository;
-  final Account _account;
+  final Account account;
   final Account _operator;
   List<Event> _events;
   CalendarController calendarController = new CalendarController();
 
-  MonthlyCalendarCubit(this._databaseRepository, this._account, this._operator, DateTime _selectedMonth)
+  MonthlyCalendarCubit(this._databaseRepository, this.account, this._operator, DateTime _selectedMonth)
     : assert(_databaseRepository != null),
     super(MonthlyCalendarLoading(_selectedMonth)){
-    _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
+    _databaseRepository.subscribeEventsByOperator((_operator??account).id).listen((eventsList) {
       _events = eventsList;
-      evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
+      evaluateEventsMap(TimeUtils.truncateDate(_selectedMonth, "month"), TimeUtils.truncateDate(_selectedMonth, "month").add(new Duration(days: 30)));
     });
   }
 
   void evaluateEventsMap(DateTime first, DateTime last){
-    Map<DateTime, List<Event>> eventsMap;
+    Map<DateTime, List<Event>> eventsMap =  Map();
     List<Event> events = List();
     if(this._events != null){
       _events.forEach((singleEvent) {

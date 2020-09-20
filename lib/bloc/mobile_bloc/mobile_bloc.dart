@@ -69,8 +69,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
       case Constants.waitingNotificationRoute: yield NotificationWaitingState(event.route, PersistentNotification()); break;
       case Constants.homeRoute: yield InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar() ); break;
-      case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, Profile() ); break;
-      case Constants.dailyCalendarRoute: yield InBackdropState(event.route, Profile() ); break;
+      case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg['month'],event.arg['operator']) ); break;
+      case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
       case Constants.operatorListRoute: yield InBackdropState(event.route, OperatorList()); break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
@@ -85,7 +85,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) {
     add(NavigateEvent(Constants.homeRoute,null)); //TODO this command order is right?
-    if (!_account.supervisor) {
+   if (!_account.supervisor) {
       _notificationSubscription =
           _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications) async* {
         if (notifications.length > 0 && !(this.state is NotificationWaitingState)) yield NavigateEvent(Constants.waitingEventListRoute);

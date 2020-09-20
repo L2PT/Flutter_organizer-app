@@ -7,11 +7,11 @@ abstract class DailyCalendarState extends Equatable {
   int gridHourSpan = 0;
 
   DailyCalendarState(DateTime selectedDay, [Map<DateTime, List> eventsMap]) :
-        this.eventsMap = eventsMap ?? {},
+        this.eventsMap = eventsMap ?? Map(),
         this.selectedDay = selectedDay ?? TimeUtils.truncateDate(DateTime.now(), "day");
 
   @override
-  List<Object> get props => [eventsMap, selectedDay, gridHourHeight, gridHourSpan];
+  List<Object> get props => [eventsMap.length, selectedDay, gridHourHeight, gridHourSpan];
 }
 
 class DailyCalendarLoading extends DailyCalendarState{

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
@@ -45,7 +46,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
     if(this._events != null){
      _events.forEach((singleEvent) {
        if (singleEvent.isBetweenDate(first, last)) {
-         DateTime dateIndex = singleEvent.start;
+         DateTime dateIndex = TimeUtils.truncateDate(singleEvent.start, "day");
          if(eventsMap[dateIndex]==null)eventsMap[dateIndex]=List();
          eventsMap[dateIndex].add(singleEvent);
        }

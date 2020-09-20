@@ -49,7 +49,7 @@ class _DailyCalendarViewState extends State<DailyCalendar> with TickerProviderSt
         mainAxisSize: MainAxisSize.max,
         children:
         <Widget>[
-          _rowCalendar(this),
+          _rowCalendar(this,this.operator),
           const SizedBox(height: 8.0),
           _verticalEventsGrid()
         ]);
@@ -68,13 +68,18 @@ class _DailyCalendarViewState extends State<DailyCalendar> with TickerProviderSt
 
 class _rowCalendar extends StatelessWidget {
   var _animationController;
+  var _animation;
+  Account _operator;
 
-  _rowCalendar(_DailyCalendarViewState ticker){
+  _rowCalendar(_DailyCalendarViewState ticker, Account operator){
     _animationController = AnimationController(duration: const Duration(milliseconds: 400), vsync: ticker);
+    _animation = Tween(begin: 0.0, end: 1.0,).animate(_animationController);
+    this._operator = operator;
   }
 
   @override
   Widget build(BuildContext context) {
+    _animationController.forward();
 
     Widget eventsMarker(DateTime date, List events) {
       return AnimatedContainer(
@@ -104,7 +109,7 @@ class _rowCalendar extends StatelessWidget {
 
     return BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
       buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
-          previous.eventsMap != current.eventsMap,
+          previous.eventsMap.entries != current.eventsMap.entries,
       builder: (context, state) {
         return TableCalendar(
           locale: 'it_IT',
@@ -118,23 +123,19 @@ class _rowCalendar extends StatelessWidget {
           initialSelectedDay: state.selectedDay,
           builders: CalendarBuilders(
             selectedDayBuilder: (context, date, _) {
-              return FadeTransition(
-                opacity: Tween(begin: 0.0, end: 1.0).animate(
-                    _animationController),
+              return  FadeTransition(
+                opacity: _animation,
                 child: Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                      border: Border(
-                          bottom: BorderSide(
-                              color: black,
-                              width: 3
-                          )
-                      )
+                      color: black,
+                      borderRadius: BorderRadius.circular(10.0)
                   ),
                   child: Center(
                     child: Text(
                         '${date.day}',
                         style: const TextStyle(fontWeight: FontWeight.bold,
-                            color: Color(0xFF333333),
+                            color: white,
                             fontSize: 18)
                     ),
                   ),
@@ -182,9 +183,15 @@ class _rowCalendar extends StatelessWidget {
               return children;
             },
           ),
-          onDaySelected: (date, events) { context.bloc<DailyCalendarCubit>().onDaySelected(date); },
+          onDaySelected: (date, events) {
+            context.bloc<DailyCalendarCubit>().onDaySelected(date);
+            //_animationController.forward(from: 0.0);
+           },
           onVisibleDaysChanged: context.bloc<DailyCalendarCubit>().onVisibleDaysChanged,
-          selectNext: () { context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, context.bloc<DailyCalendarCubit>().state.selectedDay)); },
+          selectNext: () {
+            context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month' :context.bloc<DailyCalendarCubit>().state.selectedDay, 'operator' : _operator}));
+            _animationController.dispose();
+           },
           selectPrevious: () {},
         );
       },
@@ -329,7 +336,8 @@ class _verticalEventsGrid extends StatelessWidget {
         buildWhen: (previous, current) => previous.runtimeType != current.runtimeType,
         builder: (context, state) {
           return !(state is DailyCalendarReady) ? Center(child: CircularProgressIndicator()) :
-          ListView(
+          Expanded(
+              child: ListView(
             shrinkWrap: true,//TODO remove and fix the viewport
             children: <Widget>[
               Stack(
@@ -364,6 +372,7 @@ class _verticalEventsGrid extends StatelessWidget {
                   ]
               )
             ],
+          )
           );
         }
     );
