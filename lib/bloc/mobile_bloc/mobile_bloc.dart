@@ -7,7 +7,7 @@ import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
@@ -84,14 +84,14 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) {
-    add(NavigateEvent(Constants.homeRoute,null)); //TODO this command order is right?
-   if (!_account.supervisor) {
-      _notificationSubscription =
-          _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications) async* {
-        if (notifications.length > 0 && !(this.state is NotificationWaitingState)) yield NavigateEvent(Constants.waitingEventListRoute);
-        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) yield NavigateEvent(Constants.homeRoute);
+    add(NavigateEvent(Constants.homeRoute, null));
+    if (!_account.supervisor) {
+      _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications) async* {
+        if (notifications.length > 0 && !(this.state is NotificationWaitingState))
+          yield NavigateEvent(Constants.waitingEventListRoute);
+        else if (notifications.length == 0 && (this.state is NotificationWaitingState))
+          yield NavigateEvent(Constants.homeRoute);
       });
     }
   }
-
 }

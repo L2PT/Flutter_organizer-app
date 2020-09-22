@@ -7,7 +7,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class cardEvent extends StatelessWidget {

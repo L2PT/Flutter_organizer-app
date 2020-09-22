@@ -14,7 +14,7 @@ import 'package:venturiautospurghi/mobile.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 abstract class PlatformUtils {
   PlatformUtils._();
@@ -75,6 +75,9 @@ abstract class PlatformUtils {
   static dynamic navigator(BuildContext context, route, [arg]) async {
     context.bloc<MobileBloc>().add(NavigateEvent(route, arg));
   }
+
+  static String getRoute(BuildContext context) =>
+    context.bloc<MobileBloc>().state.route;
 
   static dynamic notifyErrorMessage(msg) {
     return Fluttertoast.showToast(

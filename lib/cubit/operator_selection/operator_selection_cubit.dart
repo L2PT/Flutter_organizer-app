@@ -4,7 +4,7 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 part 'operator_selection_state.dart';
 

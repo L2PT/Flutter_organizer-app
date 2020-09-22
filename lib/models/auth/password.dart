@@ -1,4 +1,4 @@
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 enum PasswordValidationError { invalid }
 

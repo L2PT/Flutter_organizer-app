@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart' as cf;
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class CloudFirestoreService {
 
@@ -52,10 +52,10 @@ class CloudFirestoreService {
 
     final List<Event> listEvents = await this.getEvents();
 
-    listEvents.forEach((event) {
+    listEvents?.forEach((event) {
       if (event.id != eventIdToIgnore) {
         if (event.isBetweenDate(startFrom, endTo)) {
-          [event.operator, ...event.suboperators].map((e) => e["id"]).forEach((idOperator) {
+          [event.operator, ...event.suboperators].map((e) => e.id).forEach((idOperator) {
             bool checkDelete = false;
             for (int i = 0; i < accounts.length && !checkDelete; i++) {
               if (accounts.elementAt(i).id == idOperator) {
@@ -162,13 +162,13 @@ class CloudFirestoreService {
     });
   }
 
-  Future<String> addEvent(dynamic data) async {
-    var docRef = await _collectionEventi.add(data);
+  Future<String> addEvent(Event data) async {
+    var docRef = await _collectionEventi.add(data.toDocument());
     return docRef.id;
   }
 
-  void updateEvent(String id, dynamic data) {
-    _collectionEventi.doc(id).update(data);
+  void updateEvent(String id, Event data) {
+    _collectionEventi.doc(id).update(data.toDocument());
   }
 
   void updateEventField(String id, String field, dynamic data) {
@@ -180,21 +180,23 @@ class CloudFirestoreService {
   }
 
   void deleteEvent(Event e) async {
+    e.status = Status.Deleted;
     final dynamic createTransaction = (dynamic tx) async {
-      dynamic dc = _collectionEventi.doc(e.id);
-      e.status = Status.Deleted; //this set is preventive (if all is done right it SHOULDN'T be necessary)
-      await tx.set(_collectionStoricoTerminati.doc(e.id).update(e.toDocument()));
-      await tx.update(dc, {Constants.tabellaEventi_stato:e.status});
+        dynamic doc = _collectionEventi.doc(e.id);
+        dynamic endedDoc = _collectionStoricoEliminati.doc(e.id);
+        await tx.set(endedDoc, e.toDocument());
+        await tx.update(doc, {Constants.tabellaEventi_stato:e.status});
     };
     _cloudFirestore.runTransaction(createTransaction);
   }
 
   void endEvent(Event e) {
+    e.status = Status.Ended;
     final dynamic createTransaction = (dynamic tx) async {
-      dynamic dc = _collectionEventi.doc(e.id);
-      e.status = Status.Ended; //this set is preventive (if all is done right it SHOULDN'T be necessary)
-      await tx.set(_collectionStoricoTerminati.doc(e.id).update(e.toDocument()));
-      await tx.update(dc, {Constants.tabellaEventi_stato:e.status});
+      dynamic doc = _collectionEventi.doc(e.id);
+      dynamic endedDoc = _collectionStoricoTerminati.doc(e.id);
+      await tx.set(endedDoc, e.toDocument());
+      await tx.update(doc, {Constants.tabellaEventi_stato:e.status});
     };
     _cloudFirestore.runTransaction(createTransaction);
   }
@@ -209,7 +211,7 @@ class CloudFirestoreService {
   }
 
   String getUserEmailByPhone(String phoneNumber) {
-    //TODO
+    //TODO TURRO
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

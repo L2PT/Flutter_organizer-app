@@ -14,9 +14,9 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/cubit/history/history_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
@@ -67,8 +67,6 @@ class _largeScreen extends StatelessWidget {
     Account account = context.bloc<AuthenticationBloc>().account;
 
     return BlocBuilder <HistoryCubit, HistoryState>(
-        buildWhen: (previous, current) =>
-        previous.runtimeType != current.runtimeType,
         builder: (context, state) {
           return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) : Container(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -106,7 +104,7 @@ class _largeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                Flexible(
+                Expanded(
                   flex: 8,
                   child: Container(
                     child: Column(
@@ -114,7 +112,9 @@ class _largeScreen extends StatelessWidget {
                       children: <Widget>[
                         SizedBox(height: 5,),
                         Text("Incarichi", style: title, textAlign: TextAlign.left,),
-                        (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().length>0?GridView(
+                        SizedBox(height: 5,),
+                        (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
+                        GridView(
                             shrinkWrap: true,
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 500.0,
@@ -129,7 +129,7 @@ class _largeScreen extends StatelessWidget {
                                   hourHeight: 120,
                                   gridHourSpan: 0,
                                   buttonArea: null,
-                                  onTapAction: (event) => PlatformUtils.navigator(context, event),
+                                  onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                                 ))).toList()
                         ):Container(
                           child: Column(
@@ -167,7 +167,7 @@ class _largeScreen extends StatelessWidget {
               Text("INCARICHI "+text, style: selected?button_card:subtitle),
             ],
           ),
-          onPressed: (){selectedStatus=status; context.bloc<HistoryCubit>().onStatusSelect(selectedStatus);},
+          onPressed: (){context.bloc<HistoryCubit>().onStatusSelect(status);},
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(
               right: Radius.circular(15.0))),
         ),
@@ -186,50 +186,45 @@ class _smallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder <HistoryCubit, HistoryState>(
-        buildWhen: (previous, current) =>
-        previous.runtimeType != current.runtimeType,
-        builder: (context, state) {
-          return Material(
-            elevation: 12.0,
-            borderRadius: new BorderRadius.only(
-                topLeft: new Radius.circular(16.0),
-                topRight: new Radius.circular(16.0)),
-            child: Container(
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: whitebackground,
-                        borderRadius: BorderRadius.all(
-                            Radius.circular(30.0))),
-                    child: new TabBar(
-                      onTap: (index) => context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value),
-                      isScrollable: true,
-                      unselectedLabelColor: black,
-                      labelStyle: title.copyWith(fontSize: 16),
-                      labelColor: black,
-                      indicatorColor: yellow,
-                      indicatorSize: TabBarIndicatorSize.tab,
-                      tabs: tabsHeaders.map((pair) => pair.key).toList(),
-                      controller: _tabController,
-                    ),
-                  ), PlatformUtils.platform == Constants.web ?
-                  Container(height: MediaQuery.of(context).size.height - 150, child: _HistoryContent(_tabController,tabsHeaders),) :
-                  Expanded(child: _HistoryContent(_tabController,tabsHeaders),)
-                ],
-              ),
+    return Material(
+      elevation: 12.0,
+      borderRadius: new BorderRadius.only(
+          topLeft: new Radius.circular(16.0),
+          topRight: new Radius.circular(16.0)),
+      child: Container(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            SizedBox(
+              height: 20,
             ),
-          );
-        });
+            Container(
+              decoration: BoxDecoration(
+                  color: whitebackground,
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(30.0))),
+              child: new TabBar(
+                onTap: (index) => context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value),
+                isScrollable: true,
+                unselectedLabelColor: black,
+                labelStyle: title.copyWith(fontSize: 16),
+                labelColor: black,
+                indicatorColor: yellow,
+                indicatorSize: TabBarIndicatorSize.tab,
+                tabs: tabsHeaders.map((pair) => pair.key).toList(),
+                controller: _tabController,
+              ),
+            ), PlatformUtils.platform == Constants.web ?
+            Container(height: MediaQuery.of(context).size.height - 150, child: _HistoryContent(_tabController,tabsHeaders),) :
+            Expanded(child: _HistoryContent(_tabController,tabsHeaders),)
+          ],
+        ),
+      ),
+    );
   }
 }
 
-class _HistoryContent extends StatelessWidget{
+class _HistoryContent extends StatelessWidget {
 
   TabController _tabController;
   final List<MapEntry<Tab,int>> tabsHeaders;
@@ -239,7 +234,7 @@ class _HistoryContent extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HistoryCubit, HistoryState>(
-    buildWhen: (previous, current) => previous.runtimeType != current.runtimeType,
+    buildWhen: (previous, current) => previous != current,
     builder: (context, state) {
       return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) :
       TabBarView(
@@ -261,7 +256,7 @@ class _HistoryContent extends StatelessWidget{
                       hourHeight: 120,
                       gridHourSpan: 0,
                       buttonArea: null,
-                      onTapAction: (event) => PlatformUtils.navigator(context, event),
+                      onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                     ))).toList()
             ):Container(
               child: Column(

@@ -1,5 +1,6 @@
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 abstract class PlatformUtils {
   PlatformUtils._();
@@ -33,6 +34,7 @@ abstract class PlatformUtils {
   static Future<Map<String,String>> multiFilePicker() => null;
 
   static dynamic navigator(context, route, [arg]) => null;
+  static String getRoute( context) => Constants.homeRoute;
 
   static dynamic notifyErrorMessage(msg) => null;
   static dynamic notifyInfoMessage(message) => null;

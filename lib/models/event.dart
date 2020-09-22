@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class Event {
   String _id = "";
@@ -14,9 +15,9 @@ class Event {
   String _category = "";
   String _color = "";
   String _motivazione = "";
-  dynamic _supervisor = null;
-  dynamic _operator = null;
-  List<dynamic> _suboperators = new List();
+  Account _supervisor = null;
+  Account _operator = null;
+  List<Account> _suboperators = new List();
 
 
   Event(this._id, this._title, this._description, this._start, this._end, this._address, this._documents, this._status, this._category, this._color, this._supervisor, this._operator, this._suboperators, this._motivazione);
@@ -49,9 +50,9 @@ class Event {
     _status = json["Stato"],
     _category = json["Categoria"],
     _color = (!color.isNullOrEmpty())?color:(json.containsKey("color"))?json["color"]:"",
-    _supervisor = json["Responsabile"],
-    _operator = json["Operatore"],
-    _suboperators = json["SubOperatori"],
+    _supervisor = Account.fromMap("", json["Responsabile"]),
+    _operator = Account.fromMap("", json["Operatore"]),
+    _suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
     _motivazione = json["Motivazione"];
 
   Map<String, dynamic> toMap() => {
@@ -79,9 +80,9 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
-      "Responsabile":this.supervisor,
-      "Operatore":this.operator,
-      "SubOperatori":this.suboperators,
+      "Responsabile":this.supervisor.toMap(),
+      "Operatore":this.operator.toMap(),
+      "SubOperatori":this.suboperators.map((op)=>op.toMap()),
       "Motivazione" : this.motivazione,
       "IdOperatore" : this.operator.id,
       "IdOperatori" : [...this.suboperators.map((op) => op.id),operator.id],
@@ -98,9 +99,9 @@ class Event {
   int get status => _status;
   String get category => _category;
   String get color => _color;
-  dynamic get supervisor => _supervisor;
-  dynamic get operator => _operator;
-  List<dynamic> get suboperators => _suboperators;
+  Account get supervisor => _supervisor;
+  Account get operator => _operator;
+  List<Account> get suboperators => _suboperators;
   String get motivazione => _motivazione;
 
   set id(String value) {
@@ -143,15 +144,15 @@ class Event {
     _color = value;
   }
 
-  set supervisor(dynamic value) {
+  set supervisor(Account value) {
     _supervisor = value;
   }
 
-  set operator(dynamic value) {
+  set operator(Account value) {
     _operator = value;
   }
 
-  set suboperators(List<dynamic> value) {
+  set suboperators(List<Account> value) {
     _suboperators = value;
   }
 
@@ -175,6 +176,14 @@ class Event {
     }
     return false;
   }
+
+  bool isDeleted() => this.status == Status.Deleted;
+  bool isNew() => this.status == Status.New;
+  bool isDelivered() => this.status == Status.Delivered;
+  bool isSeen() => this.status == Status.Seen;
+  bool isAccepted() => this.status == Status.Accepted;
+  bool isRefused() => this.status == Status.Refused;
+  bool isEnded() => this.status == Status.Ended;
 
   @override
   String toString() => _id+_title+_description+_documents.join()+_start.toString()+_end.toString()+_address+(_status??"").toString()+_category+_color+(_supervisor!=null?_supervisor.id:"")+(_operator!=null?_operator.id:"")+_suboperators.map((o) => o.id).join()+(_motivazione??"");

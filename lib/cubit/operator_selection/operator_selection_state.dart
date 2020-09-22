@@ -21,8 +21,8 @@ class ReadyOperators extends OperatorSelectionState {
         if(selectionList.containsKey(suboperator.id))
           selectionList[suboperator.id] = 1;
       });
-      if(event.operator != null && selectionList.containsKey((event.operator as Account).id)) {
-        selectionList[(event.operator as Account).id] = 2;
+      if(event.operator != null && selectionList.containsKey(event.operator.id)) {
+        selectionList[event.operator.id] = 2;
         primaryOperatorSelected = true;
       }
     }

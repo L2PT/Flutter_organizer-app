@@ -18,7 +18,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
@@ -263,9 +263,7 @@ class _verticalEventsGrid extends StatelessWidget {
             Expanded(
                 flex: 8,
                 child: cardEvent(
-                  event: (context
-                      .bloc<DailyCalendarCubit>()
-                      .state as DailyCalendarReady).selectedEvents()[0],
+                  event: (context.bloc<DailyCalendarCubit>().state as DailyCalendarReady).selectedEvents()[0],
                   hourHeight: 120,
                   gridHourSpan: 0,
                   onTapAction: (event) => PlatformUtils.navigator(context, event),
@@ -310,10 +308,7 @@ class _verticalEventsGrid extends StatelessWidget {
                     dateView: false,
                     hourHeight: gridHourHeight,
                     gridHourSpan: gridHourSpan,
-                    selectedDay: context
-                        .bloc<DailyCalendarCubit>()
-                        .state
-                        .selectedDay,
+                    selectedDay: context.bloc<DailyCalendarCubit>().state.selectedDay,
                     onTapAction: (event) => PlatformUtils.navigator(context, event),
                   ),
                 ),

@@ -9,7 +9,7 @@ import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -83,7 +83,7 @@ class FirebaseMessagingService {
     _databaseRepository.updateEventField(message['data']['id'], "Stato", newStatus);
     _databaseRepository.getEvent(message['data']['id']);
     Event event = await _databaseRepository.getEvent(message['data']['id']);
-    Account supervisor = Account.fromMap((event.supervisor as Account).id, event.operator); //get here to prevent old token
+    Account supervisor = event.operator..id = event.supervisor.id;//get here to prevent old token
     sendNotification(
         token: supervisor.token,
         title: "L'avviso è stato cosegnato a ${(event.operator as Account).surname} ${(event.operator as Account).name}");
