@@ -109,7 +109,7 @@ class _rowCalendar extends StatelessWidget {
 
     return BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
       buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
-          previous.eventsMap.entries != current.eventsMap.entries,
+          previous.eventsMap != current.eventsMap,
       builder: (context, state) {
         return TableCalendar(
           locale: 'it_IT',
@@ -268,7 +268,7 @@ class _verticalEventsGrid extends StatelessWidget {
                       .state as DailyCalendarReady).selectedEvents()[0],
                   hourHeight: 120,
                   gridHourSpan: 0,
-                  onTapAction: (event) => PlatformUtils.navigator(context, event),
+                  onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
                   buttonArea: null,
                   dateView: true,
                 )
@@ -314,7 +314,7 @@ class _verticalEventsGrid extends StatelessWidget {
                         .bloc<DailyCalendarCubit>()
                         .state
                         .selectedDay,
-                    onTapAction: (event) => PlatformUtils.navigator(context, event),
+                    onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                   ),
                 ),
               ])
@@ -347,7 +347,7 @@ class _verticalEventsGrid extends StatelessWidget {
                         builder: (context, state) {
                           gridHourSpan = state.gridHourSpan;
                           gridHourHeight = state.gridHourHeight;
-                          _backGridLength =
+                          _backGridLength = gridHourSpan == 0? 0 :
                               ((Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) / gridHourSpan).toInt();
                           _barHourHeight = gridHourHeight / 2;
                           return state.gridHourSpan == 0 ? Container(height: 20,) :

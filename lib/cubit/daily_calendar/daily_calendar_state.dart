@@ -1,7 +1,7 @@
 part of 'daily_calendar_cubit.dart';
 
 abstract class DailyCalendarState extends Equatable {
-  Map<DateTime, List> eventsMap;
+  Map<DateTime, List<Event>> eventsMap;
   DateTime selectedDay;
   double gridHourHeight = 0;
   int gridHourSpan = 0;
@@ -11,7 +11,7 @@ abstract class DailyCalendarState extends Equatable {
         this.selectedDay = selectedDay ?? TimeUtils.truncateDate(DateTime.now(), "day");
 
   @override
-  List<Object> get props => [eventsMap.length, selectedDay, gridHourHeight, gridHourSpan];
+  List<Object> get props => [eventsMap.entries, selectedDay, gridHourHeight, gridHourSpan];
 }
 
 class DailyCalendarLoading extends DailyCalendarState{
@@ -24,7 +24,8 @@ class DailyCalendarReady extends DailyCalendarState {
 
   DailyCalendarReady(Map eventsMap, DateTime selectedDay) : super(selectedDay, eventsMap) {
     //the verticalGridEvents need the events of the selectedDay ordered
-    eventsMap[selectedDay]?.sort((a, b) => a.start.compareTo(b.start));
+    List<Event> listEvent = eventsMap[selectedDay];
+    listEvent?.sort((a, b) => a.start.compareTo(b.start));
     _calculateGridDimensions();
   }
 

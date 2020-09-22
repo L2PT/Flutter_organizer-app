@@ -83,13 +83,12 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
 
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
-  Stream<MobileState> _mapInitAppToState(InitAppEvent event) {
+  Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
     add(NavigateEvent(Constants.homeRoute,null)); //TODO this command order is right?
    if (!_account.supervisor) {
-      _notificationSubscription =
-          _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications) async* {
-        if (notifications.length > 0 && !(this.state is NotificationWaitingState)) yield NavigateEvent(Constants.waitingEventListRoute);
-        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) yield NavigateEvent(Constants.homeRoute);
+      _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
+        if (notifications.length > 0 && !(this.state is NotificationWaitingState))  NavigateEvent(Constants.waitingEventListRoute);
+        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) NavigateEvent(Constants.homeRoute);
       });
     }
   }
