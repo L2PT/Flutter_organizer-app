@@ -1,7 +1,7 @@
 library App.utils;
 
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class TimeUtils {
 

@@ -1,21 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 
-class DeleteAlert {
+class ConfirmCancelAlert {
   final BuildContext context;
+  final String title;
+  final String text;
   List<Widget> _actions;
   Widget _content;
 
-  DeleteAlert(this.context) {
+  ConfirmCancelAlert(this.context, {this.title, this.text}) {
 
       _actions = <Widget>[
       FlatButton(
         child: new Text('Annulla', style: label),
         onPressed: () {
-          Navigator.of(context).pop(false);
+          Navigator.pop(context, false);
         },
       ),
       SizedBox(
@@ -36,10 +38,7 @@ class DeleteAlert {
       child: ListBody(children: <Widget>[
         Padding(
           padding: EdgeInsets.only(bottom: 10),
-          child: Text(
-            "Confermi la cancellazione dell'incarico?",
-            style: label,
-          ),
+          child: Text( text, style: label, ),
         ),
       ]),
     );
@@ -52,7 +51,7 @@ class DeleteAlert {
         return Alert(
           actions: _actions,
           content: _content,
-          title: "CANCELLA INCARICO",
+          title: title,
         );
       });
 }

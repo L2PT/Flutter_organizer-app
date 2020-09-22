@@ -9,7 +9,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -20,83 +20,54 @@ import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 
 
-class DetailsEvent extends StatefulWidget {
-  final Event event;
-  DetailsEvent(this.event,{Key key}) : assert(event != null), super(key: key);
 
-  @override
-  _DetailsEventState createState() => _DetailsEventState(event);
-}
-
-class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMixin {
-
-  _DetailsEventState(this._event) {
-    _controller = new TabController(vsync: this, length: _tabsHeaders.length);
-  }
-
-  TabController _controller;
+class DetailsEvent extends StatelessWidget {
   final Event _event;
-  final DateFormat formatterMonth = new DateFormat('MMM', "it_IT");
-  final DateFormat formatterWeek = new DateFormat('E', "it_IT");
-  final double sizeIcon = 30; //HANDLE
-  final double padding = 15.0; //HANDLE
-  final List<Tab> _tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
+  DetailsEvent(this._event,{Key key}) : assert(_event != null), super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
     var account = context.bloc<AuthenticationBloc>().account;
+
+    return new Scaffold(
+      resizeToAvoidBottomPadding: false,
+      backgroundColor: white,
+      body: new BlocProvider(
+          create: (_) => DetailsEventCubit(context, repository, account, _event),
+          child: _detailsView()
+      ),
+    );
+
+  }
+}
+
+
+class _detailsView extends StatefulWidget {
+  _detailsView({Key key}) : super(key: key);
+
+  @override
+  _detailsViewState createState() => _detailsViewState();
+}
+
+class _detailsViewState extends State<_detailsView> with TickerProviderStateMixin {
+  TabController _controller;
+  final List<Tab> _tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
+  final DateFormat formatterMonth = new DateFormat('MMM', "it_IT");
+  final DateFormat formatterWeek = new DateFormat('E', "it_IT");
+  final double sizeIcon = 30; //HANDLE
+  final double padding = 15.0;
+
+  _detailsViewState() {
+    _controller = new TabController(vsync: this, length: _tabsHeaders.length);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var account = context.bloc<AuthenticationBloc>().account;
     var event = context.bloc<DetailsEventCubit>().state.event;
 
-
-    void _onPressedEndEventConfirmation(){
-      context.bloc<DetailsEventCubit>().endEventAndNotify();
-      Navigator.of(context).pop();
-    }
-
-    void _onPressedDeleteEventConfirmation(){
-      context.bloc<DetailsEventCubit>().deleteEvent();
-    }
-
-    void _onPressedEndEvent(){ //TODO this can be moved
-      showDialog(
-          context: context,
-          barrierDismissible: true,
-          builder: (BuildContext context) {
-            return Alert(
-              actions: <Widget>[
-                    FlatButton(
-                      child: new Text('Annulla', style: label),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    SizedBox(width: 15,),
-                    RaisedButton(
-                      child: new Text('CONFERMA', style: button_card),
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                          BorderRadius.all(Radius.circular(15.0))),
-                      color: black,
-                      elevation: 15,
-                      onPressed: () => _onPressedEndEventConfirmation(),
-                    ),
-                  ],
-              content:  SingleChildScrollView(
-                child: ListBody(children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text("Confermi la terminazione dell'incarico?", style: label,),
-                  ),
-                ]),
-              ),
-              title: "TERMINA INCARICO",
-            );
-          });
-    }
-
-
-    Widget detailsContent = ListView(
+    Widget detailsContent() => ListView(
       physics: BouncingScrollPhysics(),
       children: <Widget>[
         Container(
@@ -141,9 +112,9 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                       size: sizeIcon,
                     ),
                     SizedBox(width: padding,),
-                    Text(Account.fromMap("", event.supervisor).surname, style: subtitle_rev),
+                    Text( event.supervisor.surname, style: subtitle_rev),
                     SizedBox(width: 5,),
-                    Text(Account.fromMap("", event.supervisor).name, style: subtitle_rev),
+                    Text( event.supervisor.name, style: subtitle_rev),
                   ],
                 ),
               ),
@@ -157,7 +128,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                       size: sizeIcon,
                     ),
                     SizedBox(width: padding,),
-                    Text([event.operator, ...event.suboperators].map((operator) => operator["Name"]+ " " +operator["Cognome"]).reduce((value, element) => value??""+"; "+element), style: subtitle_rev)
+                    Text([event.operator, ...event.suboperators].map((operator) => operator.name+ " " +operator.surname).reduce((value, element) => value??""+"; "+element), style: subtitle_rev)
                   ],
                 ),
               ),
@@ -228,7 +199,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
       ],
     );
 
-    Widget detailsDocument = Container(
+    Widget detailsDocument() => Container(
         margin: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
         child: event.documents.length>0?ListView.separated(
             itemCount: event.documents.length,
@@ -295,7 +266,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
         ])
     );
 
-    Widget detailsNote = Container(
+    Widget detailsNote() => Container(
         padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
         child: Flex(
           direction: Axis.vertical,
@@ -325,11 +296,13 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
           ],
         ));
 
-    List<Widget> _tabsContents = [detailsContent,detailsDocument,detailsNote];
+    List<Widget> _tabsContents = [detailsContent(),detailsDocument(),detailsNote()];
 
     Widget tabView = new BlocBuilder<DetailsEventCubit, DetailsEventState>(
         buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
+          account = context.bloc<AuthenticationBloc>().account;
+          event = context.bloc<DetailsEventCubit>().state.event;
           return  TabBarView(
             controller: _controller,
             children: _tabsContents.map((Widget tab) {
@@ -339,27 +312,14 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
         }
     );
 
-    Widget content = Scaffold(
+    return new Scaffold(
         appBar: AppBar(
             title: Text('INTERVENTO'),
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => Navigator.pop(context, false),
             )),
-        floatingActionButton: event.end.isBefore(DateTime.now())&&account.supervisor?Container(
-            decoration: BoxDecoration(
-                color: grey, borderRadius: BorderRadius.circular(100)),
-            child: Padding(
-                padding: EdgeInsets.all(2),
-                child: FloatingActionButton(
-                  child: Icon(Icons.delete, size: 40,),
-                  onPressed: () async {
-                    if(await DeleteAlert(context).show())
-                      _onPressedDeleteEventConfirmation();
-                  },
-                  backgroundColor: black,
-                  elevation: 6,
-                ))):Fab(),//TODO callback
+        floatingActionButton: Fab(),
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
@@ -474,7 +434,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                                     ),
                                   ),
                                   Expanded(
-                                    child: tabView
+                                      child: tabView
                                   ),
                                 ],
                               ),
@@ -491,7 +451,7 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                         ],
                       ),
                     ),
-                    event.status==Status.Accepted?
+                    event.isAccepted()?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -503,11 +463,14 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                                 BorderRadius.all(Radius.circular(15.0))),
                             color: black,
                             elevation: 15,
-                            onPressed: () => _onPressedEndEvent(),
+                            onPressed: () async {
+                              if(await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Confermi la terminazione dell'incarico?").show())
+                                context.bloc<DetailsEventCubit>().endEventAndNotify();
+                            },
                           ),
                         ],
                       ),
-                    ):event.status==Status.Ended?
+                    ):event.isEnded()?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -534,29 +497,20 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
                     ):
                     Container(height: 30,)
                     /*child: Row(
-                    children: <Widget>[
-                      SizedBox(
-                        width: 30,
-                      ),
-                      Icon(
-                        Icons.notifications,
-                        size: 40,
-                      ),
-                      Text("Avvisami (15m)", style: subtitle_rev),
-                      SizedBox(width: 30),
-                      Switch(value: true, activeColor: c, onChanged: (v) {})
-                    ],
-                  ),*/])),
+                  children: <Widget>[
+                    SizedBox(
+                      width: 30,
+                    ),
+                    Icon(
+                      Icons.notifications,
+                      size: 40,
+                    ),
+                    Text("Avvisami (15m)", style: subtitle_rev),
+                    SizedBox(width: 30),
+                    Switch(value: true, activeColor: c, onChanged: (v) {})
+                  ],
+                ),*/])),
             ])));
-
-    return new Scaffold(
-      resizeToAvoidBottomPadding: false,
-      backgroundColor: white,
-      body: new BlocProvider(
-          create: (_) => DetailsEventCubit(context, repository, account, _event),
-          child: content
-      ),
-    );
   }
 
   @override
@@ -564,5 +518,5 @@ class _DetailsEventState extends State<DetailsEvent> with TickerProviderStateMix
     _controller.dispose();
     super.dispose();
   }
-
+  
 }

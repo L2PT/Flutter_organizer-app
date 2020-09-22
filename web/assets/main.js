@@ -139,12 +139,12 @@ function readResources(callback){
 }
 function readEvents(start, end, timezone, callback){
    //var date = calendar.getDate().format();
-   var docRef = db.collection("Eventi");
+   var docRef = db.collection("Eventi"); //TODO TURRO visualizzare solo quelli giusti
    var evs = [];
    docRef.get().then(function(querySnapshot) {
        querySnapshot.forEach(function(doc) {
            var e = doc.data();
-           e.id= doc.id;
+           e.id = doc.id;
            evs.push(e)
        });
        callback(evs);
@@ -161,7 +161,7 @@ function mapEventObj(eventData){
         e.title = e.Titolo;
         e.url = e.Categoria;
         e.color = getColor(e.Categoria);
-        e.start = new Date(e.DataInizio.seconds*1000).toISOString()//TODO
+        e.start = new Date(e.DataInizio.seconds*1000).toISOString()
         e.end = new Date(e.DataFine.seconds*1000).toISOString()
         return e;
     }

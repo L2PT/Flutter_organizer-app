@@ -11,7 +11,7 @@ import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart' as E;
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/web.dart';
 import 'dart:async';
 import 'package:universal_html/html.dart';
@@ -109,6 +109,9 @@ class PlatformUtils {
   static dynamic navigator(BuildContext context, route, [arg]) async {
     context.bloc<WebBloc>().add(NavigateEvent(route, arg, context));
   }
+
+  static String getRoute(BuildContext context) =>
+      context.bloc<WebBloc>().state.route;
 
   static dynamic notifyErrorMessage(msg) {
     showAlertJs(msg);

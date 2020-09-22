@@ -15,9 +15,10 @@ import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/monthly_calendar/monthly_calendar_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
@@ -77,6 +78,7 @@ class _contentTableCalendar extends StatelessWidget {
 
     @override
     Widget build(BuildContext context) {
+      Account account = BlocProvider.of<AuthenticationBloc>(context).account;
       _animationController.forward();
 
       return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
@@ -155,9 +157,7 @@ class _contentTableCalendar extends StatelessWidget {
                 },
               ),
               onDaySelected: (date, events) {
-                context
-                    .bloc<MobileBloc>()
-                    .add(NavigateEvent(context.bloc<MonthlyCalendarCubit>().account.supervisor?Constants.dailyCalendarRoute: Constants.homeRoute, {'day' : date, 'operator' : _operator}));
+                PlatformUtils.navigator(context, account.supervisor?Constants.dailyCalendarRoute : Constants.homeRoute, {'day' : date, 'operator' : _operator});
                 _animationController.forward(from: 0.0);
                 _animationController.dispose();
               },

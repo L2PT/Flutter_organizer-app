@@ -6,7 +6,7 @@ import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/waiting_event_list/waiting_event_list_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -171,7 +171,7 @@ class _listTileEvent extends StatelessWidget {
           hourHeight: 140,
           gridHourSpan: 0,
           buttonArea: <String,Function(Event)>{"Rifiuta":context.bloc<WaitingEventListCubit>().cardActionReject,"Conferma":context.bloc<WaitingEventListCubit>().cardActionConfirm},
-          onTapAction: (event)=> PlatformUtils.navigator(context, event),
+          onTapAction: (event) => PlatformUtils.navigator(context, event),
         ),
       ),
       SizedBox(height: 15)

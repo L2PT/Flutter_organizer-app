@@ -26,7 +26,7 @@ class Account {
   }
 
   Account.fromMap(String id, Map<String,dynamic> json) :
-    _id = !id.isNullOrEmpty()? id : json["Id"] ?? "",
+    _id = !id.isNullOrEmpty()? id : json["Id"] ?? json["id"] ?? "",
     _name = json['Nome'],
     _surname = json['Cognome'],
     _email = json['Email'],

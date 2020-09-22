@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 Future<List<String>> getLocationAddresses(String text) async {
   if (text.isNotEmpty) {

@@ -11,7 +11,7 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -33,13 +33,8 @@ class CreateEvent extends StatelessWidget {
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
       } else {
-        context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null));
+        PlatformUtils.navigator(context, Constants.homeRoute);
       }
-    }
-
-    void _onSavePressed() async {
-      if (await context.bloc<CreateEventCubit>().saveEvent())
-        Navigator.pop(context);
     }
 
     return new BlocProvider(
@@ -57,17 +52,7 @@ class CreateEvent extends StatelessWidget {
                     _event == null ? 'NUOVO EVENTO' : 'MODIFICA EVENTO',
                     style: title_rev,
                   ),
-                  actions: <Widget>[
-                    new Container(
-                        alignment: Alignment.center,
-                        padding: EdgeInsets.all(15.0),
-                        child: RaisedButton(
-                          child: new Text('SALVA', style: subtitle_rev),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
-                          elevation: 5,
-                          onPressed: _onSavePressed,
-                        ))
+                  actions: <Widget>[ _viewHeader()
                   ],
                 ),
                 body: BlocBuilder<CreateEventCubit, CreateEventState>(
@@ -78,6 +63,29 @@ class CreateEvent extends StatelessWidget {
                     })
         ))
     );
+  }
+}
+
+class _viewHeader extends StatelessWidget{
+
+  @override
+  Widget build(BuildContext context) {
+
+    void _onSavePressed(BuildContext context) async {
+      if (await context.bloc<CreateEventCubit>().saveEvent())
+        Navigator.pop(context);
+    }
+
+    return new Container(
+      alignment: Alignment.center,
+      padding: EdgeInsets.all(15.0),
+      child: RaisedButton(
+        child: new Text('SALVA', style: subtitle_rev),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
+        elevation: 5,
+        onPressed: ()=>_onSavePressed(context),
+      ));
   }
 }
 
@@ -337,7 +345,7 @@ class _timeControls extends StatelessWidget {
       ),
       Expanded(
         child: GestureDetector(
-          child: Text(context.bloc<CreateEventCubit>().state.event.start.toString().split(' ').first,
+          child: Text( event.start.toString().split(' ').first,
             style: context.bloc<CreateEventCubit>().canModify ? title : subtitle),
           onTap: () => context.bloc<CreateEventCubit>().canModify ?
           DatePicker.showDatePicker(context,
@@ -353,7 +361,7 @@ class _timeControls extends StatelessWidget {
       event.isAllDayLong() ? Container()
           : Expanded(
         child: GestureDetector(
-          child: Text( context.bloc<CreateEventCubit>().state.event.start.toString().split(' ').last.split('.').first.substring(0,5),
+          child: Text( event.start.toString().split(' ').last.split('.').first.substring(0,5),
             style: context.bloc<CreateEventCubit>().canModify ? title : subtitle),
           onTap: () => context.bloc<CreateEventCubit>().canModify ?
           DatePicker.showTimePicker(context,
@@ -384,7 +392,7 @@ class _timeControls extends StatelessWidget {
               minTime: TimeUtils.truncateDate(event.start, "day"),
               maxTime: DateTime(3000),
               theme: DatePickerAppTheme,
-              currentTime: event.start,
+              currentTime: event.end,
               locale: LocaleType.it,
               onConfirm: (date) => context.bloc<CreateEventCubit>().setEndDate(date),
             ) : null,
@@ -392,14 +400,14 @@ class _timeControls extends StatelessWidget {
         ),
         Expanded(
           child: GestureDetector(
-            child: Text(context.bloc<CreateEventCubit>().state.event.end.toString().split(' ').last.split('.').first.substring(0,5),
+            child: Text(event.end.toString().split(' ').last.split('.').first.substring(0,5),
               style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,
             ),
             onTap: (){if(context.bloc<CreateEventCubit>().canModify)
             DatePicker.showTimePicker(context,
               showTitleActions: true,
               theme: DatePickerAppTheme,
-              currentTime: TimeUtils.getNextWorkTimeSpan(event.start.OlderBetween(event.end)),
+              currentTime: event.end,
               locale: LocaleType.it,
               onConfirm: (time) => context.bloc<CreateEventCubit>().setEndTime(time),
             );},
@@ -502,9 +510,7 @@ class _categoriesList extends StatelessWidget {
   Widget build(BuildContext context) {
     int i = 0;
     List<Widget> buildCategoriesList() => context.bloc<CreateEventCubit>().categories.map((categoryName, categoryColor) =>
-        MapEntry(GestureDetector(
-            onTap: () => context.bloc<CreateEventCubit>().radioValueChanged(i),
-            child: Container(
+        MapEntry( Container(
                 margin: EdgeInsets.symmetric(vertical: 5),
                 decoration: BoxDecoration(
                     color: (context.bloc<CreateEventCubit>().state.category == i) ? black : white,
@@ -514,10 +520,7 @@ class _categoriesList extends StatelessWidget {
                   new Radio(
                     value: i,
                     activeColor: black_light,
-                    groupValue: context
-                        .bloc<CreateEventCubit>()
-                        .state
-                        .category,
+                    groupValue: context.bloc<CreateEventCubit>().state.category,
                     onChanged: (a) => context.bloc<CreateEventCubit>().radioValueChanged(a),
                   ),
                   Container(
@@ -529,7 +532,7 @@ class _categoriesList extends StatelessWidget {
                   ),
                   new Text(categoryName.toUpperCase(),
                       style: (context.bloc<CreateEventCubit>().state.category == i) ? subtitle_rev : subtitle.copyWith(color: black)),
-                ]))), i++)).keys.toList();
+                ])), i++)).keys.toList();
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.category != current.category,

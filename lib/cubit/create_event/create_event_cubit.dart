@@ -9,7 +9,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/plugins/geo_location.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 
@@ -49,16 +49,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   Future<bool> saveEvent() async {
     if (state.event.operator == null)
-      return PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
-
-    if((this.formTimeControlsKey.currentState.validate() || !this.canModify) && formKey.currentState.validate()) {
-      formKey.currentState.save();
-      state.status = _formStatus.loading;
+      PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
+    else if (state.category  == null)
+      PlatformUtils.notifyErrorMessage("Seleziona una categoria valida.");
+    else if((this.formTimeControlsKey.currentState.validate() || !this.canModify) && formKey.currentState.validate()) {
       //get all data before refresh
-      emit(state);
+      formKey.currentState.save();
+      emit(state.assign(status: _formStatus.loading));
       try {
         if(Constants.debug) print("Firebase save " + state.event.start.toString() + " : " + state.event.end.toString());
-        state.event.supervisor = _account.toDocument();
+        state.event.supervisor = _account;
         int i=0;
         this.categories.forEach((key, value) { if(i++==state.category){
           state.event.category = key;
@@ -86,15 +86,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         });
         cloudFiles.forEach((file) => PlatformUtils.storageDelFile(state.event.id + "/" + file));
         if(Constants.debug) print("FireStorage upload comeplete");
-        FirebaseMessagingService.sendNotification(token: state.event.operator["Token"], eventId: state.event.id);
+        FirebaseMessagingService.sendNotification(token: state.event.operator.token, eventId: state.event.id);
         if(Constants.debug) print("FireMessaging notified");
+        return true;
       } catch (e) {
-        state.status = _formStatus.normal;
-        emit(state);
+        emit(state.assign(status: _formStatus.normal));
         print(e);
-        return PlatformUtils.notifyErrorMessage("Errore nella creazione dell'evento.");
+        PlatformUtils.notifyErrorMessage("Errore nella creazione dell'evento.");
       }
     }
+    return false;
   }
 
 
@@ -148,7 +149,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   setStartDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    event.start = date.add(Duration(hours: state.event.start.hour, minutes: state.event.start.minute));
+    event.start = TimeUtils.getNextWorkTimeSpan(date);
+    event.end = TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end);
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
@@ -157,8 +159,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     Event event = Event.fromMap("", "", state.event.toMap());
     event.start = time;
     event.end = TimeUtils.truncateDate(event.end, "day").add(
-        Duration(hours: TimeUtils.getNextWorkTimeSpan(event.start.OlderBetween(event.end)).hour,
-            minutes: TimeUtils.getNextWorkTimeSpan(event.start.OlderBetween(event.end)).minute ));
+        Duration(hours: (TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end)).hour,
+            minutes: (TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end)).minute ));
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
@@ -171,7 +173,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
   setEndTime(DateTime time) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    event.end = time.add(Duration(hours: state.event.end.hour, minutes: state.event.end.minute));
+    event.end = time.add(Duration(hours: event.end.hour, minutes: event.end.minute));
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }

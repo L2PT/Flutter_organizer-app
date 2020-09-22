@@ -6,33 +6,33 @@ import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart'
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 
 part 'fab_state.dart';
 
 class FabCubit extends Cubit<FabState> {
+  final BuildContext _context;
+  final String _route;
+  final Account _account;
+
   FabCubit(this._context, this._databaseRepository, this._account, this._route)
       : assert(_databaseRepository != null && _account != null && _route != null),
-        super(FabState(_route, _account.supervisor)) {
-    if(state.isSupervisor) {
-      if(state.route == Constants.detailsEventViewRoute) content = Fab_details_super(_context);
-      else if(state.route == Constants.dailyCalendarRoute) content = Fab_daily_super();
+        super(FabState()) {
+    if(_account.supervisor) {
+      if(_route == Constants.detailsEventViewRoute) content = Fab_details_super(_context);
+      else if(_route == Constants.dailyCalendarRoute) content = Fab_daily_super();
     } else {
-      if(state.route == Constants.detailsEventViewRoute) content = Fab_details_oper(_context);
+      if(_route == Constants.detailsEventViewRoute) content = Fab_details_oper(_context);
     }
   }
 
-  final BuildContext _context;
   final CloudFirestoreService _databaseRepository;
-  final Account _account;
-  final String _route;
   Widget content = SizedBox();
 
-  void callSupervisor() async {
-    Account supervisor = _context.bloc<DetailsEventCubit>().state.event.operator;
-    if(await canLaunch(supervisor.phone)){
-      launch(supervisor.phone);
+  void callSupervisor(String phone) async {
+    if(await canLaunch(phone)){
+      launch(phone);
     }
   }
 

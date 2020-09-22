@@ -2,37 +2,32 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 part 'history_state.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
   final CloudFirestoreService _databaseRepository;
-  List<Event> _events;
 
   HistoryCubit(this._databaseRepository, int _selectedStatus)   : assert(_databaseRepository != null),
         super(HistoryLoading(_selectedStatus)){
     _databaseRepository.eventsHistory().listen((historyEventsList) {
-      _events = historyEventsList;
-      evaluateEventsMap();
+      evaluateEventsMap(historyEventsList);
     });
   }
 
-  void evaluateEventsMap(){
-    Map<int, List<Event>> eventsMap;
-    List<Event> events = List();
-    if(this._events != null){
+  void evaluateEventsMap(List<Event> _events){
+    Map<int, List<Event>> eventsMap =  {};
+    if(_events != null){
       _events.forEach((singleEvent) {
-        if(eventsMap[singleEvent.status]==null)eventsMap[singleEvent.status]=List();
+        if(eventsMap[singleEvent.status]==null)eventsMap[singleEvent.status] = [];
         eventsMap[singleEvent.status].add(singleEvent);
       });
     }
-    emit(HistoryReady(state.selectedStatus, eventsMap));
+    emit(state.assign(eventsMap: eventsMap));
   }
 
   void onStatusSelect(int status) {
-    if(Constants.debug) print("$status selected");
-    if(state is HistoryLoading) state.selectedStatus = status;
-    else emit(HistoryReady(status,(state as HistoryReady).eventsMap));
+    emit(state.assign(selectedStatus: status));
   }
 }

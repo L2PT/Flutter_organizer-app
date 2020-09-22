@@ -7,7 +7,7 @@ import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
@@ -92,5 +92,4 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       });
     }
   }
-
 }

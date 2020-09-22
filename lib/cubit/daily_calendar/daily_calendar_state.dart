@@ -7,7 +7,7 @@ abstract class DailyCalendarState extends Equatable {
   int gridHourSpan = 0;
 
   DailyCalendarState(DateTime selectedDay, [Map<DateTime, List> eventsMap]) :
-        this.eventsMap = eventsMap ?? Map(),
+        this.eventsMap = eventsMap ?? {},
         this.selectedDay = selectedDay ?? TimeUtils.truncateDate(DateTime.now(), "day");
 
   @override
