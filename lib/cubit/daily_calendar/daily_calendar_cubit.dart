@@ -23,10 +23,18 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
       : assert(_databaseRepository != null),
         super(DailyCalendarLoading(_selectedDay)){
     //HOW to listen to stream?
-    _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
-      _events = eventsList;
-      evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
-    });
+    if(_account.supervisor){
+      _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
+        _events = eventsList;
+        evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
+      });
+    }else{
+      _databaseRepository.eventsByOperatorAcceptedOrAbove((_operator??_account).id).listen((eventsList) {
+        _events = eventsList;
+        evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
+      });
+    }
+
   }
 
   void onDaySelected(DateTime day) {

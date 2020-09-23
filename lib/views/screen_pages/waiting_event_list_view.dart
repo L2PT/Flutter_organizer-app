@@ -54,8 +54,8 @@ class _eventList extends StatelessWidget{
     List<List<Event>> eventsGroupedByDay;
 
     void _onCalendarPressed(){
-      DateTime date = TimeUtils.truncateDate(DateTime.now(), "month");
-      context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, [null, date]));
+      DateTime date = DateTime.now();
+      context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month' : date, 'operator' : null}));
     }
 
     Widget buildGroupEventList() => ListView.builder(
@@ -112,7 +112,7 @@ class _listGroup extends StatelessWidget {
   Widget build(BuildContext context) {
 
     void _onDayPressed() {
-      context.bloc<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, [null, groupDate]));
+      context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, {'day' : groupDate, 'operator' : null}));
     }
 
     List<Widget> dateHeader = [
@@ -136,20 +136,23 @@ class _listGroup extends StatelessWidget {
           ),
         ],
       ),
-      Expanded(
-          flex: 9,
-          child: Center(
-              child: new Container(
-                  margin: const EdgeInsets.only( left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
-                  child: Divider(color: Colors.grey, height: 0)
-              ))
-      )];
+      Row(children: <Widget>[
+        Expanded(
+            flex: 9,
+            child: Center(
+                child: new Container(
+                    margin: const EdgeInsets.only(
+                        left: 10.0, right: 10.0, top: 0.0, bottom: 15.0),
+                    child: Divider(color: Colors.grey, height: 0))))
+      ])
+    ];
 
-      return Column(
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             ...dateHeader,
-            ...eventsGroup.map((event) => _listTileEvent(event)).toList()
+            ...eventsGroup.map((event) => _listTileEvent(event)).toList(),
+            SizedBox(height: 10,)
           ]
       );
     }

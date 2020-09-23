@@ -47,7 +47,7 @@ class MenuLayer extends StatelessWidget {
                 child: Container(
                   child: GestureDetector(
                     onTap: () =>
-                        null, //TODO repo or bloc? BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut()),
+                        BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut()),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[

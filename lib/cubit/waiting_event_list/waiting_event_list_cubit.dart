@@ -19,7 +19,7 @@ class WaitingEventListCubit extends Cubit<WaitingEventListState> {
         assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository, _account = account,
         super(LoadingEvents()) {
-    databaseRepository.subscribeEventsByOperator(account.id).listen((waitingEventsList) {
+    databaseRepository.subscribeEventsByOperatorWaiting(account.id).listen((waitingEventsList) {
       emit(ReadyEvents(waitingEventsList));
     });
     Future.delayed(

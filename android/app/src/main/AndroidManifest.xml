@@ -11,7 +11,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:label="venturiautospurghi"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:name=".Application">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

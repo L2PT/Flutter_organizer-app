@@ -31,13 +31,14 @@ class FabCubit extends Cubit<FabState> {
   Widget content = SizedBox();
 
   void callSupervisor(String phone) async {
+    phone = "tel:"+phone;
     if(await canLaunch(phone)){
       launch(phone);
     }
   }
 
   void callOffice() async {
-    String officeNumber = (await _databaseRepository.getPhoneNumbers())["ufficio"];
+    String officeNumber = "tel:"+(await _databaseRepository.getPhoneNumbers())["ufficio"];
     if(await canLaunch(officeNumber)){
       launch(officeNumber);
     }

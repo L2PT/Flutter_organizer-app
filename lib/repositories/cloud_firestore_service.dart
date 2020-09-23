@@ -162,6 +162,13 @@ class CloudFirestoreService {
     });
   }
 
+  Stream<List<Event>> eventsByOperatorAcceptedOrAbove(String idOperator) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
+      var documents = snapshot.docs;
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+    });
+  }
+
   Future<String> addEvent(Event data) async {
     var docRef = await _collectionEventi.add(data.toDocument());
     return docRef.id;

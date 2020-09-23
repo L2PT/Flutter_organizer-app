@@ -6,7 +6,7 @@ abstract class MonthlyCalendarState extends Equatable {
 
   MonthlyCalendarState(DateTime selectedMonth, [Map<DateTime, List> eventsMap]):
         this.eventsMap = eventsMap ?? {},
-        this.selectedMonth = selectedMonth ?? TimeUtils.truncateDate(DateTime.now(), "month");
+        this.selectedMonth = selectedMonth ?? DateTime.now();
 
   @override
   List<Object> get props => [eventsMap, selectedMonth];

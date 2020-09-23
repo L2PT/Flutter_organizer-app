@@ -23,7 +23,7 @@ class MonthlyCalendarCubit extends Cubit<MonthlyCalendarState> {
     super(MonthlyCalendarLoading(_selectedMonth)){
     _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
       _events = eventsList;
-      evaluateEventsMap(TimeUtils.truncateDate(_selectedMonth, "month"), TimeUtils.truncateDate(_selectedMonth, "month").add(new Duration(days: 30)));
+      evaluateEventsMap(TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month"), TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month").add(new Duration(days: 30)));
     });
   }
 

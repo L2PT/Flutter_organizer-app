@@ -309,7 +309,7 @@ class _verticalEventsGrid extends StatelessWidget {
                     hourHeight: gridHourHeight,
                     gridHourSpan: gridHourSpan,
                     selectedDay: context.bloc<DailyCalendarCubit>().state.selectedDay,
-                    onTapAction: (event) => PlatformUtils.navigator(context, event),
+                    onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
                   ),
                 ),
               ])
