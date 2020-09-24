@@ -12,10 +12,10 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
   final CloudFirestoreService _databaseRepository;
   final Account _account;
 
-  PersistentNotificationCubit( CloudFirestoreService databaseRepository, Account account) :
+  PersistentNotificationCubit( CloudFirestoreService databaseRepository, Account account, List<Event> events) :
         assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository, _account = account,
-        super(PersistentNotificationState(List())) {
+        super(PersistentNotificationState(events)) {
     _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((waitingEventsList) {
       emit(PersistentNotificationState(waitingEventsList));
     });

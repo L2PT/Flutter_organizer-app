@@ -35,6 +35,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   final Account _account;
   StreamSubscription<List<Event>> _notificationSubscription;
   String actualRoute;
+  List<Event> notification;
 
   MobileBloc({
     @required CloudFirestoreService databaseRepository,
@@ -67,14 +68,14 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.detailsEventViewRoute: yield OutBackdropState(event.route, DetailsEvent(event.arg)); break;
       case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.arg)); break;
       case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
-      case Constants.waitingNotificationRoute: yield NotificationWaitingState(event.route, PersistentNotification()); break;
+      case Constants.waitingNotificationRoute: yield NotificationWaitingState(event.route, PersistentNotification(notification)); break;
       case Constants.homeRoute: yield InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar(event.arg != null? event.arg['day']:null,event.arg != null?event.arg['operator']:null) ); break;
       case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg != null?event.arg['month']:null,event.arg != null?event.arg['operator']:null) ); break;
       case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
       case Constants.operatorListRoute: yield InBackdropState(event.route, OperatorList()); break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
-      case Constants.waitingEventListRoute: yield (state is InBackdropState? InBackdropState(event.route, WaitingEventList()) : NotificationWaitingState(event.route, WaitingEventList())); break;
+      case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
       case Constants.historyEventListRoute:  yield InBackdropState(event.route, Profile()); break;
       default: yield InBackdropState(event.route, Profile()); break;
       break;
@@ -84,11 +85,14 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-    add(NavigateEvent(Constants.homeRoute,null)); //TODO this command order is right?
+    //add(NavigateEvent(Constants.homeRoute,null)); //TODO this command order is right?
    if (!_account.supervisor) {
       _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
-        if (notifications.length > 0 && !(this.state is NotificationWaitingState))  NavigateEvent(Constants.waitingEventListRoute);
-        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) NavigateEvent(Constants.homeRoute);
+        if (notifications.length > 0 && !(this.state is NotificationWaitingState)) {
+          notification = notifications;
+          add(NavigateEvent(Constants.waitingNotificationRoute));
+        }
+        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) add(NavigateEvent(Constants.homeRoute));
       });
     }
   }

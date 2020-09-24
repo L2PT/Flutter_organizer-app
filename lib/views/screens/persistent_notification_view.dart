@@ -19,13 +19,18 @@ import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
 class PersistentNotification extends StatelessWidget {
+
+  List<Event> events;
+
+  PersistentNotification([this.events, Key key]) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final CloudFirestoreService repository = context.repository<CloudFirestoreService>();
     final Account account = context.bloc<AuthenticationBloc>().account;
 
     return new BlocProvider(
-      create: (_) => PersistentNotificationCubit(repository, account),
+      create: (_) => PersistentNotificationCubit(repository, account, events),
       child: Stack(
           children: <Widget>[
             Scaffold(
@@ -41,12 +46,12 @@ class PersistentNotification extends StatelessWidget {
                 body: Stack(
                   fit: StackFit.expand,
                   children: <Widget>[
-                    Profile(),
+                    DailyCalendar(DateTime.now(),account),
                   ],
                 )), Container(
               decoration:
               BoxDecoration(color: white.withOpacity(0.7)),
-              child: Column( //TODO this view can be composed better
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Container(
