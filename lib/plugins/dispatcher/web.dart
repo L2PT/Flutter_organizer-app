@@ -7,6 +7,7 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:js/js.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart' as E;
@@ -49,25 +50,25 @@ class PlatformUtils {
   static const dynamic Dir = null;
 
   static dynamic storageGetUrl(path){
-//    storageOpenUrlJs(path);
+   storageOpenUrlJs(path);
     return null;
   }
-  static dynamic storageGetFiles(path){
-//    storageOpenUrlJs(path);
-    return null;
+  static Future<List<String>> storageGetFiles(path) async {
+   var a = await promiseToFuture(storageGetFilesJs(path));
+   return List<String>.from(a).map((file) => file.replaceAll(path, "")).toList();
   }
   static void storagePutFile(path, file){
-//    storagePutFileJs(path, file);
+   storagePutFileJs(path, file);
   }
   static void storageDelFile(path){
-//    storageDelFileJs(path);
+   storageDelFileJs(path);
   }
 
   static void download(url,filename) => null;
   static void initDownloader() => null;
 
 
-  static Future<String> filePicker() async {
+  static Future<Map<String,String>> filePicker() async {
     final completer = new Completer<String>();
     final InputElement input = document.createElement('input');
     input..type = 'file';
@@ -77,12 +78,11 @@ class PlatformUtils {
       reader.readAsDataUrl(files[0]);
       reader.onError.listen((error) => completer.completeError(error));
       await reader.onLoad.first;
-      completer.complete(files[0].name+":"+(reader.result as String));
+      completer.complete(files[0].name+ "^^.^^" +(reader.result as String));
     });
     input.click();
     String a = await completer.future;
-    print(a);
-    return a;
+    return Map.from({a.split("^^.^^").first: a.split("^^.^^").last});
   }
   static Future<Map<String,String>> multiFilePicker() async {
     final completer = new Completer<List<String>>();
@@ -92,18 +92,18 @@ class PlatformUtils {
       ..multiple = true;
     input.onChange.listen((e) async {
       final List<File> files = input.files;
-      Iterable<Future<String>> resultsFutures = files.map((file) {
+      Iterable<Future<String>> resultsFutures = files.map((file) async {
         final reader = new FileReader();
         reader.readAsDataUrl(file);
         reader.onError.listen((error) => completer.completeError(error));
-        return reader.onLoad.first.then((_) => reader.result as String);
+        return file.name + "^^.^^" +(await reader.onLoad.first.then((_) => reader.result as String));
       });
       final results = await Future.wait(resultsFutures);
       completer.complete(results);
     });
     input.click();
     var a = await completer.future;
-    return Map.fromIterable(a, key: (s) => s.split("/").last, value: (s) => s);
+    return Map.fromIterable(a, key: (s) => s.split("^^.^^").first, value: (s) => s.split("^^.^^").last);
   }
 
   static dynamic navigator(BuildContext context, route, [arg]) async {

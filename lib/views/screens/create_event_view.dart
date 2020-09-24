@@ -166,6 +166,7 @@ class _formInputList extends StatelessWidget{
                     onChanged: (text) => context.bloc<CreateEventCubit>().getLocations(text),
                     keyboardType: TextInputType.text,
                     cursorColor: black,
+                    initialValue: event.address,
                     decoration: InputDecoration(
                       hintText: 'Aggiungi posizione',
                       hintStyle: subtitle,
@@ -299,9 +300,9 @@ class _fileStorageList extends StatelessWidget {
       itemBuilder: (context, index) =>
           ListTile(
             title: new Text(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
-            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index)),
+            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index).isNullOrEmpty()?"":"Nuovo"),
             trailing: IconButton(
-              icon: Icon(Icons.close),
+              icon: Icon(Icons.close, color: black,),
               onPressed: () => context.bloc<CreateEventCubit>().removeDocument(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
             ),
           )
@@ -355,7 +356,7 @@ class _timeControls extends StatelessWidget {
           ) : null,
         ),
       ),
-      event.isAllDayLong() ? Container()
+      context.bloc<CreateEventCubit>().state.isAllDay ? Container()
           : Expanded(
         child: GestureDetector(
           child: Text( event.start.toString().split(' ').last.split('.').first.substring(0,5),
@@ -371,7 +372,7 @@ class _timeControls extends StatelessWidget {
       ),
     ]);
 
-    Widget dateTimeEndPicker() => event.isAllDayLong() ? Container()
+    Widget dateTimeEndPicker() => context.bloc<CreateEventCubit>().state.isAllDay ? Container()
         : Row(
       children: <Widget>[
         Container(
@@ -380,7 +381,7 @@ class _timeControls extends StatelessWidget {
         ),
         Expanded(
           child: GestureDetector(
-            child: Text(event.start.toString().split(' ').first,
+            child: Text(event.end.toString().split(' ').first,
               style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,),
             onTap: () =>
             context.bloc<CreateEventCubit>().canModify ?
@@ -431,7 +432,7 @@ class _timeControls extends StatelessWidget {
               Container(
                 alignment: Alignment.centerRight,
                 child: Switch(
-                    value: event.isAllDayLong(),
+                    value:context.bloc<CreateEventCubit>().state.isAllDay,
                     activeColor: black,
                     onChanged: context.bloc<CreateEventCubit>().setAlldayLong
                     )) : Container()

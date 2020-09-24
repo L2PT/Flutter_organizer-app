@@ -53,7 +53,10 @@ $(function() {
 
 function init(idUtente){
     this.idUtente = idUtente;
-    initCalendar();
+    $('#calendar').show()
+    if(this.calendar == null) {
+        initCalendar();
+    }
 }
 
 //Initialize the calendar (this will be called after login) <-- Dart
@@ -185,9 +188,10 @@ async function storageOpenUrl(path){
     window.open(downloadUrl);
 }
 //<-- Dart
-async function storageGetFiles(path){
-    var a = (await storage.ref().child(path).listAll());
-    return a;
+function storageGetFiles(path){
+    return new Promise((resolve, reject) => {
+        storage.ref().child(path).listAll().then(a=>resolve(a["items"].map(a=>a.fullPath)));
+    });
 }
 //<-- Dart
 function storagePutFile(path, file){
@@ -259,7 +263,7 @@ function ReadCookieJarJs(name) { return getCookie(name);}
 function storageOpenUrlJs(path){ storageOpenUrl(path); };
 async function storageGetFilesJs(path){ return await storageGetFiles(path); };
 function storagePutFileJs(path, file){ storagePutFile(path, file); };
-function storageDelFileJs(path){ storageDelFileJs(path); };
+function storageDelFileJs(path){ storageDelFile(path); };
 
 function showAlertJs(value) { alert(value);}
 function consoleLogJs(value) { console.log(value);}

@@ -37,12 +37,11 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   void getLocations(String text) async {
     List<String> locations = await getLocationAddresses(text);
-    emit(state.assign(locations: locations));
+    emit(state.assign(locations: locations, address: text));
   }
 
   setAddress(String address) {
-    state.event.address = address;
-    emit(CreateEventState(state.event));
+    emit(state.assign(address: address));
   }
 
   bool isNew() => this._type == _eventType.create;
@@ -73,7 +72,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         }
         if(Constants.debug) print("Firebase save complete");
         if(Constants.debug) print("FireStorage upload");
-        List<String> cloudFiles = PlatformUtils.storageGetFiles(state.event.id + "/" ) ?? List<String>();
+        List<String> cloudFiles = (await PlatformUtils.storageGetFiles(state.event.id + "/" )) ?? List<String>();
         state.documents.forEach((name, path) {
             if (!path.isNullOrEmpty()) {
               if(cloudFiles.contains(name)) {
@@ -99,7 +98,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   removeDocument(String name) {
-    Map newDocs = Map.from(state.documents);
+    Map<String,String> newDocs = Map.from(state.documents);
     newDocs.remove(name);
     emit(state.assign(documents: newDocs));
   }
@@ -107,7 +106,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void openFileExplorer() async {
     try {
         Map<String,String> files = await PlatformUtils.multiFilePicker();
-        Map newDocs = Map.from(state.documents);
+        Map<String,String> newDocs = Map.from(state.documents);
         files.forEach((key, value) {
           newDocs[key] = value;
         });
@@ -137,7 +136,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         event.end = TimeUtils.addWorkTime(event.start, minutes: Constants.WORKTIME_SPAN);
       }
       _removeAllOperators(event);
-      emit(state.assign(event: event));
+      emit(state.assign(event: event, allDayFlag: value));
     }else{
       PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
     }
@@ -184,12 +183,13 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   void addOperatorDialog(BuildContext context) async {
+    if(state.event.start.isBefore(DateTime.now().add(new Duration(minutes: 5))))
+      return PlatformUtils.notifyErrorMessage("Inserisci un'intervallo temporale nel futuro");
     if(state.event.start.hour < Constants.MIN_WORKTIME || state.event.start.hour >= Constants.MAX_WORKTIME )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
-    if(state.event.end.hour < Constants.MIN_WORKTIME || state.event.end.hour >= Constants.MAX_WORKTIME )
-        return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
-    if(state.event.start.isBefore(DateTime.now().add(new Duration(minutes: 5))))
-        return PlatformUtils.notifyErrorMessage("Inserisci un'intervallo temporale nel futuro");
+    if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour >= Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
+        return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
+
     PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);
   }
 

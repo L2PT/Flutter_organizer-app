@@ -8,13 +8,11 @@ part 'history_state.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
   final CloudFirestoreService _databaseRepository;
-  var events;
+  var streamSub;
 
-  HistoryCubit(this._databaseRepository, int _selectedStatus)   : assert(_databaseRepository != null),
+  HistoryCubit(this._databaseRepository, int _selectedStatus) : assert(_databaseRepository != null),
         super(HistoryLoading(_selectedStatus)){
-    _databaseRepository.eventsHistory().drain();
-    _databaseRepository.eventsHistory().listen((historyEventsList) {
-      events = historyEventsList;
+    streamSub = _databaseRepository.eventsHistory().listen((historyEventsList) {
       evaluateEventsMap(historyEventsList);
     });
   }
@@ -32,5 +30,10 @@ class HistoryCubit extends Cubit<HistoryState> {
 
   void onStatusSelect(int status) {
     emit(state.assign(selectedStatus: status));
+  }
+
+  @override
+  Future<Function> close() {
+    streamSub.cancel();
   }
 }

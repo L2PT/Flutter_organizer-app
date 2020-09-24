@@ -63,9 +63,9 @@ abstract class PlatformUtils {
   }
   static void initDownloader() => FlutterDownloader.initialize();
 
-  static Future<String> filePicker() async {
+  static Future<Map<String,String>> filePicker() async {
     var a = await FilePicker.getFilePath();
-    return a;
+    return Map.from({a:a});
   }
   static Future<Map<String,String>> multiFilePicker() async {
     var a = await FilePicker.getMultiFilePath();

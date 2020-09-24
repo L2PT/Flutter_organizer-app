@@ -34,6 +34,10 @@ external dynamic ReadCookieJarJs(String cookie);
 @JS()
 external dynamic showAlertJs(dynamic value);
 external dynamic consoleLogJs(dynamic value);
+external dynamic storageOpenUrlJs(dynamic value);
+external Future<dynamic> storageGetFilesJs(dynamic value);
+external dynamic storagePutFileJs(dynamic path, dynamic file);
+external dynamic storageDelFileJs(dynamic value);
 
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
@@ -44,6 +48,7 @@ class jQuery {
   external factory jQuery(String selector);
   external int get length;
   external jQuery html(String content);
+  external jQuery hide();
   external jQuery css(CssOptions options);
   external jQuery children();
   external jQuery fullCalendar(String a,String b);
@@ -98,7 +103,7 @@ class _MyAppState extends State<MyApp> {
               return LoadingScreen();
             }
             if(Constants.debug) context.repository<FirebaseAuthService>().signInWithEmailAndPassword( "giovanni.mimelli@gmail.com", "letstry", );
-            jQuery("#calendar").html("");
+            jQuery("#calendar").hide();
             return LogIn();
           } else if (state is Authenticated) {
             var databaseRepository = context.bloc<AuthenticationBloc>().getRepository();
@@ -318,7 +323,7 @@ class _buildWebPage extends StatelessWidget {
                               alignment: Alignment.bottomRight,
                               child: Row(children: <Widget>[
                                 IconButton(
-                                  icon: Icon(FontAwesomeIcons.calendarAlt, color: white),
+                                  icon: FaIcon(FontAwesomeIcons.user, color: white),
                                   onPressed: (){},
                                 ),
                                 Text(account.surname?.toUpperCase(), textAlign: TextAlign.right,style: title_rev),
