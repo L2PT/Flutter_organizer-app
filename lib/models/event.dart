@@ -50,8 +50,8 @@ class Event {
     _status = json["Stato"],
     _category = json["Categoria"],
     _color = (!color.isNullOrEmpty())?color:(json.containsKey("color"))?json["color"]:"",
-    _supervisor = Account.fromMap("", json["Responsabile"]),
-    _operator = Account.fromMap("", json["Operatore"]),
+    _supervisor = json["Responsabile"]==null?Account.empty():Account.fromMap("", json["Responsabile"]),
+    _operator = json["Operatore"]==null?Account.empty():Account.fromMap("", json["Operatore"]),
     _suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
     _motivazione = json["Motivazione"];
 
@@ -65,9 +65,9 @@ class Event {
       "Stato":this.status,
       "Categoria":this.category,
       "color":this.color,
-      "Responsabile":this.supervisor,
-      "Operatore":this.operator,
-      "SubOperatori":this.suboperators
+      "Responsabile":this.supervisor?.toMap(),
+      "Operatore":this.operator?.toMap(),
+      "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
   };
 
   Map<String, dynamic> toDocument(){
@@ -80,9 +80,9 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
-      "Responsabile":this.supervisor.toMap(),
-      "Operatore":this.operator.toMap(),
-      "SubOperatori":this.suboperators.map((op)=>op.toMap()),
+      "Responsabile":this.supervisor?.toMap(),
+      "Operatore":this.operator?.toMap(),
+      "SubOperatori": this.suboperators.map((op)=>op.toMap()).toList(),
       "Motivazione" : this.motivazione,
       "IdOperatore" : this.operator.id,
       "IdOperatori" : [...this.suboperators.map((op) => op.id),operator.id],

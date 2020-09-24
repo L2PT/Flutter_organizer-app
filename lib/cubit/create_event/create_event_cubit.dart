@@ -36,8 +36,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void getLocations(String text) async {
-    state.locations = await getLocationAddresses(text);
-    emit(state);
+    List<String> locations = await getLocationAddresses(text);
+    emit(state.assign(locations: locations));
   }
 
   setAddress(String address) {
@@ -74,15 +74,14 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         if(Constants.debug) print("Firebase save complete");
         if(Constants.debug) print("FireStorage upload");
         List<String> cloudFiles = PlatformUtils.storageGetFiles(state.event.id + "/" ) ?? List<String>();
-        //TODO dunno if this list contains id/name or just list of name, the method down here is for just names
-        state.documents.forEach((key, value) {
-          if(cloudFiles.contains(key)) {
-            if (!value.isNullOrEmpty()) {
-              PlatformUtils.storageDelFile(state.event.id + "/" + key);
-              PlatformUtils.storagePutFile(state.event.id + "/" + key, PlatformUtils.file(value));
-            }
-            cloudFiles.remove(key);
-          }
+        state.documents.forEach((name, path) {
+            if (!path.isNullOrEmpty()) {
+              if(cloudFiles.contains(name)) {
+                PlatformUtils.storageDelFile(state.event.id + "/" + name);
+                cloudFiles.remove(name);
+              }
+              PlatformUtils.storagePutFile(state.event.id + "/" + name, PlatformUtils.file(path));
+            } else if(cloudFiles.contains(name)) cloudFiles.remove(name);
         });
         cloudFiles.forEach((file) => PlatformUtils.storageDelFile(state.event.id + "/" + file));
         if(Constants.debug) print("FireStorage upload comeplete");
@@ -100,22 +99,19 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   removeDocument(String name) {
-    state.documents.remove(name);
-    emit(state);
+    Map newDocs = Map.from(state.documents);
+    newDocs.remove(name);
+    emit(state.assign(documents: newDocs));
   }
 
   void openFileExplorer() async {
     try {
         Map<String,String> files = await PlatformUtils.multiFilePicker();
+        Map newDocs = Map.from(state.documents);
         files.forEach((key, value) {
-          if(state.documents[key]!=null) {
-            //TODO ask if you want to substitute the file and proceed
-          } else {
-            //moved out of the if for the moment
-          }
-          state.documents[key] = value;
+          newDocs[key] = value;
         });
-        emit(state);
+        emit(state.assign(documents: newDocs));
     } on Exception catch (e) {
       print("Unsupported operation:" + e.toString());
     }
@@ -137,7 +133,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         event.start = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MIN_WORKTIME));
         event.end = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MAX_WORKTIME));
       } else {
-        event.start = TimeUtils.getNextWorkTimeSpan(event.start);
+        event.start = event.start;
         event.end = TimeUtils.addWorkTime(event.start, minutes: Constants.WORKTIME_SPAN);
       }
       _removeAllOperators(event);
@@ -188,45 +184,12 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   void addOperatorDialog(BuildContext context) async {
-    // //starttime date
-    // is DateTime
-    // //starttime time
-    //
-    // if (event.isAllDayLong()) return null;
-    // if (!value.isNullOrEmpty()) {
-    //   DateTime newTime = value as DateTime;
-    //   DateTime now = DateTime.now();
-    //   if (newTime.hour >= Constants.MIN_WORKTIME && newTime.hour < Constants.MAX_WORKTIME &&
-    //       (TimeUtils.truncateDate(event.start, "day") != TimeUtils.truncateDate(now, "day") ? true :
-    //       (newTime.hour > now.hour || (newTime.hour == now.hour && newTime.minute > now.minute + 5)))) {
-    //     return null;
-    //   }
-    // }
-    // return 'Inserisci un orario valido';
-
-    // //endtime date
-    //
-    // if (event.isAllDayLong()) return null;
-    // if (value.isNullOrEmpty()) {
-    //   return 'Inserisci una data valida';
-    // }
-    // return null;
-    //
-    // //endtime time
-    //
-    // if (event.isAllDayLong()) return null;
-    // if (!value.isNullOrEmpty()) {
-    //   DateTime newTime = value as DateTime;
-    //   DateTime now = DateTime.now();
-    //   if (newTime.hour >= Constants.MIN_WORKTIME && newTime.hour < Constants.MAX_WORKTIME &&
-    //       (TimeUtils.truncateDate(event.start, "day") != TimeUtils.truncateDate(now, "day") ? true :
-    //       (newTime.hour > now.hour || (newTime.hour == now.hour && newTime.minute > now.minute + 5)))) {
-    //     return null;
-    //   }
-    // }
-    //
-    // if (!formTimeControlsKey.currentState.validate())//TODO time check
-    //   return PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
+    if(state.event.start.hour < Constants.MIN_WORKTIME || state.event.start.hour >= Constants.MAX_WORKTIME )
+        return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
+    if(state.event.end.hour < Constants.MIN_WORKTIME || state.event.end.hour >= Constants.MAX_WORKTIME )
+        return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
+    if(state.event.start.isBefore(DateTime.now().add(new Duration(minutes: 5))))
+        return PlatformUtils.notifyErrorMessage("Inserisci un'intervallo temporale nel futuro");
     PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);
   }
 

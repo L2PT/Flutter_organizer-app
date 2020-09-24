@@ -15,7 +15,7 @@ class ListTileOperator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: checkbox==0? onTap?.call(operator):null,
+      onTap: checkbox==0? ()=>onTap?.call(operator):null,
       child: Container(
         height: 50,
         padding: EdgeInsets.symmetric(horizontal: 20),

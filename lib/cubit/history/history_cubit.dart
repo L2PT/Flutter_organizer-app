@@ -8,10 +8,13 @@ part 'history_state.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
   final CloudFirestoreService _databaseRepository;
+  var events;
 
   HistoryCubit(this._databaseRepository, int _selectedStatus)   : assert(_databaseRepository != null),
         super(HistoryLoading(_selectedStatus)){
+    _databaseRepository.eventsHistory().drain();
     _databaseRepository.eventsHistory().listen((historyEventsList) {
+      events = historyEventsList;
       evaluateEventsMap(historyEventsList);
     });
   }

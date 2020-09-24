@@ -130,8 +130,13 @@ class CloudFirestoreService {
     });
   }
 
-  // TODO check that it (still, since is just a refactored code) fetch all the dictionaries.
-  // expected -> snapshot per tutti gli eventi nello storico
+  Stream<List<Event>> eventsByOperatorAcceptedOrAbove(String idOperator) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
+      var documents = snapshot.docs;
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+    });
+  }
+
   Stream<List<Event>> eventsHistory() {
     return _collectionSubStoricoEventi.snapshots().map((snapshot) {
       var documents = snapshot.docs;
@@ -139,17 +144,8 @@ class CloudFirestoreService {
     });
   }
 
-  /*TODO i would like to know if the stream need to update (only the change come from into the stream)
-         the data or refresh (every time a change occour the full data list come into the stream) */
   Stream<List<Event>> subscribeEventsDeleted() {
     return _collectionStoricoEliminati.snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
-    });
-  }
-
-  Stream<List<Event>> subscribeEventsEnded() {
-    return _collectionStoricoTerminati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
@@ -162,8 +158,8 @@ class CloudFirestoreService {
     });
   }
 
-  Stream<List<Event>> eventsByOperatorAcceptedOrAbove(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
+  Stream<List<Event>> subscribeEventsEnded() {
+    return _collectionStoricoTerminati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });

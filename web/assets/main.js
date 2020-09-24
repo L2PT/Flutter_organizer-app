@@ -24,17 +24,6 @@ var idUtente;
 
 $(function() {
 
-    var firebaseConfig = {
-              apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
-              authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
-              databaseURL: "https://com-l2pt-venturiautospurghi.firebaseio.com",
-              projectId: "com-l2pt-venturiautospurghi",
-              storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
-              messagingSenderId: "964614131015",
-              appId: "1:964614131015:web:8a10af66f5b15bad589062"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
     db = firebase.firestore();
     storage = firebase.storage();
 

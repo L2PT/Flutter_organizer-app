@@ -5,6 +5,7 @@ import 'dart:js' as js;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
@@ -16,7 +17,6 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:js/js.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
@@ -318,7 +318,7 @@ class _buildWebPage extends StatelessWidget {
                               alignment: Alignment.bottomRight,
                               child: Row(children: <Widget>[
                                 IconButton(
-                                  icon: Icon(Icons.person, color: white),
+                                  icon: Icon(FontAwesomeIcons.calendarAlt, color: white),
                                   onPressed: (){},
                                 ),
                                 Text(account.surname?.toUpperCase(), textAlign: TextAlign.right,style: title_rev),

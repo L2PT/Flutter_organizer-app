@@ -244,7 +244,7 @@ class _formInputList extends StatelessWidget{
 class _geoLocationOptionsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildAutocompleteList =
+    List<Widget> buildAutocompleteList() =>
     context.bloc<CreateEventCubit>().state.locations.map((location) {
       return GestureDetector(
           onTap: () => context.bloc<CreateEventCubit>().setAddress(location),
@@ -270,17 +270,14 @@ class _geoLocationOptionsList extends StatelessWidget {
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.locations != current.locations,
       builder: (context, state) {
-        return (context
-            .bloc<CreateEventCubit>()
-            .state
-            .locations) != List<String>.empty() ?
+        return (context.bloc<CreateEventCubit>().state.locations) != List<String>.empty() ?
         Row(
           children: <Widget>[
             Expanded(
                 child: Padding(
                   padding: EdgeInsets.only(top: 15),
                   child: Column(
-                    children: buildAutocompleteList,
+                    children: buildAutocompleteList(),
                   ),
                 ))
           ],
@@ -295,7 +292,7 @@ class _fileStorageList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    ListView buildFilesList = ListView.separated(
+    ListView buildFilesList() => ListView.separated(
       separatorBuilder: (context, index) => new Divider(),
       physics: BouncingScrollPhysics(),
       itemCount: context.bloc<CreateEventCubit>().state.documents.keys.length,
@@ -315,7 +312,7 @@ class _fileStorageList extends StatelessWidget {
       builder: (context, state) {
         return new Container(
           height: 60,
-          child: buildFilesList
+          child: buildFilesList()
         );
       },
     );
@@ -509,18 +506,19 @@ class _categoriesList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int i = 0;
+    int category = context.bloc<CreateEventCubit>().state.category;
     List<Widget> buildCategoriesList() => context.bloc<CreateEventCubit>().categories.map((categoryName, categoryColor) =>
         MapEntry( Container(
                 margin: EdgeInsets.symmetric(vertical: 5),
                 decoration: BoxDecoration(
-                    color: (context.bloc<CreateEventCubit>().state.category == i) ? black : white,
+                    color: (category!=-1? category == i : context.bloc<CreateEventCubit>().state.event.category == categoryName) ? black : white,
                     borderRadius: BorderRadius.circular(10.0),
                     border: Border.all(color: grey)),
                 child: Row(children: <Widget>[
                   new Radio(
                     value: i,
                     activeColor: black_light,
-                    groupValue: context.bloc<CreateEventCubit>().state.category,
+                    groupValue: category,
                     onChanged: (a) => context.bloc<CreateEventCubit>().radioValueChanged(a),
                   ),
                   Container(
@@ -531,13 +529,14 @@ class _categoriesList extends StatelessWidget {
                         borderRadius: BorderRadius.all(Radius.circular(5.0)), color: HexColor(categoryColor)),
                   ),
                   new Text(categoryName.toUpperCase(),
-                      style: (context.bloc<CreateEventCubit>().state.category == i) ? subtitle_rev : subtitle.copyWith(color: black)),
+                      style: (category!=-1? category == i : context.bloc<CreateEventCubit>().state.event.category == categoryName) ?
+                        subtitle_rev : subtitle.copyWith(color: black)),
                 ])), i++)).keys.toList();
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.category != current.category,
       builder: (context, state) {
-        i=0;
+        i=0; category = context.bloc<CreateEventCubit>().state.category;
         return Container(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

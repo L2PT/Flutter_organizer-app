@@ -14,40 +14,38 @@ class OperatorListCubit extends Cubit<OperatorListState> {
   OperatorListCubit(this._databaseRepository)
       : assert(_databaseRepository != null),
         super(LoadingOperators()){
-    getOperators();
+    getAllOperators();
   }
 
-  void getOperators() async {
-    List<Account> operators = await _databaseRepository.getOperators();
+  void getAllOperators() async {
+    operators = await _databaseRepository.getOperators();
     emit(ReadyOperators(operators));
   }
 
   void onSearchNameChanged(String value) {
     if(state is ReadyOperators) {
-      emit((state as ReadyOperators).assign(searchNameField: value));
+      emit((state as ReadyOperators).assign(searchNameField: value, operators: operators));
     }
   }
 
-  void onSearchDateChanged(DateTime value) {
+  void onSearchDateChanged(DateTime value) async{
+    DateTime newValue = value.add(new Duration(hours:state.searchTimeField.hour, minutes:state.searchTimeField.minute));
     if(state is ReadyOperators) {
-      emit((state as ReadyOperators).assign(searchTimeField: value.add(
-          Duration(hours:state.searchTimeField.hour, minutes:state.searchTimeField.minute)),
-      operators: operators));
-    }
+      operators = await _databaseRepository.getOperatorsFree("", state.searchTimeField,state.searchTimeField.add(new Duration(minutes: Constants.WORKTIME_SPAN)));
+      emit((state as ReadyOperators).assign(searchTimeField: newValue, operators: operators));
+    } else state.searchTimeField = newValue;
   }
 
   void onSearchTimeChanged(DateTime value) async {
+    DateTime newValue = TimeUtils.truncateDate(state.searchTimeField, "day").add(new Duration(hours: value.hour, minutes: value.minute));
     if(state is ReadyOperators) {
       operators = await _databaseRepository.getOperatorsFree("", state.searchTimeField,state.searchTimeField.add(new Duration(minutes: Constants.WORKTIME_SPAN)));
-      emit((state as ReadyOperators).assign(searchTimeField: TimeUtils.truncateDate(state.searchTimeField, "day").add(
-          new Duration(hours: value.hour, minutes: value.minute)),
-        operators: operators));
-    }
+      emit((state as ReadyOperators).assign(searchTimeField: newValue, operators: operators));
+    } else state.searchTimeField = newValue;
   }
 
   void showFiltersBox() {
-    state.filtersBoxVisibile = !state.filtersBoxVisibile;
-    emit(state);
+    emit((state as ReadyOperators).assign(filterBoxState:!state.filtersBoxVisibile));
   }
 
 }
