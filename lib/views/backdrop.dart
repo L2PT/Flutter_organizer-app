@@ -63,11 +63,10 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
         child: Scaffold(
             appBar: AppBar(
               title: new Text(
-                  (account.supervisor
-                          ? (menuResponsabile[bloc.state.route] ?? menuResponsabile[Constants.homeRoute])
-                          : (menuOperatore[bloc.state.route] ?? menuOperatore[Constants.homeRoute]))
-                      .textLink
-                      .toUpperCase(),
+                  (account.supervisor ?
+                  (menuResponsabile[bloc.state.route] ?? menuResponsabile[Constants.homeRoute]) :
+                  (menuOperatore[bloc.state.route] ?? menuOperatore[Constants.homeRoute]))
+                      .textLink.toUpperCase(),
                   style: title_rev),
               elevation: 0.0,
               leading: new IconButton(
@@ -100,7 +99,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
       child: Stack(
         children: <Widget>[
           ExcludeSemantics(
-            child: MenuLayer(),
+            child: MenuLayer(_toggleBackdropLayerVisibility),
             excluding: _frontLayerVisible,
           ),
           PositionedTransition(rect: layerAnimation, child: content),

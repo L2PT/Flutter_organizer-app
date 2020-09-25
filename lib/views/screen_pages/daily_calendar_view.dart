@@ -245,7 +245,7 @@ class _verticalEventsGrid extends StatelessWidget {
             ),
           ]
           );
-        }).toList();
+        }).toList() ?? [];
 
     List<Widget> frontEventList() =>
         (gridHourSpan == 0) ?
@@ -328,48 +328,34 @@ class _verticalEventsGrid extends StatelessWidget {
 
 
     return BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
-        buildWhen: (previous, current) => previous.runtimeType != current.runtimeType,
+        buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
-          return !(state is DailyCalendarReady) ? Center(child: CircularProgressIndicator()) :
-          Expanded(
-              child: ListView(
-            shrinkWrap: true,//TODO remove and fix the viewport
-            children: <Widget>[
-              Stack(
+          if (!(state is DailyCalendarReady))
+            return Center(child: CircularProgressIndicator());
+
+          gridHourSpan = state.gridHourSpan;
+          gridHourHeight = state.gridHourHeight;
+          _backGridLength = gridHourSpan == 0 ? 0 :
+          ((Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) / gridHourSpan).toInt();
+          _barHourHeight = gridHourHeight / 2;
+          _base = new DateTime(1990, 1, 1, Constants.MIN_WORKTIME, 0, 0);
+          _top = new DateTime(1990, 1, 1, Constants.MAX_WORKTIME, 0, 0);
+          return Expanded( child: ListView(
                   children: <Widget>[
-                    BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
-                        buildWhen: (previous, current) => previous != current,
-                        builder: (context, state) {
-                          gridHourSpan = state.gridHourSpan;
-                          gridHourHeight = state.gridHourHeight;
-                          _backGridLength = gridHourSpan == 0? 0 :
-                              ((Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) / gridHourSpan).toInt();
-                          _barHourHeight = gridHourHeight / 2;
-                          return state.gridHourSpan == 0 ? Container(height: 20,) :
+                    Stack(
+                        children: <Widget>[
+                          gridHourSpan == 0 ? Container(height: 20) :
                           Column(
+                            mainAxisSize: MainAxisSize.max,
                               children: backGrid()
-                          );
-                        }
-                    ),
-                    BlocBuilder<DailyCalendarCubit, DailyCalendarState>(
-                        buildWhen: (previous, current) => previous != current,
-                        builder: (context, state) {
-                          _base = new DateTime(1990, 1, 1, Constants.MIN_WORKTIME, 0, 0);
-                          _top = new DateTime(1990, 1, 1, Constants.MAX_WORKTIME, 0, 0);
-                          return (state as DailyCalendarReady)
-                              .selectedEvents()
-                              .length <= 0 ? Container(height: 20) :
+                          ),
+                          (state as DailyCalendarReady).selectedEvents().length <= 0 ? Container(height: 20) :
                           Column(
+                              mainAxisSize: MainAxisSize.max,
                               children: frontEventList()
-                          );
-                        }
-                    )
-                  ]
-              )
-            ],
-          )
-          );
-        }
-    );
+                          )
+                        ])
+                  ]));
+        });
   }
 }

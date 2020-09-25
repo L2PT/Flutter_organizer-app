@@ -6,16 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 
@@ -83,7 +78,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: sizeIcon,
                     ),
                     SizedBox(width: padding,),
-                    Text(DateFormat.Hm().format(event.start) + " - " + DateFormat.Hm().format(event.start), style: subtitle_rev)
+                    Text((event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm"):DateFormat.Hm()).format(event.start) + " - " +
+                        (event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm"):DateFormat.Hm()).format(event.end), style: subtitle_rev)
                   ],
                 ),
               ),

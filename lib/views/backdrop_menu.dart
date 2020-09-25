@@ -25,6 +25,10 @@ final Map<String, LinkMenu> menuResponsabile = const {
 /// The menu must show what is the actual page visualized.
 ///
 class MenuLayer extends StatelessWidget {
+  final Function hideMenuHandle;
+
+  MenuLayer(this.hideMenuHandle);
+
   String currentViewRoute;
 
   @override
@@ -73,7 +77,10 @@ class MenuLayer extends StatelessWidget {
     return new MapEntry(
         route,
         GestureDetector(
-          onTap: () => context.bloc<MobileBloc>().add(NavigateEvent(route)),
+          onTap: (){
+            context.bloc<MobileBloc>().add(NavigateEvent(route));
+            hideMenuHandle?.call(false);
+          },
           child: currentViewRoute == route
               ? Column(
                   children: <Widget>[
@@ -132,4 +139,5 @@ class MenuLayer extends StatelessWidget {
                 ),
         ));
   }
+
 }

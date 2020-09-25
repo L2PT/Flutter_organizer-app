@@ -202,7 +202,6 @@ function storageDelFile(path){
     storage.ref().child(path).delete();
 }
 
-
 /*-------------------------------------------------------------------*/
                         /*--UTILITIES--*/
 function getColor(arg){
@@ -261,7 +260,7 @@ function WriteCookieJarJs(name,val) { setCookie(name,val,val==""?-10:1);}
 function ReadCookieJarJs(name) { return getCookie(name);}
 
 function storageOpenUrlJs(path){ storageOpenUrl(path); };
-async function storageGetFilesJs(path){ return await storageGetFiles(path); };
+function storageGetFilesJs(path){ return storageGetFiles(path); };
 function storagePutFileJs(path, file){ storagePutFile(path, file); };
 function storageDelFileJs(path){ storageDelFile(path); };
 

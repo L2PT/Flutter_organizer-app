@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 final logo = new Image.asset('assets/logo.png', height: 128.0);
 final logo_web = new Image.asset('logo.png', height: 128.0);
@@ -72,6 +73,14 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
 
   );
 }
+
+DatePickerTheme DatePickerAppTheme = DatePickerTheme(
+    headerColor: black,
+    backgroundColor: white,
+    itemStyle: label,
+    cancelStyle: subtitle,
+    doneStyle: subtitle_accent
+);
 
 const black_dark = const Color(0xFF000000);
 const black = const Color(0xFF333333);

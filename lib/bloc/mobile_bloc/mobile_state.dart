@@ -18,9 +18,14 @@ class InBackdropState extends MobileState {
 }
 
 class OutBackdropState extends MobileState {
+  final bool isLeaving;
 
-  OutBackdropState(String route, content) : super(route, content);
+  OutBackdropState(String route, content, {this.isLeaving = false}) : super(route, content);
 
+  OutBackdropState exit() => OutBackdropState(this.route, this.content, isLeaving: true);
+
+  @override
+  List<Object> get props => [route,content,isLeaving];
 }
 
 class NotReady extends MobileState {

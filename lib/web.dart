@@ -38,7 +38,6 @@ external dynamic storageOpenUrlJs(dynamic value);
 external Future<dynamic> storageGetFilesJs(dynamic value);
 external dynamic storagePutFileJs(dynamic path, dynamic file);
 external dynamic storageDelFileJs(dynamic value);
-
 /*------------------- jQuery ----------------------------*/
 //@JS("jQuery('#calendar').fullCalendar('today').format('dddd D MMMM YYYY')")
 //external String today();
