@@ -34,7 +34,10 @@ class RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: _onBackPressed,
+        onWillPop: () {
+          _onBackPressed();
+          return Future<bool>.value(false);
+        },
         child: Scaffold(
           appBar: AppBar(
             leading: new BackButton(
@@ -255,7 +258,7 @@ class RegisterState extends State<Register> {
         ));
   }
 
-  void _onBackPressed() {
+  Future<bool> _onBackPressed() {
     if (Navigator.canPop(context)) {
       Navigator.pop(context);
     } else {
