@@ -21,7 +21,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
 
   DailyCalendarCubit(this._databaseRepository, this._account, this._operator, DateTime _selectedDay)
       : assert(_databaseRepository != null),
-        super(DailyCalendarLoading(_selectedDay)){
+        super(DailyCalendarLoading(TimeUtils.truncateDate(_selectedDay??DateTime.now(), "day"))){
     //HOW to listen to stream?
     if(_account.supervisor){
       _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {

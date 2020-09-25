@@ -14,7 +14,7 @@ Future<List<String>> getLocationAddresses(String text) async {
       var response = await http.get(url,headers: {"Access-Control-Allow-Origin": "*"});
       if (response.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(response.body);
-        predictions = jsonResponse['data']['predictions'];
+        predictions = jsonResponse['predictions'];
 
         List<String> _results = [];
         for (var i = 0; i < 3; i++) {

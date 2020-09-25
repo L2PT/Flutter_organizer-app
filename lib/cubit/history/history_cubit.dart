@@ -11,7 +11,7 @@ class HistoryCubit extends Cubit<HistoryState> {
   var streamSub;
 
   HistoryCubit(this._databaseRepository, int _selectedStatus) : assert(_databaseRepository != null),
-        super(HistoryLoading(_selectedStatus)){
+        super(HistoryLoading(_selectedStatus??Status.Ended)){
     streamSub = _databaseRepository.eventsHistory().listen((historyEventsList) {
       evaluateEventsMap(historyEventsList);
     });

@@ -36,8 +36,10 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void getLocations(String text) async {
-    List<String> locations = await getLocationAddresses(text);
-    emit(state.assign(locations: locations, address: text));
+    if(text.length >5){
+      List<String> locations = await getLocationAddresses(text);
+      emit(state.assign(locations: locations, address: text));
+    }
   }
 
   setAddress(String address) {

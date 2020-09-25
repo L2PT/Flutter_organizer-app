@@ -22,7 +22,7 @@ class ReadyOperators extends OperatorListState {
   ReadyOperators(List<Account> operators, {String searchNameField, DateTime searchTimeField}) : super(searchNameField, searchTimeField) {
     operators.forEach((operator) {
       String nomeCognome = operator.name + " " + operator.surname;
-      if(nomeCognome.contains(searchNameField??"")){
+      if(nomeCognome.toLowerCase().contains(searchNameField != null?searchNameField.toLowerCase():"")){
         filteredOperators.add(operator);
       }
     });
@@ -42,6 +42,6 @@ class ReadyOperators extends OperatorListState {
         (this.searchTimeField == searchTimeField) ? this.filteredOperators : operators),
         searchNameField: searchNameField ?? this.searchNameField,
         searchTimeField: searchTimeField ?? this.searchTimeField
-    )..filtersBoxVisibile = filterBoxState;
+    )..filtersBoxVisibile = filterBoxState??filtersBoxVisibile;
   }
 }

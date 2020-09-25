@@ -21,10 +21,17 @@ class MonthlyCalendarCubit extends Cubit<MonthlyCalendarState> {
   MonthlyCalendarCubit(this._databaseRepository, this._account, this._operator, DateTime _selectedMonth)
     : assert(_databaseRepository != null),
     super(MonthlyCalendarLoading(_selectedMonth)){
-    _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
-      _events = eventsList;
-      evaluateEventsMap(TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month"), TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month").add(new Duration(days: 30)));
-    });
+    if(_account.supervisor){
+      _databaseRepository.subscribeEventsByOperator((_operator??_account).id).listen((eventsList) {
+        _events = eventsList;
+        evaluateEventsMap(TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month"), TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month").add(new Duration(days: 30)));
+      });
+    }else{
+      _databaseRepository.eventsByOperatorAcceptedOrAbove((_operator??_account).id).listen((eventsList) {
+        _events = eventsList;
+        evaluateEventsMap(TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month"), TimeUtils.truncateDate(_selectedMonth??DateTime.now(), "month").add(new Duration(days: 30)));
+      });
+      }
   }
 
   void evaluateEventsMap(DateTime first, DateTime last){

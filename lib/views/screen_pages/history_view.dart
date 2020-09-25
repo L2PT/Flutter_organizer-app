@@ -241,7 +241,7 @@ class _HistoryContent extends StatelessWidget {
         controller: _tabController,
         children: List.generate(tabsHeaders.length, (index)=>Padding(
             padding: EdgeInsets.all(15.0),
-            child:(context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?GridView(
+            child:(state as HistoryReady).selectedEvents().length>0 ?GridView(
                 shrinkWrap: true,
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                   maxCrossAxisExtent: 610.0,
@@ -249,7 +249,7 @@ class _HistoryContent extends StatelessWidget {
                   crossAxisSpacing: 5.0,
                   childAspectRatio: 2.7,
                 ),
-                children: (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().map((event)=>Container(
+                children: (state as HistoryReady).selectedEvents().map((event)=>Container(
                     child: cardEvent(
                       event: event,
                       dateView: true,

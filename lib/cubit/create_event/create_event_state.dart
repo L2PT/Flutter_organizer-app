@@ -40,6 +40,7 @@ class CreateEventState extends Equatable {
     form.documents = documents??this.documents;
     form.isAllDay = allDayFlag;
     if(!address.isNullOrEmpty()) this.event.address = address;
+    form.locations = locations??this.locations;
     return form;
   }
 }
