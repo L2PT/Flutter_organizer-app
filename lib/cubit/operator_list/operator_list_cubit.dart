@@ -45,7 +45,7 @@ class OperatorListCubit extends Cubit<OperatorListState> {
   }
 
   void showFiltersBox() {
-    emit((state as ReadyOperators).assign(filterBoxState:!state.filtersBoxVisibile));
+    emit((state as ReadyOperators).assign(filterBoxState:!state.filtersBoxVisibile, operators: operators));
   }
 
 }

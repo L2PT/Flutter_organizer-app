@@ -89,6 +89,15 @@ class _searchBar extends StatelessWidget {
 }
 
 class _filtersBox extends StatelessWidget {
+
+  DatePickerTheme DatePickerAppTheme = DatePickerTheme(
+      headerColor: black,
+      backgroundColor: white,
+      itemStyle: label,
+      cancelStyle: subtitle,
+      doneStyle: subtitle_accent
+  );
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OperatorListCubit, OperatorListState>(builder: (context, state) {
@@ -118,6 +127,7 @@ class _filtersBox extends StatelessWidget {
                               style: title_rev),
                           onTap: () => DatePicker.showDatePicker(
                             context,
+                            theme: DatePickerAppTheme,
                             showTitleActions: true,
                             theme: DatePickerAppTheme,
                             currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
@@ -134,6 +144,7 @@ class _filtersBox extends StatelessWidget {
                           onTap: () => DatePicker.showTimePicker(
                             context,
                             showTitleActions: true,
+                            theme: DatePickerAppTheme,
                             currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
                             locale: LocaleType.it,
                             onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchTimeChanged(date),

@@ -78,7 +78,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.operatorListRoute: yield InBackdropState(event.route, OperatorList()); break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
-      case Constants.historyEventListRoute:  yield InBackdropState(event.route, Profile()); break;
+      case Constants.historyEventListRoute:  yield InBackdropState(event.route, History()); break;
       default: yield InBackdropState(event.route, Profile()); break;
       break;
     }
@@ -87,8 +87,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-    add(NavigateEvent(Constants.homeRoute));
-    if (!_account.supervisor) {
+   if (!_account.supervisor) {
       _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
         if (notifications.length > 0 && !(this.state is NotificationWaitingState)) {
           notification = notifications;
@@ -96,6 +95,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
         }
         else if (notifications.length == 0 && (this.state is NotificationWaitingState)) add(NavigateEvent(Constants.homeRoute));
       });
+    }else{
+     add(NavigateEvent(Constants.homeRoute,null));
     }
   }
 }
