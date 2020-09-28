@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
