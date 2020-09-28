@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,8 +80,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: sizeIcon,
                     ),
                     SizedBox(width: padding,),
-                    Text((event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm"):DateFormat.Hm()).format(event.start) + " - " +
-                        (event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm"):DateFormat.Hm()).format(event.end), style: subtitle_rev)
+                    Text((event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm",'it_IT'):DateFormat.Hm()).format(event.start) + " - " +
+                        (event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm",'it_IT'):DateFormat.Hm()).format(event.end), style: subtitle_rev)
                   ],
                 ),
               ),
@@ -137,7 +138,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       child: Row(
                           children: <Widget>[
                             Icon(
-                              Icons.work,
+                              FontAwesomeIcons.hardHat,
                               size: sizeIcon,
                             ),
                             SizedBox(width: padding,),
