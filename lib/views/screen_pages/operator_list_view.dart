@@ -26,9 +26,9 @@ class OperatorList extends StatelessWidget {
         SizedBox(height: 8.0),
         _filtersBox(),
         Container(
-          margin: EdgeInsets.only(left: 15),
+          margin: EdgeInsets.only(left: 15, top: 10, bottom: 5),
           alignment: Alignment.centerLeft,
-          child: Text("Seleziona un'operatore per vederne il calendario", style: subtitle.copyWith(fontWeight: FontWeight.bold),),
+          child: Text("Tutti gli operatori", style: subtitle.copyWith(fontWeight: FontWeight.bold, color: black ),),
         ),
         _operatorList()
       ],
@@ -129,7 +129,6 @@ class _filtersBox extends StatelessWidget {
                             context,
                             theme: DatePickerAppTheme,
                             showTitleActions: true,
-                            theme: DatePickerAppTheme,
                             currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
                             locale: LocaleType.it,
                             onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchDateChanged(date),

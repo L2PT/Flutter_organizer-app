@@ -101,12 +101,15 @@ class _MyAppState extends State<MyApp> {
               authentication.signInWithToken(token);
               return LoadingScreen();
             }
-            if(Constants.debug) context.repository<FirebaseAuthService>().signInWithEmailAndPassword( "giovanni.mimelli@gmail.com", "letstry", );
+            //if(Constants.debug) context.repository<FirebaseAuthService>().signInWithEmailAndPassword( "giovanni.mimelli@gmail.com", "letstry", );
             jQuery("#calendar").hide();
             return LogIn();
           } else if (state is Authenticated) {
+            String token = ReadCookieJarJs(COOKIE_PATH);
+            if(token.isNullOrEmpty() && token != state.token){
+              return LogIn();
+            }
             var databaseRepository = context.bloc<AuthenticationBloc>().getRepository();
-            if (!Constants.debug) WriteCookieJarJs(COOKIE_PATH, state.token);
             return RepositoryProvider.value(
               value: databaseRepository,
               child: BlocProvider(
@@ -322,7 +325,7 @@ class _buildWebPage extends StatelessWidget {
                               alignment: Alignment.bottomRight,
                               child: Row(children: <Widget>[
                                 IconButton(
-                                  icon: FaIcon(FontAwesomeIcons.user, color: white),
+                                  icon: FaIcon(FontAwesomeIcons.userAlt, color: white),
                                   onPressed: (){},
                                 ),
                                 Text(account.surname?.toUpperCase(), textAlign: TextAlign.right,style: title_rev),
@@ -343,7 +346,7 @@ class _buildWebPage extends StatelessWidget {
                                 ),
                                 SizedBox(width: 20),
                                 IconButton(
-                                  icon: Icon(Icons.exit_to_app,),
+                                  icon: Icon(FontAwesomeIcons.doorOpen,),
                                   onPressed: (){
                                     WriteCookieJarJs(COOKIE_PATH, "");
                                     BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut());

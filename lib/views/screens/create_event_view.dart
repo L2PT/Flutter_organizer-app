@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -206,7 +207,7 @@ class _formInputList extends StatelessWidget{
               Container(
                 width: iconWidth,
                 margin: EdgeInsets.only(right: 20.0),
-                child: Icon(Icons.work, color: black, size: iconWidth),
+                child: Icon(FontAwesomeIcons.hardHat, color: black, size: iconWidth),
               ),
               Expanded(
                 child: Padding(
@@ -451,7 +452,7 @@ class _operatorsList extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(right: 10.0),
               padding: EdgeInsets.all(3.0),
-              child: Icon(Icons.work, color: yellow),
+              child: Icon(FontAwesomeIcons.hardHat, color: yellow),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: black,

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -47,7 +48,7 @@ class RegisterState extends State<Register> {
               Container(
                 padding: EdgeInsets.all(6.0),
                 child: Icon(
-                  Icons.work,
+                  FontAwesomeIcons.hardHat,
                   color: yellow,
                   size: 70,
                 ),
@@ -259,7 +260,7 @@ class RegisterState extends State<Register> {
       displayName: _cognomeController.text + " " + _nomeController.text,
     ).then((userFirebase) {
       if (userFirebase != null) {
-        Account newlyCreated = Account(userFirebase.user.uid, _nomeController.text, _cognomeController.text, _emailController.text,
+        Account newlyCreated = Account(userFirebase.user.uid, _nomeController.text, _cognomeController.text, _emailController.text.toLowerCase(),
             _telefonoController.text, _codFiscaleController.text, [], "", _radioValue == Role.Reponsabile);
         context.repository<CloudFirestoreService>().addOperator(newlyCreated);
         context.repository<FirebaseAuthService>().sendPasswordReset(_emailController.text);

@@ -20,6 +20,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   StreamSubscription<AuthUser> _userSubscription;
   Account account = null;
   bool isSupervisor = false;
+  String token = "";
 
   AuthenticationBloc({
     @required FirebaseAuthService authenticationRepository,
@@ -66,7 +67,8 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     account = await _repository.getAccount(user.email);
     _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
     isSupervisor = account.supervisor;
-    if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
+    token = account.token;
+    if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor, token);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {

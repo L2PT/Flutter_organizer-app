@@ -437,6 +437,7 @@ tr.fc-collapsed>td>div {
 
 .fc-content .fc-resource-prefix svg {
     color: #fda90a;
+    margin: 1.5px;
 }
 
 span.fc-resource-postfix {

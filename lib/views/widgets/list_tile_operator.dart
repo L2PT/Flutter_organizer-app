@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/switch_widget.dart';
@@ -24,7 +25,7 @@ class ListTileOperator extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(right: 10.0),
               padding: EdgeInsets.all(3.0),
-              child: Icon(Icons.work, color: yellow,),
+              child: Icon(FontAwesomeIcons.hardHat, color: yellow,),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: black,
