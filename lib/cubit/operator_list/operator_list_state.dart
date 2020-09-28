@@ -42,6 +42,6 @@ class ReadyOperators extends OperatorListState {
         (this.searchTimeField == searchTimeField) ? this.filteredOperators : operators),
         searchNameField: searchNameField ?? this.searchNameField,
         searchTimeField: searchTimeField ?? this.searchTimeField
-    )..filtersBoxVisibile = filterBoxState??filtersBoxVisibile;
+    )..filtersBoxVisibile = filterBoxState ?? this.filtersBoxVisibile;
   }
 }

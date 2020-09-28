@@ -76,8 +76,15 @@ abstract class PlatformUtils {
     context.bloc<MobileBloc>().add(NavigateEvent(route, arg));
   }
 
+  static void backNavigator(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else context.bloc<MobileBloc>().add(NavigateBackEvent());
+  }
+
   static String getRoute(BuildContext context) =>
     context.bloc<MobileBloc>().state.route;
+  
 
   static dynamic notifyErrorMessage(msg) {
     return Fluttertoast.showToast(

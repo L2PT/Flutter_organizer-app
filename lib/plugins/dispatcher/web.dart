@@ -1,23 +1,21 @@
 @JS()
 library jquery;
 //custom import
+import 'dart:async';
 import 'dart:convert';
+import 'dart:html';
 import 'dart:typed_data';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:js/js.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
-import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
-import 'package:venturiautospurghi/models/event.dart' as E;
-import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/web.dart';
-import 'dart:async';
-import 'package:universal_html/html.dart';
-import 'package:universal_html/prefer_universal/html.dart';
+import 'package:js/js_util.dart';
 import 'package:js_shims/js_shims.dart';
+import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
+
+import '../../web.dart';
+
 
 class PlatformUtils {
   PlatformUtils._();
@@ -41,7 +39,7 @@ class PlatformUtils {
     int n = bstr.length;
     var u8arr = new Uint8List(n);
 
-    for(var i=n; i<=0; i--){
+    for(var i=n; i>=0; i--){
       u8arr[i] = charCodeAt(bstr.toString(),i);
     }
     return new File([u8arr], filename);
@@ -78,7 +76,7 @@ class PlatformUtils {
       reader.readAsDataUrl(files[0]);
       reader.onError.listen((error) => completer.completeError(error));
       await reader.onLoad.first;
-      completer.complete(files[0].name+ "^^.^^" +(reader.result as String));
+      completer.complete(files[0].name+ "^^.^^" +(reader.result as String).replaceAll("", ""));
     });
     input.click();
     String a = await completer.future;
@@ -96,7 +94,8 @@ class PlatformUtils {
         final reader = new FileReader();
         reader.readAsDataUrl(file);
         reader.onError.listen((error) => completer.completeError(error));
-        return file.name + "^^.^^" +(await reader.onLoad.first.then((_) => reader.result as String));
+        String fileStreamBase = (await reader.onLoad.first.then((_) => reader.result as String));
+        return file.name + "^^.^^" +fileStreamBase;
       });
       final results = await Future.wait(resultsFutures);
       completer.complete(results);
@@ -110,6 +109,12 @@ class PlatformUtils {
     context.bloc<WebBloc>().add(NavigateEvent(route, arg, context));
   }
 
+  static void backNavigator(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else PlatformUtils.navigator(context, Constants.homeRoute);
+  }
+
   static String getRoute(BuildContext context) =>
       context.bloc<WebBloc>().state.route;
 
@@ -120,5 +125,4 @@ class PlatformUtils {
   static dynamic notifyInfoMessage(msg) {
     showAlertJs(msg);
   }
-
 }

@@ -39,19 +39,19 @@ class _MyAppState extends State<MyApp> {
                         MobileBloc(
                             account: context.bloc<AuthenticationBloc>().account,
                             databaseRepository: databaseRepository)..add(InitAppEvent()),
-                        child: BlocBuilder<MobileBloc, MobileState>(
-                          builder: (context, state) {
-                          if (state is InBackdropState) {
-                            return Backdrop();
-                          } else if (state is OutBackdropState) {
-                            return state.content;
-                          } else if (state is NotificationWaitingState) {
-                            return state.content;
-                            //TODO do you like the idea to put a stack and a second builder
-                          }
-                          return SplashScreen();
-                        },
-                        )
+                        child: Stack(children: [
+                          BlocBuilder<MobileBloc, MobileState>(
+                            buildWhen: (previous, current) => current is InBackdropState,
+                            builder: (context, state) => state is InBackdropState ?
+                              Backdrop() : SplashScreen()
+                          ),
+                          BlocBuilder<MobileBloc, MobileState>(
+                            buildWhen: (previous, current) => current is OutBackdropState ,
+                            builder: (context, state) =>
+                            (state is OutBackdropState && !state.isLeaving) ?
+                              state.content : Container()
+                          )
+                        ],)
                     )
                 );
           }

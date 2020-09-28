@@ -79,7 +79,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: sizeIcon,
                     ),
                     SizedBox(width: padding,),
-                    Text(DateFormat.Hm().format(event.start) + " - " + DateFormat.Hm().format(event.end), style: subtitle_rev)
+                    Text((event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm"):DateFormat.Hm()).format(event.start) + " - " +
+                        (event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm"):DateFormat.Hm()).format(event.end), style: subtitle_rev)
                   ],
                 ),
               ),

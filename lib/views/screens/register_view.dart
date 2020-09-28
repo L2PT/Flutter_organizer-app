@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -32,14 +33,11 @@ class RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () {
-          _onBackPressed();
-          return Future<bool>.value(false);
-        },
+        onWillPop: (){ PlatformUtils.backNavigator(context); },
         child: Scaffold(
           appBar: AppBar(
             leading: new BackButton(
-              onPressed: _onBackPressed,
+              onPressed: (){ PlatformUtils.backNavigator(context); },
             ),
             title: new Text('CREAZIONE UTENTE', style: title_rev),
           ),
@@ -225,7 +223,7 @@ class RegisterState extends State<Register> {
                           children: <Widget>[
                             FlatButton(
                               child: new Text('Annulla', style: label),
-                              onPressed: _onBackPressed,
+                              onPressed:  (){ PlatformUtils.backNavigator(context); },
                             ),
                             SizedBox(width: 20),
                             RaisedButton(
@@ -246,14 +244,6 @@ class RegisterState extends State<Register> {
             ]),
           )),
         ));
-  }
-
-  Future<bool> _onBackPressed() {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    } else {
-      context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null));
-    }
   }
 
   void _handleRadioValueChanged(int value) {

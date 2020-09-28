@@ -83,7 +83,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
                 PlatformUtils.storageDelFile(state.event.id + "/" + name);
                 cloudFiles.remove(name);
               }
-              PlatformUtils.storagePutFile(state.event.id + "/" + name, PlatformUtils.file(path));
+              PlatformUtils.storagePutFile(state.event.id + "/" + name, PlatformUtils.file(name+":"+path));
             } else if(cloudFiles.contains(name)) cloudFiles.remove(name);
         });
         cloudFiles.forEach((file) => PlatformUtils.storageDelFile(state.event.id + "/" + file));

@@ -11,7 +11,7 @@ Future<List<String>> getLocationAddresses(String text) async {
     String key = Constants.googleMapsApiKey;
     String url = '$baseURL?input=$text&key=$key&type=$type&language=$language';
     try {
-      var response = await http.get(url,headers: {"Access-Control-Allow-Origin": "*"});
+      var response = await http.get(url);
       if (response.statusCode == 200) {
         var jsonResponse = convert.jsonDecode(response.body);
         predictions = jsonResponse['predictions'];

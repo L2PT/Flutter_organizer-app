@@ -5,7 +5,7 @@ abstract class HistoryState extends Equatable {
   final Map<int, List<Event>> eventsMap;
 
   HistoryState([int selectedStatus,   Map<int, List> eventsMap]):
-      this.selectedStatus = selectedStatus ?? -1,
+      this.selectedStatus = selectedStatus ?? Status.Ended,
       this.eventsMap = eventsMap ?? {};
 
   @override

@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
@@ -29,24 +25,16 @@ class CreateEvent extends StatelessWidget {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
     var account = BlocProvider.of<AuthenticationBloc>(context).account;
 
-    void _onBackPressed() {
-      if (Navigator.canPop(context)) {
-        Navigator.pop(context);
-      } else {
-        PlatformUtils.navigator(context, Constants.homeRoute);
-      }
-    }
-
     return new BlocProvider(
         create: (_) => CreateEventCubit(repository, account, _event),
         child: WillPopScope(
-            onWillPop:  () {_onBackPressed(); },
+            onWillPop: (){ PlatformUtils.backNavigator(context); },
             child: new Scaffold(
                 extendBody: true,
                 resizeToAvoidBottomInset: false,
                 appBar: new AppBar(
                   leading: new BackButton(
-                    onPressed: _onBackPressed,
+                    onPressed: () => PlatformUtils.backNavigator(context)
                   ),
                   title: new Text(
                     _event == null ? 'NUOVO EVENTO' : 'MODIFICA EVENTO',
@@ -321,15 +309,6 @@ class _fileStorageList extends StatelessWidget {
 }
 
 class _timeControls extends StatelessWidget {
-
-
-  DatePickerTheme DatePickerAppTheme = DatePickerTheme(
-    headerColor: black,
-    backgroundColor: white,
-    itemStyle: label,
-    cancelStyle: subtitle,
-    doneStyle: subtitle_accent
-  );
 
   @override
   Widget build(BuildContext context) {

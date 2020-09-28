@@ -157,7 +157,9 @@ class _contentTableCalendar extends StatelessWidget {
                 },
               ),
               onDaySelected: (date, events) {
-                account.supervisor?PlatformUtils.navigator(context, Constants.dailyCalendarRoute, {'day' : date, 'operator' : _operator}):PlatformUtils.navigator(context, Constants.homeRoute, {'day' : date, 'operator' : account});
+                account.supervisor ?
+                PlatformUtils.navigator(context, Constants.dailyCalendarRoute, {'day' : date, 'operator' : _operator}) :
+                PlatformUtils.navigator(context, Constants.homeRoute, {'day' : date, 'operator' : account});
                 _animationController.forward(from: 0.0);
                 _animationController.dispose();
               },

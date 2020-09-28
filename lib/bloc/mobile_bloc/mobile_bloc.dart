@@ -50,6 +50,10 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   Stream<MobileState> mapEventToState(MobileEvent event) async* {
     if (event is NavigateEvent) {
       yield* _mapUpdateViewToState(event);
+    }else if (event is NavigateBackEvent) {
+      if(state is OutBackdropState){
+        yield (state as OutBackdropState).exit();
+      }
     }else if(event is InitAppEvent) {
       yield* _mapInitAppToState(event);
     }
@@ -64,8 +68,6 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
     }
 
     switch(event.route) {
-      /*TODO i guess ouofbloc must not match a change of state but a push like so (test as is with fab daily +)
-          Navigator.pushNamed(context, Constants.createEventViewRoute, arguments: ev);*/
       case Constants.detailsEventViewRoute: yield OutBackdropState(event.route, DetailsEvent(event.arg)); break;
       case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.arg)); break;
       case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
@@ -86,7 +88,6 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-
    if (!_account.supervisor) {
       _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
         if (notifications.length > 0) {
