@@ -49,6 +49,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   bool isNew() => this._type == _eventType.create;
 
   Future<bool> saveEvent() async {
+    if(state.event.end.isBefore(state.event.start))
+      PlatformUtils.notifyErrorMessage("Seleziona un orario di fine incarico valido");
     if (state.event.operator == null)
       PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
     else if (state.category  == null)
@@ -170,7 +172,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
   setEndTime(DateTime time) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    event.end = time.add(Duration(hours: event.end.hour, minutes: event.end.minute));
+    event.end = time;
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }

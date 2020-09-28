@@ -116,6 +116,13 @@ class CloudFirestoreService {
     });
   }
 
+  Stream<List<Event>> subscribeEventsByOperatorActive(String idOperator) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.New).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Ended).snapshots().map((snapshot) {
+      var documents = snapshot.docs;
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+    });
+  }
+
   Stream<List<Event>> subscribeEventsByOperatorAcceptedOrBelow(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
       var documents = snapshot.docs;

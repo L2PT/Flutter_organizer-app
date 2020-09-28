@@ -10,6 +10,7 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
@@ -73,7 +74,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg != null?event.arg['month']:null,event.arg != null?event.arg['operator']:null) ); break;
       case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
-      case Constants.operatorListRoute: yield InBackdropState(event.route, OperatorList()); break;
+      case Constants.operatorListRoute: yield OutBackdropState(event.route, OperatorSelection((event.arg is List)?event.arg[0]:event.arg, (event.arg is List)?event.arg[1]:false)); break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
       case Constants.historyEventListRoute:  yield InBackdropState(event.route, History()); break;
@@ -88,11 +89,11 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
 
    if (!_account.supervisor) {
       _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
-        if (notifications.length > 0 && !(this.state is NotificationWaitingState)) {
+        if (notifications.length > 0) {
           notification = notifications;
           add(NavigateEvent(Constants.waitingNotificationRoute));
         }
-        else if (notifications.length == 0 && (this.state is NotificationWaitingState)) add(NavigateEvent(Constants.homeRoute));
+        else if (notifications.length == 0) add(NavigateEvent(Constants.homeRoute,null));
       });
     }else{
      add(NavigateEvent(Constants.homeRoute,null));

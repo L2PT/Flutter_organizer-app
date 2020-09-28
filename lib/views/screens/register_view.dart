@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -27,9 +28,6 @@ class RegisterState extends State<Register> {
   final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _codFiscaleController = TextEditingController();
   int _radioValue = 0;
-  bool _success;
-  String _successMessage = "";
-  String _errorMessage = "";
 
   @override
   Widget build(BuildContext context) {
@@ -164,9 +162,7 @@ class RegisterState extends State<Register> {
                         ),
                       ),
                       validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Il campo \'Codice Fiscale\' è obbligatorio';
-                        } else if (value.length != 16) {
+                        if (!value.isEmpty && value.length != 16) {
                           return 'Inserisci un valore valido';
                         }
                         return null;
@@ -244,12 +240,6 @@ class RegisterState extends State<Register> {
                             ),
                           ],
                         )),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(_success == null ? '' : (_success ? _successMessage : _errorMessage),
-                        style: _success != null && _success ? label : error,
-                      ),
-                    )
                   ],
                 ),
               ),
@@ -273,35 +263,30 @@ class RegisterState extends State<Register> {
   }
 
   void _register() async {
+    FocusScope.of(context).unfocus();
     RepositoryProvider.of<FirebaseAuthService>(context).createAccount(
       _emailController.text,
       Constants.passwordNewUsers,
       displayName: _cognomeController.text + " " + _nomeController.text,
-    ).then((user) {
-      if (user != null) {
-        Account newlyCreated = Account(user.uid, _nomeController.text, _cognomeController.text, _emailController.text,
+    ).then((userFirebase) {
+      if (userFirebase != null) {
+        Account newlyCreated = Account(userFirebase.user.uid, _nomeController.text, _cognomeController.text, _emailController.text,
             _telefonoController.text, _codFiscaleController.text, [], "", _radioValue == Role.Reponsabile);
         context.repository<CloudFirestoreService>().addOperator(newlyCreated);
         context.repository<FirebaseAuthService>().sendPasswordReset(_emailController.text);
         setState(() {
-          _success = true;
-          _successMessage = "Utente " + user.email + " registrato con successo.";
-          _errorMessage = "";
-          Timer(Duration(seconds: 3),
+          PlatformUtils.notifyInfoMessage( "Utente " + userFirebase.user.email + " registrato con successo.");
+          Timer(Duration(seconds: 2),
               () => context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null)));
         });
       } else {
         setState(() {
-          _success = false;
-          _errorMessage = "Creazione account fallita";
-          _successMessage = "";
+          PlatformUtils.notifyErrorMessage("Creazione account fallita");
         });
       }
     }).catchError((e) {
       setState(() {
-        _success = false;
-        _errorMessage = e.toString().split(",")[1];
-        _successMessage = "";
+        PlatformUtils.notifyErrorMessage(e.code == 'email-already-in-use'?"Account esistente con la stessa mail.":e.toString());
       });
     });
   }

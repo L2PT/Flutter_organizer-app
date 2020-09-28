@@ -26,6 +26,8 @@ class HistoryReady extends HistoryState{
 
   List<Event> selectedEvents() => eventsMap[selectedStatus] ?? [];
 
+  List<Event> events(int status) => eventsMap[status]??[];
+
   HistoryReady(int selectedStatus, Map<int, List<Event>> eventsMap) : super(selectedStatus,eventsMap) {
     eventsMap[selectedStatus]?.sort((a, b) => a.start.compareTo(b.start));
   }

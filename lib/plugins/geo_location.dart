@@ -26,6 +26,6 @@ Future<List<String>> getLocationAddresses(String text) async {
     } catch (e) {
       print(e);
     }
-    return ["ciao","come","stai"];
+    //return ["ciao","come","stai"];
   }
 }

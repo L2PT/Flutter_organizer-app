@@ -1,17 +1,18 @@
-import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../models/auth/authuser.dart';
 
 class FirebaseAuthService {
-  final fb.FirebaseAuth _firebaseAuth;
+  final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
 
-  FirebaseAuthService({fb.FirebaseAuth firebaseAuth, GoogleSignIn googleSignin})
-      : _firebaseAuth = firebaseAuth ?? fb.FirebaseAuth.instance,
+  FirebaseAuthService({FirebaseAuth firebaseAuth, GoogleSignIn googleSignin})
+      : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         _googleSignIn = googleSignin ?? GoogleSignIn();
 
-  AuthUser _userFromFirebase(fb.User user) {
+  AuthUser _userFromFirebase(User user) {
     if (user == null) {
       return null;
     }
@@ -35,7 +36,7 @@ class FirebaseAuthService {
   Future<AuthUser> signInWithGoogle() async {
     final googleUser = await _googleSignIn.signIn();
     final googleAuth = await googleUser.authentication;
-    final credential = fb.GoogleAuthProvider.getCredential(
+    final credential = GoogleAuthProvider.getCredential(
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
@@ -60,8 +61,9 @@ class FirebaseAuthService {
     _firebaseAuth.sendPasswordResetEmail(email: email);
   }
 
-  Future<AuthUser> createAccount(String text, String passwordNewUsers, {String displayName}) {
-    //TODO
+  Future<UserCredential> createAccount(String email, String passwordNewUsers, {String displayName}) async {
+    FirebaseApp app = Firebase.apps.firstWhere((element) => element.name == 'Registration', orElse: () => null)??await Firebase.initializeApp(name: 'Registration',options: Firebase.app().options);
+    return FirebaseAuth.instanceFor(app: app).createUserWithEmailAndPassword(email: email, password: passwordNewUsers);
   }
 
   void signInWithToken( token) {

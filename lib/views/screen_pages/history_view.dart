@@ -186,6 +186,8 @@ class _smallScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _tabController.addListener(() { context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value);});
+
     return Material(
       elevation: 12.0,
       borderRadius: new BorderRadius.only(
@@ -204,7 +206,7 @@ class _smallScreen extends StatelessWidget {
                   borderRadius: BorderRadius.all(
                       Radius.circular(30.0))),
               child: new TabBar(
-                onTap: (index) => context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value),
+                //onTap: (index) => context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value),
                 isScrollable: true,
                 unselectedLabelColor: black,
                 labelStyle: title.copyWith(fontSize: 16),
@@ -216,7 +218,8 @@ class _smallScreen extends StatelessWidget {
               ),
             ), PlatformUtils.platform == Constants.web ?
             Container(height: MediaQuery.of(context).size.height - 150, child: _HistoryContent(_tabController,tabsHeaders),) :
-            Expanded(child: _HistoryContent(_tabController,tabsHeaders),)
+            Expanded(
+              child: _HistoryContent(_tabController,tabsHeaders),)
           ],
         ),
       ),
@@ -239,36 +242,36 @@ class _HistoryContent extends StatelessWidget {
       return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) :
       TabBarView(
         controller: _tabController,
-        children: List.generate(tabsHeaders.length, (index)=>Padding(
+        children:
+         tabsHeaders.map((e) =>  Padding(
             padding: EdgeInsets.all(15.0),
-            child:(state as HistoryReady).selectedEvents().length>0 ?GridView(
-                shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 610.0,
-                  mainAxisSpacing: 5.0,
-                  crossAxisSpacing: 5.0,
-                  childAspectRatio: 2.7,
-                ),
-                children: (state as HistoryReady).selectedEvents().map((event)=>Container(
-                    child: cardEvent(
-                      event: event,
-                      dateView: true,
-                      hourHeight: 120,
-                      gridHourSpan: 0,
-                      buttonArea: null,
-                      onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
-                    ))).toList()
-            ):Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico da mostrare",style: title,)),
-                ],
+          child:(state as HistoryReady).events(e.value).length>0 ?GridView(
+              shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 610.0,
+                mainAxisSpacing: 5.0,
+                crossAxisSpacing: 5.0,
+                childAspectRatio: 2.7,
               ),
-            )
-        ),
-        ),
+              children: (state as HistoryReady).events(e.value).map((event)=>Container(
+                  child: cardEvent(
+                    event: event,
+                    dateView: true,
+                    hourHeight: 120,
+                    gridHourSpan: 0,
+                    buttonArea: null,
+                    onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
+                  ))).toList()
+          ):Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico da mostrare",style: title,)),
+              ],
+            ),
+          )
+      ),).toList()
       );
     });
   }
