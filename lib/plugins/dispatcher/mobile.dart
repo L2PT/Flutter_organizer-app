@@ -33,7 +33,6 @@ abstract class PlatformUtils {
     verticalThreshold: 25.0,
     swipeDetectionBehavior: SwipeDetectionBehavior.continuousDistinct,
   );
-  static dynamic file(path) => File(path);
 
   static const dynamic Dir = SwipeDirection.up;
 
@@ -44,8 +43,8 @@ abstract class PlatformUtils {
   static Future<List<String>> storageGetFiles(path) async {
     return List<String>();//LONGTERMTODO maybe it will be implemented listAll is not available...
   }
-  static void storagePutFile(path, file){
-    FirebaseStorage().ref().child(path).putFile(file);
+  static void storagePutFile(path, PlatformFile file){
+    FirebaseStorage().ref().child(path).putFile(new File(file.path));
   }
   static void storageDelFile(path){
     FirebaseStorage().ref().child(path).delete();
@@ -62,15 +61,6 @@ abstract class PlatformUtils {
     );
   }
   static void initDownloader() => FlutterDownloader.initialize();
-
-  static Future<Map<String,String>> filePicker() async {
-    var a = await FilePicker.getFilePath();
-    return Map.from({a:a});
-  }
-  static Future<Map<String,String>> multiFilePicker() async {
-    var a = await FilePicker.getMultiFilePath();
-    return a;
-  }
 
   static dynamic navigator(BuildContext context, route, [arg]) async {
     context.bloc<MobileBloc>().add(NavigateEvent(route, arg));

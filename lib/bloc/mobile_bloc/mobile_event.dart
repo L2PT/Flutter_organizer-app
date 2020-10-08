@@ -20,6 +20,11 @@ class NavigateBackEvent extends MobileEvent {
   List<Object> get props => [];
 }
 
+class RestoreEvent extends MobileEvent {
+  @override
+  List<Object> get props => [];
+}
+
 class InitAppEvent extends MobileEvent {
   @override
   List<Object> get props => [];

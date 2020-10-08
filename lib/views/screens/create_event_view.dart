@@ -289,7 +289,7 @@ class _fileStorageList extends StatelessWidget {
       itemBuilder: (context, index) =>
           ListTile(
             title: new Text(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
-            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index).isNullOrEmpty()?"":"Nuovo"),
+            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index) == null?"":"Nuovo"),
             trailing: IconButton(
               icon: Icon(Icons.close, color: black,),
               onPressed: () => context.bloc<CreateEventCubit>().removeDocument(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),

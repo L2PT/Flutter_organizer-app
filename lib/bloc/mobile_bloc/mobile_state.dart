@@ -4,6 +4,7 @@ part of 'mobile_bloc.dart';
 abstract class MobileState extends Equatable {
   final String route;
   final dynamic content;
+  MobileState savedState;
 
   MobileState(this.route, this.content);
 
@@ -12,8 +13,14 @@ abstract class MobileState extends Equatable {
 }
 
 class InBackdropState extends MobileState {
+  final bool isRestoring;
 
-  InBackdropState(String route, content) : super(route, content);
+  InBackdropState(String route, content, {this.isRestoring = false}) : super(route, content);
+
+  InBackdropState restore() => InBackdropState(this.route, this.content, isRestoring: true);
+
+  @override
+  List<Object> get props => [route, content, isRestoring, this.runtimeType];
 
 }
 
@@ -25,7 +32,7 @@ class OutBackdropState extends MobileState {
   OutBackdropState exit() => OutBackdropState(this.route, this.content, isLeaving: true);
 
   @override
-  List<Object> get props => [route,content,isLeaving];
+  List<Object> get props => [route, content, isLeaving, this.runtimeType];
 }
 
 class NotReady extends MobileState {
@@ -34,10 +41,11 @@ class NotReady extends MobileState {
 
 class NotificationWaitingState extends MobileState {
 
-  NotificationWaitingState(String route, content) : super(route, content);
+  NotificationWaitingState(route, content) : super(route, content);
 
+  @override
+  List<Object> get props => [route, content, this.runtimeType];
 }
-
 
 
 

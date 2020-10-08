@@ -10,12 +10,12 @@ class CreateEventState extends Equatable {
       event.start = TimeUtils.addWorkTime(TimeUtils.getNextWorkTimeSpan(), hour: 1);
       event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
     }
-    documents = Map<String,String>.fromIterable(event.documents, key: (v) => v, value: (v) => "");
+    documents = Map<String,PlatformFile>.fromIterable(event.documents, key: (v) => v, value: null);
   }
 
   Event event;
   List<String> locations;
-  Map<String,String> documents;
+  Map<String,PlatformFile> documents;
   int category = -1;
   bool isAllDay = false;
   _formStatus status;
@@ -29,7 +29,7 @@ class CreateEventState extends Equatable {
     Event event,
     List<String> locations,
     String address,
-    Map<String,String> documents,
+    Map<String,PlatformFile> documents,
     int category,
     bool allDayFlag = false,
     _formStatus status,

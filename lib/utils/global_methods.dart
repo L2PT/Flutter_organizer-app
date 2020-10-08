@@ -16,7 +16,6 @@ class TimeUtils {
     return DateTime.parse(truncatedDate);
   }
 
-  //TODO to check
   static DateTime getNextWorkTimeSpan([DateTime date]) {
     date = date ?? DateTime.now();
 
@@ -30,7 +29,6 @@ class TimeUtils {
     return nextWorkTime;
   }
 
-  //TODO to check
   static DateTime addWorkTime(DateTime time, {int hour, int minutes}) {
     DateTime nextTimeWork;
     if(hour != null){

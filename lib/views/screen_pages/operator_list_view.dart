@@ -9,7 +9,6 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
-import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
 class OperatorList extends StatelessWidget {
 

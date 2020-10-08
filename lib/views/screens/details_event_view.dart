@@ -315,8 +315,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
             title: Text('INTERVENTO'),
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: white),
-              onPressed: () => Navigator.pop(context, false),
-            )),
+              onPressed: () => PlatformUtils.backNavigator(context),
+        )),
         floatingActionButton: Fab(),
         body: Material(
             elevation: 12.0,
@@ -493,7 +493,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         ],
                       ),
                     ):
-                    Container(height: 30,)
+                    Container(height: 30,) //TODO TURRO BUTTONS
                     /*child: Row(
                   children: <Widget>[
                     SizedBox(

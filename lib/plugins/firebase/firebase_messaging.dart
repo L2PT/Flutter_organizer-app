@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -13,21 +14,24 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:http/http.dart' as http;
 
 class FirebaseMessagingService {
-  final CloudFirestoreService _databaseRepository;
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
-  Account account;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  CloudFirestoreService _databaseRepository;
+  Account _account;
   BuildContext context;
+  bool isInitialized = false;
 
-  FirebaseMessagingService(this._databaseRepository);
+  FirebaseMessagingService();
 
-  void init(Account account, BuildContext context) async {
-    this.account = account;
+  void init(BuildContext context) async {
     this.context = context;
+    this._account = context.bloc<AuthenticationBloc>().account;
+    this._databaseRepository = context.repository<CloudFirestoreService>();
+    isInitialized = true;
     if (Platform.isIOS) requestiOSPermission();
     //check if token is up to date
     String token = await _firebaseMessaging.getToken();
-    if (token != account.token) {
-      _databaseRepository.updateAccountField(account.id, "Token", token);
+    if (token != _account.token) {
+      _databaseRepository.updateAccountField(_account.id, "Token", token);
       if (Constants.debug) print("New token: " + token);
     }
 
@@ -45,36 +49,26 @@ class FirebaseMessagingService {
     if (_isFeedbackNotification(message)) {
       PlatformUtils.notifyInfoMessage(message["notification"]["title"]);
     } else {
-      _updateEventAndSendFeedback(message, Status.Delivered);
+      Event event = await _updateEventAndSendFeedback(message, Status.Delivered);
+      if(event != null) PlatformUtils.navigator(context, Constants.waitingNotificationRoute, [event]);
     }
   }
 
   Future<dynamic> onResumeHandler(Map<String, dynamic> message) async {
     if (Constants.debug) print('on resume: $message');
-    _openTheEvent(message);
+    _launchTheEvent(message);
   }
 
   Future<dynamic> onLaunchHandler(Map<String, dynamic> message) async {
     if (Constants.debug) print('on launch: $message');
-    _openTheEvent(message);
+    _launchTheEvent(message);
   }
 
   static Future<dynamic> onBackgroundMessageHandler(Map<String, dynamic> message) async {
     if (Constants.debug) print('on background message: $message');
-    if (message.containsKey('data')) {
-      // Handle data message
-      final dynamic data = message['data'];
-      if(message['data']['id'].isNullOrEmpty()){
-        CloudFirestoreService databaseRepository = await CloudFirestoreService.create();
-        databaseRepository.updateEventField(message['data']['id'], "Stato", Status.Delivered);
-        Event event = await databaseRepository.getEvent(message['data']['id']);
-        Account supervisor = event.operator
-          ..id = event.supervisor.id; //get here to prevent old token
-        sendNotification(
-            token: supervisor.token,
-            title: "L'avviso è stato cosegnato a ${(event.operator as Account)
-                .surname} ${(event.operator as Account).name}");
-      }
+    if (message.containsKey('data') && message['data']['id'] == null) {
+      print("can't update to delivered sorry");
+        // _updateEventAndSendFeedback(message, Status.Delivered);
     }
   }
 
@@ -88,30 +82,29 @@ class FirebaseMessagingService {
   }
 
   bool _isFeedbackNotification(Map<String, dynamic> message) {
-    return message['data']['id'].isNullOrEmpty();
+    return message['notification']['body'] == null || message['notification']['body'] == "";
   }
 
-  Future<Event> _updateEventAndSendFeedback(Map<String, dynamic> message,
-      int newStatus) async {
-    _databaseRepository.updateEventField(message['data']['id'], "Stato", newStatus);
-    Event event = await _databaseRepository.getEvent(message['data']['id']);
-    Account supervisor = event.operator
-      ..id = event.supervisor.id; //get here to prevent old token
-    sendNotification(
-        token: supervisor.token,
-        title: "L'avviso è stato cosegnato a ${(event.operator as Account)
-            .surname} ${(event.operator as Account).name}");
-    return event;
+  Future<Event> _updateEventAndSendFeedback(Map<String, dynamic> message, int newStatus) async {
+      _databaseRepository.updateEventField(message['notification']['body'], "Stato", newStatus);
+      Event event = await _databaseRepository.getEvent(message['notification']['body']);
+      if(event != null) {
+        Account supervisor = event.operator
+          ..id = event.supervisor.id; //get here to prevent old token
+        sendNotification(
+            token: supervisor.token,
+            title: "L'avviso è stato cosegnato a ${(event.operator as Account)
+                .surname} ${(event.operator as Account).name}");
+      }
+      return event;
   }
 
-  //TODO to test the expected behaviour is the app opens in notification status and automatically to the event
-  void _openTheEvent(Map<String, dynamic> message) async {
-    if (_isFeedbackNotification(message) && account.supervisor) {
-      context.bloc<MobileBloc>().add(
-          NavigateEvent(Constants.waitingEventListRoute, null));
-    } else {
-      Event event = await _databaseRepository.getEvent(message['data']['id']);
-      PlatformUtils.navigator(context, event);
+  void _launchTheEvent(Map<String, dynamic> message) async {
+    if (_isFeedbackNotification(message) && _account.supervisor) {
+      PlatformUtils.navigator(context, Constants.waitingEventListRoute);
+    } else if(!_isFeedbackNotification(message)){
+      Event event = await _databaseRepository.getEvent(message['notification']['body']);
+      if(event != null) PlatformUtils.navigator(context, Constants.waitingNotificationRoute, [event]);
     }
   }
 

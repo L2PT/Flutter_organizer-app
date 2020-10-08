@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
@@ -77,16 +78,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         if(Constants.debug) print("Firebase save complete");
         if(Constants.debug) print("FireStorage upload");
         List<String> cloudFiles = (await PlatformUtils.storageGetFiles(state.event.id + "/" )) ?? List<String>();
-        state.documents.forEach((name, path) {
-            if (!path.isNullOrEmpty()) {
+        state.documents.forEach((name, file) {
+            if (file != null) {
               if(cloudFiles.contains(name)) {
                 PlatformUtils.storageDelFile(state.event.id + "/" + name);
                 cloudFiles.remove(name);
               }
-              PlatformUtils.storagePutFile(state.event.id + "/" + name, PlatformUtils.file(name+":"+path));
+              PlatformUtils.storagePutFile(state.event.id + "/" + name, file);
             } else if(cloudFiles.contains(name)) cloudFiles.remove(name);
         });
-        cloudFiles.forEach((file) => PlatformUtils.storageDelFile(state.event.id + "/" + file));
+        cloudFiles.forEach((name) => PlatformUtils.storageDelFile(state.event.id + "/" + name));
         if(Constants.debug) print("FireStorage upload comeplete");
         FirebaseMessagingService.sendNotification(token: state.event.operator.token, eventId: state.event.id);
         if(Constants.debug) print("FireMessaging notified");
@@ -102,15 +103,15 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   removeDocument(String name) {
-    Map<String,String> newDocs = Map.from(state.documents);
+    Map<String,PlatformFile> newDocs = Map.from(state.documents);
     newDocs.remove(name);
     emit(state.assign(documents: newDocs));
   }
 
   void openFileExplorer() async {
     try {
-        Map<String,String> files = await PlatformUtils.multiFilePicker();
-        Map<String,String> newDocs = Map.from(state.documents);
+        Map<String,PlatformFile> files = Map.fromIterable((await FilePicker.platform.pickFiles(allowMultiple: true)).files, key: (file)=>(file as PlatformFile).name, value: (file)=>file );
+        Map<String,PlatformFile> newDocs = Map.from(state.documents);
         files.forEach((key, value) {
           newDocs[key] = value;
         });

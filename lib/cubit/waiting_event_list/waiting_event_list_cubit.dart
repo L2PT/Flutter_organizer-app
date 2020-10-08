@@ -20,6 +20,7 @@ class WaitingEventListCubit extends Cubit<WaitingEventListState> {
         _databaseRepository = databaseRepository, _account = account,
         super(LoadingEvents()) {
     databaseRepository.subscribeEventsByOperatorWaiting(account.id).listen((waitingEventsList) {
+      waitingEventsList.sort((a, b) => a.start.compareTo(b.start));
       emit(ReadyEvents(waitingEventsList));
     });
     Future.delayed(

@@ -30,37 +30,19 @@ class PersistentNotification extends StatelessWidget {
     final Account account = context.bloc<AuthenticationBloc>().account;
 
     return new BlocProvider(
-      create: (_) => PersistentNotificationCubit(repository, account, events),
-      child: Stack(
+      create: (_) => PersistentNotificationCubit(context, repository, account, events),
+      child: Container(
+        decoration:
+        BoxDecoration(color: white.withOpacity(0.7)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            Scaffold(
-                appBar: AppBar(
-                  leading: new IconButton(
-                      onPressed: () {},
-                      icon: Icon(
-                        Icons.dehaze,
-                        color: white,
-                      )),
-                  title: new Text("HOME", style: title_rev),
-                ),
-                body: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    DailyCalendar(DateTime.now(),account),
-                  ],
-                )), Container(
-              decoration:
-              BoxDecoration(color: white.withOpacity(0.7)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Container(
-                      child: _notificationWidget()
-                  )
-                ],
-              ),
+            Container(
+                child: _notificationWidget()
             )
-          ]),
+          ]
+        )
+      )
     );
   }
 }
@@ -70,7 +52,7 @@ class _notificationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Widget singleNotificationWidget = cardEvent(
+    Widget singleNotificationWidget() => cardEvent(
       event: context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0],
       dateView: true,
       gridHourSpan: 0,
@@ -78,7 +60,7 @@ class _notificationWidget extends StatelessWidget {
       buttonArea: <String,Function(Event)>{
         "Rifiuta":context.bloc<PersistentNotificationCubit>().cardActionReject,
         "Conferma":context.bloc<PersistentNotificationCubit>().cardActionConfirm},
-      onTapAction: (event) => PlatformUtils.navigator(context, context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0]),
+      onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, context.bloc<PersistentNotificationCubit>().state.waitingEventsList[0]),
     );
 
     return BlocBuilder<PersistentNotificationCubit, PersistentNotificationState>(
@@ -87,8 +69,8 @@ class _notificationWidget extends StatelessWidget {
         return context.bloc<PersistentNotificationCubit>().state.waitingEventsList.length > 0 ?
         context.bloc<PersistentNotificationCubit>().state.waitingEventsList.length > 1 ?
             _multipleNotificationWidget() :
-          singleNotificationWidget :
-        LoadingScreen();
+          singleNotificationWidget() :
+        Row(children: <Widget>[  Expanded(child: Center(child: CircularProgressIndicator()))]);
       },
     );
   }

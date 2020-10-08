@@ -19,12 +19,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/linkmenu.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/backdrop_menu.dart';
-import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
-import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
-import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:flutter/material.dart';
 import '../utils/theme.dart';
@@ -44,8 +43,13 @@ class Backdrop extends StatefulWidget {
   _MobileState createState() => _MobileState();
 }
 
-class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
+class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   AnimationController _controller;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    context.bloc<MobileBloc>().lifecycleState = state;
+  }
 
   @override
   void initState() {
@@ -55,6 +59,8 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    if(!context.repository<FirebaseMessagingService>().isInitialized)
+      context.repository<FirebaseMessagingService>().init(context);
     final account = context.bloc<AuthenticationBloc>().account;
     final bloc = context.bloc<MobileBloc>();
     _toggleBackdropLayerVisibility(false);
@@ -136,7 +142,9 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin {
   }
 
   Future<bool> _onBackPressed() {
-    return showDialog(
+    if(context.bloc<MobileBloc>().state is OutBackdropState)
+      PlatformUtils.backNavigator(context);
+    else return showDialog(
           context: context,
           builder: (context) => new Alert(
             title: "ESCI",

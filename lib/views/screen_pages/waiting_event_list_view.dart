@@ -55,7 +55,7 @@ class _eventList extends StatelessWidget{
 
     void _onCalendarPressed(){
       DateTime date = DateTime.now();
-      context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month' : date, 'operator' : null}));
+      PlatformUtils.navigator(context, Constants.monthlyCalendarRoute, {'month' : date, 'operator' : null});
     }
 
     Widget buildGroupEventList() => ListView.builder(
@@ -112,7 +112,7 @@ class _listGroup extends StatelessWidget {
   Widget build(BuildContext context) {
 
     void _onDayPressed() {
-      context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, {'day' : groupDate, 'operator' : null}));
+      PlatformUtils.navigator(context, Constants.homeRoute, {'day' : groupDate, 'operator' : null});
     }
 
     List<Widget> dateHeader = [
@@ -174,7 +174,7 @@ class _listTileEvent extends StatelessWidget {
           hourHeight: 140,
           gridHourSpan: 0,
           buttonArea: <String,Function(Event)>{"Rifiuta":context.bloc<WaitingEventListCubit>().cardActionReject,"Conferma":context.bloc<WaitingEventListCubit>().cardActionConfirm},
-          onTapAction: (event) => PlatformUtils.navigator(context, event),
+          onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
         ),
       ),
       SizedBox(height: 15)

@@ -1,8 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:venturiautospurghi/web.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../models/auth/authuser.dart';
 
@@ -32,7 +30,6 @@ class FirebaseAuthService {
 
   Future<AuthUser> signInWithEmailAndPassword(String email, String password) async {
     final authResult = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-    if(kIsWeb)WriteCookieJarJs(COOKIE_PATH, authResult.user.refreshToken);
     return _userFromFirebase(authResult.user);
   }
 

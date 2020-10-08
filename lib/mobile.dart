@@ -30,28 +30,33 @@ class _MyAppState extends State<MyApp> {
             return LogIn();
           } else if (state is Authenticated) {
             CloudFirestoreService databaseRepository = context.bloc<AuthenticationBloc>().getRepository();
-            FirebaseMessagingService notificationService = FirebaseMessagingService(databaseRepository)
-              ..init(context.bloc<AuthenticationBloc>().account, context);
             return RepositoryProvider.value(
                     value: databaseRepository,
-                    child: BlocProvider(
+                    child: RepositoryProvider<FirebaseMessagingService>(
+                      create: (ctx) => FirebaseMessagingService(),
+                      child: BlocProvider(
                         create: (_) =>
                         MobileBloc(
                             account: context.bloc<AuthenticationBloc>().account,
                             databaseRepository: databaseRepository)..add(InitAppEvent()),
                         child: Stack(children: [
                           BlocBuilder<MobileBloc, MobileState>(
-                            buildWhen: (previous, current) => current is InBackdropState,
+                            buildWhen: (previous, current) => current is InBackdropState && !current.isRestoring,
                             builder: (context, state) => state is InBackdropState ?
                               Backdrop() : SplashScreen()
                           ),
                           BlocBuilder<MobileBloc, MobileState>(
-                            buildWhen: (previous, current) => current is OutBackdropState ,
-                            builder: (context, state) =>
-                            (state is OutBackdropState && !state.isLeaving) ?
+                            buildWhen: (previous, current) => (current is NotificationWaitingState || previous is NotificationWaitingState),
+                            builder: (context, state) => state is NotificationWaitingState ?
+                              state.content : Container()
+                          ),
+                          BlocBuilder<MobileBloc, MobileState>(
+                            buildWhen: (previous, current) => current is OutBackdropState ||  current is NotificationWaitingState,
+                            builder: (context, state) => (state is OutBackdropState && !state.isLeaving) ?
                               state.content : Container()
                           )
                         ],)
+                      )
                     )
                 );
           }

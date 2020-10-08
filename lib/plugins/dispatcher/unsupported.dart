@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
@@ -21,18 +22,14 @@ abstract class PlatformUtils {
   }
 
   static const dynamic simpleSwipeConfig = null;
-  static dynamic file(path) => null;
 
   static const dynamic Dir = null;
   static dynamic storageGetUrl(path) => null;
   static Future<List<String>> storageGetFiles(path) => null;
-  static void storagePutFile(path, file) => null;
+  static void storagePutFile(path, PlatformFile file) => null;
   static void storageDelFile(path) => null;
   static dynamic download(url,filename) => null;
   static void initDownloader() => null;
-
-  static Future<Map<String,String>> filePicker() => null;
-  static Future<Map<String,String>> multiFilePicker() => null;
 
   static dynamic navigator(context, route, [arg]) => null;
   static void backNavigator(BuildContext context) => null;
