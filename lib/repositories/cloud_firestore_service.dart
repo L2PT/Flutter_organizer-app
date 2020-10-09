@@ -51,7 +51,7 @@ class CloudFirestoreService {
     List<Account> accounts = await this.getOperators();
 
     final List<Event> listEvents = await this.getEvents();
-
+    if(Constants.debug) listEvents.removeWhere((event) => event.status == Status.Refused || event.status == Status.Deleted); //TODO lasciamolo per un po'
     listEvents?.forEach((event) {
       if (event.id != eventIdToIgnore) {
         if (event.isBetweenDate(startFrom, endTo)) {
@@ -111,13 +111,6 @@ class CloudFirestoreService {
 
   Stream<List<Event>> subscribeEventsByOperator(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
-    });
-  }
-
-  Stream<List<Event>> subscribeEventsByOperatorActive(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.New).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Ended).snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
     });
@@ -193,9 +186,9 @@ class CloudFirestoreService {
     e.status = Status.Deleted;
     final dynamic createTransaction = (dynamic tx) async {
         dynamic doc = _collectionEventi.doc(e.id);
-        dynamic endedDoc = _collectionStoricoEliminati.doc(e.id);
-        await tx.set(endedDoc, e.toDocument());
-        await tx.update(doc, {Constants.tabellaEventi_stato:e.status});
+        dynamic deletedDoc = _collectionStoricoEliminati.doc(e.id);
+        await tx.set(deletedDoc, e.toDocument());
+        await tx.delelete(doc);
     };
     _cloudFirestore.runTransaction(createTransaction);
   }
@@ -212,10 +205,12 @@ class CloudFirestoreService {
   }
 
   void refuseEvent(Event e) async {
+    e.status = Status.Refused;
     final dynamic createTransaction = (dynamic tx) async {
-      dynamic dc = _collectionEventi.doc(e.id);
-      await tx.set(_collectionStoricoRifiutati.doc(e.id).update(e.toDocument()));
-      await tx.delete(dc);
+      dynamic doc = _collectionEventi.doc(e.id);
+      dynamic refusedDoc = _collectionStoricoRifiutati.doc(e.id);
+      await tx.set(refusedDoc, e.toDocument());
+      await tx.delete(doc);
     };
     _cloudFirestore.runTransaction(createTransaction);
   }

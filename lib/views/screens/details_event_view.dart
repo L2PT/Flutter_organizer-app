@@ -5,7 +5,9 @@ import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
+import 'package:venturiautospurghi/cubit/persistent_notification/persistent_notification_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
@@ -15,6 +17,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
+import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
 
 
 
@@ -448,8 +451,36 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           )
                         ],
                       ),
-                    ),
-                    event.isAccepted()?
+                    ),event.isSeen() && context.bloc<MobileBloc>().savedState.route != Constants.waitingEventListRoute && event.operator.id == account.id?
+                    Container(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          RaisedButton(
+                            child: new Text('RIFIUTA', style: button_card),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(15.0))),
+                            color: black,
+                            elevation: 15,
+                            onPressed: () async {
+                              RejectAlert(context).show().then((justification)=>!justification.isNullOrEmpty()?context.bloc<DetailsEventCubit>().refuseEventAndNotify(justification):null);
+                            }
+                          ),
+                          SizedBox(width: 15,),
+                          RaisedButton(
+                            child: new Text('ACCETTA', style: button_card),
+                            shape: RoundedRectangleBorder(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(15.0))),
+                            color: black,
+                            elevation: 15,
+                            onPressed: context.bloc<DetailsEventCubit>().endEventAndNotify,
+                          ),
+                          SizedBox(width: 30,),
+                        ],
+                      ),
+                    ):event.isAccepted()?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -493,7 +524,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         ],
                       ),
                     ):
-                    Container(height: 30,) //TODO TURRO BUTTONS
+                    Container(height: 30,)
                     /*child: Row(
                   children: <Widget>[
                     SizedBox(
@@ -510,6 +541,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 ),*/])),
             ])));
   }
+
+  //TODO logica nel bottone termina del details
+  //TODO visualizzare la motivazione di rifiuto per un'incarico terminato
 
   @override
   void dispose() {

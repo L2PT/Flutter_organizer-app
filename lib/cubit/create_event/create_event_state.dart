@@ -7,7 +7,8 @@ class CreateEventState extends Equatable {
   CreateEventState([this.event]) : this.locations = List<String>.empty() {
     if(event == null) {
       event = Event.empty();
-      event.start = TimeUtils.addWorkTime(TimeUtils.getNextWorkTimeSpan(), hour: 1);
+      DateTime nextStartTime = TimeUtils.getNextWorkTimeSpan();
+      event.start = nextStartTime.hour == Constants.MIN_WORKTIME? nextStartTime : TimeUtils.addWorkTime( nextStartTime, hour: 1);
       event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
     }
     documents = Map<String,PlatformFile>.fromIterable(event.documents, key: (v) => v, value: null);

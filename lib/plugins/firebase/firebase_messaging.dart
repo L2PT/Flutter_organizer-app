@@ -49,8 +49,7 @@ class FirebaseMessagingService {
     if (_isFeedbackNotification(message)) {
       PlatformUtils.notifyInfoMessage(message["notification"]["title"]);
     } else {
-      Event event = await _updateEventAndSendFeedback(message, Status.Delivered);
-      if(event != null) PlatformUtils.navigator(context, Constants.waitingNotificationRoute, [event]);
+       _updateEventAndSendFeedback(message, Status.Delivered);
     }
   }
 
@@ -82,12 +81,12 @@ class FirebaseMessagingService {
   }
 
   bool _isFeedbackNotification(Map<String, dynamic> message) {
-    return message['notification']['body'] == null || message['notification']['body'] == "";
+    return message['data']['id'] == null || message['data']['id'] == "";
   }
 
   Future<Event> _updateEventAndSendFeedback(Map<String, dynamic> message, int newStatus) async {
-      _databaseRepository.updateEventField(message['notification']['body'], "Stato", newStatus);
-      Event event = await _databaseRepository.getEvent(message['notification']['body']);
+      _databaseRepository.updateEventField(message['data']['id'], "Stato", newStatus);
+      Event event = await _databaseRepository.getEvent(message['data']['id']);
       if(event != null) {
         Account supervisor = event.operator
           ..id = event.supervisor.id; //get here to prevent old token
@@ -103,7 +102,7 @@ class FirebaseMessagingService {
     if (_isFeedbackNotification(message) && _account.supervisor) {
       PlatformUtils.navigator(context, Constants.waitingEventListRoute);
     } else if(!_isFeedbackNotification(message)){
-      Event event = await _databaseRepository.getEvent(message['notification']['body']);
+      Event event = await _databaseRepository.getEvent(message['data']['id']);
       if(event != null) PlatformUtils.navigator(context, Constants.waitingNotificationRoute, [event]);
     }
   }

@@ -474,7 +474,7 @@ class _operatorsList extends StatelessWidget {
     })?.toList();
 
     return BlocBuilder<CreateEventCubit, CreateEventState>(
-      buildWhen: (previous, current) => previous.event.toString() != previous.event.toString(),
+      buildWhen: (previous, current) => previous.event.toString() != current.event.toString(),
       builder: (context, state) {
         return Container(child: Column(children: buildOperatorsList()??[]));
       },

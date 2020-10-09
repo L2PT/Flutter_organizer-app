@@ -31,13 +31,13 @@ class WaitingEventListCubit extends Cubit<WaitingEventListState> {
   void cardActionConfirm(Event event) {
     event.status = Status.Accepted;
     _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Accepted);
-    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha accettato un lavoro");
+    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${event.title}\"");
   }
 
-  void cardActionReject(Event event, ) {
-    event.status = Status.Refused;
-    _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Accepted);
-    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name}  ha rifiutato un lavoro");
+  void cardActionRefuse(Event event, String justification) {
+    event.motivazione = justification;
+    _databaseRepository.refuseEvent(event);
+    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${event.title}\"");
   }
 
 }

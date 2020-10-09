@@ -38,12 +38,16 @@ const double _kFlingVelocity = 2.0;
 /// by default, and slides down to show the back layer, from which a user
 /// can make a selection. We can configure a custom interchangable title
 /// The route selected is notified to the frontlayer
-class Backdrop extends StatefulWidget {
+class Backdrop extends StatefulWidget{
   @override
   _MobileState createState() => _MobileState();
+
+
+
 }
 
-class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+
+class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, WidgetsBindingObserver{
   AnimationController _controller;
 
   @override
@@ -55,6 +59,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
   void initState() {
     super.initState();
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -62,7 +67,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
     if(!context.repository<FirebaseMessagingService>().isInitialized)
       context.repository<FirebaseMessagingService>().init(context);
     final account = context.bloc<AuthenticationBloc>().account;
-    final bloc = context.bloc<MobileBloc>();
+    final state = context.bloc<MobileBloc>().state is InBackdropState ? context.bloc<MobileBloc>().state : context.bloc<MobileBloc>().savedState;
     _toggleBackdropLayerVisibility(false);
     return WillPopScope(
         onWillPop: _onBackPressed,
@@ -70,8 +75,8 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
             appBar: AppBar(
               title: new Text(
                   (account.supervisor ?
-                  (menuResponsabile[bloc.state.route] ?? menuResponsabile[Constants.homeRoute]) :
-                  (menuOperatore[bloc.state.route] ?? menuOperatore[Constants.homeRoute]))
+                  (menuResponsabile[state.route] ?? menuResponsabile[Constants.homeRoute]) :
+                  (menuOperatore[state.route] ?? menuOperatore[Constants.homeRoute]))
                       .textLink.toUpperCase(),
                   style: title_rev),
               elevation: 0.0,
@@ -84,7 +89,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
               ),
             ),
             floatingActionButton: Container(),//Fab(),
-            body: _buildStack((bloc.state as InBackdropState).content)));
+            body: _buildStack((state as InBackdropState).content)));
   }
 
   Widget _buildStack(dynamic content) {
@@ -125,6 +130,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
   }

@@ -16,12 +16,12 @@ class RejectAlert{
       FlatButton(
         child: new Text('Annulla'),
         onPressed: () {
-          Navigator.of(context).pop();
+          Navigator.of(context).pop("");
         },
       ),
       SizedBox(width: 15,),
       RaisedButton(
-        child: new Text('CONFERMA'),
+        child: new Text('CONFERMA', style: button_card),
         shape: RoundedRectangleBorder(
             borderRadius:
             BorderRadius.all(Radius.circular(15.0))),

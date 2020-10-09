@@ -54,7 +54,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       PlatformUtils.notifyErrorMessage("Seleziona un orario di fine incarico valido");
     if (state.event.operator == null)
       PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
-    else if (state.category  == null)
+    else if (state.category == null || state.category == -1)
       PlatformUtils.notifyErrorMessage("Seleziona una categoria valida.");
     else if((this.formTimeControlsKey.currentState.validate() || !this.canModify) && formKey.currentState.validate()) {
       //get all data before refresh
@@ -195,7 +195,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour >= Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
 
-    PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);
+    PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);//TODO beautify named parameters
   }
 
   void forceRefresh() {

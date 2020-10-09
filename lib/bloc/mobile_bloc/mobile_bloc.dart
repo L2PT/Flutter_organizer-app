@@ -94,19 +94,18 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-    if (_account.supervisor) {
+    add(NavigateEvent(Constants.homeRoute,null));
+    int counter = 0;
+    if (!_account.supervisor) {
       _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
-        if (notifications.length > 0){
-          if(savedState is InBackdropState && !(savedState is NotificationWaitingState)) {
-            //TODO THIS IS A CONFLICT with the notification onMessage navigation so test and fix
+        if (notifications.length > 0 && notifications.length>counter){
             //drop what are you doing
             add(NavigateBackEvent());
             //build over
             add(NavigateEvent(Constants.waitingNotificationRoute, notifications));
             if(background == null) {
-              background = new Timer.periodic(Duration(seconds:10), _notificationReminder);
+              background = new Timer.periodic(Duration(minutes:2), _notificationReminder);
             }
-          }
         } else if (notifications.length == 0) {
           if(background != null) {
             background.cancel();
@@ -115,16 +114,17 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
           if(state is NotificationWaitingState)
             add(RestoreEvent());
         }
+        counter = notifications.length;
       });
     }
-    add(NavigateEvent(Constants.homeRoute,null));
   }
 
   void _notificationReminder(Timer t) {
-    if(_lifecycleState != AppLifecycleState.resumed){
+    if(_lifecycleState != null && _lifecycleState != AppLifecycleState.resumed){
       FirebaseMessagingService.sendNotification(
           token: _account.token,
           title: "Hai eventi in sospeso");
+      _lifecycleState = null;
     }
   }
 }

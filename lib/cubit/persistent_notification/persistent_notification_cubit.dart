@@ -25,8 +25,8 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
         _databaseRepository = databaseRepository, _account = account,
         super(PersistentNotificationState(events??[])) {
     _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((waitingEventsList) {
-      // safeChecker?.cancel();
-      // if(waitingEventsList.length == 0) context.bloc<MobileBloc>().add(RestoreEvent());
+      safeChecker?.cancel();
+      if(waitingEventsList.length == 0) context.bloc<MobileBloc>().add(RestoreEvent());
       emit(PersistentNotificationState(waitingEventsList));
     });
     safeChecker = new Timer(new Duration(seconds: 5), (){
@@ -37,13 +37,14 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
 
   void cardActionConfirm(Event event) {
     _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Accepted);
-    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha accettato un lavoro");
+    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${event.title}\"");
     context.bloc<MobileBloc>().add(RestoreEvent());
   }
 
-  void cardActionReject(Event event) {
-    _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Refused);
-    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha rifiutato un lavoro");
+  void cardActionRefuse(Event event, String justification) {
+    event.motivazione = justification;
+    _databaseRepository.refuseEvent(event);
+    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${event.title}\"");
     context.bloc<MobileBloc>().add(RestoreEvent());
   }
 

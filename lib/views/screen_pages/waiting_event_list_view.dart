@@ -13,6 +13,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
+import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 
@@ -151,7 +152,7 @@ class _listGroup extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             ...dateHeader,
-            ...eventsGroup.map((event) => _listTileEvent(event)).toList(),
+            ...eventsGroup.map((event) => _listTileEvent(event)).expand((element) => [element, SizedBox(height: 20,)]).toList(),
             SizedBox(height: 10,)
           ]
       );
@@ -173,7 +174,9 @@ class _listTileEvent extends StatelessWidget {
           dateView: false,
           hourHeight: 140,
           gridHourSpan: 0,
-          buttonArea: <String,Function(Event)>{"Rifiuta":context.bloc<WaitingEventListCubit>().cardActionReject,"Conferma":context.bloc<WaitingEventListCubit>().cardActionConfirm},
+          buttonArea: <String,Function(Event)>{
+            "RIFIUTA": (event) async {RejectAlert(context).show().then((justification)=>!justification.isNullOrEmpty()?context.bloc<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
+            "ACCETTA":context.bloc<WaitingEventListCubit>().cardActionConfirm},
           onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
         ),
       ),
