@@ -37,7 +37,7 @@ dependencies:
   bubble_tab_indicator: ^0.1.4
   uuid: ^2.2.2
   equatable: ^1.2.5
-  file_picker: ^2.0.6
+  file_picker: ^2.0.7
   dio: ^3.0.10
   flutter_downloader: ^1.5.1
 

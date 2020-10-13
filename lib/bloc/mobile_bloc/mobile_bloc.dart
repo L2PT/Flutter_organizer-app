@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
@@ -82,7 +84,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg != null?event.arg['month']:null,event.arg != null?event.arg['operator']:null) ); break;
       case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
-      case Constants.operatorListRoute: yield OutBackdropState(event.route, OperatorSelection((event.arg is List)?event.arg[0]:event.arg, (event.arg is List)?event.arg[1]:false)); break;
+      case Constants.operatorListRoute: Navigator.push(event.arg["context"], MaterialPageRoute(maintainState: true, builder: (context) => OperatorSelection(event.arg["event"],event.arg["requirePrimaryOperator"],event.arg["context"])))
+          .then((value) => (event.arg["context"] as BuildContext).bloc<CreateEventCubit>().forceRefresh());break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
       case Constants.historyEventListRoute:  yield InBackdropState(event.route, History()); break;
@@ -127,4 +130,6 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       _lifecycleState = null;
     }
   }
+
+  bool outBackdropResultIsPositive(value) => (value != null && (!(value is bool) || value != false));
 }

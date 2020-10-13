@@ -110,7 +110,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   void openFileExplorer() async {
     try {
-        Map<String,PlatformFile> files = Map.fromIterable((await FilePicker.platform.pickFiles(allowMultiple: true)).files, key: (file)=>(file as PlatformFile).name, value: (file)=>file );
+        Map<String,PlatformFile> files = Map.fromIterable((await FilePicker.platform.pickFiles(allowMultiple: true, withData: false)).files, key: (file)=>(file as PlatformFile).name, value: (file)=>file );
         Map<String,PlatformFile> newDocs = Map.from(state.documents);
         files.forEach((key, value) {
           newDocs[key] = value;
@@ -195,7 +195,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour >= Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
 
-    PlatformUtils.navigator(context, Constants.operatorListRoute, [state.event,true]);//TODO beautify named parameters
+    PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context});
   }
 
   void forceRefresh() {

@@ -234,6 +234,7 @@ class _HistoryContent extends StatelessWidget {
 
   _HistoryContent(this._tabController, this.tabsHeaders);
 
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HistoryCubit, HistoryState>(
@@ -245,25 +246,25 @@ class _HistoryContent extends StatelessWidget {
         children:
          tabsHeaders.map((e) =>  Padding(
             padding: EdgeInsets.all(15.0),
-          child:(state as HistoryReady).events(e.value).length>0 ?GridView(
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 610.0,
-                mainAxisSpacing: 5.0,
-                crossAxisSpacing: 5.0,
-                childAspectRatio: 2.7,
-              ),
-              children: (state as HistoryReady).events(e.value).map((event)=>Container(
-                  child: cardEvent(
-                    event: event,
-                    dateView: true,
-                    hourHeight: 120,
-                    gridHourSpan: 0,
-                    buttonArea: null,
-                    onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
-                  ))).toList()
-          ):Container(
-            child: Column(
+          child:(state as HistoryReady).events(e.value).length>0 ?
+          ListView.separated(
+            separatorBuilder: (context, index) => SizedBox(height: 10,),
+            physics: BouncingScrollPhysics(),
+            padding: new EdgeInsets.symmetric(vertical: 8.0),
+            itemCount: (state as HistoryReady).events(e.value).length,
+            itemBuilder: (context, index){
+              return Container(
+                child: cardEvent(
+                  event: (state as HistoryReady).events(e.value)[index],
+                  dateView: true,
+                  hourHeight: 120,
+                  gridHourSpan: 0,
+                  buttonArea: null,
+                  onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
+                )
+              );
+            }):Container(
+              child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[

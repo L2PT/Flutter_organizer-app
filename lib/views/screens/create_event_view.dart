@@ -62,7 +62,7 @@ class _viewHeader extends StatelessWidget{
 
     void _onSavePressed(BuildContext context) async {
       if (await context.bloc<CreateEventCubit>().saveEvent())
-        Navigator.pop(context);
+        PlatformUtils.backNavigator(context);
     }
 
     return new Container(

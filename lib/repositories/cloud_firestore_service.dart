@@ -188,7 +188,7 @@ class CloudFirestoreService {
         dynamic doc = _collectionEventi.doc(e.id);
         dynamic deletedDoc = _collectionStoricoEliminati.doc(e.id);
         await tx.set(deletedDoc, e.toDocument());
-        await tx.delelete(doc);
+        await tx.delete(doc);
     };
     _cloudFirestore.runTransaction(createTransaction);
   }

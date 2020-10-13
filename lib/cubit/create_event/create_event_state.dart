@@ -11,7 +11,7 @@ class CreateEventState extends Equatable {
       event.start = nextStartTime.hour == Constants.MIN_WORKTIME? nextStartTime : TimeUtils.addWorkTime( nextStartTime, hour: 1);
       event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
     }
-    documents = Map<String,PlatformFile>.fromIterable(event.documents, key: (v) => v, value: null);
+    documents = Map<String,PlatformFile>.fromIterable(event.documents, key: (v) => v, value: (v)=>null);
   }
 
   Event event;
