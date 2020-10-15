@@ -53,6 +53,7 @@ $(function() {
 
 function init(idUtente){
     this.idUtente = idUtente;
+    $('#__file_picker_web-file-input').hide()
     $('#calendar').show()
     if(this.calendar == null) {
         initCalendar();

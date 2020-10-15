@@ -53,7 +53,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   }
 
   void modifyEvent() {
-    Navigator.pop(context);
+    PlatformUtils.backNavigator(context);
     PlatformUtils.navigator(context, Constants.createEventViewRoute, _event);
   }
 

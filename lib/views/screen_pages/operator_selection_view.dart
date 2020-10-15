@@ -12,11 +12,13 @@ import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 class OperatorSelection extends StatelessWidget {
   Event _event;
   final bool requirePrimaryOperator;
+  BuildContext callerContext;
 
-  OperatorSelection([Event _event, this.requirePrimaryOperator = false]) : this._event = _event ?? new Event.empty();
+  OperatorSelection([Event _event, this.requirePrimaryOperator = false, this.callerContext]) : this._event = _event ?? new Event.empty();
 
   @override
   Widget build(BuildContext context) {
+    if(callerContext != null) context = callerContext;
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
 
     return new Scaffold(

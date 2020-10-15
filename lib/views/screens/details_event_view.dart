@@ -217,12 +217,12 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                     SizedBox(
                       width: padding,
                     ),
-                    Container(
+                    Expanded(child: Container(
                         child: Text(fileName,
                           style: subtitle.copyWith(color: black, fontWeight: FontWeight.bold),
                           overflow: TextOverflow.visible,
                         )
-                    ),Expanded(child: Container(),),
+                    ),),
                     IconButton(
                       icon:Icon(Icons.file_download, size: sizeIcon, color: black),
                       onPressed: () async {
@@ -475,12 +475,12 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                 BorderRadius.all(Radius.circular(15.0))),
                             color: black,
                             elevation: 15,
-                            onPressed: context.bloc<DetailsEventCubit>().endEventAndNotify,
+                            onPressed: context.bloc<DetailsEventCubit>().acceptEventAndNotify,
                           ),
                           SizedBox(width: 30,),
                         ],
                       ),
-                    ):event.isAccepted()?
+                    ):event.isAccepted() && DateTime.now().isAfter(event.start) && event.operator.id == account.id?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -542,7 +542,6 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
             ])));
   }
 
-  //TODO logica nel bottone termina del details
   //TODO visualizzare la motivazione di rifiuto per un'incarico terminato
 
   @override
