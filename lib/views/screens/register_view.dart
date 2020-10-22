@@ -266,8 +266,7 @@ class RegisterState extends State<Register> {
         context.repository<FirebaseAuthService>().sendPasswordReset(_emailController.text);
         setState(() {
           PlatformUtils.notifyInfoMessage( "Utente " + userFirebase.user.email + " registrato con successo.");
-          Timer(Duration(seconds: 2),
-              () => context.bloc<MobileBloc>().add(NavigateEvent(Constants.homeRoute, null)));
+          Timer(Duration(seconds: 2), () => PlatformUtils.backNavigator(context));
         });
       } else {
         setState(() {

@@ -1,3 +1,5 @@
+const debug = true;
+
 const homeRoute = '/';
 const monthlyCalendarRoute = 'view/monthly_calendar';
 const dailyCalendarRoute = 'view/daily_calendar';
@@ -104,7 +106,7 @@ function initCalendar(){
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
-        db.collection("Eventi").onSnapshot(function(querySnapshot) {
+        db.collection(debug?"Eventi_DEBUG":"Eventi").onSnapshot(function(querySnapshot) {
             calendar.refetchEvents();
         });
 }
