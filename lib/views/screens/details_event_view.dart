@@ -18,6 +18,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
+import 'dart:io' show Platform;
 
 
 
@@ -372,15 +373,15 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                 children: <Widget>[
                                   Center(
                                     child: Text(formatterMonth.format(event.start).toUpperCase(),
-                                        style: title_rev.copyWith(fontSize: 16)),
+                                        style: title_rev.copyWith(fontSize: Platform.isIOS?15:16)),
                                   ),
                                   Center(
                                     child: Text("${event.start.day}",
-                                        style: title_rev.copyWith(fontSize: 16)),
+                                        style: title_rev.copyWith(fontSize: Platform.isIOS?15:16)),
                                   ),
                                   Center(
                                     child: Text(formatterWeek.format(event.start),
-                                        style: title_rev.copyWith(fontSize: 16, fontWeight: FontWeight.normal)),
+                                        style: title_rev.copyWith(fontSize: Platform.isIOS?15:16, fontWeight: FontWeight.normal)),
                                   )
                                 ],
                               ),

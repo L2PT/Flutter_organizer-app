@@ -9,6 +9,8 @@ description: All rights rightly right
 # Read more about versioning at semver.org.
 version: 1.0.0+1
 
+#config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12' to podfile
+
 environment:
   sdk: ">=2.6.0"
 

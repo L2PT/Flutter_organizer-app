@@ -43,7 +43,7 @@ class RegisterState extends State<Register> {
           ),
           body: SingleChildScrollView(
               child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 30),
+            padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             child: Column(children: <Widget>[
               Container(
                 padding: EdgeInsets.all(6.0),
@@ -167,7 +167,7 @@ class RegisterState extends State<Register> {
                       },
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 15),
+                      padding: EdgeInsets.symmetric(vertical: 10),
                       child: new Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
