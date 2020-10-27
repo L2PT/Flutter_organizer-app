@@ -140,34 +140,7 @@ class _formInputList extends StatelessWidget{
               ),
             ]),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            Row(children: <Widget>[
-              Container(
-                width: iconWidth,
-                margin: EdgeInsets.only(right: 20.0),
-                child: Icon(
-                  Icons.map,
-                  color: black,
-                  size: iconWidth,
-                ),
-              ),
-              Expanded(
-                  child: TextFormField(
-                    onChanged: (text) => context.bloc<CreateEventCubit>().getLocations(text),
-                    keyboardType: TextInputType.text,
-                    cursorColor: black,
-                    initialValue: event.address,
-                    decoration: InputDecoration(
-                      hintText: 'Aggiungi posizione',
-                      hintStyle: subtitle,
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 2.0,
-                          style: BorderStyle.solid,
-                        ),
-                      ),
-                    ),
-                  )),
-            ]),
+            _geoLocationAddress(),
             _geoLocationOptionsList(),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
             Row(children: <Widget>[
@@ -231,9 +204,58 @@ class _formInputList extends StatelessWidget{
 }
 
 
-class _geoLocationOptionsList extends StatelessWidget {
+class _geoLocationAddress extends StatelessWidget {
+  double iconWidth = CreateEvent.iconWidth;
+
   @override
   Widget build(BuildContext context) {
+    
+    Widget addressContent() => Row(children: <Widget>[
+          Container(
+            width: iconWidth,
+            margin: EdgeInsets.only(right: 20.0),
+            child: Icon(
+              Icons.map,
+              color: black,
+              size: iconWidth,
+            ),
+          ),
+          Expanded(
+              child: TextFormField(
+            onChanged: (text) =>
+                context.bloc<CreateEventCubit>().getLocations(text),
+            keyboardType: TextInputType.text,
+            cursorColor: black,
+            initialValue:  context.bloc<CreateEventCubit>().state.event.address,
+            decoration: InputDecoration(
+              hintText: 'Aggiungi posizione',
+              hintStyle: subtitle,
+              border: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  width: 2.0,
+                  style: BorderStyle.solid,
+                ),
+              ),
+            ),
+          )),
+        ]);
+
+    return BlocBuilder<CreateEventCubit, CreateEventState>(
+      buildWhen: (previous, current) => previous.event != current.event,
+      builder: (context, state) {
+        return addressContent();
+      },
+    );
+  }
+
+}
+
+
+class _geoLocationOptionsList extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    
     List<Widget> buildAutocompleteList() =>
     context.bloc<CreateEventCubit>().state.locations.map((location) {
       return GestureDetector(

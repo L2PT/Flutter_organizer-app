@@ -3,7 +3,7 @@ import 'package:venturiautospurghi/models/event.dart';
 
 class Constants {
   static const String title = "Venturi Autospurghi App";
-  static bool debug = true;
+  static const bool debug = true;
   static const String web = "web";
   static const String mobile = "mobile";
 
@@ -30,13 +30,13 @@ class Constants {
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
-  static const String tabellaEventi = 'Eventi';
-  static const String tabellaStorico = 'Storico';
-  static const String subtabellaStorico = 'StoricoEventi';
-  static const String tabellaEventiEliminati = '/Storico/StoricoEliminati/StoricoEventi';
-  static const String tabellaEventiTerminati = '/Storico/StoricoTerminati/StoricoEventi';
-  static const String tabellaEventiRifiutati = '/Storico/StoricoRifiutati/StoricoEventi';
-  static const String tabellaCostanti = 'Costanti';
+  static const String tabellaCostanti = debug?'Costanti_DEBUG':'Costanti';
+  static const String tabellaEventi = debug?'Eventi_DEBUG':'Eventi';
+  static const String tabellaStorico = debug?'Storico_DEBUG':'Storico';
+  static const String subtabellaStorico = debug?'StoricoEventi_DEBUG':'StoricoEventi';
+  static const String tabellaEventiEliminati = debug?'/Storico_DEBUG/StoricoEliminati/StoricoEventi_DEBUG':'/Storico/StoricoEliminati/StoricoEventi';
+  static const String tabellaEventiTerminati = debug?'/Storico_DEBUG/StoricoTerminati/StoricoEventi_DEBUG':'/Storico/StoricoTerminati/StoricoEventi';
+  static const String tabellaEventiRifiutati = debug?'/Storico_DEBUG/StoricoRifiutati/StoricoEventi_DEBUG':'/Storico/StoricoRifiutati/StoricoEventi';
 
   // TABLE EVENTI
   static const String tabellaEventi_titolo = 'Titolo';
