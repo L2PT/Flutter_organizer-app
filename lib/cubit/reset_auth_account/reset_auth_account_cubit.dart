@@ -1,0 +1,74 @@
+import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:sms_autofill/sms_autofill.dart';
+import 'package:venturiautospurghi/models/auth/email.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
+
+part 'reset_auth_account_state.dart';
+
+class ResetAuthAccountCubit extends Cubit<ResetAuthAccountState>{
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController codeController = TextEditingController();
+  final FirebaseAuthService _authenticationRepository;
+  final CloudFirestoreService _databaseRepository;
+
+  ResetAuthAccountCubit(FirebaseAuthService authenticationRepository, CloudFirestoreService databaseRepository)  :
+        assert(authenticationRepository != null && databaseRepository != null),
+        _authenticationRepository = authenticationRepository, _databaseRepository = databaseRepository,
+        super(AuthMethodSelectionState()){
+    SmsAutoFill().listenForCode;
+    SmsAutoFill().code.listen((newCode) {
+      checkCode(newCode);
+    });
+  }
+
+  void sendEmailReset([Email email]){
+    if(email == null) email = Email(emailController.value.toString());
+    if(!email.validate()){
+      return PlatformUtils.notifyErrorMessage("Account non trovato");
+    } else {
+      _authenticationRepository.sendPasswordReset(email.value);
+      PlatformUtils.notifyInfoMessage("Mail per il ripristino della password inviata");
+      emit(CodeVerifiedState());
+    }
+  }
+
+  void sendPhoneVerification(){
+    String phoneNumber = phoneController.value.toString();
+    String code = generateCode();
+    //TODO send
+    emit(CodeVerificationState(phoneNumber, code));
+  }
+
+  String generateCode(){
+    String code = "";
+    //TODO https://developers.google.com/identity/sms-retriever/verify
+    return code;
+  }
+
+  void checkCode([String codeSubmitted]) async {
+    if(codeSubmitted.isNullOrEmpty()) codeSubmitted = codeController.value.toString();
+    if(state is CodeVerificationState){
+      if((state as CodeVerificationState).code == codeSubmitted) {
+        sendEmailReset(await getEmailAddress((state as CodeVerificationState).phoneNumber));
+      }
+    }
+  }
+
+  Future<Email> getEmailAddress(String phoneNumber) async {
+    Email address = Email(await _databaseRepository.getUserEmailByPhone(phoneNumber));
+    return address;
+  }
+
+  @override
+  Future<Function> close() {
+    SmsAutoFill().unregisterListener();
+  }
+
+}

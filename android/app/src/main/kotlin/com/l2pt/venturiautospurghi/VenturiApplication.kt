@@ -2,12 +2,17 @@ package com.l2pt.venturiautospurghi
 
 import io.flutter.app.FlutterApplication
 import io.flutter.plugin.common.PluginRegistry
+import io.flutter.plugin.common.PluginRegistry.PluginRegistrantCallback
 import io.flutter.plugins.GeneratedPluginRegistrant
-import vn.hunghd.flutterdownloader.FlutterDownloaderPlugin
+import io.flutter.plugins.firebasemessaging.FlutterFirebaseMessagingService
 
 internal class VenturiApplication : FlutterApplication(), PluginRegistry.PluginRegistrantCallback {
-    override fun registerWith(registry: PluginRegistry) {
-        GeneratedPluginRegistrant.registerWith(registry)
-        //        FlutterDownloaderPlugin.registerWith(registry.registrarFor("vn.hunghd.flutterdownloader.FlutterDownloaderPlugin"));
+    override fun onCreate() {
+        super.onCreate();
+        FlutterFirebaseMessagingService.setPluginRegistrant(this);
+    }
+
+    override fun registerWith(registry: PluginRegistry?) {
+        registry?.registrarFor("io.flutter.plugins.firebasemessaging.FirebaseMessagingPlugin");
     }
 }

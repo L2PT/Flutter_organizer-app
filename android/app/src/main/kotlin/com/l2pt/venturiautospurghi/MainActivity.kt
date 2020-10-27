@@ -1,18 +1,12 @@
 package com.l2pt.venturiautospurghi
 
-import android.os.Bundle
-
-import io.flutter.app.FlutterActivity
-import io.flutter.plugin.common.PluginRegistry
+import androidx.annotation.NonNull;
+import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugins.GeneratedPluginRegistrant
 
-class MainActivity: FlutterActivity(), PluginRegistry.PluginRegistrantCallback {
-  override fun registerWith(registry: PluginRegistry?) {
-    GeneratedPluginRegistrant.registerWith(registry)
-  }
-
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    GeneratedPluginRegistrant.registerWith(this)
-  }
+class MainActivity: FlutterActivity() {
+    /*override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
+    }*/
 }

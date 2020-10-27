@@ -1,26 +1,36 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
-import 'package:fb_auth/fb_auth.dart';
-import 'package:venturiautospurghi/models/user.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/auth/authuser.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/utils/global_contants.dart' as global;
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 part 'authentication_event.dart';
 
 part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
-  final FBAuth _userRepository = FBAuth(null);
-  AuthUser user = null;
+  final FirebaseAuthService _authenticationRepository;
+  CloudFirestoreService _repository;
+  StreamSubscription<AuthUser> _userSubscription;
   Account account = null;
   bool isSupervisor = false;
+  String token = "";
 
-  AuthenticationBloc();
-
-  @override
-  AuthenticationState get initialState => Uninitialized();
+  AuthenticationBloc({
+    @required FirebaseAuthService authenticationRepository,
+  })  : assert(authenticationRepository != null),
+        _authenticationRepository = authenticationRepository,
+        super(Uninitialized()) {
+    _userSubscription = _authenticationRepository.onAuthStateChanged.listen(
+        (user){if(user!=null) add(LoggedIn(user));},
+      );
+  }
 
   @override
   Stream<AuthenticationState> mapEventToState(
@@ -36,10 +46,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   }
 
   Stream<AuthenticationState> _mapAppStartedToState() async* {
+    _repository = await CloudFirestoreService.create();
     try {
-      user = await _userRepository.currentUser();
+      var user = await _authenticationRepository.currentUser();
       if (user != null) {
-        account = await getAccount(user.email);
+        account = await _repository.getAccount(user.email);
+        _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
         isSupervisor = account.supervisor;
         yield Authenticated(account, isSupervisor);
       } else {
@@ -51,27 +63,26 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   }
 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
-    user = event.user;
-    account = await getAccount(user.email);
+    var user = event.user;
+    account = await _repository.getAccount(user.email);
+    _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
     isSupervisor = account.supervisor;
-    if(PlatformUtils.platform == global.Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor);
+    token = account.token;
+    if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor, token);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
     yield Unauthenticated();
-    _userRepository.logout();
+    _authenticationRepository.signOut();
   }
 
-  /// Function to retrieve from the database the information associated with the
-  /// user logged in. The Firebase AuthUser uid must be the same as the id of the
-  /// document in the "Utenti"(Constants.tabellaUtenti) collection.
-  /// However the mail is an unique field.
-  Future<Account> getAccount(String email) async {
-    var docs = await PlatformUtils.fireDocuments("Utenti",whereCondFirst:'Email', whereOp: "==", whereCondSecond: email);
-    for (var doc in docs) {
-      if(doc != null) {
-        return Account.fromMap(PlatformUtils.extractFieldFromDocument("id", doc), PlatformUtils.extractFieldFromDocument(null, doc));
-      }
-    }
+  CloudFirestoreService getRepository(){
+    if(state is Authenticated) return _repository;
+  }
+
+  @override
+  Future<void> close() {
+    _userSubscription?.cancel();
+    return super.close();
   }
 }

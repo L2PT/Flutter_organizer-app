@@ -1,52 +1,76 @@
+const homeRoute = '/';
+const monthlyCalendarRoute = 'view/monthly_calendar';
+const dailyCalendarRoute = 'view/daily_calendar';
+const operatorListRoute = 'view/op_list';
+const addWebOperatorRoute = 'view/op_web_list';
+const registerRoute = 'view/register';
+const detailsEventViewRoute = 'view/details_event';
+const createEventViewRoute = 'view/form_event_creator';
+const waitingEventListRoute = 'view/waiting_event_list';
+const waitingNotificationRoute = 'view/persistent_notification';
+const historyEventListRoute = 'view/history_event_list';
+const profileRoute = 'view/profile';
+const resetCodeRoute = 'view/reset_code_page';
+const logInRoute = 'view/log_in';
+const logOut = 'log_out';
+
+
 var calendar;
 var db;
+var storage;
 var categories;
 var dart;
 var idUtente;
-$(function() { // document ready
-// Your web app's Firebase configuration
-    var firebaseConfig = {
-              apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
-              authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
-              databaseURL: "https://com-l2pt-venturiautospurghi.firebaseio.com",
-              projectId: "com-l2pt-venturiautospurghi",
-              storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
-              messagingSenderId: "964614131015",
-              appId: "1:964614131015:web:8a10af66f5b15bad589062"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+
+$(function() {
+
     db = firebase.firestore();
+    storage = firebase.storage();
 
-    initCategories();
-
-    /* initialize the calendar
-    -----------------------------------------------------------------*/
-    //this will be done after login
-
-//              $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matto', eventColor: 'orange' },);
-//              $('#calendar').fullCalendar('today');
-
-    $(document).on('click',".fc-resource-header-postfix",function(){
-        showDialogWindow("add_operator",null);
+    //Initialize Categories
+    var docRef = db.collection("Costanti").doc("Categorie");
+    docRef.get().then(function(doc) {
+        if (doc.exists) {
+            categories = doc.data();
+            categories['default'] = '#fda90a';
+        } else {
+            console.log("No categories!");
+        }
+    }).catch(function(error) {
+        console.log("Error getting categories:", error);
     });
 
+    //Initialize the calendar controls
+    $(document).on('click',".fc-resource-header-postfix",function(){
+        showDialogByContext_dart(addWebOperatorRoute,null);
+    });
     $(document).on('click',".fc-resource-postfix",function(){
         var id = $(this).closest('tr').data("resource-id")
         removeResource(id)
     });
 
+});
 
-  });
+function init(idUtente){
+    this.idUtente = idUtente;
+    $('#__file_picker_web-file-input').hide()
+    $('#calendar').show()
+    if(this.calendar == null) {
+        initCalendar();
+    }
+}
 
+//Initialize the calendar (this will be called after login) <-- Dart
 function initCalendar(){
+//   $('#calendar').fullCalendar( 'addResource',        { id: 'g', title: 'Matteo', eventColor: 'orange' },);
+//   $('#calendar').fullCalendar('today');
      $('#calendar').fullCalendar({
         timezone:'local',
         local: 'it',
         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
         now: formatDate(new Date()),
         editable: false, // enable draggable events
-        droppable: false, // this allows things to be dropped onto the calendar
+        droppable: false, // allows things to be dropped onto the calendar
         aspectRatio: 2.4,
         scrollTime: '00:00', // undo default 6am scrollTime
         header: {
@@ -74,10 +98,9 @@ function initCalendar(){
         },
         eventDrop: function(event) { // called when an event (already on the calendar) is moved
             console.log('eventDrop', event);
-            dartCallback("stampa da js");
         },
         eventClick: function(calEvent, jsEvent, view) {//tell to dart to open the modal
-            showDialogWindow("event",JSON.stringify(calEvent, censor(calEvent)))
+            showDialogByContext_dart(detailsEventViewRoute, JSON.stringify(calEvent, censorMap(calEvent)))
         }
         });
         calendar = $('#calendar').fullCalendar('getCalendar');
@@ -86,27 +109,14 @@ function initCalendar(){
         });
 }
 
-function initCategories(){
-    var docRef = db.collection("Costanti").doc("Categorie");
-    docRef.get().then(function(doc) {
-        if (doc.exists) {
-            categories = doc.data();
-            categories['default'] = '#fda90a';
-        } else {
-            console.log("No categories!");
-        }
-    }).catch(function(error) {
-        console.log("Error getting categories:", error);
-    });
-}
-
 function readResources(callback){
     var docRef = db.collection("Utenti").doc(idUtente);
     docRef.get().then(function(doc) {
         if (doc.exists) {
-            var arr = doc.data().OperatoriWeb
+            var arr = doc.data().OperatoriWeb;
             var res = [];
             for( var i = 0; i < arr.length; i++){
+                arr[i].id = arr[i].Id;
                 if(typeof(arr[i].title) == 'undefined'){
                     arr[i].title = arr[i]["Cognome"]+" "+arr[i]["Nome"];
                 }
@@ -122,12 +132,12 @@ function readResources(callback){
 }
 function readEvents(start, end, timezone, callback){
    //var date = calendar.getDate().format();
-   var docRef = db.collection("Eventi");
+   var docRef = db.collection("Eventi"); //TODO TURRO visualizzare solo quelli giusti
    var evs = [];
    docRef.get().then(function(querySnapshot) {
        querySnapshot.forEach(function(doc) {
            var e = doc.data();
-           e.id= doc.id;
+           e.id = doc.id;
            evs.push(e)
        });
        callback(evs);
@@ -136,47 +146,6 @@ function readEvents(start, end, timezone, callback){
        callback(evs);
    });
 }
-
-function removeResource(res){
-    calendar.removeResource(res).then(function(value){
-        removeResourceDart(res);
-    });
-}
-
-function addResource(res){
-    res.forEach(function(i){
-        i.title = i["surname"]+" "+i["name"];
-        calendar.addResource(i);
-    })
-}
-
-function deleteEvent(id, event){
-    //here cause transactions in dart web give error
-    db.runTransaction(async function(transaction) {
-        var docRef = db.collection("Eventi").doc(id);
-        var a = await transaction.set(db.collection("EventiEliminati").doc(id), JSON.parse(event));
-        return await transaction.delete(docRef);
-    }).catch(function(error) {
-        console.log("Error in trasaction: deleteEvent - ", error);
-    });
-}
-
-  async function storageGetUrlJs(path){
-    storage = firebase.storage();
-    var downloadUrl = await storage.ref().child(path).getDownloadURL();
-    window.open(downloadUrl);
-  }
-
-  function storagePutFileJs(path, file){
-    storage = firebase.storage();
-    storage.ref().child(path).put(file);
-  }
-
-  function storageDelFileJs(path){
-    storage = firebase.storage();
-    storage.ref().child(path).delete();
-  }
-
 function mapEventObj(eventData){
     if(eventData!=null){
         var e = eventData;
@@ -189,6 +158,49 @@ function mapEventObj(eventData){
         e.end = new Date(e.DataFine.seconds*1000).toISOString()
         return e;
     }
+}
+function removeResource(res){
+ var docRef = db.collection("Utenti").doc(idUtente);
+    docRef.get().then(function(doc) {
+        if (doc.exists) {
+            var webOps = doc.data().OperatoriWeb;
+            for(var i=0; i<webOps.length; i++) {
+                if(webOps[i].Id == res) webOps.splice(i, 1);
+            }
+            docRef.update({"OperatoriWeb":webOps}).then(calendar.refetchResources());
+        } else {
+            console.log("No web operator!");
+        }
+    }).catch(function(error) {
+        console.log("Error getting user", error);
+    });
+}
+
+//<-- Dart
+function addResources(res){ //-- deprecated
+    res.forEach(function(i){
+        i.title = i["surname"]+" "+i["name"];
+        calendar.addResource(i);
+    })
+}
+//<-- Dart
+async function storageOpenUrl(path){
+    var downloadUrl = await storage.ref().child(path).getDownloadURL();
+    window.open(downloadUrl);
+}
+//<-- Dart
+function storageGetFiles(path){
+    return new Promise((resolve, reject) => {
+        storage.ref().child(path).listAll().then(a=>resolve(a["items"].map(a=>a.fullPath)));
+    });
+}
+//<-- Dart
+function storagePutFile(path, file){
+    storage.ref().child(path).put(file);
+}
+//<-- Dart
+function storageDelFile(path){
+    storage.ref().child(path).delete();
 }
 
 /*-------------------------------------------------------------------*/
@@ -205,7 +217,7 @@ function formatDate(date) {
       return year + '-' + ((monthIndex/10<1)?0+''+monthIndex:monthIndex) + '-' + ((day/10<1)?0+''+day:day);
 }
 
-function censor(censor) {
+function censorMap(censor) {
   var i = 0;
 
   return function(key, value) {
@@ -219,20 +231,6 @@ function censor(censor) {
 
     return value;
   }
-}
-function initJs2Dart(callback){
-    dart=callback;
-}
-function initJs2DartUtente(callback){
-    idUtente=callback;
-}
-
-function cookieJar(name, val){
-    if(val!=null){
-        if(val == "") setCookie(name, val, 1);
-        else setCookie(name, val, -10);
-    }
-    else return getCookie(name);
 }
 
 function getCookie(cname) {
@@ -257,10 +255,21 @@ function setCookie(cname, cvalue, exdays) {
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
-function showAlert(msg){
-    alert(msg);
-}
+/*          DART            */
+//accessors
+function WriteCookieJarJs(name,val) { setCookie(name,val,val==""?-10:1);}
+function ReadCookieJarJs(name) { return getCookie(name);}
 
-function consolLog(value){
-    console.log(value);
-}
+function storageOpenUrlJs(path){ storageOpenUrl(path); };
+function storageGetFilesJs(path){ return storageGetFiles(path); };
+function storagePutFileJs(path, file){ storagePutFile(path, file); };
+function storageDelFileJs(path){ storageDelFile(path); };
+
+function showAlertJs(value) { alert(value);}
+function consoleLogJs(value) { console.log(value);}
+
+
+
+
+
+

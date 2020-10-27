@@ -1,102 +1,91 @@
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/plugin/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class Event {
-  String _id="";
-  String _title="";
-  String _description="";
-  DateTime _start=DateTime.now();
-  DateTime _end=DateTime.now();
-  String _address="";
-  String _documents="";
-  int _status= Status.New;
-  String _category="";
-  String _color="";
-  String _idSupervisor = "";
-  String _idOperator = "";
+  String _id = "";
+  String _title = "";
+  String _description = "";
+  DateTime _start = DateTime.now();
+  DateTime _end = DateTime.now();
+  String _address = "";
+  List<dynamic> _documents = new List();
+  int _status = Status.New;
+  String _category = "";
+  String _color = "";
   String _motivazione = "";
-  List<dynamic> _idOperators = new List();
-  dynamic _supervisor = null;
-  dynamic _operator = null;
-  List<dynamic> _suboperators = new List();
+  Account _supervisor = null;
+  Account _operator = null;
+  List<Account> _suboperators = new List();
 
 
-  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._documents, this._status, this._category, this._color, this._idSupervisor, this._idOperator, this._idOperators, this._supervisor, this._operator, this._suboperators, this._motivazione);
+  Event(this._id, this._title, this._description, this._start, this._end, this._address, this._documents, this._status, this._category, this._color, this._supervisor, this._operator, this._suboperators, this._motivazione);
   Event.empty();
-  Event.fromMapWeb(String id, String color, Map json){
-    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
-    _title = json["Titolo"];
-    _description = json["Descrizione"];
-    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"]["seconds"]*1000);
-    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"]["seconds"]*1000);
-    _address = json["Indirizzo"];
-    _documents = json["Documenti"];
-    _status = json["Stato"];
-    _category = json["Categoria"];
-    _motivazione = json["Motivazione"]; _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
-    _idSupervisor = json["IdResponsabile"];
-    _idOperator = json["IdOperatore"];
-    _idOperators = json["IdOperatori"];
-    _supervisor = json["Responsabile"];
-    _operator = json["Operatore"];
-    _suboperators = json["SubOperatori"];
+  Event.fromMapWeb(String id, String color, dynamic json){
+//    _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
+//    _title = json.Titolo;
+//    _description = json.Descrizione;
+//    _start = new DateTime.fromMillisecondsSinceEpoch(json.DataInizio.seconds*1000);
+//    _end = new DateTime.fromMillisecondsSinceEpoch(json.DataFine.seconds*1000);
+//    _address = json.Indirizzo;
+//    _documents = json.Documenti;
+//    _status = json.Stato;
+//    _category = json.Categoria;
+//    _motivazione = json.Motivazione;
+//    _color = (color!=null && color!="")?color:(json.color!=null)?json.color:"";
+//    _supervisor = PlatformUtils.AccountFromMap("d", json.Responsabile).toDocument();
+//    _operator = PlatformUtils.AccountFromMap("d", json.Operatore).toDocument();
+//    _suboperators = json.SubOperatori.map((op)=>PlatformUtils.AccountFromMap("d", op).toDocument()).toList();
   }
 
-  Event.fromMap(String id, String color, dynamic json){
-    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"";
-    _title = json["Titolo"];
-    _description = json["Descrizione"];
-    _start = json["DataInizio"] is DateTime?json["DataInizio"]:new DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000);
-    _end = json["DataFine"] is DateTime?json["DataFine"]:new DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000);
-    _address = json["Indirizzo"];
-    _documents = json["Documenti"];
-    _status = json["Stato"];
-    _category = json["Categoria"];
-    _color = (color!=null && color!="")?color:(json["color"]!=null)?json["color"]:"";
-    _idSupervisor = json["IdResponsabile"];
-    _idOperator = json["IdOperatore"];
-    _idOperators = json["IdOperatori"];
-    _supervisor = json["Responsabile"];
-    _operator = json["Operatore"];
-    _suboperators = json["SubOperatori"];
+  Event.fromMap(String id, String color, Map json) :
+    _id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"",
+    _title = json["Titolo"],
+    _description = json["Descrizione"],
+    _start = json["DataInizio"] is DateTime?json["DataInizio"]:DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000).toLocal(),
+    _end = json["DataFine"] is DateTime?json["DataFine"]:DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000).toLocal(),
+    _address = json["Indirizzo"],
+    _documents = json["Documenti"]??[],
+    _status = json["Stato"],
+    _category = json["Categoria"],
+    _color = (!color.isNullOrEmpty())?color:(json.containsKey("color"))?json["color"]:"",
+    _supervisor = json["Responsabile"]==null?Account.empty():Account.fromMap("", json["Responsabile"]),
+    _operator = json["Operatore"]==null?Account.empty():Account.fromMap("", json["Operatore"]),
+    _suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
     _motivazione = json["Motivazione"];
 
-  }
-
-//  Map<String, dynamic> toMap(){
-//    return Map<String, dynamic>.of({
-//      "id":this.id,
-//      "Titolo":this.title,
-//      "Descrizione":this.description,
-//      "DataInizio":this.start,
-//      "DataFine":this.end,
-//      "Indirizzo":this.address,
-//      "Stato":this.status,
-//      "Categoria":this.category,
-//      "color":this.color,
-//      "Responsabile":this.supervisor,
-//      "Operatore":this.operator,
-//      "SubOperatori":this.suboperators
-//    });
-//  }
-
-  Map<String, dynamic> toDocument(){
-    return Map<String, dynamic>.of({
+  Map<String, dynamic> toMap() => {
+      "id":this.id,
       "Titolo":this.title,
       "Descrizione":this.description,
       "DataInizio":this.start,
       "DataFine":this.end,
       "Indirizzo":this.address,
+      "Stato":this.status,
+      "Categoria":this.category,
+      "color":this.color,
+      "Responsabile":this.supervisor?.toMap(),
+      "Operatore":this.operator?.toMap(),
+      "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
+  };
+
+  Map<String, dynamic> toDocument(){
+    return Map<String, dynamic>.of({
+      "Titolo":this.title,
+      "Descrizione":this.description,
+      "DataInizio":this.start.toUtc(),
+      "DataFine":this.end.toUtc(),
+      "Indirizzo":this.address,
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
-      "IdResponsabile":this.idSupervisor,
-      "IdOperatore":this.idOperator,
-      "IdOperatori":this.idOperators,
-      "Responsabile":this.supervisor,
-      "Operatore":this.operator,
-      "SubOperatori":this.suboperators,
+      "Responsabile":this.supervisor?.toMap(),
+      "Operatore":this.operator?.toMap(),
+      "SubOperatori": this.suboperators.map((op)=>op.toMap()).toList(),
       "Motivazione" : this.motivazione,
+      "IdOperatore" : this.operator.id,
+      "IdOperatori" : [...this.suboperators.map((op) => op.id),operator.id],
     });
   }
 
@@ -106,16 +95,13 @@ class Event {
   DateTime get start => _start;
   DateTime get end => _end;
   String get address => _address;
-  String get documents => _documents;
+  List<dynamic> get documents => _documents;
   int get status => _status;
   String get category => _category;
   String get color => _color;
-  String get idSupervisor => _idSupervisor;
-  String get idOperator => _idOperator;
-  List<dynamic> get idOperators => _idOperators;
-  dynamic get supervisor => _supervisor;
-  dynamic get operator => _operator;
-  List<dynamic> get suboperators => _suboperators;
+  Account get supervisor => _supervisor;
+  Account get operator => _operator;
+  List<Account> get suboperators => _suboperators;
   String get motivazione => _motivazione;
 
   set id(String value) {
@@ -134,7 +120,7 @@ class Event {
     _address = value;
   }
 
-  set documents(String value) {
+  set documents(List<dynamic> value) {
     _documents = value;
   }
 
@@ -158,33 +144,22 @@ class Event {
     _color = value;
   }
 
-  set idSupervisor(String value) {
-    _idSupervisor = value;
-  }
-
-  set idOperator(String value) {
-    _idOperator = value;
-  }
-
-  set idOperators(List<dynamic> value) {
-    _idOperators = value;
-  }
-
-  set supervisor(dynamic value) {
+  set supervisor(Account value) {
     _supervisor = value;
   }
 
-  set operator(dynamic value) {
+  set operator(Account value) {
     _operator = value;
   }
 
-  set suboperators(List<dynamic> value) {
+  set suboperators(List<Account> value) {
     _suboperators = value;
   }
 
   set motivazione(String value){
     _motivazione = value;
   }
+
   bool isBetweenDate(DateTime dataInizio,DateTime dataFine){
     if(((this.start.isAfter(dataInizio) || this.start.isAtSameMomentAs(dataInizio)) && this.start.isBefore(dataFine)) || (this.end.isAfter(dataInizio) && (this.end.isBefore(dataFine)) || this.end.isAtSameMomentAs(dataFine)) || (this.start.isBefore(dataInizio) && this.end.isAfter(dataFine)) || (this.start.isAtSameMomentAs(dataInizio) && this.end.isAtSameMomentAs(dataFine))){
       return true;
@@ -193,6 +168,25 @@ class Event {
     }
   }
 
+  bool isAllDayLong() {
+    final differenceInHour = this.end.difference(this.start).inHours;
+    final dayDuration = Constants.MAX_WORKTIME - Constants.MIN_WORKTIME;
+    if(differenceInHour >= dayDuration){
+      return true;
+    }
+    return false;
+  }
+
+  bool isDeleted() => this.status == Status.Deleted;
+  bool isNew() => this.status == Status.New;
+  bool isDelivered() => this.status == Status.Delivered;
+  bool isSeen() => this.status == Status.Seen;
+  bool isAccepted() => this.status == Status.Accepted;
+  bool isRefused() => this.status == Status.Refused;
+  bool isEnded() => this.status == Status.Ended;
+
+  @override
+  String toString() => _id+_title+_description+_documents.join()+_start.toString()+_end.toString()+_address+(_status??"").toString()+_category+_color+(_supervisor!=null?_supervisor.id:"")+(_operator!=null?_operator.id:"")+_suboperators.map((o) => o.id).join()+(_motivazione??"");
 }
 
 class Status {
@@ -201,8 +195,8 @@ class Status {
   static const int Delivered = 1;
   static const int Seen = 2;
   static const int Accepted = 3;
-  static const int Refused = 4;
-  static const int Ended = 5;
+  static const int Ended = 4;
+  static const int Refused = 5;
 
   static IconData getIcon(int status){
     switch(status){
@@ -220,6 +214,18 @@ class Status {
         return Icons.assignment_late;
       case Ended:
         return Icons.assistant_photo;
+    }
+  }
+
+  static String getText(int status){
+    switch(status){
+      case Status.Deleted: return "Eliminato";
+      case Status.New: return "Nuovo";
+      case Status.Delivered: return "Consegnato";
+      case Status.Seen: return "Visualizzato";
+      case Status.Accepted: return "Accettato";
+      case Status.Refused: return "Rifiutato";
+      case Status.Ended: return "Terminato";
     }
   }
 }
