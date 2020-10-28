@@ -25,7 +25,11 @@ ThemeData _buildTheme() {
     primaryColor: black, //appBar
     scaffoldBackgroundColor: whitebackground, //ok
     cardColor: Color(0x00000000),
-    textSelectionColor: grey_dark,
+    textSelectionTheme:  TextSelectionThemeData(
+          cursorColor: yellow,
+          selectionHandleColor: yellow,
+           selectionColor: yellow.withOpacity(0.7),
+        ),
     cursorColor: Color(0xFFFFFFFF),
     errorColor: red,
     buttonTheme: ButtonThemeData(

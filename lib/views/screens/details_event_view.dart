@@ -92,16 +92,27 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
               Divider(height: 2, thickness: 2, indent: 35, color: black_light,),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 15.0),
-                child: Row(
-                  children: <Widget>[
-                    Icon(
-                      Icons.map,
-                      size: sizeIcon,
-                    ),
-                    SizedBox(width: padding,),
-                    Text(event.address.isEmpty?'Nessun indirizzo indicato':event.address, style: subtitle_rev),
-                    //Text(event.address, style: subtitle_rev)
-                  ],
+                child:  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.map,
+                        size: sizeIcon,
+                      ),
+                      SizedBox(width: padding,),
+                      Container(
+                      child:
+                         Flexible(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                  Text(event.address.isEmpty?'Nessun indirizzo indicato':event.address,
+                                    style: subtitle_rev,overflow: TextOverflow.visible,),
+                      //Text(event.address, style: subtitle_rev)
+                               ],
+                             ),
+                         ),
+                      ),
+                    ],
                 ),
               ),
               Divider(height: 2, thickness: 2, indent: 35, color: black_light,),

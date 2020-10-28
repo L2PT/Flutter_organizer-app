@@ -226,7 +226,7 @@ class _geoLocationAddress extends StatelessWidget {
                 context.bloc<CreateEventCubit>().getLocations(text),
             keyboardType: TextInputType.text,
             cursorColor: black,
-            initialValue:  context.bloc<CreateEventCubit>().state.event.address,
+            controller: context.bloc<CreateEventCubit>().controllerIndir,
             decoration: InputDecoration(
               hintText: 'Aggiungi posizione',
               hintStyle: subtitle,
