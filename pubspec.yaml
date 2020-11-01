@@ -41,7 +41,7 @@ dependencies:
   equatable: ^1.2.5
   file_picker: ^2.0.7
   dio: ^3.0.10
-  flutter_downloader: ^1.5.1
+  flutter_downloader: ^1.5.2
 
   #mobile only
   fluttertoast: ^7.1.1
