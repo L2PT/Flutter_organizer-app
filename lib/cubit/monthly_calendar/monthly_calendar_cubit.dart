@@ -38,22 +38,16 @@ class MonthlyCalendarCubit extends Cubit<MonthlyCalendarState> {
     Map<DateTime, List<Event>> eventsMap = {};
     if(this._events != null){
       _events.forEach((singleEvent) {
-        if (singleEvent.isBetweenDate(first, last)) {
           for(int i in List<int>.generate(max(1,singleEvent.end.difference(singleEvent.start).inDays), (i) => i + 1)){
             DateTime month = TimeUtils.truncateDate(singleEvent.start, "month");
             DateTime dateIndex = month.toUtc().add(Duration(days:singleEvent.start.day+i-2)).add(month.timeZoneOffset);
             if(eventsMap[dateIndex]==null) eventsMap[dateIndex] = [];
             eventsMap[dateIndex].add(singleEvent);
           }
-        }
       });
     }
+
     emit(MonthlyCalendarReady(eventsMap, state.selectedMonth));
   }
 
-
-  void onVisibleDaysChanged(DateTime first, DateTime last, CalendarFormat format) {
-    if(state is MonthlyCalendarReady)
-      evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
-  }
 }
