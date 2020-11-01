@@ -24,7 +24,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   final Account _account;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> formTimeControlsKey = GlobalKey<FormState>();
-  TextEditingController controllerIndir;
+  TextEditingController addressController;
 
   _eventType _type;
   bool canModify;
@@ -35,7 +35,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     _type = (event==null)? _eventType.create : _eventType.modify;
     canModify = isNew() ? true : state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5)));
     categories = _databaseRepository.categories;
-    controllerIndir = new TextEditingController(text: state.event.address);
+    addressController = new TextEditingController(text: state.event.address);
   }
 
   void getLocations(String text) async {
@@ -46,7 +46,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   setAddress(String address) {
-    controllerIndir.text = address;
+    addressController.text = address;
     emit(state.assign(locations: new List<String>(), address: address));
   }
 

@@ -62,6 +62,7 @@ class Event {
       "DataInizio":this.start,
       "DataFine":this.end,
       "Indirizzo":this.address,
+      "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
       "color":this.color,
@@ -187,6 +188,7 @@ class Event {
 
   @override
   String toString() => _id+_title+_description+_documents.join()+_start.toString()+_end.toString()+_address+(_status??"").toString()+_category+_color+(_supervisor!=null?_supervisor.id:"")+(_operator!=null?_operator.id:"")+_suboperators.map((o) => o.id).join()+(_motivazione??"");
+
 }
 
 class Status {
