@@ -82,14 +82,15 @@ class _contentTableCalendar extends StatelessWidget {
       _animationController.forward();
 
       return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
-          buildWhen: (previous, current) => previous != current,
+          buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
+              previous.eventsMap != current.eventsMap,
           builder: (context, state) {
             return !(state is MonthlyCalendarReady) ? Center(child: CircularProgressIndicator()) :
              TableCalendar(
               rowHeight: 85,
               locale: 'it_IT',
               calendarController: context.bloc<MonthlyCalendarCubit>().calendarController,
-              events: context.bloc<MonthlyCalendarCubit>().state.eventsMap,
+              events: state.eventsMap,
               initialCalendarFormat: CalendarFormat.month,
               formatAnimation: FormatAnimation.slide,
               startingDayOfWeek: StartingDayOfWeek.monday,
@@ -163,8 +164,6 @@ class _contentTableCalendar extends StatelessWidget {
                 _animationController.forward(from: 0.0);
                 _animationController.dispose();
               },
-              onVisibleDaysChanged:
-              context.bloc<MonthlyCalendarCubit>().onVisibleDaysChanged,
               selectNext: () {},
               selectPrevious: () {},
             );
