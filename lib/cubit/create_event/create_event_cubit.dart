@@ -135,19 +135,15 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   void setAlldayLong(value) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    if(TimeUtils.getNextWorkTimeSpan(TimeUtils.truncateDate(state.event.start, "day")).isAfter(DateTime.now())) {
-      if(value) {
-        event.start = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MIN_WORKTIME));
-        event.end = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MAX_WORKTIME));
-      } else {
-        event.start = event.start;
-        event.end = TimeUtils.addWorkTime(event.start, minutes: Constants.WORKTIME_SPAN);
-      }
-      _removeAllOperators(event);
-      emit(state.assign(event: event, allDayFlag: value));
-    }else{
-      PlatformUtils.notifyErrorMessage("Inserisci un intervallo temporale valido");
+    if(value) {
+      event.start = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MIN_WORKTIME));
+      event.end = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MAX_WORKTIME));
+    } else {
+      event.start = event.start;
+      event.end = TimeUtils.addWorkTime(event.start, minutes: Constants.WORKTIME_SPAN);
     }
+    _removeAllOperators(event);
+    emit(state.assign(event: event, allDayFlag: value));
   }
 
   setStartDate(DateTime date) {
@@ -191,8 +187,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   void addOperatorDialog(BuildContext context) async {
-    if(state.event.start.isBefore(DateTime.now().add(new Duration(minutes: 5))))
-      return PlatformUtils.notifyErrorMessage("Inserisci un'intervallo temporale nel futuro");
     if(state.event.start.hour < Constants.MIN_WORKTIME || state.event.start.hour >= Constants.MAX_WORKTIME )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour >= Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
