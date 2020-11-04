@@ -332,7 +332,6 @@ class _timeControls extends StatelessWidget {
           onTap: () => context.bloc<CreateEventCubit>().canModify ?
           PlatformDatePicker.showDatePicker(context,
             showTitleActions: true,
-            minTime: DateTime.now(),
             maxTime: DateTime(3000),
             currentTime: event.start,
             onConfirm: (date) => context.bloc<CreateEventCubit>().setStartDate(date),
