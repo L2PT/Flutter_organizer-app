@@ -200,7 +200,7 @@ class _loginButton extends StatelessWidget {
                     child: FlatButton(
                       shape: new RoundedRectangleBorder(
                           borderRadius: new BorderRadius.circular(30.0)),
-                      color: black,
+                      color: Constants.debug?Colors.red:black,
                       child: new Row(
                         children: <Widget>[
                           new Padding(

@@ -23,7 +23,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: Constants.title,
       theme: customLightTheme,
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: Constants.debug,
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
           if (state is Unauthenticated) {

@@ -1,9 +1,9 @@
 library App.globals;
-import 'package:venturiautospurghi/models/event.dart';
+import 'package:flutter/foundation.dart';
 
 class Constants {
   static const String title = "Venturi Autospurghi App";
-  static const bool debug = true;
+  static const bool debug = !bool.fromEnvironment('dart.vm.product');
   static const String web = "web";
   static const String mobile = "mobile";
 

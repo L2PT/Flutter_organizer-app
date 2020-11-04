@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
@@ -14,6 +15,7 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
+import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 
 class CreateEvent extends StatelessWidget {
   final Event _event;
@@ -140,7 +142,35 @@ class _formInputList extends StatelessWidget{
               ),
             ]),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            _geoLocationAddress(),
+            Row(children: <Widget>[
+              Container(
+                width: iconWidth,
+                margin: EdgeInsets.only(right: 20.0),
+                child: Icon(
+                  Icons.map,
+                  color: black,
+                  size: iconWidth,
+                ),
+              ),
+              Expanded(
+                  child: TextFormField(
+                    onChanged: (text) =>
+                        context.bloc<CreateEventCubit>().getLocations(text),
+                    keyboardType: TextInputType.text,
+                    cursorColor: black,
+                    controller: context.bloc<CreateEventCubit>().addressController,
+                    decoration: InputDecoration(
+                      hintText: 'Aggiungi posizione',
+                      hintStyle: subtitle,
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 2.0,
+                          style: BorderStyle.solid,
+                        ),
+                      ),
+                    ),
+                  )),
+            ]),
             _geoLocationOptionsList(),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
             Row(children: <Widget>[
@@ -202,54 +232,6 @@ class _formInputList extends StatelessWidget{
 
   }
 }
-
-
-class _geoLocationAddress extends StatelessWidget {
-  double iconWidth = CreateEvent.iconWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    
-    Widget addressContent() => Row(children: <Widget>[
-          Container(
-            width: iconWidth,
-            margin: EdgeInsets.only(right: 20.0),
-            child: Icon(
-              Icons.map,
-              color: black,
-              size: iconWidth,
-            ),
-          ),
-          Expanded(
-              child: TextFormField(
-            onChanged: (text) =>
-                context.bloc<CreateEventCubit>().getLocations(text),
-            keyboardType: TextInputType.text,
-            cursorColor: black,
-            controller: context.bloc<CreateEventCubit>().addressController,
-            decoration: InputDecoration(
-              hintText: 'Aggiungi posizione',
-              hintStyle: subtitle,
-              border: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  width: 2.0,
-                  style: BorderStyle.solid,
-                ),
-              ),
-            ),
-          )),
-        ]);
-
-    return BlocBuilder<CreateEventCubit, CreateEventState>(
-      buildWhen: (previous, current) => previous.event != current.event,
-      builder: (context, state) {
-        return addressContent();
-      },
-    );
-  }
-
-}
-
 
 class _geoLocationOptionsList extends StatelessWidget {
 
@@ -348,11 +330,10 @@ class _timeControls extends StatelessWidget {
           child: Text( event.start.toString().split(' ').first,
             style: context.bloc<CreateEventCubit>().canModify ? title : subtitle),
           onTap: () => context.bloc<CreateEventCubit>().canModify ?
-          DatePicker.showDatePicker(context,
+          PlatformDatePicker.showDatePicker(context,
             showTitleActions: true,
             minTime: DateTime.now(),
             maxTime: DateTime(3000),
-            theme: DatePickerAppTheme,
             currentTime: event.start,
             onConfirm: (date) => context.bloc<CreateEventCubit>().setStartDate(date),
           ) : null,
@@ -364,9 +345,8 @@ class _timeControls extends StatelessWidget {
           child: Text( event.start.toString().split(' ').last.split('.').first.substring(0,5),
             style: context.bloc<CreateEventCubit>().canModify ? title : subtitle),
           onTap: () => context.bloc<CreateEventCubit>().canModify ?
-          DatePicker.showTimePicker(context,
+          PlatformDatePicker.showTimePicker(context,
             showTitleActions: true,
-            theme: DatePickerAppTheme,
             currentTime: event.start,
             onConfirm: (time) => context.bloc<CreateEventCubit>().setStartTime(time),
           ) : null,
@@ -387,11 +367,10 @@ class _timeControls extends StatelessWidget {
               style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,),
             onTap: () =>
             context.bloc<CreateEventCubit>().canModify ?
-            DatePicker.showDatePicker(context,
+            PlatformDatePicker.showDatePicker(context,
               showTitleActions: true,
               minTime: TimeUtils.truncateDate(event.start, "day"),
               maxTime: DateTime(3000),
-              theme: DatePickerAppTheme,
               currentTime: event.end,
               locale: LocaleType.it,
               onConfirm: (date) => context.bloc<CreateEventCubit>().setEndDate(date),
@@ -404,9 +383,8 @@ class _timeControls extends StatelessWidget {
               style: context.bloc<CreateEventCubit>().canModify ? title : subtitle,
             ),
             onTap: (){if(context.bloc<CreateEventCubit>().canModify)
-            DatePicker.showTimePicker(context,
+              PlatformDatePicker.showTimePicker(context,
               showTitleActions: true,
-              theme: DatePickerAppTheme,
               currentTime: event.end,
               locale: LocaleType.it,
               onConfirm: (time) => context.bloc<CreateEventCubit>().setEndTime(time),

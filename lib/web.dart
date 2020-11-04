@@ -24,7 +24,7 @@ import 'bloc/web_bloc/web_bloc.dart';
 import 'cubit/create_event/create_event_cubit.dart';
 
 @JS()
-external void init(String idUtente);
+external void init(bool debug, String idUtente);
 external dynamic addResources(dynamic data);
 
 @JS()
@@ -90,7 +90,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     var authentication = RepositoryProvider.of<FirebaseAuthService>(context);
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: Constants.debug,
       theme: customLightTheme,
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
@@ -143,7 +143,7 @@ class _MyAppWebState extends State<MyAppWeb> with TickerProviderStateMixin {
     super.initState();
     js.context['showDialogByContext_dart'] = this.showDialogByContext;
     //TODO try to pass the [Constants] class
-    init(context.bloc<AuthenticationBloc>().account.id);
+    init(Constants.debug, context.bloc<AuthenticationBloc>().account.id);
   }
 
   void showDialogByContext(String dialogType, dynamic param) {
@@ -293,14 +293,16 @@ class _buildWebPage extends StatelessWidget {
                         borderRadius: BorderRadius.horizontal(left:Radius.circular(10.0))
                     ),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: <Widget>[
                             Container(
                               decoration: BoxDecoration(border: Border(
+                                  top: BorderSide(width: 4),
                                   bottom: BorderSide(
                                       color: BlocProvider.of<WebBloc>(context).state.route == Constants.homeRoute?yellow:black,
-                                      width: 3
+                                      width: 4
                                   )
                               )),
                               child: FlatButton(
@@ -310,9 +312,10 @@ class _buildWebPage extends StatelessWidget {
                             ),
                             Container(
                               decoration: BoxDecoration(border: Border(
+                                  top: BorderSide(width: 4),
                                   bottom: BorderSide(
                                       color: BlocProvider.of<WebBloc>(context).state.route == Constants.historyEventListRoute?yellow:black,
-                                      width: 3
+                                      width: 4
                                   )
                               )),
                               child: FlatButton(
@@ -322,7 +325,7 @@ class _buildWebPage extends StatelessWidget {
                             ),
                             Expanded(child: Container(),),
                             Container(
-                              alignment: Alignment.bottomRight,
+                              alignment: Alignment.centerRight,
                               child: Row(children: <Widget>[
                                 IconButton(
                                   icon: FaIcon(FontAwesomeIcons.userAlt, color: white),

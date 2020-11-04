@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
+import 'package:queries/collections.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
@@ -55,7 +56,7 @@ class WebBloc extends Bloc<WebEvent, WebState> {
       case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(event.arg), event.callerContext); break;
       case Constants.monthlyCalendarRoute: yield DialogReady(event.route, TableCalendarWithBuilders(), event.callerContext); break;
       case Constants.registerRoute: yield DialogReady(event.route, Register(), event.callerContext); break;
-      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection((event.arg is List)?event.arg[0]:event.arg, (event.arg is List)?event.arg[1]:false), event.callerContext); break;
+      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection((event.arg is Map)?event.arg["event"]:event.arg, (event.arg is Map)?event.arg["requirePrimaryOperator"]:false), event.callerContext); break;
       case Constants.addWebOperatorRoute: Event e = new Event.empty()..suboperators = _account.webops; e.start = e.end = DateTime(0); yield DialogReady(event.route, OperatorSelection(e), event.callerContext); break;
     }
   }

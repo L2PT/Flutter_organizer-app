@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -35,14 +36,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     _type = (event==null)? _eventType.create : _eventType.modify;
     canModify = isNew() ? true : state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5)));
     categories = _databaseRepository.categories;
-    addressController = new TextEditingController(text: state.event.address);
+    if(!event.category.isNullOrEmpty())
+      radioValueChanged(categories.keys.toList().indexOf(event.category));
+      addressController = new TextEditingController(text: state.event.address);
   }
 
   void getLocations(String text) async {
     if(text.length >5){
       List<String> locations = await getLocationAddresses(text);
       emit(state.assign(locations: locations, address: text));
-    }
+    } else emit(state.assign(address: text));
   }
 
   setAddress(String address) {
@@ -158,8 +161,10 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.assign(event: event));
   }
 
-  setStartTime(DateTime time) {
+  setStartTime(dynamic time) {
     Event event = Event.fromMap("", "", state.event.toMap());
+    if(time is TimeOfDay) 
+      time = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: DateTimeField.convert(time).hour, minutes: DateTimeField.convert(time).minute));
     event.start = time;
     event.end = TimeUtils.truncateDate(event.end, "day").add(
         Duration(hours: (TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end)).hour,
@@ -174,8 +179,10 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
-  setEndTime(DateTime time) {
+  setEndTime(dynamic time) {
     Event event = Event.fromMap("", "", state.event.toMap());
+    if(time is TimeOfDay)
+      time = TimeUtils.truncateDate(event.end, "day").add(Duration(hours: DateTimeField.convert(time).hour, minutes: DateTimeField.convert(time).minute));
     event.end = time;
     _removeAllOperators(event);
     emit(state.assign(event: event));

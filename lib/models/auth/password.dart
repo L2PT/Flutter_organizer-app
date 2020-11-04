@@ -8,9 +8,9 @@ class Password {
 
   const Password([this.value = ""]);
 
-  static final _passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$');
+  static final _passwordRegExp = RegExp(r'^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$');
 
-  bool validate() {
+  bool validate() { 
     return Constants.debug || _passwordRegExp.hasMatch(this.value);
   }
 }

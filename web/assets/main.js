@@ -1,4 +1,4 @@
-const debug = true;
+
 
 const homeRoute = '/';
 const monthlyCalendarRoute = 'view/monthly_calendar';
@@ -16,7 +16,7 @@ const resetCodeRoute = 'view/reset_code_page';
 const logInRoute = 'view/log_in';
 const logOut = 'log_out';
 
-
+var debug = true;
 var calendar;
 var db;
 var storage;
@@ -53,7 +53,8 @@ $(function() {
 
 });
 
-function init(idUtente){
+function init(debug, idUtente){
+    this.debug = debug;
     this.idUtente = idUtente;
     $('#__file_picker_web-file-input').hide()
     $('#calendar').show()
@@ -134,7 +135,7 @@ function readResources(callback){
 }
 function readEvents(start, end, timezone, callback){
    //var date = calendar.getDate().format();
-   var docRef = db.collection("Eventi"); //TODO TURRO visualizzare solo quelli giusti
+   var docRef = db.collection(debug?"Eventi_DEBUG":"Eventi");
    var evs = [];
    docRef.get().then(function(querySnapshot) {
        querySnapshot.forEach(function(doc) {

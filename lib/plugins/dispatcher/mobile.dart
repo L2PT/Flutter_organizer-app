@@ -12,15 +12,16 @@ import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
+import 'dart:io' show Platform;
 
 abstract class PlatformUtils {
   PlatformUtils._();
 
   static const String platform = Constants.mobile;
   static dynamic myApp = MyApp();
+  static const bool isMobile = true;
+  static bool isIOS = Platform.isIOS;
 
   static SimpleGestureDetector gestureDetector({dynamic child, Function onVerticalSwipe, SimpleSwipeConfig swipeConfig}){
     return SimpleGestureDetector(

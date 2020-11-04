@@ -216,7 +216,7 @@ class _smallScreen extends StatelessWidget {
                 tabs: tabsHeaders.map((pair) => pair.key).toList(),
                 controller: _tabController,
               ),
-            ), PlatformUtils.platform == Constants.web ?
+            ), !PlatformUtils.isMobile ?
             Container(height: MediaQuery.of(context).size.height - 150, child: _HistoryContent(_tabController,tabsHeaders),) :
             Expanded(
               child: _HistoryContent(_tabController,tabsHeaders),)

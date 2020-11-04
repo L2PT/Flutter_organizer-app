@@ -68,7 +68,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
     isSupervisor = account.supervisor;
     token = account.token;
-    if (PlatformUtils.platform == Constants.mobile || isSupervisor) yield Authenticated(account, isSupervisor, token);
+    if (PlatformUtils.isMobile || isSupervisor) yield Authenticated(account, isSupervisor, token);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {

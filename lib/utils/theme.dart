@@ -78,14 +78,6 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
   );
 }
 
-DatePickerTheme DatePickerAppTheme = DatePickerTheme(
-    headerColor: black,
-    backgroundColor: white,
-    itemStyle: label,
-    cancelStyle: subtitle,
-    doneStyle: subtitle_accent
-);
-
 const black_dark = const Color(0xFF000000);
 const black = const Color(0xFF333333);
 const black_light = const Color(0xFF4b4b4b);

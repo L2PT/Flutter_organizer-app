@@ -54,6 +54,8 @@ dependencies:
   html: ^0.14.0+3
   js_shims: ^1.0.0
   universal_html: ^1.2.3
+  datetime_picker_formfield: ^1.0.0
+
 
 dev_dependencies:
   flutter_test:

@@ -1,10 +1,9 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
 abstract class PlatformUtils {
+
   PlatformUtils._();
 
 /* Example
@@ -15,6 +14,8 @@ abstract class PlatformUtils {
 
   static const String platform = null;
   static const dynamic myApp = null;
+  static const bool isMobile = null;
+  static bool isIOS = null;
 
   static dynamic gestureDetector(
       {dynamic child, Function onVerticalSwipe, dynamic swipeConfig}) {
@@ -38,5 +39,5 @@ abstract class PlatformUtils {
   static dynamic notifyErrorMessage(msg) => null;
 
   static dynamic notifyInfoMessage(message) => null;
-
+  
 }
