@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/login/login_cubit.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -216,7 +217,7 @@ class _loginButton extends StatelessWidget {
                           new Transform.translate(
                             offset: Offset(10.0, 0.0),
                             child: new Container(
-                              padding: const EdgeInsets.all(5.0),
+                              padding: PlatformUtils.isMobile? EdgeInsets.all(5.0) : EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                               child: FlatButton(
                                 shape: new RoundedRectangleBorder(
                                     borderRadius:

@@ -15,7 +15,7 @@ abstract class PlatformUtils {
   static const String platform = null;
   static const dynamic myApp = null;
   static const bool isMobile = null;
-  static bool isIOS = null;
+  static const bool isIOS = null;
 
   static dynamic gestureDetector(
       {dynamic child, Function onVerticalSwipe, dynamic swipeConfig}) {

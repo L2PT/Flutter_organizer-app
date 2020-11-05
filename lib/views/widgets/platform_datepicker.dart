@@ -43,7 +43,7 @@ class PlatformDatePicker {
         Function onChanged,
         Function onConfirm,
         DateCancelledCallback onCancel,
-        locale: LocaleType.en,
+        locale: LocaleType.it,
         DateTime currentTime,
       }) async {
     if(PlatformUtils.isMobile)
@@ -57,6 +57,9 @@ class PlatformDatePicker {
         onConfirm: onConfirm,
       );
     else {
+
+      minTime = minTime??DateTime(1980);
+
       DateTime date = await web_dd.showDatePicker(
           context: context,
           firstDate: minTime,
@@ -80,7 +83,7 @@ class PlatformDatePicker {
         Function onChanged,
         Function onConfirm,
         DateCancelledCallback onCancel,
-        locale: LocaleType.en,
+        locale: LocaleType.it,
         DateTime currentTime,
       }) async {
     if(PlatformUtils.isMobile) {
@@ -97,7 +100,7 @@ class PlatformDatePicker {
         helpText: "Seleziona un'orario".toUpperCase(),
         cancelText: "Annulla".toUpperCase(),
         initialTime: TimeOfDay.fromDateTime(currentTime ?? DateTime.now()),
-        builder: web_theme
+        builder: web_theme,
       );
       if(time != null) return onConfirm(time);
     }

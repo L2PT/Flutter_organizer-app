@@ -25,8 +25,7 @@ void main() {
         storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
         messagingSenderId: "964614131015",
         appId: "1:964614131015:web:8a10af66f5b15bad589062"
-    )).then((_) => initializeDateFormatting("it_IT"))
-      .then((_) {
+    )).then((_) {
         authenticationRepository = FirebaseAuthService();
         runApp(
           RepositoryProvider.value(

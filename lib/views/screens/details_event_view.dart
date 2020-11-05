@@ -382,15 +382,15 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                 children: <Widget>[
                                   Center(
                                     child: Text(formatterMonth.format(event.start).toUpperCase(),
-                                        style: title_rev.copyWith(fontSize: PlatformUtils.isMobile && PlatformUtils.isIOS ? 15 : 16)),
+                                        style: title_rev.copyWith(fontSize: 15)),
                                   ),
                                   Center(
                                     child: Text("${event.start.day}",
-                                        style: title_rev.copyWith(fontSize: PlatformUtils.isMobile && PlatformUtils.isIOS ? 15 : 16)),
+                                        style: title_rev.copyWith(fontSize: 15)),
                                   ),
                                   Center(
                                     child: Text(formatterWeek.format(event.start),
-                                        style: title_rev.copyWith(fontSize: PlatformUtils.isMobile && PlatformUtils.isIOS ? 15 : 16)),
+                                        style: title_rev.copyWith(fontSize: 15)),
                                   )
                                 ],
                               ),

@@ -28,7 +28,7 @@ class PlatformUtils {
   static const String platform = Constants.web;
   static dynamic myApp = MyApp();
   static const bool isMobile = false;
-  static bool isIOS = false;
+  static const bool isIOS = false;
 
   static dynamic gestureDetector({dynamic child, Function onVerticalSwipe, dynamic swipeConfig}){
     throw 'Platform Not Supported';

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -123,15 +124,15 @@ class cardEvent extends StatelessWidget {
                               children: <Widget>[
                                 Center(
                                   child: Text(DateFormat('MMM', "it_IT").format(event.start) .toUpperCase(),
-                                      style: title_rev.copyWith(fontSize: Platform.isIOS?15:16)),
+                                      style: title_rev.copyWith(fontSize: 15)),
                                 ),
                                 Center(
                                   child: Text("${event.start.day}",
-                                      style: title_rev.copyWith(fontSize: Platform.isIOS?15:16)),
+                                      style: title_rev.copyWith(fontSize: 15)),
                                 ),
                                 Center(
                                   child: Text(DateFormat('E', "it_IT").format(event.start),
-                                      style: title_rev.copyWith(fontSize: Platform.isIOS?15:16, fontWeight: FontWeight.normal)),
+                                      style: title_rev.copyWith(fontSize: 15, fontWeight: FontWeight.normal)),
                                 )
                               ],
                             ),

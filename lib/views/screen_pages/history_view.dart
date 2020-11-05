@@ -69,6 +69,7 @@ class _largeScreen extends StatelessWidget {
     return BlocBuilder <HistoryCubit, HistoryState>(
         builder: (context, state) {
           return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) : Container(
+            height: MediaQuery.of(context).size.height,
             padding: EdgeInsets.symmetric(vertical: 10),
             child:Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,9 +87,10 @@ class _largeScreen extends StatelessWidget {
                           width: 180,
                           margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                           child: RaisedButton(
-                              onPressed: ()=> PlatformUtils.navigator(context, Constants.createEventViewRoute, account),
+                              onPressed: ()=> PlatformUtils.navigator(context, Constants.createEventViewRoute),
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                               child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Icon(Icons.add_box, color: white,),
                                   SizedBox(width:5),
@@ -114,13 +116,14 @@ class _largeScreen extends StatelessWidget {
                         Text("Incarichi", style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 5,),
                         (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
-                        GridView(
-                            shrinkWrap: true,
+                            Container(
+                              height: MediaQuery.of(context).size.height - 100,
+                        child:GridView(
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 500.0,
+                              maxCrossAxisExtent: 350.0,
                               mainAxisSpacing: 5.0,
                               crossAxisSpacing: 5.0,
-                              childAspectRatio: 2.8,
+                              childAspectRatio: 2.3,
                             ),
                             children: (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().map((event)=>Container(
                                 child: cardEvent(
@@ -131,7 +134,7 @@ class _largeScreen extends StatelessWidget {
                                   buttonArea: null,
                                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                                 ))).toList()
-                        ):Container(
+                        )):Container(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,

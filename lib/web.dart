@@ -5,6 +5,7 @@ import 'dart:js' as js;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -124,6 +125,15 @@ class _MyAppState extends State<MyApp> {
           return SplashScreen();
           },
       ),
+      localizationsDelegates: [
+        // ... app-specific localization delegate[s] here
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('it', 'IT'),
+      ],
     );
   }
 }
@@ -204,10 +214,11 @@ class _buildWebPage extends StatelessWidget {
                 onPressed: () => PlatformUtils.navigator(context, Constants.createEventViewRoute),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                 child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Icon(Icons.add_box, color: white,),
                     SizedBox(width:5),
-                    Text("Nuovo Incarico", style: button_card,),
+                    Text("Nuovo Incarico", style: button_card, textAlign: TextAlign.center,),
                   ],
                 )
             ),
@@ -245,6 +256,7 @@ class _buildWebPage extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                     child: RaisedButton(
+                        padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                         onPressed: (){
                           jQuery('#calendar').fullCalendar('today',null);
                           context.bloc<WebCubit>().getDateCalendar(jQueryDate());
@@ -262,6 +274,7 @@ class _buildWebPage extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                     child: RaisedButton(
+                        padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                         onPressed: () => PlatformUtils.navigator(context, Constants.monthlyCalendarRoute),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                         child: Row(
@@ -299,7 +312,7 @@ class _buildWebPage extends StatelessWidget {
                           children: <Widget>[
                             Container(
                               decoration: BoxDecoration(border: Border(
-                                  top: BorderSide(width: 4),
+                                  top: BorderSide(width: 4, color: black),
                                   bottom: BorderSide(
                                       color: BlocProvider.of<WebBloc>(context).state.route == Constants.homeRoute?yellow:black,
                                       width: 4
@@ -312,7 +325,7 @@ class _buildWebPage extends StatelessWidget {
                             ),
                             Container(
                               decoration: BoxDecoration(border: Border(
-                                  top: BorderSide(width: 4),
+                                  top: BorderSide(width: 4, color: black),
                                   bottom: BorderSide(
                                       color: BlocProvider.of<WebBloc>(context).state.route == Constants.historyEventListRoute?yellow:black,
                                       width: 4
@@ -336,6 +349,7 @@ class _buildWebPage extends StatelessWidget {
                                 Text(account.name, textAlign: TextAlign.right,style: subtitle_rev),
                                 SizedBox(width: 30),
                                 FlatButton(
+                                    padding: EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                                     color: whiteoverlapbackground,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                                     onPressed: ()=>PlatformUtils.navigator(context, Constants.registerRoute),

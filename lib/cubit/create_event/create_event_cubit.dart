@@ -36,9 +36,13 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     _type = (event==null)? _eventType.create : _eventType.modify;
     canModify = isNew() ? true : state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5)));
     categories = _databaseRepository.categories;
-    if(!event.category.isNullOrEmpty())
-      radioValueChanged(categories.keys.toList().indexOf(event.category));
-      addressController = new TextEditingController(text: state.event.address);
+    if(event != null ){
+      if(!event.category.isNullOrEmpty()){
+          radioValueChanged(categories.keys.toList().indexOf(event.category));
+          addressController = new TextEditingController(text: state.event.address);
+      }
+    }
+
   }
 
   void getLocations(String text) async {

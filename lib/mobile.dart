@@ -9,6 +9,7 @@ import 'package:venturiautospurghi/views/backdrop.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'utils/theme.dart';
 
@@ -23,6 +24,15 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: Constants.title,
       theme: customLightTheme,
+      localizationsDelegates: [
+        // ... app-specific localization delegate[s] here
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: [
+        const Locale('it', 'IT'),
+      ],
       debugShowCheckedModeBanner: Constants.debug,
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
@@ -62,6 +72,7 @@ class _MyAppState extends State<MyApp> {
           }
           return LoadingScreen();
         }
-      ));
+      ),
+    );
   }
 }

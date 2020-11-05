@@ -47,19 +47,26 @@ class _operatorSelectableList extends StatelessWidget {
 
     return Scaffold(
         appBar: AppBar(
-            title: Text('OPERATORI DISPONIBILI',style: title_rev,),
+            title: Text('OPERATORI LIBERI',style: title_rev,),
             leading: IconButton(icon:Icon(Icons.arrow_back, color: white),
               onPressed: () => onExit(false)
-            )
+            ),
+          actions: [
+            Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(15.0),
+            child: RaisedButton(
+              child: new Text('CONFERMA', style: subtitle_rev),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
+              elevation: 5,
+              onPressed: (){
+                if(context.bloc<OperatorSelectionCubit>().validateAndSave())
+                  onExit(context.bloc<OperatorSelectionCubit>().getEvent());
+              },
+            )),
+          ],
         ),
-        floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.check, size: 40,color: white,),
-          backgroundColor: black,
-          onPressed:(){
-            if(context.bloc<OperatorSelectionCubit>().validateAndSave())
-              onExit(context.bloc<OperatorSelectionCubit>().getEvent());
-            },
-    ),
         body: Material(
         elevation: 12.0,
         borderRadius: new BorderRadius.only(
@@ -86,3 +93,4 @@ class _operatorSelectableList extends StatelessWidget {
     );
   }
 }
+
