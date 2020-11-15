@@ -166,7 +166,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           children: [
                             SizedBox(width: padding+sizeIcon,),
                             Expanded(
-                              child: Text(event.motivazione.isEmpty?'Nessuna motivazione indicata':event.motivazione,
+                              child: Text(event.motivazione == null?'Nessuna motivazione indicata':event.motivazione,
                                 style: label_rev, overflow: TextOverflow.visible,),
                             ),
                           ],
