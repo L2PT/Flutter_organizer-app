@@ -34,13 +34,16 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   CreateEventCubit([this._databaseRepository, this._account, Event event])
       : assert(_databaseRepository != null && _account != null), super(CreateEventState(event)) {
     _type = (event==null)? _eventType.create : _eventType.modify;
-    canModify = isNew() ? true : state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5)));
+    canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
     categories = _databaseRepository.categories;
+    addressController = new TextEditingController();
     if(event != null ){
       if(!event.category.isNullOrEmpty()){
           radioValueChanged(categories.keys.toList().indexOf(event.category));
-          addressController = new TextEditingController(text: state.event.address);
       }
+
+      addressController.text = state.event.address??"";
+
     }
 
   }
@@ -78,12 +81,25 @@ class CreateEventCubit extends Cubit<CreateEventState> {
           state.event.category = key;
           state.event.color = value;
         }});
-        state.event.status = Status.New;
+
+        bool sendNotification = true;
+        if(state.isScheduled){
+          state.event.status = Status.Accepted;
+          sendNotification = false;
+        }else if(state.event.end.isBefore(DateTime.now())){
+          sendNotification = false;
+        }else{
+          state.event.status = Status.New;
+        }
+
         state.event.documents = state.documents.keys.toList();
         if(this.isNew()) {
-          state.event.id = await _databaseRepository.addEvent(state.event);
+          state.event.id = state.event.end.isBefore(DateTime.now())?
+             await _databaseRepository.addEventPast(state.event): await _databaseRepository.addEvent(state.event);
         } else {
-          _databaseRepository.updateEvent(state.event.id, state.event);
+          state.event.end.isBefore(DateTime.now())?
+              _databaseRepository.updateEventPast(state.event.id, state.event):
+              _databaseRepository.updateEvent(state.event.id, state.event);
         }
         if(Constants.debug) print("Firebase save complete");
         if(Constants.debug) print("FireStorage upload");
@@ -99,7 +115,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         });
         cloudFiles.forEach((name) => PlatformUtils.storageDelFile(state.event.id + "/" + name));
         if(Constants.debug) print("FireStorage upload comeplete");
-        FirebaseMessagingService.sendNotification(token: state.event.operator.token, eventId: state.event.id);
+        if(sendNotification){
+          FirebaseMessagingService.sendNotification(token: state.event.operator.token, eventId: state.event.id);
+        }
         if(Constants.debug) print("FireMessaging notified");
         return true;
       } catch (e) {
@@ -153,6 +171,18 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.assign(event: event, allDayFlag: value));
   }
 
+  void setIsScheduled(value){
+    emit(state.assign(isScheduled: value));
+  }
+
+  setAllDayDate(DateTime date){
+    Event event = Event.fromMap("", "", state.event.toMap());
+    event.start = TimeUtils.truncateDate(date, "day").add(Duration(hours: Constants.MIN_WORKTIME));
+    event.end = TimeUtils.truncateDate(date, "day").add(Duration(hours: Constants.MAX_WORKTIME));
+    _removeAllOperators(event);
+    emit(state.assign(event: event));
+  }
+
   setStartDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
     event.start = TimeUtils.getNextWorkTimeSpan(date);
@@ -200,7 +230,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void addOperatorDialog(BuildContext context) async {
     if(state.event.start.hour < Constants.MIN_WORKTIME || state.event.start.hour >= Constants.MAX_WORKTIME )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
-    if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour >= Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
+    if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour > Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
 
     PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context});

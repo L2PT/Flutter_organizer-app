@@ -18,6 +18,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
+import 'package:venturiautospurghi/views/widgets/success_alert.dart';
 
 
 class DetailsEvent extends StatelessWidget {
@@ -135,7 +136,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 child: Row(
                   children: <Widget>[
                     Icon(
-                      Icons.assignment_ind,
+                      FontAwesomeIcons.hardHat,
                       size: sizeIcon,
                     ),
                     SizedBox(width: padding,),
@@ -151,7 +152,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       child: Row(
                           children: <Widget>[
                             Icon(
-                              FontAwesomeIcons.hardHat,
+                              Status.getIcon(event.status),
                               size: sizeIcon,
                             ),
                             SizedBox(width: padding,),
@@ -237,44 +238,24 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       icon:Icon(Icons.file_download, size: sizeIcon, color: black),
                       onPressed: () async {
                         var url = await PlatformUtils.storageGetUrl(event.id+"/"+fileName);
-                        PlatformUtils.download(url, fileName);
+                        if( await PlatformUtils.download(url, fileName))
+                          SuccessAlert(context,title: null, text: "Documento scaricato!", icon: Icons.download_done_rounded).show();
                       },
                     ),
                   ])
               );
             },
             separatorBuilder: (BuildContext context, int index){return SizedBox(height: 10.0,);}
-        ):ListView(physics: BouncingScrollPhysics(), children: <Widget>[Container(
+        ):Container(
           padding: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: white,
-            borderRadius: BorderRadius.all(Radius.circular(15.0)),
-          ),
-          child: Row(children: <Widget>[
-            Icon(
-              Icons.insert_drive_file,
-              size: sizeIcon,
-              color: black,
-            ),
-            SizedBox(
-              width: padding,
-            ),
-            Container(
-              child: Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text("Nessun documento allegato",
-                        style: subtitle.copyWith(
-                            color: black, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.visible,
-                      )
-                    ],
-                  )),
-            )
-          ]),
-        )
-        ])
+          child:
+              Text("Nessun documento per questo interveto",
+                style: subtitle.copyWith(
+                    color: white, fontWeight: FontWeight.bold),
+                overflow: TextOverflow.visible,
+                textAlign: TextAlign.center,
+              )
+        ),
     );
 
     Widget detailsNote() => Container(

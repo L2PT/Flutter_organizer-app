@@ -106,10 +106,6 @@ class _MyAppState extends State<MyApp> {
             jQuery("#calendar").hide();
             return LogIn();
           } else if (state is Authenticated) {
-            // String token = ReadCookieJarJs(COOKIE_PATH);
-            // if(token.isNullOrEmpty() && token != state.token){
-            //   return LogIn();
-            // } //TODO TURRO questo l'hai fatto te ma non funziona
             var databaseRepository = context.bloc<AuthenticationBloc>().getRepository();
             return RepositoryProvider.value(
               value: databaseRepository,

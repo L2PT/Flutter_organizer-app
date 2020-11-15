@@ -53,13 +53,15 @@ abstract class PlatformUtils {
 
   static dynamic download(url,filename) async {
     var localpath = await getExternalStorageDirectory();
-    FlutterDownloader.enqueue(
+    var res = FlutterDownloader.enqueue(
         url: url,
         savedDir: localpath.path,
         fileName: filename,
         showNotification: true, // show download progress in status bar (for Android)
         openFileFromNotification: false, // click on notification to open downloaded file (for Android)
     );
+    if(res == null) return false;
+    return true;
   }
   static void initDownloader() => FlutterDownloader.initialize();
 

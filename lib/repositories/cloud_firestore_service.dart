@@ -94,74 +94,81 @@ class CloudFirestoreService {
 
   Future<Event> getEvent(String id) async {
     return _collectionEventi.doc(id).get().then((document) =>
-        Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+        Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data()));
   }
 
   Future<List<Event>> getEvents() async {
     return _collectionEventi.get().then((snapshot) => snapshot.docs.map((document) =>
-        Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList());
+        Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList());
   }
 
   Stream<List<Event>> subscribeEvents() {
     return _collectionEventi.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data()));
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data()));
     });
   }
 
   Stream<List<Event>> subscribeEventsByOperator(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsByOperatorAcceptedOrBelow(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsByOperatorWaiting(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: Status.Seen).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> eventsByOperatorAcceptedOrAbove(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.Accepted).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
+    });
+  }
+
+  Stream<List<Event>> eventsByOperatorNewOrAbove(String idOperator) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: Status.New).snapshots().map((snapshot) {
+      var documents = snapshot.docs;
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> eventsHistory() {
     return _collectionSubStoricoEventi.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsDeleted() {
     return _collectionStoricoEliminati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsRefuse() {
     return _collectionStoricoRifiutati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsEnded() {
     return _collectionStoricoTerminati.snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??"default"], document.data())).toList();
+      return documents.map((document) => Event.fromMap(document.id, categories[document.get(Constants.tabellaEventi_categoria)??Constants.categoryDefault], document.data())).toList();
     });
   }
 
@@ -170,8 +177,31 @@ class CloudFirestoreService {
     return docRef.id;
   }
 
+  Future<String> addEventPast(Event e) async {
+    e.status = Status.Ended;
+    final dynamic createTransaction = (dynamic tx) async {
+      dynamic doc = _collectionEventi.doc();
+      dynamic endedDoc = _collectionStoricoTerminati.doc(doc.id);
+      await tx.set(endedDoc, e.toDocument());
+      await tx.set(doc,  e.toDocument());
+      return doc.id;
+    };
+    return _cloudFirestore.runTransaction(createTransaction).then((idDoc) => idDoc);
+  }
+
   void updateEvent(String id, Event data) {
     _collectionEventi.doc(id).update(data.toDocument());
+  }
+
+  void updateEventPast(String id, Event data) {
+    data.status = Status.Ended;
+    final dynamic createTransaction = (dynamic tx) async {
+      dynamic doc = _collectionEventi.doc(id);
+      dynamic endedDoc = _collectionStoricoTerminati.doc(id);
+      await tx.update(endedDoc, data.toDocument());
+      await tx.update(doc, data.toDocument());
+    };
+    _cloudFirestore.runTransaction(createTransaction);
   }
 
   void updateEventField(String id, String field, dynamic data) {
@@ -189,6 +219,19 @@ class CloudFirestoreService {
         dynamic deletedDoc = _collectionStoricoEliminati.doc(e.id);
         await tx.set(deletedDoc, e.toDocument());
         await tx.delete(doc);
+    };
+    _cloudFirestore.runTransaction(createTransaction);
+  }
+
+  void deleteEventPast(Event e) async {
+    e.status = Status.Deleted;
+    final dynamic createTransaction = (dynamic tx) async {
+      dynamic doc = _collectionEventi.doc(e.id);
+      dynamic endedDoc = _collectionStoricoTerminati.doc(e.id);
+      dynamic deletedDoc = _collectionStoricoEliminati.doc(e.id);
+      await tx.set(deletedDoc, e.toDocument());
+      await tx.delete(endedDoc);
+      await tx.delete(doc);
     };
     _cloudFirestore.runTransaction(createTransaction);
   }

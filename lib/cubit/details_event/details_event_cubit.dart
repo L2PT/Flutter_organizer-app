@@ -48,7 +48,9 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   }
 
   void deleteEvent() {
-    _databaseRepository.deleteEvent(state.event);
+    state.event.start.isBefore(DateTime.now())?
+    _databaseRepository.deleteEventPast(state.event)
+    :_databaseRepository.deleteEvent(state.event);
     PlatformUtils.backNavigator(context);
   }
 

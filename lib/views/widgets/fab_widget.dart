@@ -39,22 +39,7 @@ class Fab_details_super  extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return context.bloc<DetailsEventCubit>().state.event.end.isBefore(DateTime.now()) ?
-      Container(
-          decoration: BoxDecoration(
-              color: grey, borderRadius: BorderRadius.circular(100)),
-          child: Padding(
-              padding: EdgeInsets.all(2),
-              child: FloatingActionButton(
-                child: Icon(Icons.delete, size: 40, color: white),
-                onPressed: () async {
-                  if(await ConfirmCancelAlert(context, title: "CANCELLA INCARICO", text: "Confermi la cancellazione dell'incarico?").show())
-                    context.bloc<DetailsEventCubit>().deleteEvent();
-                },
-                backgroundColor: black,
-                elevation: 6,
-              ))
-      ) :
+    return
       Container(
         decoration: BoxDecoration(color: grey, shape: BoxShape.circle),
         child: Padding(

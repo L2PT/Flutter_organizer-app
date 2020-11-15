@@ -16,6 +16,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
+import 'package:venturiautospurghi/views/widgets/success_alert.dart';
 
 class CreateEvent extends StatelessWidget {
   final Event _event;
@@ -50,7 +51,7 @@ class CreateEvent extends StatelessWidget {
                     buildWhen: (previous, current) => previous.status != current.status,
                     builder: (context, state) {
                       return context.bloc<CreateEventCubit>().state.isLoading() ?
-                      LoadingScreen() : _formInputList();   //TODO maybe a success animation can be added
+                      LoadingScreen() : _formInputList();
                     })
         ))
     );
@@ -64,7 +65,8 @@ class _viewHeader extends StatelessWidget{
 
     void _onSavePressed(BuildContext context) async {
       if (await context.bloc<CreateEventCubit>().saveEvent())
-        PlatformUtils.backNavigator(context);
+        if( !(await SuccessAlert(context,title: null, text: "Incarico salvato e inviato!").show()))
+          PlatformUtils.backNavigator(context);
     }
 
     return new Container(
@@ -75,7 +77,7 @@ class _viewHeader extends StatelessWidget{
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
         elevation: 5,
-        onPressed: ()=>_onSavePressed(context),
+        onPressed: ()=> _onSavePressed(context),
       ));
   }
 }
@@ -184,22 +186,11 @@ class _formInputList extends StatelessWidget{
                 ),
               ),
               Expanded(
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  cursorColor: black,
-                  readOnly: true,
-                  onTap: () => context.bloc<CreateEventCubit>().openFileExplorer(),
-                  decoration: InputDecoration(
-                    hintText: 'Aggiungi documento',
-                    hintStyle: subtitle,
-                    border: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                        width: 0.0,
-                        style: BorderStyle.none,
-                      ),
-                    ),
-                  ),
-                ),
+                child: Text("Aggiungi documenti", style: label,),
+              ),
+              IconButton(
+                  icon: Icon(Icons.add, color: black),
+                  onPressed: () => context.bloc<CreateEventCubit>().openFileExplorer()
               ),
             ]),
             _fileStorageList(),
@@ -292,10 +283,11 @@ class _fileStorageList extends StatelessWidget {
       itemCount: context.bloc<CreateEventCubit>().state.documents.keys.length,
       itemBuilder: (context, index) =>
           ListTile(
+            leading: IconButton(icon: Icon(Icons.insert_drive_file, color: black,)),
             title: new Text(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
-            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index) == null?"":"Nuovo"),
+            subtitle: new Text(context.bloc<CreateEventCubit>().state.documents.values.elementAt(index) == null?"Già caricato":"Nuovo", style: subtitle,),
             trailing: IconButton(
-              icon: Icon(Icons.close, color: black,),
+              icon: Icon(Icons.delete, color: black,),
               onPressed: () => context.bloc<CreateEventCubit>().removeDocument(context.bloc<CreateEventCubit>().state.documents.keys.elementAt(index)),
             ),
           )
@@ -304,10 +296,10 @@ class _fileStorageList extends StatelessWidget {
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.documents != current.documents,
       builder: (context, state) {
-        return new Container(
+        return context.bloc<CreateEventCubit>().state.documents.keys.length > 0? new  Container(
           height: 60,
           child: buildFilesList()
-        );
+        ): Container();
       },
     );
   }
@@ -334,7 +326,8 @@ class _timeControls extends StatelessWidget {
             showTitleActions: true,
             maxTime: DateTime(3000),
             currentTime: event.start,
-            onConfirm: (date) => context.bloc<CreateEventCubit>().setStartDate(date),
+            onConfirm: (date) => context.bloc<CreateEventCubit>().state.isAllDay?
+              context.bloc<CreateEventCubit>().setAllDayDate(date):context.bloc<CreateEventCubit>().setStartDate(date),
           ) : null,
         ),
       ),
@@ -347,7 +340,7 @@ class _timeControls extends StatelessWidget {
           PlatformDatePicker.showTimePicker(context,
             showTitleActions: true,
             currentTime: event.start,
-            onConfirm: (time) => context.bloc<CreateEventCubit>().setStartTime(time),
+            onConfirm: (time) => {context.bloc<CreateEventCubit>().setStartTime(time)},
           ) : null,
         ),
       ),
@@ -417,6 +410,31 @@ class _timeControls extends StatelessWidget {
                     )) : Container()
           ],));
 
+
+    Widget eventScheduled() => Container(
+      margin: EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Container(
+            width: iconWidth,
+            margin: EdgeInsets.only(right: 20.0),
+            child: Icon(Icons.date_range_rounded, color: black, size: iconWidth),
+          ),
+          Expanded(
+              child: Text("Incarico programmato", style: label,),
+          ),
+          Container(
+            alignment: Alignment.centerRight,
+            child: Switch(
+              value: context.bloc<CreateEventCubit>().state.isScheduled,
+              activeColor: black,
+              onChanged: context.bloc<CreateEventCubit>().setIsScheduled,
+            ),
+          )
+        ],
+      ),
+    );
+
     return new Form(
       key: context.bloc<CreateEventCubit>().formTimeControlsKey,
       child: BlocBuilder<CreateEventCubit, CreateEventState>(
@@ -425,6 +443,7 @@ class _timeControls extends StatelessWidget {
           event = context.bloc<CreateEventCubit>().state.event;
           return Container(child:
           Column(children: <Widget>[
+            context.bloc<CreateEventCubit>().canModify? eventScheduled() : Container(),
             allDayFlag(),
             dateTimeStartPicker(),
             dateTimeEndPicker(),
@@ -451,7 +470,7 @@ class _operatorsList extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(right: 10.0),
               padding: EdgeInsets.all(3.0),
-              child: Icon(FontAwesomeIcons.hardHat, color: yellow),
+              child: Icon(operator.supervisor?FontAwesomeIcons.userTie:FontAwesomeIcons.hardHat, color: yellow),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: black,

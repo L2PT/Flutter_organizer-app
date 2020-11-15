@@ -16,7 +16,7 @@ class Alert extends StatelessWidget {
       titlePadding: EdgeInsets.all(0),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
-      title: Container(
+      title: title!=null?Container(
         height: 50,
         decoration: BoxDecoration(
           color: black,
@@ -31,7 +31,7 @@ class Alert extends StatelessWidget {
             style: title_rev,
           ),
         ),
-      ),
+      ):Container(),
       content: content,
       actions: actions,
     );

@@ -92,3 +92,4 @@ const red = const Color(0xFFC5032B);
 const yellow = const Color(0xFFF8AD09);
 const blue = const Color(0xFF119DD1);
 const green = const Color(0xFF00664D);
+const green_success = const Color(0xFF1A7C4F);

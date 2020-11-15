@@ -19,10 +19,11 @@ class CreateEventState extends Equatable {
   Map<String,PlatformFile> documents;
   int category = -1;
   bool isAllDay = false;
+  bool isScheduled = false;
   _formStatus status;
 
   @override
-  List<Object> get props => [event.toString(), locations.join(), documents.keys.join(), documents.values.join(), category, status];
+  List<Object> get props => [event.toString(), locations.join(), documents.keys.join(), documents.values.join(), category, status, isScheduled];
 
   bool isLoading() => this.status == _formStatus.loading;
 
@@ -32,14 +33,16 @@ class CreateEventState extends Equatable {
     String address,
     Map<String,PlatformFile> documents,
     int category,
-    bool allDayFlag = false,
+    bool allDayFlag,
+    bool isScheduled,
     _formStatus status,
   }) {
     var form = CreateEventState(event??this.event);
     form.category = category??this.category;
     form.status = status??this.status;
     form.documents = documents??this.documents;
-    form.isAllDay = allDayFlag;
+    form.isAllDay = allDayFlag??this.isAllDay;
+    form.isScheduled = isScheduled??this.isScheduled;
     if(!address.isNullOrEmpty()) form.event.address = address;
     form.locations = locations??this.locations;
     return form;

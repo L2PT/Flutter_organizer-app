@@ -10,6 +10,7 @@ class Constants {
   static const String passwordNewUsers = "adminVenturi";
   static const int fallbackColor = 0xFF119DD1;
   static const String fallbackHexColor = "#FDA90A";
+  static const String categoryDefault = "Spurgo";
 
   // ROUTES
   static const String homeRoute = '/';
