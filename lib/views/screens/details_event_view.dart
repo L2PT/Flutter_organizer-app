@@ -148,7 +148,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
               account.supervisor ?
               Column(
                   children: <Widget>[Container(
-                      padding: EdgeInsets.symmetric(vertical: 15.0),
+                      padding: event.isRefused()?EdgeInsets.only(top: 15.0):EdgeInsets.symmetric(vertical: 15.0),
                       child: Row(
                           children: <Widget>[
                             Icon(
@@ -156,9 +156,23 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                               size: sizeIcon,
                             ),
                             SizedBox(width: padding,),
-                            Text(Status.getText(event.status), style: subtitle_rev),]
+                            Text(Status.getText(event.status), style: subtitle_rev),
+                          ]
                       )),
-                    Divider(height: 2, thickness: 2, indent: 35, color: black_light,)]
+                      event.isRefused()?
+                      Container(
+                        padding: EdgeInsets.only( bottom: 15.0),
+                        child: Row(
+                          children: [
+                            SizedBox(width: padding+sizeIcon,),
+                            Expanded(
+                              child: Text(event.motivazione.isEmpty?'Nessuna motivazione indicata':event.motivazione,
+                                style: label_rev, overflow: TextOverflow.visible,),
+                            ),
+                          ],
+                        ),
+                      ): Container(),
+                      Divider(height: 2, thickness: 2, indent: 35, color: black_light,)]
               ): Container(),
               Container(
                 alignment: Alignment.topLeft,
@@ -532,8 +546,6 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 ),*/])),
             ])));
   }
-
-  //TODO visualizzare la motivazione di rifiuto per un'incarico terminato
 
   @override
   void dispose() {
