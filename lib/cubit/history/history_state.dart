@@ -9,7 +9,7 @@ abstract class HistoryState extends Equatable {
       this.eventsMap = eventsMap ?? {};
 
   @override
-  List<Object> get props => [selectedStatus, eventsMap[selectedStatus]?.map((e) => e)?.join()];
+  List<Object> get props => [selectedStatus, eventsMap[selectedStatus]?.map((e) => e)?.join(), eventsMap[selectedStatus]?.length];
 
 
   HistoryReady assign({int selectedStatus, Map<int, List<Event>> eventsMap}) =>

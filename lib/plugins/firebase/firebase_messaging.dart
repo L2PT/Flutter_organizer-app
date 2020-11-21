@@ -30,8 +30,9 @@ class FirebaseMessagingService {
     if (Platform.isIOS) requestiOSPermission();
     //check if token is up to date
     String token = await _firebaseMessaging.getToken();
-    if (token != _account.token) {
-      _databaseRepository.updateAccountField(_account.id, "Token", token);
+    if (!_account.tokens.contains(token)) {
+      _account.tokens.add(token);
+      _databaseRepository.updateAccountField(_account.id, "Tokens", _account.tokens);
       if (Constants.debug) print("New token: " + token);
     }
 
@@ -84,14 +85,13 @@ class FirebaseMessagingService {
     return message['data']['id'] == null || message['data']['id'] == "";
   }
 
-  Future<Event> _updateEventAndSendFeedback(Map<String, dynamic> message, int newStatus) async {
-      _databaseRepository.updateEventField(message['data']['id'], "Stato", newStatus);
+  Future<Event> _updateEventAndSendFeedback(Map<String, dynamic> message, int updatedStatus) async {
       Event event = await _databaseRepository.getEvent(message['data']['id']);
-      if(event != null) {
-        Account supervisor = event.operator
-          ..id = event.supervisor.id; //get here to prevent old token
-        sendNotification(
-            token: supervisor.token,
+      if(event != null && (updatedStatus == Status.Delivered && event.isNew())) {
+        Account supervisor = await _databaseRepository.getAccount(event.supervisor.email);
+        _databaseRepository.updateEventField(message['data']['id'], "Stato", updatedStatus);
+        sendNotifications(
+            tokens: supervisor.tokens,
             title: "L'avviso è stato cosegnato a ${(event.operator as Account)
                 .surname} ${(event.operator as Account).name}");
       }
@@ -99,39 +99,45 @@ class FirebaseMessagingService {
   }
 
   void _launchTheEvent(Map<String, dynamic> message) async {
-    if (_isFeedbackNotification(message) && _account.supervisor) {
+    if (_isFeedbackNotification(message) && !_account.supervisor) {
       PlatformUtils.navigator(context, Constants.waitingEventListRoute);
     } else if(!_isFeedbackNotification(message)){
-      Event event = await _databaseRepository.getEvent(message['data']['id']);
-      if(event != null) PlatformUtils.navigator(context, Constants.waitingNotificationRoute, [event]);
+      Event event = await _updateEventAndSendFeedback(message,Status.Delivered);
+      if(event != null){
+        PlatformUtils.navigator(context, Constants.waitingNotificationRoute, [event]);
+      }
     }
   }
 
-  static void sendNotification({token = "",
+  static void sendNotifications({tokens = const [],
     title = "Nuovo incarico assegnato",
     description = "Clicca la notifica per vedere i dettagli",
     eventId = ""}) async {
     String url = "https://fcm.googleapis.com/fcm/send";
-    String json = "";
-    Map<String, String> notification = new Map<String, String>();
-    Map<String, String> data = new Map<String, String>();
-    json = "{\"to\":\"$token\",";
-    notification['title'] = title;
-    notification['body'] = description;
-    notification['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
-    data['id'] = eventId;
-    json += "\"notification\":" + jsonEncode(notification) + ", \"data\":" +
-        jsonEncode(data) + "}";
-    var response = await http.post(
-        url,
-        body: json,
-        headers: {
-          "Authorization": "key=AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk",
-          "Content-Type": "application/json"
-        },
-        encoding: Encoding.getByName('utf-8'));
-    print("response: " + jsonEncode(json));
-    print("response: " + response.body);
+    tokens.forEach((token) async {
+      String json = "";
+      Map<String, String> notification = new Map<String, String>();
+      Map<String, String> data = new Map<String, String>();
+      json = "{\"to\":\"$token\",";
+      notification['title'] = title;
+      notification['body'] = description;
+      notification['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
+      notification['sound'] = "default";
+      data['id'] = eventId;
+      json += "\"notification\":" + jsonEncode(notification) + ", \"data\":" +
+          jsonEncode(data) + "}";
+      var response = await http.post(
+          url,
+          body: json,
+          headers: {
+            "Authorization": "key=AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk",
+            "Content-Type": "application/json"
+          },
+          encoding: Encoding.getByName('utf-8'));
+      print("response: " + jsonEncode(json));
+      print("response: " + response.body);
+    });
+
   }
 
 

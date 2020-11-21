@@ -116,7 +116,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         cloudFiles.forEach((name) => PlatformUtils.storageDelFile(state.event.id + "/" + name));
         if(Constants.debug) print("FireStorage upload comeplete");
         if(sendNotification){
-          FirebaseMessagingService.sendNotification(token: state.event.operator.token, eventId: state.event.id);
+            FirebaseMessagingService.sendNotifications(tokens: state.event.operator.tokens, eventId: state.event.id);
         }
         if(Constants.debug) print("FireMessaging notified");
         return true;

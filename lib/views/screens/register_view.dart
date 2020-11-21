@@ -261,7 +261,7 @@ class RegisterState extends State<Register> {
     ).then((userFirebase) {
       if (userFirebase != null) {
         Account newlyCreated = Account(userFirebase.user.uid, _nomeController.text, _cognomeController.text, _emailController.text.toLowerCase(),
-            _telefonoController.text, _codFiscaleController.text, [], "", _radioValue == Role.Reponsabile);
+            _telefonoController.text, _codFiscaleController.text, [], [], _radioValue == Role.Reponsabile);
         context.repository<CloudFirestoreService>().addOperator(newlyCreated);
         context.repository<FirebaseAuthService>().sendPasswordReset(_emailController.text);
         setState(() {

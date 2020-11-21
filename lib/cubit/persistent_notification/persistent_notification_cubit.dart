@@ -37,14 +37,14 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
 
   void cardActionConfirm(Event event) {
     _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, Status.Accepted);
-    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${event.title}\"");
     context.bloc<MobileBloc>().add(RestoreEvent());
   }
 
   void cardActionRefuse(Event event, String justification) {
     event.motivazione = justification;
     _databaseRepository.refuseEvent(event);
-    FirebaseMessagingService.sendNotification(token: event.supervisor.token, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${event.title}\"");
     context.bloc<MobileBloc>().add(RestoreEvent());
   }
 

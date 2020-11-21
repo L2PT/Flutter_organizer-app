@@ -8,7 +8,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 part 'authentication_event.dart';
 
@@ -16,11 +16,13 @@ part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FirebaseAuthService _authenticationRepository;
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   CloudFirestoreService _repository;
   StreamSubscription<AuthUser> _userSubscription;
+  StreamSubscription<Account> _loginSubscription;
   Account account = null;
   bool isSupervisor = false;
-  String token = "";
+  List<dynamic> tokens = new List();
 
   AuthenticationBloc({
     @required FirebaseAuthService authenticationRepository,
@@ -28,7 +30,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         _authenticationRepository = authenticationRepository,
         super(Uninitialized()) {
     _userSubscription = _authenticationRepository.onAuthStateChanged.listen(
-        (user){if(user!=null) add(LoggedIn(user));},
+        (user){
+          print("SEI UNO STRONZO");
+          if(user!=null) {
+            if(state is Unauthenticated) add(LoggedIn(user));
+          }
+        },
       );
   }
 
@@ -51,7 +58,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       var user = await _authenticationRepository.currentUser();
       if (user != null) {
         account = await _repository.getAccount(user.email);
-        _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
+        _loginSubscription = _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
         isSupervisor = account.supervisor;
         yield Authenticated(account, isSupervisor);
       } else {
@@ -65,15 +72,19 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
     var user = event.user;
     account = await _repository.getAccount(user.email);
-    _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
+    _loginSubscription = _repository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
     isSupervisor = account.supervisor;
-    token = account.token;
-    if (PlatformUtils.isMobile || isSupervisor) yield Authenticated(account, isSupervisor, token);
+    tokens = account.tokens;
+    if (PlatformUtils.isMobile || isSupervisor) yield Authenticated(account, isSupervisor, tokens);
   }
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
     yield Unauthenticated();
     _authenticationRepository.signOut();
+    String token = await _firebaseMessaging.getToken();
+    account.tokens.remove(token);
+    _repository.updateAccountField(account.id, "Tokens", account.tokens);
+    _loginSubscription?.cancel();
   }
 
   CloudFirestoreService getRepository(){

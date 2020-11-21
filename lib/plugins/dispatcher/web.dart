@@ -52,7 +52,7 @@ class PlatformUtils {
    storageDelFileJs(path);
   }
 
-  static void download(url,filename) => null;
+  static bool download(url,filename) => false;
   static void initDownloader() => null;
 
   static dynamic navigator(BuildContext context, route, [arg]) async {

@@ -22,7 +22,9 @@ ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
     accentColor: yellow, //Colore secondario <-- da sistemare quando compare
-    primaryColor: black, //appBar
+    primaryColor: black,
+    textSelectionColor: yellow,
+    textSelectionHandleColor: yellow,//appBar
     scaffoldBackgroundColor: whitebackground, //ok
     cardColor: Color(0x00000000),
     textSelectionTheme:  TextSelectionThemeData(

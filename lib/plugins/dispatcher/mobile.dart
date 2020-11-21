@@ -15,6 +15,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'dart:io' show Platform;
 
+import 'package:venturiautospurghi/utils/theme.dart';
+
 abstract class PlatformUtils {
   PlatformUtils._();
 
@@ -95,7 +97,7 @@ abstract class PlatformUtils {
         msg: msg,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.CENTER,
-        backgroundColor: Colors.black,
+        backgroundColor: black,
         textColor: Colors.white,
         fontSize: 16.0
     );

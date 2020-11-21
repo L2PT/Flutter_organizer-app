@@ -8,10 +8,10 @@ class Account {
   String _phone="";
   String _codFiscale="";
   List<Account> _webops = new List();
-  String _token="";
+  List<dynamic> _tokens= new List();
   bool _supervisor=false;
 
-  Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._token, this._supervisor);
+  Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._tokens, this._supervisor);
   Account.empty();
   Account.fromMapWeb(String id, dynamic json) {
     // _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
@@ -33,7 +33,7 @@ class Account {
     _phone = json['Telefono'],
     _codFiscale = json['CodiceFiscale'],
     _webops = json.containsKey('OperatoriWeb')?dynamicToObject(json['OperatoriWeb']):List<Account>(),
-    _token = json['Token'],
+    _tokens = json['Tokens']??[],
     _supervisor = json['Responsabile'];
 
   Map<String, dynamic> toMap() => {
@@ -43,7 +43,7 @@ class Account {
       "Email":this.email,
       "Telefono":this.phone,
       "CodiceFiscale":this.codFiscale,
-      "Token":this.token,
+      "Tokens":this.tokens,
       "Responsabile":this.supervisor
   };
 
@@ -54,7 +54,7 @@ class Account {
       "Email":this.email,
       "Telefono":this.phone,
       "CodiceFiscale":this.codFiscale,
-      "Token":this.token,
+      "Tokens":this.tokens,
       "Responsabile":this.supervisor,
       "OperatoriWeb":this.webops,
     });
@@ -68,7 +68,7 @@ class Account {
       "Email":this.email,
       "Telefono":this.phone,
       "CodiceFiscale":this.codFiscale,
-      "Token":this.token,
+      "Tokens":this.tokens,
       "Responsabile":this.supervisor,
     });
   }
@@ -80,7 +80,7 @@ class Account {
   String get phone => _phone;
   String get codFiscale => _codFiscale;
   List<Account> get webops => _webops;
-  String get token => _token;
+  List<dynamic> get tokens => _tokens;
   bool get supervisor => _supervisor;
 
   set supervisor(bool value) {
@@ -111,8 +111,8 @@ class Account {
     _id = value;
   }
 
-  set token(String value) {
-    _token = value;
+  set tokens(List<dynamic> value) {
+    _tokens = value;
   }
 
   set webops(List<Account> value) {
@@ -126,7 +126,7 @@ class Account {
     this.phone = userUpdate.phone;
     this.codFiscale = userUpdate.codFiscale;
     this.webops = userUpdate.webops;
-    this.token = userUpdate.token;
+    this.tokens = userUpdate.tokens;
     this.supervisor = userUpdate.supervisor;
   }
 

@@ -5,13 +5,11 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
-import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
@@ -107,7 +105,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
             //build over
             add(NavigateEvent(Constants.waitingNotificationRoute, notifications));
             if(background == null) {
-              background = new Timer.periodic(Duration(minutes:2), _notificationReminder);
+              background = new Timer.periodic(Duration(seconds: 45), _notificationReminder);
             }
         } else if (notifications.length == 0) {
           if(background != null) {
@@ -123,12 +121,9 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   }
 
   void _notificationReminder(Timer t) {
-    if(_lifecycleState != null && _lifecycleState != AppLifecycleState.resumed){
-      FirebaseMessagingService.sendNotification(
-          token: _account.token,
-          title: "Hai eventi in sospeso");
-      _lifecycleState = null;
-    }
+      FirebaseMessagingService.sendNotifications(
+          tokens: _account.tokens,
+          title: "Hai degli eventi in sospeso");
   }
 
   bool outBackdropResultIsPositive(value) => (value != null && (!(value is bool) || value != false));

@@ -9,27 +9,27 @@ class AuthUser {
     this.email,
     this.photoUrl,
     this.displayName,
-    this.token,
+    this.tokens,
   });
 
   final String uid;
   final String email;
   final String photoUrl;
   final String displayName;
-  final String token;
+  final List<dynamic> tokens;
 
   AuthUser.fromMap(Map<String,dynamic> json) :
     this.uid = json["uid"],
     this.email = json['email'],
     this.photoUrl = json['photoUrl'],
     this.displayName = json['displayName'],
-    this.token = json['token'];
+    this.tokens = json['tokens']??[];
 
   Map<String, dynamic> toMap() => {
       "id": this.uid,
       "email":this.email,
       "photoUrl":this.photoUrl,
       "displayName":this.displayName,
-      "token":this.token
+      "tokens":this.tokens
   };
 }

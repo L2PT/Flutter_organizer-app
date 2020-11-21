@@ -31,20 +31,20 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   void endEventAndNotify() {
     _databaseRepository.endEvent(state.event);
     emit(state.changeStatus(Status.Ended));
-    FirebaseMessagingService.sendNotification(token: state.event.supervisor.token, title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"");
   }
 
   void acceptEventAndNotify() {
     _databaseRepository.updateEventField(state.event.id, Constants.tabellaEventi_stato, Status.Accepted);
     emit(state.changeStatus(Status.Accepted));
-    FirebaseMessagingService.sendNotification(token: state.event.supervisor.token, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"");
   }
 
   void refuseEventAndNotify(String justification) {
     state.event.motivazione = justification;
     _databaseRepository.refuseEvent(state.event);
     emit(state.changeStatus(Status.Refused));
-    FirebaseMessagingService.sendNotification(token: state.event.supervisor.token, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"");
   }
 
   void deleteEvent() {

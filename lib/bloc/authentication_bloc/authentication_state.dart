@@ -13,7 +13,7 @@ class Uninitialized extends AuthenticationState {
 class Authenticated extends AuthenticationState {
   final Account user;
   final bool isSupervisor;
-  final String token;
+  final List<dynamic> token;
 
   Authenticated([this.user,this.isSupervisor, this.token]) : super([user,isSupervisor,token]);
 
