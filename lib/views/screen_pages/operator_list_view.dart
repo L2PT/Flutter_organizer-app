@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/operator_list/operator_list_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
+import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 
 class OperatorList extends StatelessWidget {
 
@@ -89,14 +88,6 @@ class _searchBar extends StatelessWidget {
 
 class _filtersBox extends StatelessWidget {
 
-  DatePickerTheme DatePickerAppTheme = DatePickerTheme(
-      headerColor: black,
-      backgroundColor: white,
-      itemStyle: label,
-      cancelStyle: subtitle,
-      doneStyle: subtitle_accent
-  );
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OperatorListCubit, OperatorListState>(builder: (context, state) {
@@ -124,14 +115,12 @@ class _filtersBox extends StatelessWidget {
                           child: Text(
                               context.bloc<OperatorListCubit>().state.searchTimeField.toString().split(' ').first,
                               style: title_rev),
-                          onTap: () => DatePicker.showDatePicker(
-                            context,
-                            theme: DatePickerAppTheme,
-                            showTitleActions: true,
-                            currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
-                            locale: LocaleType.it,
-                            onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchDateChanged(date),
-                          ),
+                          onTap: () =>
+                              PlatformDatePicker.showDatePicker(context,
+                                maxTime: DateTime(3000),
+                                currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
+                                onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchDateChanged(date),
+                              ),
                         )),
                         Icon(Icons.watch_later),
                         SizedBox(width: 5),
@@ -139,12 +128,8 @@ class _filtersBox extends StatelessWidget {
                             child: GestureDetector(
                           child: Text(context.bloc<OperatorListCubit>().state.searchTimeField.toString().split(' ').last.split('.').first.substring(0, 5),
                               style: title_rev),
-                          onTap: () => DatePicker.showTimePicker(
-                            context,
-                            showTitleActions: true,
-                            theme: DatePickerAppTheme,
+                          onTap: () => PlatformDatePicker.showTimePicker(context,
                             currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
-                            locale: LocaleType.it,
                             onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchTimeChanged(date),
                           ),
                         ))

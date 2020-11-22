@@ -1,18 +1,12 @@
-﻿import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
-import 'package:flutter/cupertino.dart';
+﻿import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/base_alert.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:flutter/src/material/pickers/date_picker_dialog.dart' as web_dd;
-import 'package:flutter/src/material/time_picker.dart' as web_dt;
+import 'package:flutter/src/material/pickers/date_picker_dialog.dart' as date_picker;
+import 'package:flutter/src/material/time_picker.dart' as time_picker;
 
 class PlatformDatePicker {
 
-  static Theme web_theme(BuildContext context, Widget child) {
+  static Theme dialog_theme(BuildContext context, Widget child) {
     return Theme(
       data: ThemeData.light().copyWith(
         colorScheme: ColorScheme.light().copyWith(
@@ -22,14 +16,7 @@ class PlatformDatePicker {
       child: child,
     );
   }
-  
-  static DatePickerTheme mobile_theme = DatePickerTheme(
-      headerColor: black,
-      backgroundColor: white,
-      itemStyle: label,
-      cancelStyle: subtitle,
-      doneStyle: subtitle_accent
-  );
+
   
   
   ///
@@ -37,40 +24,23 @@ class PlatformDatePicker {
   ///
   static Future<DateTime> showDatePicker(
       BuildContext context, {
-        bool showTitleActions: true,
         DateTime minTime,
         DateTime maxTime,
-        Function onChanged,
         Function onConfirm,
-        DateCancelledCallback onCancel,
-        locale: LocaleType.it,
         DateTime currentTime,
       }) async {
-    if(PlatformUtils.isMobile)
-      return DatePicker.showDatePicker(context,
-        showTitleActions: showTitleActions,
-        minTime: minTime,
-        maxTime: maxTime,
-        theme: mobile_theme,
-        currentTime: currentTime ?? DateTime.now(),
-        locale: locale,
-        onConfirm: onConfirm,
-      );
-    else {
-
       minTime = minTime??DateTime(1980);
 
-      DateTime date = await web_dd.showDatePicker(
+      DateTime date = await date_picker.showDatePicker(
           context: context,
           firstDate: minTime,
           helpText: "Seleziona una data".toUpperCase(),
           cancelText: "Annulla".toUpperCase(),
           initialDate: currentTime ?? DateTime.now(),
           lastDate: maxTime,
-          builder: web_theme
+          builder: dialog_theme
       );
       if (date != null) return onConfirm(date);
-    }
   }
 
   ///
@@ -78,32 +48,18 @@ class PlatformDatePicker {
   ///
   static Future<DateTime> showTimePicker(
       BuildContext context, {
-        bool showTitleActions: true,
-        bool showSecondsColumn: true,
-        Function onChanged,
         Function onConfirm,
-        DateCancelledCallback onCancel,
-        locale: LocaleType.it,
         DateTime currentTime,
       }) async {
-    if(PlatformUtils.isMobile) {
-      return DatePicker.showTimePicker(context,
-        showTitleActions: showTitleActions,
-        theme: mobile_theme,
-        currentTime: currentTime ?? DateTime.now(),
-        locale: locale,
-        onConfirm: onConfirm,
-      );
-    } else {
-      TimeOfDay time = await web_dt.showTimePicker(
+
+      TimeOfDay time = await time_picker.showTimePicker(
         context: context,
         helpText: "Seleziona un'orario".toUpperCase(),
         cancelText: "Annulla".toUpperCase(),
         initialTime: TimeOfDay.fromDateTime(currentTime ?? DateTime.now()),
-        builder: web_theme,
+        builder: dialog_theme,
       );
       if(time != null) return onConfirm(time);
-    }
   }
 
 }

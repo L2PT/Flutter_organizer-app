@@ -31,7 +31,6 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
         super(Uninitialized()) {
     _userSubscription = _authenticationRepository.onAuthStateChanged.listen(
         (user){
-          print("SEI UNO STRONZO");
           if(user!=null) {
             if(state is Unauthenticated) add(LoggedIn(user));
           }

@@ -47,7 +47,6 @@ dependencies:
 
   #mobile only
   fluttertoast: ^7.1.1
-  flutter_datetime_picker: 1.4.0
   path_provider: 1.6.14
   simple_gesture_detector: ^0.1.4
   sms_autofill: ^1.2.5
