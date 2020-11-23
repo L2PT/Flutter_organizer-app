@@ -34,8 +34,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    compileSdkVersion 28
-
+    compileSdkVersion 29
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
@@ -62,8 +61,13 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
+    ndkVersion "22.0.6917172"
     buildTypes {
         release {
+
+            ndk {
+                debugSymbolLevel 'SYMBOL_TABLE'
+            }
             signingConfig signingConfigs.release
         }
     }
