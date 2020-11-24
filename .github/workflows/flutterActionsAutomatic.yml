@@ -19,7 +19,7 @@ jobs:
     # Analyze our Dart code
     #- run: flutter analyze
     # Run our tests
-    - run: flutter test
+    #- run: flutter test
 
   
       
