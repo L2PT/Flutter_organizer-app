@@ -39,15 +39,8 @@ jobs:
       env:
         FIREBASE_API_ANDROID: ${{ secrets.FIREBASE_API_ANDROID }}
       run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json
-    - shell: bash
-      run: mkdir toolchains 
-    - name: specify ANDROID NDK
-      uses: ravinderjangra/android-ndk-toolchain-setup@0.2
-      with:
-          api: '21'
-          arch: 'x86'
-          install-location: 'toolchains'
-          force: true    
+    - name: Build with Gradle
+      run: ./gradlew clean ktlint build
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
