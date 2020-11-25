@@ -11,7 +11,7 @@ on:
 
 jobs:
   build:
-    name: Create Android iPA
+    name: Create iOS iPA
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -31,7 +31,7 @@ jobs:
         path: build/ios/iphoneos
   deploy:
     needs: [build]
-    name: Deploy APK
+    name: Deploy iPA
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
