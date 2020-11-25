@@ -24,6 +24,11 @@ jobs:
     - run: flutter pub get
     #- run: flutter test
     - run: flutter clean
+    - name: Decode google-services.json
+      env:
+        FIREBASE_API_IOS: ${{ secrets.FIREBASE_API_IOS }}
+      run: echo $FIREBASE_API_IOS > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/ios/Runner/GoogleService-Info.plist
+    
     - run: flutter build ios --release --no-codesign
     - name: Upload iPA
       uses: actions/upload-artifact@master
