@@ -40,7 +40,7 @@ jobs:
         FIREBASE_API_ANDROID: ${{ secrets.FIREBASE_API_ANDROID }}
       run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json
     - name: Build with Gradle
-      run: ./gradlew clean ktlint build
+      run: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/gradlew clean ktlint build
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
