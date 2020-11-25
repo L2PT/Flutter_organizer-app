@@ -35,6 +35,10 @@ jobs:
           echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/key.properties
           echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+    - name: Decode google-services.json
+      env:
+        FIREBASE_API_ANDROID: ${{ secrets.FIREBASE_API_ANDROID }}
+      run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json      
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
