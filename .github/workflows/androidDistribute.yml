@@ -38,7 +38,13 @@ jobs:
     - name: Decode google-services.json
       env:
         FIREBASE_API_ANDROID: ${{ secrets.FIREBASE_API_ANDROID }}
-      run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json      
+      run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json
+    - name: Android NDK toolchain Setup
+      uses: ravinderjangra/android-ndk-toolchain-setup@0.1
+      with: 
+        api: '22'
+        arch: 'arm'
+        install-location: 'toolchains'      
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
