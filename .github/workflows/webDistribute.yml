@@ -44,13 +44,14 @@ jobs:
       uses: actions/download-artifact@master
       with:
         name: web-build
-        path: web-build
+        path: build/web
     - name: Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
           args: deploy --only hosting
       env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          PROJECT_ID: ${{ secrets.FIREBASE_WEB_ID }}  
   version:
     needs: [deploy]
     name: Create Release
@@ -58,6 +59,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Download Web Build
+        uses: actions/download-artifact@master
+        with:
+            name: web-build 
+            path: build/web
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
