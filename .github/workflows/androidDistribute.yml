@@ -40,7 +40,7 @@ jobs:
         FIREBASE_API_ANDROID: ${{ secrets.FIREBASE_API_ANDROID }}
       run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json
     - name: Install NDK
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;22.0.6917172" --sdk_root=${ANDROID_SDK_ROOT}  
+      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=${ANDROID_SDK_ROOT}  
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
