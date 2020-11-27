@@ -42,7 +42,7 @@ jobs:
     - name: Install NDK
       run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" 
     - name: Install CMAKE
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "cmake;3.10.2"
+      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "cmake;10.24988404"
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
