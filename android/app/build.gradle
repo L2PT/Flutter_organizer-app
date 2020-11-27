@@ -62,7 +62,7 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    ndkVersion "22.0.6917172"
+    ndkVersion "21.3.6528147"
     buildTypes {
         release {
 
