@@ -48,7 +48,7 @@ jobs:
     - name: Use cmake
       run: cmake --version 
     - name: Create apk
-      run: flutter build apk
+      run: flutter build apk --stacktrace
     - name: Upload APK
       uses: actions/upload-artifact@master
       with:
