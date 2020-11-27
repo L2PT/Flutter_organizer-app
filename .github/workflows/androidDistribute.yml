@@ -39,18 +39,10 @@ jobs:
       env:
         FIREBASE_API_ANDROID: ${{ secrets.FIREBASE_API_ANDROID }}
       run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.4
-      with:
-        cmake-version: '3.16.x'
-    - name: Use cmake
-      run: cmake --version 
-    - name: stampo android home 
-      run: echo ${ANDROID_HOME}
-    - name: test sdkmanager
-      run: cd ${ANDROID_HOME}/tools/bin/sdkmanager
     - name: Install NDK
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" --sdk_root=${ANDROID_SDK_ROOT}  
+      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" 
+    - name: Install CMAKE
+      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "cmake;3.10.2"
     - run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
