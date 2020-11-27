@@ -41,9 +41,14 @@ jobs:
       run: echo $FIREBASE_API_ANDROID > /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/android/app/google-services.json
     - name: Install NDK
       run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "ndk;21.3.6528147" 
-    - name: Install CMAKE
-      run: echo "y" | sudo ${ANDROID_HOME}/tools/bin/sdkmanager --install "cmake;10.24988404"
-    - run: flutter build apk
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.4
+      with:
+        cmake-version: '3.16.x'
+    - name: Use cmake
+      run: cmake --version 
+    - name: Create apk
+      run: flutter build apk
     - name: Upload APK
       uses: actions/upload-artifact@master
       with:
