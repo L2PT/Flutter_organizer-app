@@ -47,6 +47,8 @@ jobs:
         cmake-version: '3.16.x'
     - name: Use cmake
       run: cmake --version 
+    - name: Set variable NDK  
+      run: export ANDROID_NDK_HOME=${ANDROID_HOME}/ndk/21.3.6528147
     - name: Create apk
       run: flutter build apk -v
     - name: Upload APK
