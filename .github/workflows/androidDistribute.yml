@@ -76,7 +76,7 @@ jobs:
         appId: ${{secrets.FIREBASE_APP_ID}}
         token: ${{secrets.FIREBASE_TOKEN}}
         groups: Dipendenti
-        file: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app*.apk
+        file: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/apk-build.apk
   version:
     needs: [deploy]
     name: Create Release
