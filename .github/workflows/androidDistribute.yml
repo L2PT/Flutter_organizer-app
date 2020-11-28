@@ -83,7 +83,7 @@ jobs:
       with:
         appId: ${{secrets.FIREBASE_APP_ANDROID}}
         serviceCredentialsFile: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/firebase_credentials.json
-        groups: Dipendenti
+        groups: Dipendenti Android
         file: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/app-release.apk
   version:
     needs: [deploy]
