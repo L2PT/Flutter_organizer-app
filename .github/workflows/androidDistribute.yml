@@ -70,10 +70,17 @@ jobs:
       uses: actions/download-artifact@master
       with:
         name: apk-build
+    - name: Decode Firebase credentials distributiion
+      id: firebase_credentials_distribution
+      uses: timheuer/base64-to-file@v1.0.3
+      with:
+          fileName: firebase_credentials.json
+          encodedString: ${{ secrets.FIREBASE_CREDENTIALS_DISTRIBUTE_BASE64 }}  
     - name: upload artifact to Firebase App Distribution
       uses: wzieba/Firebase-Distribution-Github-Action@v1
       with:
         appId: ${{secrets.FIREBASE_APP_ANDROID}}
+        serviceCredentialsFile: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/firebase_credentials.json
         token: ${{secrets.FIREBASE_TOKEN}}
         groups: Dipendenti
         file: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/apk-build.apk
