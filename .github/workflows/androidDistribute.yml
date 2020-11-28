@@ -66,10 +66,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Download Artifact
-      uses: actions/download-artifact@master
-      with:
-        name: apk-build
     - name: Decode Firebase credentials distributiion
       run: |
           echo "$FIREBASE_CREDENTIALS_DISTRIBUTE_BASE64" > firebase_credentials.json.b64
