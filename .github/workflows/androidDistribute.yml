@@ -84,7 +84,7 @@ jobs:
         appId: ${{secrets.FIREBASE_APP_ANDROID}}
         serviceCredentialsFile: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/firebase_credentials.json
         groups: Dipendenti
-        file: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/apk-build.apk
+        file: /home/runner/work/Flutter_organizer-app/Flutter_organizer-app/app-release.apk
   version:
     needs: [deploy]
     name: Create Release
