@@ -157,48 +157,51 @@ class cardEvent extends StatelessWidget {
         hoursDurationEvent = (((event.end.day!=selectedDay.day?Constants.MAX_WORKTIME*60:min<int>(Constants.MAX_WORKTIME*60,event.end.hour * 60 + event.end.minute)) -
             (event.start.day!=selectedDay.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,event.start.hour * 60 + event.start.minute))) / 60);
         containerHeight = hoursDurationEvent / gridHourSpan * hourHeight;
-        paddingContainer = 5 * hoursDurationEvent / gridHourSpan;
         heightBar = 40;
 
         card = Card(
           child: Container(
             height: containerHeight,
-            padding: EdgeInsets.only(left: 10, top: paddingContainer),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          color: HexColor(event.color)),
-                      width: 6,
-                      height: heightBar,
-                      margin: const EdgeInsets.symmetric(horizontal: 15.0),
-                    ),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            event.title.toUpperCase(),
-                            style: title_rev,
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          Text(event.category.toUpperCase(),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: subtitle_rev.copyWith(
-                                  color: HexColor(event.color),
-                                  fontWeight: FontWeight.normal)),
-                        ],
+            child: Flexible(
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4.0),
+                            color: HexColor(event.color)),
+                        width: 6,
+                        height: heightBar,
+                        margin: const EdgeInsets.symmetric(horizontal: 15.0),
                       ),
-                      margin: const EdgeInsets.symmetric(vertical: 4.0),
-                    )
-                  ],
-                ),
-              ],
+                      Expanded(
+                          child:Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  event.title.toUpperCase(),
+                                  style: title_rev,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 2,
+                                ),
+                                Text(event.category.toUpperCase(),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  style: subtitle_rev.copyWith(
+                                      color: HexColor(event.color),
+                                      fontWeight: FontWeight.normal)),
+                              ],
+                            ),
+                            margin: const EdgeInsets.symmetric(vertical: 4.0),
+                        )
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           margin: EdgeInsets.symmetric(vertical: 0, horizontal: 4),

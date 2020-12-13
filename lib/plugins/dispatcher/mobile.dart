@@ -103,4 +103,8 @@ abstract class PlatformUtils {
     );
   }
 
+  static dynamic eventButtonsVisible(BuildContext context, event, account){
+    return event.isSeen() && context.bloc<MobileBloc>().savedState.route != Constants.waitingEventListRoute && event.operator.id == account.id;
+  }
+
 }

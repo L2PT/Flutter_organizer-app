@@ -24,6 +24,7 @@ if (flutterVersionName == null) {
 def multidex_version = "2.0.1"
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
@@ -41,7 +42,6 @@ android {
 
     lintOptions {
         disable 'InvalidPackage'
-        checkReleaseBuilds false
     }
 
     defaultConfig {
@@ -62,13 +62,9 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    ndkVersion "21.3.6528147"
+
     buildTypes {
         release {
-
-            ndk {
-                debugSymbolLevel 'SYMBOL_TABLE'
-            }
             signingConfig signingConfigs.release
         }
     }
@@ -87,4 +83,3 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
 }
-apply plugin: 'com.google.gms.google-services'

@@ -75,4 +75,8 @@ class PlatformUtils {
   static dynamic notifyInfoMessage(msg) {
     showAlertJs(msg);
   }
+
+  static dynamic eventButtonsVisible(BuildContext context, event, account){
+    return false;
+  }
 }

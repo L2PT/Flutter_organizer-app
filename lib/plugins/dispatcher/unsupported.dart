@@ -39,5 +39,6 @@ abstract class PlatformUtils {
   static dynamic notifyErrorMessage(msg) => null;
 
   static dynamic notifyInfoMessage(message) => null;
-  
+
+  static dynamic eventButtonsVisible(BuildContext context, event, account) => null;
 }

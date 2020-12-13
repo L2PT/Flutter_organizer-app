@@ -52,6 +52,8 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   void evaluateEventsMap(DateTime first, DateTime last){
     Map<DateTime, List<Event>> eventsMap = {};
     if(this._events != null){
+      first = TimeUtils.truncateDate(first,"day");
+      last = TimeUtils.truncateDate(last,"day").add(Duration(hours: 23));
      _events.forEach((singleEvent) {
        if (singleEvent.isBetweenDate(first, last)) {
          int diff = singleEvent.end.difference(singleEvent.start).inDays;

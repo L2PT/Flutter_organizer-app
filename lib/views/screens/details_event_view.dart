@@ -5,14 +5,11 @@ import 'package:intl/intl.dart';
 import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
-import 'package:venturiautospurghi/cubit/persistent_notification/persistent_notification_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
@@ -361,7 +358,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         child: Row(
                           children: <Widget>[
                             SizedBox(
-                              width: 50,
+                              width: 30,
                             ),
                             Container(
                               decoration: BoxDecoration(
@@ -390,15 +387,19 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                 ],
                               ),
                             ),
-                            Column(
+                            Flexible(
+                              child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(event.title.toUpperCase(),
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 3,
                                     style: title),
                                 Text(event.category.toUpperCase(),
                                     style: subtitle.copyWith(color: black)),
                               ],
-                            )
+                             )
+                            ),
                           ],
                         ),
                       ),
@@ -456,7 +457,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           )
                         ],
                       ),
-                    ),event.isSeen() && context.bloc<MobileBloc>().savedState.route != Constants.waitingEventListRoute && event.operator.id == account.id?
+                    ),PlatformUtils.eventButtonsVisible(context, event, account)?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
