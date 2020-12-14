@@ -54,6 +54,8 @@ class cardEvent extends StatelessWidget {
       double containerHeight;
       double paddingContainer;
       double heightBar;
+      int maxLine;
+
 
       if (gridHourSpan == 0) {
         containerHeight = hourHeight;
@@ -158,12 +160,12 @@ class cardEvent extends StatelessWidget {
             (event.start.day!=selectedDay.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,event.start.hour * 60 + event.start.minute))) / 60);
         containerHeight = hoursDurationEvent / gridHourSpan * hourHeight;
         heightBar = 40;
+        maxLine = hoursDurationEvent < 1 ? 1:2;
 
         card = Card(
           child: Container(
             height: containerHeight,
-            child: Flexible(
-                child: Column(
+            child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Row(
@@ -185,7 +187,7 @@ class cardEvent extends StatelessWidget {
                                   event.title.toUpperCase(),
                                   style: title_rev,
                                   overflow: TextOverflow.ellipsis,
-                                  maxLines: 2,
+                                  maxLines: maxLine,
                                 ),
                                 Text(event.category.toUpperCase(),
                                   overflow: TextOverflow.ellipsis,
@@ -202,7 +204,6 @@ class cardEvent extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
           ),
           margin: EdgeInsets.symmetric(vertical: 0, horizontal: 4),
           elevation: 5,
