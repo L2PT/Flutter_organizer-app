@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-import 'package:sms_autofill/sms_autofill.dart';
+// import 'package:sms_autofill/sms_autofill.dart';
 import 'package:venturiautospurghi/models/auth/email.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -12,23 +12,25 @@ import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 part 'reset_auth_account_state.dart';
 
 class ResetAuthAccountCubit extends Cubit<ResetAuthAccountState>{
+  
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController codeController = TextEditingController();
   final FirebaseAuthService _authenticationRepository;
   final CloudFirestoreService _databaseRepository;
-
-  ResetAuthAccountCubit(FirebaseAuthService authenticationRepository, CloudFirestoreService databaseRepository)  :
-        assert(authenticationRepository != null && databaseRepository != null),
+  
+  ResetAuthAccountCubit(FirebaseAuthService authenticationRepository, CloudFirestoreService databaseRepository, [String? autofilledEmail, String? autofilledPhone]) :
         _authenticationRepository = authenticationRepository, _databaseRepository = databaseRepository,
         super(AuthMethodSelectionState()){
-    SmsAutoFill().listenForCode;
-    SmsAutoFill().code.listen((newCode) {
-      checkCode(newCode);
-    });
+    emailController.text = autofilledEmail??"";
+    phoneController.text = autofilledPhone??"";
+    // SmsAutoFill().listenForCode;
+    // SmsAutoFill().code.listen((newCode) {
+    //   checkCode(newCode);
+    // });
   }
 
-  void sendEmailReset([Email email]){
+  void sendEmailReset([Email? email]){
     if(email == null) email = Email(emailController.value.toString());
     if(!email.validate()){
       return PlatformUtils.notifyErrorMessage("Account non trovato");
@@ -41,9 +43,8 @@ class ResetAuthAccountCubit extends Cubit<ResetAuthAccountState>{
 
   void sendPhoneVerification(){
     String phoneNumber = phoneController.value.toString();
-    String code = generateCode();
-    //TODO send
-    emit(CodeVerificationState(phoneNumber, code));
+    
+    emit(CodeVerificationState(phoneNumber, "code"));
   }
 
   String generateCode(){
@@ -52,8 +53,8 @@ class ResetAuthAccountCubit extends Cubit<ResetAuthAccountState>{
     return code;
   }
 
-  void checkCode([String codeSubmitted]) async {
-    if(codeSubmitted.isNullOrEmpty()) codeSubmitted = codeController.value.toString();
+  void checkCode([String? codeSubmitted]) async {
+    if(string.isNullOrEmpty(codeSubmitted)) codeSubmitted = codeController.value.toString();
     if(state is CodeVerificationState){
       if((state as CodeVerificationState).code == codeSubmitted) {
         sendEmailReset(await getEmailAddress((state as CodeVerificationState).phoneNumber));
@@ -62,13 +63,8 @@ class ResetAuthAccountCubit extends Cubit<ResetAuthAccountState>{
   }
 
   Future<Email> getEmailAddress(String phoneNumber) async {
-    Email address = Email(await _databaseRepository.getUserEmailByPhone(phoneNumber));
+    Email address = Email((await _databaseRepository.getUserByPhone(phoneNumber)).email);
     return address;
   }
-
-  @override
-  Future<Function> close() {
-    SmsAutoFill().unregisterListener();
-  }
-
+  
 }

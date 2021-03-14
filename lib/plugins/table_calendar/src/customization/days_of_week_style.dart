@@ -13,7 +13,7 @@ class DaysOfWeekStyle {
   /// ```dart
   /// dowTextBuilder: (date, locale) => DateFormat.E(locale).format(date)[0],
   /// ```
-  final TextBuilder dowTextBuilder;
+  final TextBuilder? dowTextBuilder;
 
   /// Style for weekdays on the top of Calendar.
   final TextStyle weekdayStyle;

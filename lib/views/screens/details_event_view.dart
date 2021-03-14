@@ -6,12 +6,15 @@ import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
+import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
@@ -20,15 +23,15 @@ import 'package:venturiautospurghi/views/widgets/success_alert.dart';
 
 class DetailsEvent extends StatelessWidget {
   final Event _event;
-  DetailsEvent(this._event,{Key key}) : assert(_event != null), super(key: key);
+  DetailsEvent(this._event);
 
   @override
   Widget build(BuildContext context) {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    var account = context.bloc<AuthenticationBloc>().account;
+    Account account = context.read<AuthenticationBloc>().account!;
 
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: white,
       body: new BlocProvider(
           create: (_) => DetailsEventCubit(context, repository, account, _event),
@@ -41,28 +44,27 @@ class DetailsEvent extends StatelessWidget {
 
 
 class _detailsView extends StatefulWidget {
-  _detailsView({Key key}) : super(key: key);
-
   @override
   _detailsViewState createState() => _detailsViewState();
-}
-
-class _detailsViewState extends State<_detailsView> with TickerProviderStateMixin {
-  TabController _controller;
-  final List<Tab> _tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
+  
+  final List<Tab> tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
   final DateFormat formatterMonth = new DateFormat('MMM', "it_IT");
   final DateFormat formatterWeek = new DateFormat('E', "it_IT");
   final double sizeIcon = 30; //HANDLE
   final double padding = 15.0;
+}
+
+class _detailsViewState extends State<_detailsView> with TickerProviderStateMixin {
+  late final TabController _controller;
 
   _detailsViewState() {
-    _controller = new TabController(vsync: this, length: _tabsHeaders.length);
+    _controller = new TabController(vsync: this, length: widget.tabsHeaders.length);
   }
-
+  
   @override
   Widget build(BuildContext context) {
-    var account = context.bloc<AuthenticationBloc>().account;
-    var event = context.bloc<DetailsEventCubit>().state.event;
+    Account account = context.read<AuthenticationBloc>().account!;
+    Event event = context.read<DetailsEventCubit>().state.event;
 
     Widget detailsContent() => ListView(
       physics: BouncingScrollPhysics(),
@@ -77,9 +79,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                   children: <Widget>[
                     Icon(
                       Icons.watch_later,
-                      size: sizeIcon,
+                      size: widget.sizeIcon,
                     ),
-                    SizedBox(width: padding,),
+                    SizedBox(width: widget.padding,),
                     Text((event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm",'it_IT'):DateFormat.Hm()).format(event.start) + " - " +
                         (event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm",'it_IT'):DateFormat.Hm()).format(event.end), style: subtitle_rev)
                   ],
@@ -92,9 +94,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                     children: <Widget>[
                       Icon(
                         Icons.map,
-                        size: sizeIcon,
+                        size: widget.sizeIcon,
                       ),
-                      SizedBox(width: padding,),
+                      SizedBox(width: widget.padding,),
                       Container(
                       child:
                          Flexible(
@@ -118,9 +120,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                   children: <Widget>[
                     Icon(
                       Icons.supervised_user_circle,
-                      size: sizeIcon,
+                      size: widget.sizeIcon,
                     ),
-                    SizedBox(width: padding,),
+                    SizedBox(width: widget.padding,),
                     Text( event.supervisor.surname, style: subtitle_rev),
                     SizedBox(width: 5,),
                     Text( event.supervisor.name, style: subtitle_rev),
@@ -134,10 +136,10 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                   children: <Widget>[
                     Icon(
                       FontAwesomeIcons.hardHat,
-                      size: sizeIcon,
+                      size: widget.sizeIcon,
                     ),
-                    SizedBox(width: padding,),
-                    Text([event.operator, ...event.suboperators].map((operator) => operator.name+ " " +operator.surname).reduce((value, element) => value??""+"; "+element), style: subtitle_rev)
+                    SizedBox(width: widget.padding,),
+                    Text([event.operator, ...event.suboperators].map((operator) => "${operator?.name} ${operator?.surname}").reduce((value, element) => value+"; "+element), style: subtitle_rev)
                   ],
                 ),
               ),
@@ -149,11 +151,11 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       child: Row(
                           children: <Widget>[
                             Icon(
-                              Status.getIcon(event.status),
-                              size: sizeIcon,
+                              EventStatus.getIcon(event.status),
+                              size: widget.sizeIcon,
                             ),
-                            SizedBox(width: padding,),
-                            Text(Status.getText(event.status), style: subtitle_rev),
+                            SizedBox(width: widget.padding,),
+                            Text(EventStatus.getText(event.status), style: subtitle_rev),
                           ]
                       )),
                       event.isRefused()?
@@ -161,7 +163,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         padding: EdgeInsets.only( bottom: 15.0),
                         child: Row(
                           children: [
-                            SizedBox(width: padding+sizeIcon,),
+                            SizedBox(width: widget.padding+widget.sizeIcon,),
                             Expanded(
                               child: Text(event.motivazione == null?'Nessuna motivazione indicata':event.motivazione,
                                 style: label_rev, overflow: TextOverflow.visible,),
@@ -177,14 +179,14 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Icon(Icons.assignment, size: sizeIcon,),
-                    SizedBox(width: padding,),
+                    Icon(Icons.assignment, size: widget.sizeIcon,),
+                    SizedBox(width: widget.padding,),
                     Container(
                       child: Flexible(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            Text(event.description.isNullOrEmpty()?'Nessuna nota indicata':event.description.substring(0,min<int>(event.description.length,80)),
+                            Text(string.isNullOrEmpty(event.description)?'Nessuna nota indicata':event.description.substring(0,min<int>(event.description.length,80)),
                               style: subtitle_rev,
                               overflow: TextOverflow.ellipsis,
                               maxLines: 5,
@@ -235,9 +237,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                     borderRadius: BorderRadius.all(Radius.circular(15.0)),
                   ),
                   child: Row(children: <Widget>[
-                    Icon(Icons.insert_drive_file, size: sizeIcon, color: black),
+                    Icon(Icons.insert_drive_file, size: widget.sizeIcon, color: black),
                     SizedBox(
-                      width: padding,
+                      width: widget.padding,
                     ),
                     Expanded(child: Container(
                         child: Text(fileName,
@@ -246,11 +248,11 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         )
                     ),),
                     IconButton(
-                      icon:Icon(Icons.file_download, size: sizeIcon, color: black),
+                      icon:Icon(Icons.file_download, size: widget.sizeIcon, color: black),
                       onPressed: () async {
-                        var url = await PlatformUtils.storageGetUrl(event.id+"/"+fileName);
+                        var url = await FirebaseStorageService.downloadURL(event.id+"/"+fileName);
                         if( await PlatformUtils.download(url, fileName))
-                          SuccessAlert(context,title: null, text: "Documento scaricato!", icon: Icons.download_done_rounded).show();
+                          SuccessAlert(context, text: "Documento scaricato!", icon: Icons.download_done_rounded).show();
                       },
                     ),
                   ])
@@ -282,10 +284,10 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 children: <Widget>[
                   Icon(
                     Icons.assignment,
-                    size: sizeIcon,
+                    size: widget.sizeIcon,
                   ),
                   SizedBox(
-                    width: padding,
+                    width: widget.padding,
                   ),
                   new Expanded(
                       flex: 1,
@@ -304,8 +306,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
     Widget tabView = new BlocBuilder<DetailsEventCubit, DetailsEventState>(
         buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
-          account = context.bloc<AuthenticationBloc>().account;
-          event = context.bloc<DetailsEventCubit>().state.event;
+          account = context.read<AuthenticationBloc>().account!;
+          event = context.read<DetailsEventCubit>().state.event;
           return  TabBarView(
             controller: _controller,
             children: _tabsContents.map((Widget tab) {
@@ -373,7 +375,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
                                   Center(
-                                    child: Text(formatterMonth.format(event.start).toUpperCase(),
+                                    child: Text(widget.formatterMonth.format(event.start).toUpperCase(),
                                         style: title_rev.copyWith(fontSize: 15)),
                                   ),
                                   Center(
@@ -381,7 +383,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                         style: title_rev.copyWith(fontSize: 15)),
                                   ),
                                   Center(
-                                    child: Text(formatterWeek.format(event.start),
+                                    child: Text(widget.formatterWeek.format(event.start),
                                         style: title_rev.copyWith(fontSize: 15)),
                                   )
                                 ],
@@ -436,7 +438,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                         tabBarIndicatorSize:
                                         TabBarIndicatorSize.tab,
                                       ),
-                                      tabs: _tabsHeaders,
+                                      tabs: widget.tabsHeaders,
                                       controller: _controller,
                                     ),
                                   ),
@@ -462,45 +464,30 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          RaisedButton(
+                          ElevatedButton(
                             child: new Text('RIFIUTA', style: button_card),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(15.0))),
-                            color: black,
-                            elevation: 15,
                             onPressed: () async {
-                              RejectAlert(context).show().then((justification)=>!justification.isNullOrEmpty()?context.bloc<DetailsEventCubit>().refuseEventAndNotify(justification):null);
+                              RejectAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)? context.read<DetailsEventCubit>().refuseEventAndNotify(justification):null);
                             }
                           ),
                           SizedBox(width: 15,),
-                          RaisedButton(
+                          ElevatedButton(
                             child: new Text('ACCETTA', style: button_card),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(15.0))),
-                            color: black,
-                            elevation: 15,
-                            onPressed: context.bloc<DetailsEventCubit>().acceptEventAndNotify,
+                            onPressed: context.read<DetailsEventCubit>().acceptEventAndNotify,
                           ),
                           SizedBox(width: 30,),
                         ],
                       ),
-                    ):event.isAccepted() && DateTime.now().isAfter(event.start) && event.operator.id == account.id?
+                    ): event.isAccepted() && DateTime.now().isAfter(event.start) && event.operator!.id == account.id?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          RaisedButton(
+                          ElevatedButton(
                             child: new Text('TERMINA', style: button_card),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(15.0))),
-                            color: black,
-                            elevation: 15,
                             onPressed: () async {
                               if(await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Confermi la terminazione dell'incarico?").show())
-                                context.bloc<DetailsEventCubit>().endEventAndNotify();
+                                context.read<DetailsEventCubit>().endEventAndNotify();
                             },
                           ),
                         ],

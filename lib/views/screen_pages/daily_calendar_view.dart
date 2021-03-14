@@ -6,15 +6,13 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 -(O)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:loading/loading.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/daily_calendar/daily_calendar_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
@@ -22,40 +20,39 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
-class DailyCalendar extends StatefulWidget {
-  final DateTime day;
-  final Account operator;
 
-  DailyCalendar([this.day, this.operator, Key key]) : super(key: key);
+class DailyCalendar extends StatefulWidget {
+  final DateTime? day;
+  final Account? operator;
+
+  DailyCalendar([this.day, this.operator]);
 
   @override
   _DailyCalendarViewState createState() => _DailyCalendarViewState(day, operator);
 }
 
 class _DailyCalendarViewState extends State<DailyCalendar> with TickerProviderStateMixin {
+    final DateTime? _day;
+    final Account? _operator;
 
-    final DateTime day;
-    final Account operator;
-
-    _DailyCalendarViewState(this.day, this.operator);
+    _DailyCalendarViewState(this._day, this._operator);
 
   @override
   Widget build(BuildContext context) {
-    CloudFirestoreService repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    Account account = BlocProvider.of<AuthenticationBloc>(context).account;
+    CloudFirestoreService repository = context.read<CloudFirestoreService>();
+    Account account = context.read<AuthenticationBloc>().account!;
 
     Widget content = Column(
         mainAxisSize: MainAxisSize.max,
         children:
         <Widget>[
-          _rowCalendar(this,this.operator),
+          _rowCalendar(this),
           const SizedBox(height: 8.0),
           _verticalEventsGrid()
         ]);
 
     return new BlocProvider(
-        create: (_) => DailyCalendarCubit(repository, account, operator, day),
+        create: (_) => DailyCalendarCubit(repository, account, _operator, _day),
         child: Material(
             elevation: 12.0,
             borderRadius: new BorderRadius.only(
@@ -69,12 +66,10 @@ class _DailyCalendarViewState extends State<DailyCalendar> with TickerProviderSt
 class _rowCalendar extends StatelessWidget {
   var _animationController;
   var _animation;
-  Account _operator;
 
-  _rowCalendar(_DailyCalendarViewState ticker, Account operator){
+  _rowCalendar(_DailyCalendarViewState ticker){
     _animationController = AnimationController(duration: const Duration(milliseconds: 400), vsync: ticker);
     _animation = Tween(begin: 0.0, end: 1.0,).animate(_animationController);
-    this._operator = operator;
   }
 
   @override
@@ -86,8 +81,8 @@ class _rowCalendar extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         decoration: BoxDecoration(
           shape: BoxShape.rectangle,
-          color: !context.bloc<DailyCalendarCubit>().calendarController.isSelected(date) ?
-        context.bloc<DailyCalendarCubit>().calendarController.isToday(date) ?
+          color: !context.read<DailyCalendarCubit>().calendarController.isSelected(date) ?
+        context.read<DailyCalendarCubit>().calendarController.isToday(date) ?
               Colors.brown[300] :
             Colors.blue[400] :
           Colors.brown[500],
@@ -113,7 +108,7 @@ class _rowCalendar extends StatelessWidget {
       builder: (context, state) {
         return TableCalendar(
           locale: 'it_IT',
-          calendarController: context.bloc<DailyCalendarCubit>().calendarController,
+          calendarController: context.read<DailyCalendarCubit>().calendarController,
           events: state.eventsMap,
           initialCalendarFormat: CalendarFormat.week,
           formatAnimation: FormatAnimation.slide,
@@ -184,12 +179,13 @@ class _rowCalendar extends StatelessWidget {
             },
           ),
           onDaySelected: (date, events) {
-            context.bloc<DailyCalendarCubit>().onDaySelected(date);
+            context.read<DailyCalendarCubit>().onDaySelected(date);
             //_animationController.forward(from: 0.0);
            },
-          onVisibleDaysChanged: context.bloc<DailyCalendarCubit>().onVisibleDaysChanged,
+          onVisibleDaysChanged: context.read<DailyCalendarCubit>().onVisibleDaysChanged,
           selectNext: () {
-            context.bloc<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month' :context.bloc<DailyCalendarCubit>().state.selectedDay, 'operator' : _operator}));
+            context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
+            context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
             _animationController.dispose();
            },
           selectPrevious: () {},
@@ -204,16 +200,14 @@ class _verticalEventsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Account account = BlocProvider
-        .of<AuthenticationBloc>(context)
-        .account;
-    int gridHourSpan;
-    double gridHourHeight;
+    Account account = context.read<AuthenticationBloc>().account!;
+    int gridHourSpan = context.select((DailyCalendarCubit cubit) => cubit.state.gridHourSpan);
+    double gridHourHeight = context.select((DailyCalendarCubit cubit) => cubit.state.gridHourHeight);
 
-    int _backGridLength;
-    double _barHourHeight;
-    DateTime _base;
-    DateTime _top;
+    late int _backGridLength;
+    late double _barHourHeight;
+    late DateTime _base;
+    late DateTime _top;
 
     List<Widget> backGrid() =>
         List.generate(_backGridLength, (i) {
@@ -245,7 +239,7 @@ class _verticalEventsGrid extends StatelessWidget {
             ),
           ]
           );
-        }).toList() ?? [];
+        }).toList();
 
     List<Widget> frontEventList() =>
         (gridHourSpan == 0) ?
@@ -263,7 +257,7 @@ class _verticalEventsGrid extends StatelessWidget {
             Expanded(
                 flex: 8,
                 child: cardEvent(
-                  event: (context.bloc<DailyCalendarCubit>().state as DailyCalendarReady).selectedEvents()[0],
+                  event: (context.read<DailyCalendarCubit>().state as DailyCalendarReady).selectedEvents()[0],
                   hourHeight: 120,
                   gridHourSpan: 0,
                   onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
@@ -277,11 +271,11 @@ class _verticalEventsGrid extends StatelessWidget {
         <Widget>[
           SizedBox(height: _barHourHeight),
           ...(context
-              .bloc<DailyCalendarCubit>()
+              .read<DailyCalendarCubit>()
               .state as DailyCalendarReady).selectedEvents().map((event) {
             List <Widget> element = <Widget>[
               SizedBox(height: ((DailyCalendarCubit.minDailyHour(event.start, context
-                  .bloc<DailyCalendarCubit>()
+                  .read<DailyCalendarCubit>()
                   .state
                   .selectedDay) -
                   (_base.hour * 60 + _base.minute)) / 60) / gridHourSpan * gridHourHeight),
@@ -291,14 +285,14 @@ class _verticalEventsGrid extends StatelessWidget {
                     child: Container(
                       padding: EdgeInsets.only(right: 40),
                       height: ((DailyCalendarCubit.maxDailyHour(event.end, context
-                          .bloc<DailyCalendarCubit>()
+                          .read<DailyCalendarCubit>()
                           .state
                           .selectedDay) -
                           DailyCalendarCubit.minDailyHour(event.start, context
-                              .bloc<DailyCalendarCubit>()
+                              .read<DailyCalendarCubit>()
                               .state
                               .selectedDay)) / 60) / gridHourSpan * gridHourHeight,
-                      child: account.supervisor ? Icon(Status.getIcon(event.status), color: black) : Container(),
+                      child: account.supervisor ? Icon(EventStatus.getIcon(event.status), color: black) : Container(),
                     )
                 ),
                 Expanded(
@@ -308,16 +302,13 @@ class _verticalEventsGrid extends StatelessWidget {
                     dateView: false,
                     hourHeight: gridHourHeight,
                     gridHourSpan: gridHourSpan,
-                    selectedDay: context.bloc<DailyCalendarCubit>().state.selectedDay,
+                    selectedDay: context.read<DailyCalendarCubit>().state.selectedDay,
                     onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
                   ),
                 ),
               ])
             ];
-            int newBaseMinutes = DailyCalendarCubit.maxDailyHour(event.end, context
-                .bloc<DailyCalendarCubit>()
-                .state
-                .selectedDay);
+            int newBaseMinutes = DailyCalendarCubit.maxDailyHour(event.end, context.read<DailyCalendarCubit>().state.selectedDay);
             _base = TimeUtils.truncateDate(_base, "day").add(
                 Duration(hours: newBaseMinutes ~/ 60, minutes: (newBaseMinutes % 60).toInt()));
             return element;
@@ -333,10 +324,7 @@ class _verticalEventsGrid extends StatelessWidget {
           if (!(state is DailyCalendarReady))
             return Center(child: CircularProgressIndicator());
 
-          gridHourSpan = state.gridHourSpan;
-          gridHourHeight = state.gridHourHeight;
-          _backGridLength = gridHourSpan == 0 ? 0 :
-          ((Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) / gridHourSpan).toInt();
+          _backGridLength = gridHourSpan == 0 ? 0 : (Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) ~/ gridHourSpan;
           _barHourHeight = gridHourHeight / 2;
           _base = new DateTime(1990, 1, 1, Constants.MIN_WORKTIME, 0, 0);
           _top = new DateTime(1990, 1, 1, Constants.MAX_WORKTIME, 0, 0);
@@ -349,7 +337,7 @@ class _verticalEventsGrid extends StatelessWidget {
                             mainAxisSize: MainAxisSize.max,
                               children: backGrid()
                           ),
-                          (state as DailyCalendarReady).selectedEvents().length <= 0 ? Container(height: 20) :
+                          state.selectedEvents().length <= 0 ? Container(height: 20) :
                           Column(
                               mainAxisSize: MainAxisSize.max,
                               children: frontEventList()

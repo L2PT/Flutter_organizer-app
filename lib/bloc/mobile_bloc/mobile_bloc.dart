@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
@@ -35,19 +35,14 @@ part 'mobile_state.dart';
 class MobileBloc extends Bloc<MobileEvent, MobileState> {
   final CloudFirestoreService _databaseRepository;
   final Account _account;
-  Timer background;
-  AppLifecycleState _lifecycleState;
-  StreamSubscription<List<Event>> _notificationSubscription;
-  String actualRoute;
-  MobileState savedState;
-
-  set lifecycleState(AppLifecycleState value) {
-    _lifecycleState = value;
-  }
-
+  Timer? background;
+  StreamSubscription<List<Event>>? _notificationSubscription;
+  late AppLifecycleState lifecycleState;
+  late MobileState savedState;
+  
   MobileBloc({
-    @required CloudFirestoreService databaseRepository,
-    @required Account account
+    required CloudFirestoreService databaseRepository,
+    required Account account
   })  : assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository,
         _account = account,
@@ -59,7 +54,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       yield* _mapUpdateViewToState(event);
     }else if (event is NavigateBackEvent) {
       if(state is OutBackdropState){
-        yield (state as OutBackdropState).exit();
+        yield (state as OutBackdropState).leave();
         yield (savedState as InBackdropState).restore();
       }
     }else if (event is RestoreEvent) {
@@ -83,10 +78,10 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
       case Constants.operatorListRoute: Navigator.push(event.arg["context"], MaterialPageRoute(maintainState: true, builder: (context) => OperatorSelection(event.arg["event"],event.arg["requirePrimaryOperator"],event.arg["context"])))
-          .then((value) => (event.arg["context"] as BuildContext).bloc<CreateEventCubit>().forceRefresh());break;
+          .then((value) => (event.arg["context"] as BuildContext).read<CreateEventCubit>().forceRefresh());break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
-      case Constants.historyEventListRoute:  yield InBackdropState(event.route, History()); break;
+      case Constants.historyEventListRoute: yield InBackdropState(event.route, History()); break;
       default: yield InBackdropState(event.route, Profile()); break;
       break;
     }
@@ -95,7 +90,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-    add(NavigateEvent(Constants.homeRoute,null));
+    //TODO inspect here with [lifecycleState]
+    add(NavigateEvent(Constants.homeRoute));
     int counter = 0;
     if (!_account.supervisor) {
       _notificationSubscription = _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((notifications)  {
@@ -108,10 +104,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
               background = new Timer.periodic(Duration(seconds: 45), _notificationReminder);
             }
         } else if (notifications.length == 0) {
-          if(background != null) {
-            background.cancel();
-            background = null;
-          }
+          background?.cancel();
+          background = null;
           if(state is NotificationWaitingState)
             add(RestoreEvent());
         }
@@ -126,5 +120,12 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
           title: "Hai degli eventi in sospeso");
   }
 
-  bool outBackdropResultIsPositive(value) => (value != null && (!(value is bool) || value != false));
+  @override
+  Future<dynamic> close() {
+    _notificationSubscription?.cancel();
+    _notificationSubscription = null;
+    return super.close();
+  }
+
+// bool outBackdropResultIsPositive(value) => (value != null && (!(value is bool) || value != false));
 }

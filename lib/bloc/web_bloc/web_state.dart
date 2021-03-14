@@ -13,7 +13,7 @@ abstract class WebState extends Equatable {
 
 class Ready extends WebState {
 
-  Ready(String route, content) : super(route, content);
+  Ready(String route, [content]) : super(route, content);
 
 }
 
@@ -27,5 +27,5 @@ class DialogReady extends WebState {
 }
 
 class NotReady extends WebState {
-  NotReady() : super(null, null);
+  NotReady() : super("", null);
 }

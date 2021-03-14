@@ -7,26 +7,21 @@ import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 class RejectAlert{
   final TextEditingController _controller = TextEditingController();
   final BuildContext context;
-  List<Widget> _actions;
-  Widget _content;
+  late List<Widget> _actions;
+  late Widget _content;
 
   RejectAlert(this.context) {
 
     _actions = <Widget>[
-      FlatButton(
+      TextButton(
         child: new Text('Annulla'),
         onPressed: () {
           Navigator.of(context).pop("");
         },
       ),
       SizedBox(width: 15,),
-      RaisedButton(
+      ElevatedButton(
         child: new Text('CONFERMA', style: button_card),
-        shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.all(Radius.circular(15.0))),
-        color: Colors.black,
-        elevation: 15,
         onPressed: () => Navigator.pop(context, _controller.text),
       ),
     ];

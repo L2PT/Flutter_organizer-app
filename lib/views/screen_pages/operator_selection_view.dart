@@ -10,22 +10,22 @@ import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
 class OperatorSelection extends StatelessWidget {
-  Event _event;
+  BuildContext? callerContext;
+  Event? event;
   final bool requirePrimaryOperator;
-  BuildContext callerContext;
 
-  OperatorSelection([Event _event, this.requirePrimaryOperator = false, this.callerContext]) : this._event = _event ?? new Event.empty();
+  OperatorSelection([this.event, this.requirePrimaryOperator = false, this.callerContext]);
 
   @override
   Widget build(BuildContext context) {
-    if(callerContext != null) context = callerContext;
+    if(callerContext != null) context = callerContext!;
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
 
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: white,
       body: new BlocProvider(
-          create: (_) => OperatorSelectionCubit(repository, _event, requirePrimaryOperator),
+          create: (_) => OperatorSelectionCubit(repository, event, requirePrimaryOperator),
           child: _operatorSelectableList()
       ),
     );
@@ -35,11 +35,11 @@ class OperatorSelection extends StatelessWidget {
 class _operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildOperatorsList() => (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).operators?.map((operator) => new ListTileOperator(
+    List<Widget> buildOperatorsList() => (context.read<OperatorSelectionCubit>().state as ReadyOperators).operators.map((operator) => new ListTileOperator(
         operator,
-        checkbox: context.bloc<OperatorSelectionCubit>().isTriState?2:1,
-        isChecked: (context.bloc<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id],
-        onTap: context.bloc<OperatorSelectionCubit>().onTap))?.toList();
+        checkbox: context.read<OperatorSelectionCubit>().isTriState?2:1,
+        isChecked: (context.read<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id]!,
+        onTap: context.read<OperatorSelectionCubit>().onTap)).toList();
 
     void onExit(dynamic out) {
       Navigator.pop(context, out);
@@ -55,14 +55,14 @@ class _operatorSelectableList extends StatelessWidget {
             Container(
             alignment: Alignment.center,
             padding: EdgeInsets.all(15.0),
-            child: RaisedButton(
+            child: ElevatedButton(
               child: new Text('CONFERMA', style: subtitle_rev),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5.0)), side: BorderSide(color: white)),
-              elevation: 5,
+              style: raisedButtonStyle.copyWith(
+                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
+              ),
               onPressed: (){
-                if(context.bloc<OperatorSelectionCubit>().validateAndSave())
-                  onExit(context.bloc<OperatorSelectionCubit>().getEvent());
+                if(context.read<OperatorSelectionCubit>().validateAndSave())
+                  onExit(context.read<OperatorSelectionCubit>().getEvent());
               },
             )),
           ],
@@ -83,7 +83,7 @@ class _operatorSelectableList extends StatelessWidget {
                 return Expanded(
                   child: (state is ReadyOperators)? ListView(
                       padding: new EdgeInsets.symmetric(vertical: 8.0),
-                      children: buildOperatorsList()??[]) :
+                      children: buildOperatorsList()) :
                   LoadingScreen()
                 );
               })

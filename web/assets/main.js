@@ -186,26 +186,6 @@ function addResources(res){ //-- deprecated
         calendar.addResource(i);
     })
 }
-//<-- Dart
-async function storageOpenUrl(path){
-    var downloadUrl = await storage.ref().child(path).getDownloadURL();
-    window.open(downloadUrl);
-}
-//<-- Dart
-function storageGetFiles(path){
-    return new Promise((resolve, reject) => {
-        storage.ref().child(path).listAll().then(a=>resolve(a["items"].map(a=>a.fullPath)));
-    });
-}
-//<-- Dart
-function storagePutFile(path, file){
-    storage.ref().child(path).put(file);
-}
-//<-- Dart
-function storageDelFile(path){
-    storage.ref().child(path).delete();
-}
-
 /*-------------------------------------------------------------------*/
                         /*--UTILITIES--*/
 function getColor(arg){
@@ -236,38 +216,8 @@ function censorMap(censor) {
   }
 }
 
-function getCookie(cname) {
-  var name = cname + "=";
-  var decodedCookie = decodeURIComponent(document.cookie);
-  var ca = decodedCookie.split(';');
-  for(var i = 0; i <ca.length; i++) {
-    var c = ca[i];
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return "";
-}
-function setCookie(cname, cvalue, exdays) {
-  var d = new Date();
-  d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-  var expires = "expires="+d.toUTCString();
-  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-
 /*          DART            */
 //accessors
-function WriteCookieJarJs(name,val) { setCookie(name,val,val==""?-10:1);}
-function ReadCookieJarJs(name) { return getCookie(name);}
-
-function storageOpenUrlJs(path){ storageOpenUrl(path); };
-function storageGetFilesJs(path){ return storageGetFiles(path); };
-function storagePutFileJs(path, file){ storagePutFile(path, file); };
-function storageDelFileJs(path){ storageDelFile(path); };
-
 function showAlertJs(value) { alert(value);}
 function consoleLogJs(value) { console.log(value);}
 

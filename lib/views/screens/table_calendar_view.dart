@@ -3,8 +3,11 @@ import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class TableCalendarWithBuilders extends StatelessWidget {
-
-  CalendarController _calendarController = CalendarController();
+  late CalendarController _calendarController;
+  
+  TableCalendarWithBuilders(){
+    _calendarController = CalendarController();
+  }
 
   @override
   Widget build(BuildContext context) {

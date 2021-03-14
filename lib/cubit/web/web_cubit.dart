@@ -12,7 +12,6 @@ class WebCubit extends Cubit<WebCubitState> {
   final Account _account;
 
   WebCubit( CloudFirestoreService databaseRepository, Account account) :
-        assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository, _account = account,
         super((WebCubitState(DateFormat('MMMM YYYY - ddd D', 'it_IT').format(DateTime.now()).toString())));
 
@@ -21,7 +20,7 @@ class WebCubit extends Cubit<WebCubitState> {
   }
 
   Future<void> updateAccount(List<Account> webOps) async {
-    return await _databaseRepository.updateAccountField(_account.id, "OperatoriWeb", webOps.map((webOp) => webOp.toWebOpDocument()));
+    return await _databaseRepository.updateAccountField(_account.id, "OperatoriWeb", webOps.map((webOp) => webOp.toWebDocument()));
   }
 
 }

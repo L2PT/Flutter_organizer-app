@@ -2,26 +2,37 @@ part of 'authentication_bloc.dart';
 
 @immutable
 abstract class AuthenticationState extends Equatable {
-  AuthenticationState([List props = const []]);
-}
-
-class Uninitialized extends AuthenticationState {
+  const AuthenticationState();
+  
   @override
   List<Object> get props => [];
+}
+
+class Uninitialized extends AuthenticationState{
+  
+}
+
+class Unauthenticated extends AuthenticationState {
+
 }
 
 class Authenticated extends AuthenticationState {
   final Account user;
   final bool isSupervisor;
-  final List<dynamic> token;
+  final List<dynamic> tokens;
 
-  Authenticated([this.user,this.isSupervisor, this.token]) : super([user,isSupervisor,token]);
+  Authenticated(this.user,this.isSupervisor, [tokens]) : this.tokens = tokens ?? [], super();
 
   @override
-  List<Object> get props => [this.user,this.isSupervisor,this.token];
+  List<Object> get props => [this.user,this.isSupervisor,this.tokens];
 }
 
-class Unauthenticated extends AuthenticationState {
+class Reset extends AuthenticationState {
+  final String autofilledEmail;
+  final String autofilledPhone;
+
+  Reset(this.autofilledEmail, this.autofilledPhone) : super();
+
   @override
-  List<Object> get props => [];
+  List<Object> get props => [autofilledEmail, autofilledPhone];
 }

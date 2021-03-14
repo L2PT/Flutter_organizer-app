@@ -2,43 +2,60 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/login/login_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
-import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
-class LogIn extends StatelessWidget {
+class LogIn extends StatefulWidget{
+  @override
+  _LogInState createState() => _LogInState();
+}
+
+class _LogInState extends State<LogIn> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  _LogInState() {
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    );
+  }
+  
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var repository = RepositoryProvider.of<FirebaseAuthService>(context);
-
-    Widget content = Padding(
+    var authenticationRepository = RepositoryProvider.of<FirebaseAuthService>(context);
+    
+    Widget content() => Padding(
       padding: EdgeInsets.only(left: 24.0, right: 24.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           logo,
-          _emailInput(),
-          SizedBox(height: 8.0),
-          _passwordInput(),
+          _inputFields(),
           SizedBox(height: 8.0),
           _errorText(),
           SizedBox(height: 8.0),
           _loginButton(),
+          SizedBox(height: 30.0),
+          _LoginPhone(),
           SizedBox(height: 30.0),
           _resetPasswordText(),
         ],
       ),
     );
 
-    Widget loginPage = Container(
+    Widget loginPage() => Container(
       child: Column(
         children: <Widget>[
           Container(
@@ -53,23 +70,88 @@ class LogIn extends StatelessWidget {
               largeScreen: Align(alignment: Alignment.topCenter,
                 child: Container(
                   width: 1000,
-                  child: content,
+                  child: content(),
                 ),),
-              smallScreen: content
+              smallScreen: content()
           )
         ],
       ),
     );
 
     return new Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       backgroundColor: white,
       body: new BlocProvider(
-          create: (_) => LoginCubit(repository),
-          child: loginPage
+          create: (_) => LoginCubit(authenticationRepository, context, _controller),
+          child: loginPage()
       ),
     );
   }
+}
+
+class _inputFields extends StatelessWidget {
+  late Animation<Offset> _offScreenAnimation;
+  late Animation<Offset> _onScreenAnimation;
+
+  @override
+  Widget build(BuildContext context) {
+
+    _onScreenAnimation = Tween<Offset>(
+      begin: const Offset(1.5, 0.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: context.read<LoginCubit>().animationController,
+      curve: Curves.elasticOut,
+    ));
+    _offScreenAnimation = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(1.5, 0.0),
+    ).animate(CurvedAnimation(
+      parent: context.read<LoginCubit>().animationController,
+      curve: Curves.elasticOut,
+    ));
+    
+    void _move(DragUpdateDetails details) {
+      switch (Directionality.of(context)) {
+        case TextDirection.rtl:
+          context.read<LoginCubit>().animationController.reset();
+          context.read<LoginCubit>().animationController.reverse();
+
+          break;
+        case TextDirection.ltr:
+          break;
+      }
+    }
+    
+    return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) => previous.loginView != current.loginView,
+      builder: (context, state) {
+        return GestureDetector(
+          onHorizontalDragUpdate: _move,
+          child: Stack(
+            children: [
+              Container(height: 100, width: 1000,),
+              SlideTransition(
+                position: context.read<LoginCubit>().state.isEmailLoginView()?_onScreenAnimation:_offScreenAnimation,
+                child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                  _emailInput(),
+                  SizedBox(height: 8.0),
+                  _passwordInput(),
+                ]),
+              ),
+              SlideTransition(
+                position: context.read<LoginCubit>().state.isPhoneLoginView()?_onScreenAnimation:_offScreenAnimation,
+                child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+                  _phoneInput(),
+                ]),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 }
 
 class _emailInput extends StatelessWidget {
@@ -104,7 +186,7 @@ class _emailInput extends StatelessWidget {
             child: TextField(
               cursorColor: black,
               textInputAction: TextInputAction.next,
-              onChanged: (email) => context.bloc<LoginCubit>().emailChanged(email),
+              onChanged: (email) => context.read<LoginCubit>().emailChanged(email),
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Inserisci l\'indirizzo email',
@@ -151,11 +233,58 @@ class _passwordInput extends StatelessWidget {
             child: TextField(
               cursorColor: black,
               textInputAction: TextInputAction.done,
-              onChanged: (password) => context.bloc<LoginCubit>().passwordChanged(password),
+              onChanged: (password) => context.read<LoginCubit>().passwordChanged(password),
               obscureText: true,
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Inserisci la password',
+                hintStyle: TextStyle(color: Colors.grey),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _phoneInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.5),
+          width: 1.0,
+        ),
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+      child: Row(
+        children: <Widget>[
+          new Padding(
+            padding:
+            EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
+            child: Icon(
+              Icons.phone,
+              color: Colors.grey,
+            ),
+          ),
+          Text("+39 "),
+          Container(
+            height: 30.0,
+            width: 1.0,
+            color: Colors.grey.withOpacity(0.5),
+            margin: const EdgeInsets.only(left: 00.0, right: 10.0),
+          ),
+          new Expanded(
+            child: TextField(
+              cursorColor: black,
+              textInputAction: TextInputAction.next,
+              onChanged: (phone) => context.read<LoginCubit>().phoneChanged(phone),
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Inserisci il numero di telefono',
                 hintStyle: TextStyle(color: Colors.grey),
               ),
             ),
@@ -174,6 +303,7 @@ class _errorText extends StatelessWidget {
       builder: (context, state) {
         if(state.isEmailInvalid()) return Text("L'email inserita non è valida", style: error,);
         if(state.isPasswordInvalid()) return Text("La password inserita non è valida", style: error,);
+        if(state.isPhoneInvalid()) return Text("Il n° di telefono inserito non è valido", style: error,);
         if(state.isSuccess()) return Text("Accesso effettuato. Attendere reindirizzamento...", style: subtitle2,);
         if(state.isFailure()) return Text("Le credenziali inserite non sono valide", style: error,);
         return Text("");
@@ -198,10 +328,11 @@ class _loginButton extends StatelessWidget {
               child: new Row(
                 children: <Widget>[
                   new Expanded(
-                    child: FlatButton(
-                      shape: new RoundedRectangleBorder(
-                          borderRadius: new BorderRadius.circular(30.0)),
-                      color: Constants.debug?Colors.red:black,
+                    child: ElevatedButton(
+                      style: raisedButtonStyle.copyWith(
+                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0))),
+                        backgroundColor: MaterialStateProperty.all<Color>(Constants.debug?Colors.red:black)
+                      ),
                       child: new Row(
                         children: <Widget>[
                           new Padding(
@@ -218,22 +349,22 @@ class _loginButton extends StatelessWidget {
                             offset: Offset(10.0, 0.0),
                             child: new Container(
                               padding: PlatformUtils.isMobile? EdgeInsets.all(5.0) : EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-                              child: FlatButton(
-                                shape: new RoundedRectangleBorder(
-                                    borderRadius:
-                                    new BorderRadius.circular(45.0)),
-                                color: white,
+                              child: TextButton(
+                                style: raisedButtonStyle.copyWith(
+                                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(45.0))),
+                                    backgroundColor: MaterialStateProperty.all<Color>(white)
+                                ),
                                 child: Icon(
                                   Icons.arrow_forward,
                                   color: black,
                                 ),
-                                onPressed: (){FocusScope.of(context).unfocus();context.bloc<LoginCubit>().logInWithCredentials();}
+                                onPressed: (){FocusScope.of(context).unfocus();context.read<LoginCubit>().logIn();}
                               ),
                             ),
                           )
                         ],
                       ),
-                        onPressed: (){FocusScope.of(context).unfocus();context.bloc<LoginCubit>().logInWithCredentials();}
+                        onPressed: (){FocusScope.of(context).unfocus();context.read<LoginCubit>().logIn();}
                     ),
                   ),
                 ],
@@ -253,48 +384,48 @@ class _loginButton extends StatelessWidget {
 
 }
 
+class _LoginPhone extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        context.read<LoginCubit>().switchLoginView();        
+      },
+      child: new Text('Phone number login', textAlign: TextAlign.center,
+        style: new TextStyle(fontSize: 18.0, color: Colors.black54),
+      ),
+    );
+  }
+}
+
 class _resetPasswordText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        var blocState = context.bloc<LoginCubit>().state;
-        String resetMessage;
-        if (blocState.email.value?.isNullOrEmpty()??false) {
-          resetMessage = 'Inserisci un indirizzo email';
-        } else {
-          resetMessage = 'Reset password per ' + blocState.email.value;
-          resetMessage += ". Manda all'altra view o un identificativo dell'utente o già mail e telefono in modo che i campi siano già compilati";
-        }
-
         showDialog(
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
               return new Alert(
                 title: "RESET PASSWORD",
-                content: new Text(resetMessage, style: label,),
+                content: new Text("Sicuro di voler procedere con il reset della password?", style: label,),
                 actions: <Widget>[
-                      FlatButton(
+                      TextButton(
                         child: new Text('ANNULLA', style: label),
                         onPressed: () {
-                          Navigator.of(context).pop(true);
+                          PlatformUtils.backNavigator(context);
                         },
                       ),
                       SizedBox(width: 15,),
-                      RaisedButton(
+                      ElevatedButton(
                         child: new Text('CONFERMA', style: button_card),
-                        shape: RoundedRectangleBorder(
-                            borderRadius:
-                            BorderRadius.all(Radius.circular(15.0))),
-                        color: black,
-                        elevation: 15,
                         onPressed: () {
-                          if (!blocState.email.value.isNullOrEmpty()) {
-                            context.bloc<MobileBloc>().add(NavigateEvent(Constants.resetCodeRoute));
-                          }
-                          Navigator.of(context).pop(false);
-                        },
+                            context.read<AuthenticationBloc>().add(ResetAction(
+                                context.select((LoginCubit cubit) => cubit.state.email.value),
+                                context.select((LoginCubit cubit) => cubit.state.phone.value)));
+                            PlatformUtils.backNavigator(context);
+                        }
                       ),
                     ],
               );
@@ -302,8 +433,8 @@ class _resetPasswordText extends StatelessWidget {
         );
       },
       child: new Text('Reset Password', textAlign: TextAlign.center,
-        style: new TextStyle(fontSize: 18.0, color: Colors.black54),
-      ),
+            style: new TextStyle(fontSize: 18.0, color: Colors.black54),
+          ),
     );
   }
 }

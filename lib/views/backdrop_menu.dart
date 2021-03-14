@@ -26,15 +26,14 @@ final Map<String, LinkMenu> menuResponsabile = const {
 ///
 class MenuLayer extends StatelessWidget {
   final Function hideMenuHandle;
+  late String currentViewRoute;
 
   MenuLayer(this.hideMenuHandle);
-
-  String currentViewRoute;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MobileBloc, MobileState>(builder: (context, state) {
-      currentViewRoute = context.bloc<MobileBloc>().state.route;
+      currentViewRoute = state.route;
       return Container(
           color: black,
           child: Column(
@@ -42,7 +41,7 @@ class MenuLayer extends StatelessWidget {
               Expanded(
                 child: new ListView(
                     physics: new BouncingScrollPhysics(),
-                    children: (context.bloc<AuthenticationBloc>().account.supervisor ? menuResponsabile : menuOperatore)
+                    children: (context.read<AuthenticationBloc>().account!.supervisor ? menuResponsabile : menuOperatore)
                         .map((route, linkMenu) => _buildMenu(route, linkMenu, context))
                         .values
                         .toList()),
@@ -50,8 +49,7 @@ class MenuLayer extends StatelessWidget {
               Expanded(
                 child: Container(
                   child: GestureDetector(
-                    onTap: () =>
-                        BlocProvider.of<AuthenticationBloc>(context).add(LoggedOut()),
+                    onTap: () => context.read<AuthenticationBloc>().add(LoggedOut()),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -78,8 +76,8 @@ class MenuLayer extends StatelessWidget {
         route,
         GestureDetector(
           onTap: (){
-            context.bloc<MobileBloc>().add(NavigateEvent(route));
-            hideMenuHandle?.call(false);
+            context.read<MobileBloc>().add(NavigateEvent(route));
+            hideMenuHandle.call(false);
           },
           child: currentViewRoute == route
               ? Column(

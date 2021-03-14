@@ -15,13 +15,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
-import 'package:venturiautospurghi/models/linkmenu.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/views/backdrop_menu.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -41,33 +37,28 @@ const double _kFlingVelocity = 2.0;
 class Backdrop extends StatefulWidget{
   @override
   _MobileState createState() => _MobileState();
-
-
-
 }
 
 
 class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, WidgetsBindingObserver{
-  AnimationController _controller;
+  late AnimationController _controller;
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    context.bloc<MobileBloc>().lifecycleState = state;
+    context.read<MobileBloc>().lifecycleState = state; // TODO is this useless
   }
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
-    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance?.addObserver(this);
   }
 
   @override
   Widget build(BuildContext context) {
-    if(!context.repository<FirebaseMessagingService>().isInitialized)
-      context.repository<FirebaseMessagingService>().init(context);
-    final account = context.bloc<AuthenticationBloc>().account;
-    final state = context.bloc<MobileBloc>().state is InBackdropState ? context.bloc<MobileBloc>().state : context.bloc<MobileBloc>().savedState;
+    final account = context.read<AuthenticationBloc>().account!; // TODO check
+    final state = context.read<MobileBloc>().state is InBackdropState ? context.watch<MobileBloc>().state : context.watch<MobileBloc>().savedState; // TODO
     _toggleBackdropLayerVisibility(false);
     return WillPopScope(
         onWillPop: _onBackPressed,
@@ -76,7 +67,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
               title: new Text(
                   (account.supervisor ?
                   (menuResponsabile[state.route] ?? menuResponsabile[Constants.homeRoute]) :
-                  (menuOperatore[state.route] ?? menuOperatore[Constants.homeRoute]))
+                  (menuOperatore[state.route] ?? menuOperatore[Constants.homeRoute]))!
                       .textLink.toUpperCase(),
                   style: title_rev),
               elevation: 0.0,
@@ -130,7 +121,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
 
   @override
   void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
+    WidgetsBinding.instance?.removeObserver(this);
     _controller.dispose();
     super.dispose();
   }
@@ -147,32 +138,31 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
     }
   }
 
-  Future<bool> _onBackPressed() {
-    if(context.bloc<MobileBloc>().state is OutBackdropState)
+  Future<bool> _onBackPressed() async { //TODO check
+    bool ret = false;
+    if(context.read<MobileBloc>().state is OutBackdropState)
       PlatformUtils.backNavigator(context);
-    else return showDialog(
+    else
+      ret = (await showDialog(
           context: context,
           builder: (context) => new Alert(
             title: "ESCI",
             content: new Text( 'Vuoi uscire dall\'app?', style: label, ),
             actions: <Widget>[
-              FlatButton(
+              TextButton(
                 child: new Text('No', style: label),
                 onPressed: () {
                   Navigator.of(context).pop(false);
                 },
               ),
               SizedBox( width: 15, ),
-              RaisedButton(
+              ElevatedButton(
                 child: new Text('Si', style: button_card),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
-                color: black,
-                elevation: 15,
                 onPressed: () => Navigator.of(context).pop(true),
               ),
             ],
           ),
-        ) ??
-        false;
+        )) ?? false;
+    return Future<bool>(()=>ret);
   }
 }

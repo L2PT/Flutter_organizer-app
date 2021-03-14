@@ -2,9 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
@@ -16,8 +15,7 @@ class FabCubit extends Cubit<FabState> {
   final String _route;
   final Account _account;
 
-  FabCubit(this._context, this._databaseRepository, this._account, this._route)
-      : assert(_databaseRepository != null && _account != null && _route != null),
+  FabCubit(this._context, this._databaseRepository, this._account, this._route) :
         super(FabState()) {
     if(_account.supervisor) {
       if(_route == Constants.detailsEventViewRoute) content = Fab_details_super(_context);

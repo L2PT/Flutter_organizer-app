@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/waiting_event_list/waiting_event_list_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
@@ -14,18 +13,14 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
-import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 
 class WaitingEventList extends StatelessWidget {
-  Account account;
-  DateTime dataCorrente;
-  bool ready = false;
 
   @override
   Widget build(BuildContext context) {
-    final CloudFirestoreService repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    final Account account = context.bloc<AuthenticationBloc>().account;
+    CloudFirestoreService repository = context.read<CloudFirestoreService>();
+    Account account = context.read<AuthenticationBloc>().account!;
 
     return new BlocProvider(
         create: (_) => WaitingEventListCubit(repository, account),
@@ -39,7 +34,7 @@ class WaitingEventList extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  Expanded( child:  _eventList())
+                  Expanded( child: _eventList())
                 ],
               ),
             ),
@@ -52,7 +47,7 @@ class _eventList extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    List<List<Event>> eventsGroupedByDay;
+    late List<List<Event>> eventsGroupedByDay;
 
     void _onCalendarPressed(){
       DateTime date = DateTime.now();
@@ -71,13 +66,8 @@ class _eventList extends StatelessWidget{
         children: <Widget>[
           Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico in sospeso",style: title,)),
           Padding(padding: EdgeInsets.only(bottom: 5), child: Text("Controlla i tuoi incarichi accettati", style: subtitle,)),
-          RaisedButton(
+          ElevatedButton(
             child: new Text('VEDI CALENDARIO', style: button_card),
-            shape: RoundedRectangleBorder(
-                borderRadius:
-                BorderRadius.all(Radius.circular(15.0))),
-            color: black,
-            elevation: 15,
             onPressed: _onCalendarPressed,
           ),
         ],
@@ -107,7 +97,7 @@ class _listGroup extends StatelessWidget {
 
   final List<Event> eventsGroup;
   final formatter = new DateFormat('MMMM yyyy', 'it_IT');
-  DateTime groupDate;
+  late DateTime groupDate;
 
   @override
   Widget build(BuildContext context) {
@@ -175,8 +165,8 @@ class _listTileEvent extends StatelessWidget {
           hourHeight: 140,
           gridHourSpan: 0,
           buttonArea: <String,Function(Event)>{
-            "RIFIUTA": (event) async {RejectAlert(context).show().then((justification)=>!justification.isNullOrEmpty()?context.bloc<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
-            "ACCETTA":context.bloc<WaitingEventListCubit>().cardActionConfirm},
+            "RIFIUTA": (event) async {RejectAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)?context.read<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
+            "ACCETTA":context.read<WaitingEventListCubit>().cardActionConfirm},
           onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
         ),
       ),

@@ -1,16 +1,18 @@
 part of 'waiting_event_list_cubit.dart';
 
 abstract class WaitingEventListState extends Equatable {
-  WaitingEventListState([List props = const []]);
-}
+  WaitingEventListState();
 
-class LoadingEvents extends WaitingEventListState {
   @override
   List<Object> get props => [];
 }
 
+class LoadingEvents extends WaitingEventListState {
+
+}
+
 class ReadyEvents extends WaitingEventListState {
-  List<Event> events;
+  final List<Event> events;
 
   ReadyEvents(this.events);
 

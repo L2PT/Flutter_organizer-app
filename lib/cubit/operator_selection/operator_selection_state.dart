@@ -14,25 +14,26 @@ class ReadyOperators extends OperatorSelectionState {
   Map<String,int> selectionList = Map();
   bool primaryOperatorSelected = false;
 
-  ReadyOperators(this.operators, {Event event}) {
+  ReadyOperators(this.operators, {Event? event}) {
     if(event != null) {
       operators.forEach((operator) { selectionList[operator.id] = 0; });
       event.suboperators.forEach((suboperator) {
         if(selectionList.containsKey(suboperator.id))
           selectionList[suboperator.id] = 1;
       });
-      if(event.operator != null && selectionList.containsKey(event.operator.id)) {
-        selectionList[event.operator.id] = 2;
+      if(event.operator != null && selectionList.containsKey(event.operator!.id)) {
+        selectionList[event.operator!.id] = 2;
         primaryOperatorSelected = true;
       }
     }
   }
+  
+  ReadyOperators.update(this.operators, this.selectionList, this.primaryOperatorSelected);
 
-  ReadyOperators.updateSelection(ReadyOperators state, Map<String, int> preSelectedList) {
-    operators = state.operators;
-    selectionList = preSelectedList;
-    primaryOperatorSelected = state.primaryOperatorSelected;
-  }
+  ReadyOperators assign(Map<String, int> preSelectedList, bool primaryOperatorSelected) => ReadyOperators.update(
+      this.operators,
+      preSelectedList,
+      primaryOperatorSelected);
 
   @override
   List<Object> get props => [operators, selectionList, primaryOperatorSelected];

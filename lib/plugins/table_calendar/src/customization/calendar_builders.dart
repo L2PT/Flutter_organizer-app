@@ -20,31 +20,31 @@ class CalendarBuilders {
   /// The most general custom Builder. Use to provide your own UI for every day cell.
   /// If `dayBuilder` is not specified, a default day cell will be displayed.
   /// Default day cells are customizable with `CalendarStyle`.
-  final FullBuilder dayBuilder;
+  final FullBuilder? dayBuilder;
 
   /// Custom Builder for currently selected day. Will overwrite `dayBuilder` on selected day.
-  final FullBuilder selectedDayBuilder;
+  final FullBuilder? selectedDayBuilder;
 
   /// Custom Builder for today. Will overwrite `dayBuilder` on today.
-  final FullBuilder todayDayBuilder;
+  final FullBuilder? todayDayBuilder;
 
   /// Custom Builder for holidays. Will overwrite `dayBuilder` on holidays.
-  final FullBuilder holidayDayBuilder;
+  final FullBuilder? holidayDayBuilder;
 
   /// Custom Builder for weekends. Will overwrite `dayBuilder` on weekends.
-  final FullBuilder weekendDayBuilder;
+  final FullBuilder? weekendDayBuilder;
 
   /// Custom Builder for days outside of current month. Will overwrite `dayBuilder` on days outside of current month.
-  final FullBuilder outsideDayBuilder;
+  final FullBuilder? outsideDayBuilder;
 
   /// Custom Builder for weekends outside of current month. Will overwrite `dayBuilder`on weekends outside of current month.
-  final FullBuilder outsideWeekendDayBuilder;
+  final FullBuilder? outsideWeekendDayBuilder;
 
   /// Custom Builder for holidays outside of current month. Will overwrite `dayBuilder` on holidays outside of current month.
-  final FullBuilder outsideHolidayDayBuilder;
+  final FullBuilder? outsideHolidayDayBuilder;
 
   /// Custom Builder for days outside of `startDay` - `endDay` Date range. Will overwrite `dayBuilder` for aforementioned days.
-  final FullBuilder unavailableDayBuilder;
+  final FullBuilder? unavailableDayBuilder;
 
   /// Custom Builder for a whole group of event markers. Use to provide your own marker UI for each day cell.
   /// Every `Widget` passed here will be placed in a `Stack`, above the cell content.
@@ -52,14 +52,14 @@ class CalendarBuilders {
   ///
   /// If `markersBuilder` is not specified, `TableCalendar` will try to use `singleMarkerBuilder` or default markers (customizable with `CalendarStyle`).
   /// Mutually exclusive with `singleMarkerBuilder`.
-  final FullListBuilder markersBuilder;
+  final FullListBuilder? markersBuilder;
 
   /// Custom Builder for a single event marker. Each of those will be displayed in a `Row` above of the day cell.
   /// You can adjust markers' position with `CalendarStyle` properties.
   ///
   /// If `singleMarkerBuilder` is not specified, a default event marker will be displayed (customizable with `CalendarStyle`).
   /// Mutually exclusive with `markersBuilder`.
-  final SingleMarkerBuilder singleMarkerBuilder;
+  final SingleMarkerBuilder? singleMarkerBuilder;
 
   const CalendarBuilders({
     this.dayBuilder,

@@ -6,7 +6,7 @@ abstract class DailyCalendarState extends Equatable {
   double gridHourHeight = 0;
   int gridHourSpan = 0;
 
-  DailyCalendarState(DateTime selectedDay, [Map<DateTime, List> eventsMap]) :
+  DailyCalendarState([DateTime? selectedDay, Map<DateTime, List<Event>>? eventsMap]) :
         this.eventsMap = eventsMap ?? {},
         this.selectedDay = selectedDay ?? TimeUtils.truncateDate(DateTime.now(), "day");
 
@@ -14,18 +14,20 @@ abstract class DailyCalendarState extends Equatable {
   List<Object> get props => [eventsMap.entries, selectedDay, gridHourHeight, gridHourSpan];
 }
 
+// ignore: must_be_immutable
 class DailyCalendarLoading extends DailyCalendarState{
-  DailyCalendarLoading([DateTime selectedDay]):super(selectedDay);
+  DailyCalendarLoading([DateTime? selectedDay]):super(selectedDay);
 }
 
+// ignore: must_be_immutable
 class DailyCalendarReady extends DailyCalendarState {
 
   List<Event> selectedEvents() => eventsMap[selectedDay] ?? [];
 
-  DailyCalendarReady(Map eventsMap, DateTime selectedDay) : super(selectedDay, eventsMap) {
+  DailyCalendarReady(Map<DateTime, List<Event>> eventsMap, DateTime selectedDay) : super(selectedDay, eventsMap) {
     //the verticalGridEvents need the events of the selectedDay ordered
-    List<Event> listEvent = eventsMap[selectedDay];
-    listEvent?.sort((a, b) => a.start.compareTo(b.start));
+    List<Event> listEvent = eventsMap[selectedDay] ?? [];
+    listEvent.sort((a, b) => a.start.compareTo(b.start));
     _calculateGridDimensions();
   }
 
@@ -38,7 +40,6 @@ class DailyCalendarReady extends DailyCalendarState {
         this.gridHourHeight = Constants.MIN_CALENDAR_EVENT_HEIGHT;
         gridHourSpan = 0;
       } else {
-
         //identify minimum duration's event
         int md = 4;
         selectedEvents.forEach((e) => {
@@ -50,7 +51,7 @@ class DailyCalendarReady extends DailyCalendarState {
         } else {
           int i = 0;
           while (md == (max(pow(2, i), md)))i++;
-          md = (min(pow(2, i - 1), md));
+          md = (min(pow(2, i - 1).toInt(), md));
           gridHourHeight = Constants.MIN_CALENDAR_EVENT_HEIGHT;
           gridHourSpan = md;
         }

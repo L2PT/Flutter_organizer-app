@@ -1,40 +1,29 @@
 import 'package:venturiautospurghi/utils/extensions.dart';
 
 class Account {
-  String _id="";
-  String _name="";
-  String _surname="";
-  String _email="";
-  String _phone="";
-  String _codFiscale="";
-  List<Account> _webops = new List();
-  List<dynamic> _tokens= new List();
-  bool _supervisor=false;
+  String id = "";
+  String name = "";
+  String surname = "";
+  String email = "";
+  String phone = "";
+  String codFiscale = "";
+  List<Account> webops = [];
+  List<dynamic> tokens = [];
+  bool supervisor = false;
 
-  Account(this._id, this._name, this._surname, this._email, this._phone, this._codFiscale, this._webops, this._tokens, this._supervisor);
+  Account(this.id, this.name, this.surname, this.email, this.phone, this.codFiscale, this.webops, this.tokens, this.supervisor);
   Account.empty();
-  Account.fromMapWeb(String id, dynamic json) {
-    // _id = (id!=null && id!="")?id:(json.id!=null)?json.id:"";
-    // _name = json.Nome;
-    // _surname = json.Cognome;
-    // _email = json.Email;
-    // _phone = json.Telefono;
-    // _codFiscale = json.CodiceFiscale;
-    // _webops = json.OperatoriWeb;
-    // _token = json.Token;
-    // _supervisor = json.Responsabile;
-  }
-
+  
   Account.fromMap(String id, Map<String,dynamic> json) :
-    _id = !id.isNullOrEmpty()? id : json["Id"] ?? json["id"] ?? "",
-    _name = json['Nome'],
-    _surname = json['Cognome'],
-    _email = json['Email'],
-    _phone = json['Telefono'],
-    _codFiscale = json['CodiceFiscale'],
-    _webops = json.containsKey('OperatoriWeb')?dynamicToObject(json['OperatoriWeb']):List<Account>(),
-    _tokens = json['Tokens']??[],
-    _supervisor = json['Responsabile'];
+    id = string.isNullOrEmpty(id)? id : json["Id"] ?? json["id"] ?? "",
+    name = json['Nome'],
+    surname = json['Cognome'],
+    email = json['Email'],
+    phone = json['Telefono'],
+    codFiscale = json['CodiceFiscale'],
+    webops = json.containsKey('OperatoriWeb')? dynamicToObject(json['OperatoriWeb']) : <Account>[],
+    tokens = json['Tokens']??[],
+    supervisor = json['Responsabile'];
 
   Map<String, dynamic> toMap() => {
       "id":this.id,
@@ -60,7 +49,7 @@ class Account {
     });
   }
 
-  Map<String, dynamic> toWebOpDocument() {
+  Map<String, dynamic> toWebDocument() {
     return Map<String, dynamic>.of({
       "Id":this.id,
       "Nome":this.name,
@@ -72,53 +61,7 @@ class Account {
       "Responsabile":this.supervisor,
     });
   }
-
-  String get id => _id;
-  String get name => _name;
-  String get surname => _surname;
-  String get email => _email;
-  String get phone => _phone;
-  String get codFiscale => _codFiscale;
-  List<Account> get webops => _webops;
-  List<dynamic> get tokens => _tokens;
-  bool get supervisor => _supervisor;
-
-  set supervisor(bool value) {
-    _supervisor = value;
-  }
-
-  set codFiscale(String value) {
-    _codFiscale = value;
-  }
-
-  set phone(String value) {
-    _phone = value;
-  }
-
-  set email(String value) {
-    _email = value;
-  }
-
-  set surname(String value) {
-    _surname = value;
-  }
-
-  set name(String value) {
-    _name = value;
-  }
-
-  set id(String value) {
-    _id = value;
-  }
-
-  set tokens(List<dynamic> value) {
-    _tokens = value;
-  }
-
-  set webops(List<Account> value) {
-    _webops = value;
-  }
-
+  
   void update(Account userUpdate) {
     this.name = userUpdate.name;
     this.surname = userUpdate.surname;

@@ -6,14 +6,11 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 -(O)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
-import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/history/history_cubit.dart';
-import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -23,20 +20,20 @@ import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 
 class History extends StatefulWidget {
-  final int selectedStatus;
+  final int? selectedStatus;
 
-  History([this.selectedStatus,Key key]) : super(key: key);
+  History([this.selectedStatus,Key? key]) : super(key: key);
 
   @override
   _HistoryState createState() => _HistoryState(selectedStatus);
 }
 
 class _HistoryState extends State<History> with TickerProviderStateMixin {
-  final int selectedStatus;
+  final int? selectedStatus;
   final List<MapEntry<Tab,int>> tabsHeaders = [
-    MapEntry(new Tab(text: "TERMINATI",icon: Icon(Icons.flag),),Status.Ended),
-    MapEntry(new Tab(text: "ELIMINATI",icon: Icon(Icons.delete),),Status.Deleted),
-    MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.assignment_late),),Status.Refused)
+    MapEntry(new Tab(text: "TERMINATI",icon: Icon(Icons.flag),),EventStatus.Ended),
+    MapEntry(new Tab(text: "ELIMINATI",icon: Icon(Icons.delete),),EventStatus.Deleted),
+    MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.assignment_late),),EventStatus.Refused)
   ];
 
   _HistoryState(this.selectedStatus);
@@ -64,8 +61,6 @@ class _largeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Account account = context.bloc<AuthenticationBloc>().account;
-
     return BlocBuilder <HistoryCubit, HistoryState>(
         builder: (context, state) {
           return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) : Container(
@@ -86,9 +81,11 @@ class _largeScreen extends StatelessWidget {
                           height: 50,
                           width: 180,
                           margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
-                          child: RaisedButton(
+                          child: ElevatedButton(
+                              style: raisedButtonStyle.copyWith(
+                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
+                              ),
                               onPressed: ()=> PlatformUtils.navigator(context, Constants.createEventViewRoute),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -101,7 +98,7 @@ class _largeScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 20,),
                         Text("Archivi", style: title,),
-                        ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text, icon:(mapEntry.key.icon as Icon).icon, status: mapEntry.value, selectedStatus: state.selectedStatus)).toList()
+                        ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatus)).toList()
                       ],
                     ),
                   ),
@@ -115,17 +112,17 @@ class _largeScreen extends StatelessWidget {
                         SizedBox(height: 5,),
                         Text("Incarichi", style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 5,),
-                        (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
+                        (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
                             Container(
                               height: MediaQuery.of(context).size.height - 100,
-                        child:GridView(
+                          child: GridView(
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 350.0,
                               mainAxisSpacing: 5.0,
                               crossAxisSpacing: 5.0,
                               childAspectRatio: 2.3,
                             ),
-                            children: (context.bloc<HistoryCubit>().state as HistoryReady).selectedEvents().map((event)=>Container(
+                            children: (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().map((event)=> Container(
                                 child: cardEvent(
                                   event: event,
                                   dateView: true,
@@ -134,7 +131,7 @@ class _largeScreen extends StatelessWidget {
                                   buttonArea: null,
                                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                                 ))).toList()
-                        )):Container(
+                        )): Container(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -153,7 +150,7 @@ class _largeScreen extends StatelessWidget {
         });
   }
 
-  Widget FlatTab({String text, IconData icon, int status, int selectedStatus}) {
+  Widget FlatTab({required String text, required IconData icon, required int status, required int selectedStatus}) {
     bool selected = status==selectedStatus;
     return  BlocBuilder <HistoryCubit, HistoryState>(
     buildWhen: (previous, current) =>
@@ -161,8 +158,11 @@ class _largeScreen extends StatelessWidget {
     builder: (context, state) {
       return Container(
         height: 45,
-        child: FlatButton(
-          color: selected?black:whitebackground,
+        child: TextButton(
+          style: flatButtonStyle.copyWith(
+              backgroundColor: MaterialStateProperty.all<Color>(selected?black:whitebackground),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(15.0))),)
+          ),
           child: Row(
             children: <Widget>[
               Icon(icon, color:selected?yellow:grey_dark, size: 35,),
@@ -170,9 +170,7 @@ class _largeScreen extends StatelessWidget {
               Text("INCARICHI "+text, style: selected?button_card:subtitle),
             ],
           ),
-          onPressed: (){context.bloc<HistoryCubit>().onStatusSelect(status);},
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(
-              right: Radius.circular(15.0))),
+          onPressed: (){context.read<HistoryCubit>().onStatusSelect(status);},
         ),
       );
     });
@@ -180,16 +178,18 @@ class _largeScreen extends StatelessWidget {
 }
 class _smallScreen extends StatelessWidget {
 
-  TabController _tabController;
+  late TabController _tabController;
   final List<MapEntry<Tab,int>> tabsHeaders;
 
-  _smallScreen(_HistoryState ticker,this.tabsHeaders){
+  _smallScreen(_HistoryState ticker, this.tabsHeaders){
     _tabController = new TabController(vsync: ticker, length: tabsHeaders.length);
   }
 
   @override
   Widget build(BuildContext context) {
-    _tabController.addListener(() { context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value);});
+    _tabController.addListener(() {
+      context.read<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value);
+    });
 
     return Material(
       elevation: 12.0,
@@ -209,7 +209,7 @@ class _smallScreen extends StatelessWidget {
                   borderRadius: BorderRadius.all(
                       Radius.circular(30.0))),
               child: new TabBar(
-                //onTap: (index) => context.bloc<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value),
+                //onTap: (index) => context.read<HistoryCubit>().onStatusSelect(tabsHeaders[_tabController.index].value),
                 isScrollable: true,
                 unselectedLabelColor: black,
                 labelStyle: title.copyWith(fontSize: 16),
@@ -237,7 +237,6 @@ class _HistoryContent extends StatelessWidget {
 
   _HistoryContent(this._tabController, this.tabsHeaders);
 
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HistoryCubit, HistoryState>(
@@ -249,16 +248,16 @@ class _HistoryContent extends StatelessWidget {
         children:
          tabsHeaders.map((e) =>  Padding(
             padding: EdgeInsets.all(15.0),
-          child:(state as HistoryReady).events(e.value).length>0 ?
+          child:state.events(e.value).length>0 ?
           ListView.separated(
             separatorBuilder: (context, index) => SizedBox(height: 10,),
             physics: BouncingScrollPhysics(),
             padding: new EdgeInsets.symmetric(vertical: 8.0),
-            itemCount: (state as HistoryReady).events(e.value).length,
+            itemCount: state.events(e.value).length,
             itemBuilder: (context, index){
               return Container(
                 child: cardEvent(
-                  event: (state as HistoryReady).events(e.value)[index],
+                  event: state.events(e.value)[index],
                   dateView: true,
                   hourHeight: 120,
                   gridHourSpan: 0,

@@ -10,19 +10,19 @@ class SuccessAlert {
   final bool showAction;
   final IconData icon;
   final Duration durationDialog;
-  List<Widget> _actions;
-  Widget _content;
+  late final List<Widget> _actions;
+  late final Widget _content;
 
   SuccessAlert(this.context, {
-        this.title,
-        this.text,
+        this.title = "",
+        this.text = "",
         this.showAction = false,
         this.icon =  Icons.check_circle_outline_rounded,
         this.durationDialog = const Duration(seconds: 2),
       }) {
 
     _actions = <Widget>[
-      FlatButton(
+      TextButton(
         child: new Text('Ok', style: label),
         onPressed: () {
           Navigator.pop(context, false);
@@ -40,7 +40,7 @@ class SuccessAlert {
                 size: 120,
               ),
               SizedBox(height: 15,),
-              Text( text, style: label,),
+              Text( text, style: label),
             ],
           ),
       ])

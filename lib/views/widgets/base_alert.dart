@@ -8,7 +8,7 @@ class Alert extends StatelessWidget {
   final String title;
   final List<Widget> actions;
 
-  Alert({this.content, this.title, this.actions, Key key}) : super(key: key);
+  Alert({required this.content, required this.title, required this.actions, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

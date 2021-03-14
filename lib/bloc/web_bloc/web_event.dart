@@ -2,21 +2,24 @@ part of 'web_bloc.dart';
 
 @immutable
 abstract class WebEvent extends Equatable {
-  WebEvent([List props = const []]);
+  WebEvent();
+  
+  @override
+  List<Object> get props => [];
+  
 }
 
 class NavigateEvent extends WebEvent {
   final String route;
   dynamic arg;
-  BuildContext callerContext;
+  BuildContext? callerContext;
 
-  NavigateEvent(this.route, [this.arg, this.callerContext]) : super([route,arg]);
+  NavigateEvent(this.route, [this.arg, this.callerContext]) : super();
 
   @override
   List<Object> get props => [route,arg];
 }
 
 class InitAppEvent extends WebEvent {
-  @override
-  List<Object> get props => [];
+  
 }

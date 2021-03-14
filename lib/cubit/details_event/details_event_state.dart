@@ -8,6 +8,6 @@ class DetailsEventState extends Equatable {
   @override
   List<Object> get props => [event.toString()];
 
-  DetailsEventState changeStatus(int seen) =>
-      DetailsEventState(this.event)..event.status = seen;
+  DetailsEventState changeStatus(int status) =>
+      DetailsEventState(this.event)..event.status = status;
 }

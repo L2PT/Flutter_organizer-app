@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 
@@ -8,13 +7,13 @@ class ConfirmCancelAlert {
   final BuildContext context;
   final String title;
   final String text;
-  List<Widget> _actions;
-  Widget _content;
+  late List<Widget> _actions;
+  late Widget _content;
 
-  ConfirmCancelAlert(this.context, {this.title, this.text}) {
+  ConfirmCancelAlert(this.context, {required this.title, required this.text}) {
 
       _actions = <Widget>[
-      FlatButton(
+      TextButton(
         child: new Text('Annulla', style: label),
         onPressed: () {
           Navigator.pop(context, false);
@@ -23,11 +22,8 @@ class ConfirmCancelAlert {
       SizedBox(
         width: 15,
       ),
-      RaisedButton(
+      ElevatedButton(
         child: new Text('CONFERMA', style: button_card),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(15.0))),
-        color: black,
-        elevation: 15,
         onPressed: () {
           Navigator.pop(context, true);
         },

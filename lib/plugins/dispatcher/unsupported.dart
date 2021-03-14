@@ -12,28 +12,16 @@ abstract class PlatformUtils {
   }
 */
 
-  static const String platform = null;
+  static const String platform = "";
   static const dynamic myApp = null;
-  static const bool isMobile = null;
-  static const bool isIOS = null;
+  static const bool isMobile = true;
+  static const bool isIOS = true;
 
-  static dynamic gestureDetector(
-      {dynamic child, Function onVerticalSwipe, dynamic swipeConfig}) {
-    throw 'Platform Not Supported';
-  }
-
-  static const dynamic simpleSwipeConfig = null;
-
-  static const dynamic Dir = null;
-  static dynamic storageGetUrl(path) => null;
-  static Future<List<String>> storageGetFiles(path) => null;
-  static void storagePutFile(path, PlatformFile file) => null;
-  static void storageDelFile(path) => null;
   static dynamic download(url,filename) => null;
   static void initDownloader() => null;
 
   static dynamic navigator(context, route, [arg]) => null;
-  static void backNavigator(BuildContext context) => null;
+  static Future<bool> backNavigator(BuildContext context) => Future<bool>(()=>false);
   static String getRoute( context) => Constants.homeRoute;
 
   static dynamic notifyErrorMessage(msg) => null;

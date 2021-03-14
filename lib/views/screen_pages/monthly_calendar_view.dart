@@ -11,23 +11,19 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/monthly_calendar/monthly_calendar_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 
 class MonthlyCalendar extends StatefulWidget {
-  final DateTime month;
-  final Account operator;
+  final DateTime? month;
+  final Account? operator;
 
-  MonthlyCalendar([this.month, this.operator, Key key]) : super(key: key);
+  MonthlyCalendar([this.month, this.operator]);
 
   @override
   _MonthlyCalendarViewState createState() => _MonthlyCalendarViewState(this.month,this.operator);
@@ -35,17 +31,15 @@ class MonthlyCalendar extends StatefulWidget {
 }
 
 class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProviderStateMixin {
-
-  final DateTime month;
-  final Account operator;
+  final DateTime? month;
+  final Account? operator;
 
   _MonthlyCalendarViewState(this.month, this.operator);
 
   @override
   Widget build(BuildContext context) {
-    CloudFirestoreService repository = RepositoryProvider.of<
-        CloudFirestoreService>(context);
-    Account account = BlocProvider.of<AuthenticationBloc>(context).account;
+    CloudFirestoreService repository = context.read<CloudFirestoreService>();
+    Account account = context.read<AuthenticationBloc>().account!;
 
     return new BlocProvider(
         create: (_) => MonthlyCalendarCubit(repository, account, operator, month),
@@ -58,7 +52,7 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
               children: <Widget>[
                 Positioned.fill(
                     child:
-                    _contentTableCalendar(this,operator)
+                    _contentTableCalendar(this)
                 ),
               ],
             )));
@@ -68,17 +62,15 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
 class _contentTableCalendar extends StatelessWidget {
     var _animation;
     var _animationController;
-    Account _operator;
 
-    _contentTableCalendar(_MonthlyCalendarViewState ticker, Account operator){
+    _contentTableCalendar(_MonthlyCalendarViewState ticker){
       _animationController = AnimationController(duration: const Duration(milliseconds: 400), vsync: ticker);
       _animation = Tween(begin: 0.0, end: 1.0,).animate(_animationController);
-      this._operator = operator;
     }
 
     @override
     Widget build(BuildContext context) {
-      Account account = BlocProvider.of<AuthenticationBloc>(context).account;
+      Account account = context.read<AuthenticationBloc>().account!;
       _animationController.forward();
 
       return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
@@ -89,7 +81,7 @@ class _contentTableCalendar extends StatelessWidget {
              TableCalendar(
               rowHeight: 85,
               locale: 'it_IT',
-              calendarController: context.bloc<MonthlyCalendarCubit>().calendarController,
+              calendarController: context.read<MonthlyCalendarCubit>().calendarController,
               events: state.eventsMap,
               initialCalendarFormat: CalendarFormat.month,
               formatAnimation: FormatAnimation.slide,
@@ -97,7 +89,7 @@ class _contentTableCalendar extends StatelessWidget {
               availableGestures: AvailableGestures.horizontalSwipe,
               availableCalendarFormats: {CalendarFormat.month: ''},
               initialSelectedDay:
-              context.bloc<MonthlyCalendarCubit>().state.selectedMonth,
+              context.read<MonthlyCalendarCubit>().state.selectedMonth,
               headerStyle: HeaderStyle(rightChevronIcon: Icon(null)),
               builders: CalendarBuilders(
                 selectedDayBuilder: (context, date, _) {
@@ -159,7 +151,7 @@ class _contentTableCalendar extends StatelessWidget {
               ),
               onDaySelected: (date, events) {
                 account.supervisor ?
-                PlatformUtils.navigator(context, Constants.dailyCalendarRoute, {'day' : date, 'operator' : _operator}) :
+                PlatformUtils.navigator(context, Constants.dailyCalendarRoute, {'day' : date, 'operator' : context.read<MonthlyCalendarCubit>().operator}) :
                 PlatformUtils.navigator(context, Constants.homeRoute, {'day' : date, 'operator' : account});
                 _animationController.forward(from: 0.0);
                 _animationController.dispose();

@@ -5,12 +5,12 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class Profile extends StatelessWidget {
-  Size deviceSize;
+  late Size deviceSize;
 
   @override
   Widget build(BuildContext context) {
     deviceSize = MediaQuery.of(context).size;
-    Account account = context.bloc<AuthenticationBloc>().account;
+    Account account = context.read<AuthenticationBloc>().account!;
     Widget userProfile = Container(
       child: Column(
         children: <Widget>[

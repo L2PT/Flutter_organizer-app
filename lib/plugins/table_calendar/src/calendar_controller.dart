@@ -42,7 +42,7 @@ class CalendarController {
   Map<DateTime, List> get visibleEvents => Map.fromEntries(
         _events.entries.where((entry) {
           for (final day in visibleDays) {
-            if (Utils.isSameDay(day, entry.key)) {
+            if (_.DateUtils.isSameDay(day, entry.key)) {
               return true;
             }
           }
@@ -55,7 +55,7 @@ class CalendarController {
   Map<DateTime, List> get visibleHolidays => Map.fromEntries(
         _holidays.entries.where((entry) {
           for (final day in visibleDays) {
-            if (Utils.isSameDay(day, entry.key)) {
+            if (_.DateUtils.isSameDay(day, entry.key)) {
               return true;
             }
           }
@@ -64,33 +64,33 @@ class CalendarController {
         }),
       );
 
-  Map<DateTime, List> _events;
-  Map<DateTime, List> _holidays;
-  DateTime _focusedDay;
-  DateTime _selectedDay;
-  StartingDayOfWeek _startingDayOfWeek;
-  ValueNotifier<CalendarFormat> _calendarFormat;
-  ValueNotifier<List<DateTime>> _visibleDays;
-  Map<CalendarFormat, String> _availableCalendarFormats;
-  DateTime _previousFirstDay;
-  DateTime _previousLastDay;
-  int _pageId;
-  double _dx;
-  bool _useNextCalendarFormat;
-  bool _includeInvisibleDays;
-  _SelectedDayCallback _selectedDayCallback;
+  late Map<DateTime, List> _events;
+  late Map<DateTime, List> _holidays;
+  late DateTime _focusedDay;
+  late DateTime _selectedDay;
+  late StartingDayOfWeek _startingDayOfWeek;
+  late ValueNotifier<CalendarFormat> _calendarFormat;
+  late ValueNotifier<List<DateTime>> _visibleDays;
+  late Map<CalendarFormat, String> _availableCalendarFormats;
+  late DateTime _previousFirstDay;
+  late DateTime _previousLastDay;
+  late int _pageId;
+  late double _dx;
+  late bool _useNextCalendarFormat;
+  late bool _includeInvisibleDays;
+  late _SelectedDayCallback _selectedDayCallback;
 
   void _init({
-    @required Map<DateTime, List> events,
-    @required Map<DateTime, List> holidays,
-    @required DateTime initialDay,
-    @required CalendarFormat initialFormat,
-    @required Map<CalendarFormat, String> availableCalendarFormats,
-    @required bool useNextCalendarFormat,
-    @required StartingDayOfWeek startingDayOfWeek,
-    @required _SelectedDayCallback selectedDayCallback,
-    @required OnVisibleDaysChanged onVisibleDaysChanged,
-    @required bool includeInvisibleDays,
+    required Map<DateTime, List> events,
+    required Map<DateTime, List> holidays,
+    required DateTime? initialDay,
+    required CalendarFormat initialFormat,
+    required Map<CalendarFormat, String> availableCalendarFormats,
+    required bool useNextCalendarFormat,
+    required StartingDayOfWeek startingDayOfWeek,
+    required _SelectedDayCallback selectedDayCallback,
+    required OnVisibleDaysChanged? onVisibleDaysChanged,
+    required bool includeInvisibleDays,
   }) {
     _events = events;
     _holidays = holidays;
@@ -117,8 +117,8 @@ class CalendarController {
 
     if (onVisibleDaysChanged != null) {
       _visibleDays.addListener(() {
-        if (!Utils.isSameDay(_visibleDays.value.first, _previousFirstDay) ||
-            !Utils.isSameDay(_visibleDays.value.last, _previousLastDay)) {
+        if (!_.DateUtils.isSameDay(_visibleDays.value.first, _previousFirstDay) ||
+            !_.DateUtils.isSameDay(_visibleDays.value.last, _previousLastDay)) {
           _previousFirstDay = _visibleDays.value.first;
           _previousLastDay = _visibleDays.value.last;
           onVisibleDaysChanged(
@@ -140,8 +140,8 @@ class CalendarController {
   /// }
   /// ```
   void dispose() {
-    _calendarFormat?.dispose();
-    _visibleDays?.dispose();
+    if(_calendarFormat != null) _calendarFormat.dispose();
+    if(_visibleDays != null) _visibleDays.dispose();
   }
 
   /// Toggles calendar format. Same as using `FormatButton`.
@@ -150,7 +150,7 @@ class CalendarController {
   }
 
   /// Sets calendar format by emulating swipe.
-  void swipeCalendarFormat({@required bool isSwipeUp}) {
+  void swipeCalendarFormat({required bool isSwipeUp}) {
     assert(isSwipeUp != null);
 
     final formats = _availableCalendarFormats.keys.toList();
@@ -217,8 +217,8 @@ class CalendarController {
   }
 
   String _getFormatButtonText() => _useNextCalendarFormat
-      ? _availableCalendarFormats[_nextFormat()]
-      : _availableCalendarFormats[_calendarFormat.value];
+      ? _availableCalendarFormats[_nextFormat()]!
+      : _availableCalendarFormats[_calendarFormat.value]!;
 
   void _selectPrevious() {
     if (calendarFormat == CalendarFormat.month) {
@@ -247,39 +247,39 @@ class CalendarController {
   }
 
   void _selectPreviousMonth() {
-    _focusedDay = Utils.previousMonth(_focusedDay);
+    _focusedDay = _.DateUtils.previousMonth(_focusedDay);
   }
 
   void _selectNextMonth() {
-    _focusedDay = Utils.nextMonth(_focusedDay);
+    _focusedDay = _.DateUtils.nextMonth(_focusedDay);
   }
 
   void _selectPreviousTwoWeeks() {
     if (_visibleDays.value.take(7).contains(_focusedDay)) {
       // in top row
-      _focusedDay = Utils.previousWeek(_focusedDay);
+      _focusedDay = _.DateUtils.previousWeek(_focusedDay);
     } else {
       // in bottom row OR not visible
-      _focusedDay = Utils.previousWeek(_focusedDay.subtract(const Duration(days: 7)));
+      _focusedDay = _.DateUtils.previousWeek(_focusedDay.subtract(const Duration(days: 7)));
     }
   }
 
   void _selectNextTwoWeeks() {
     if (!_visibleDays.value.skip(7).contains(_focusedDay)) {
       // not in bottom row [eg: in top row OR not visible]
-      _focusedDay = Utils.nextWeek(_focusedDay);
+      _focusedDay = _.DateUtils.nextWeek(_focusedDay);
     }
   }
 
   void _selectPreviousWeek() {
-    _focusedDay = Utils.previousWeek(_focusedDay);
+    _focusedDay = _.DateUtils.previousWeek(_focusedDay);
   }
 
   void _selectNextWeek() {
-    _focusedDay = Utils.nextWeek(_focusedDay);
+    _focusedDay = _.DateUtils.nextWeek(_focusedDay);
   }
 
-  DateTime _getFirstDay({@required bool includeInvisible}) {
+  DateTime _getFirstDay({required bool includeInvisible}) {
     if (_calendarFormat.value == CalendarFormat.month && !includeInvisible) {
       return _firstDayOfMonth(_focusedDay);
     } else {
@@ -287,7 +287,7 @@ class CalendarController {
     }
   }
 
-  DateTime _getLastDay({@required bool includeInvisible}) {
+  DateTime _getLastDay({required bool includeInvisible}) {
     if (_calendarFormat.value == CalendarFormat.month && !includeInvisible) {
       return _lastDayOfMonth(_focusedDay);
     } else {
@@ -336,14 +336,14 @@ class CalendarController {
     }
 
     final lastToDisplay = last.add(Duration(days: daysAfter));
-    return Utils.daysInRange(firstToDisplay, lastToDisplay).toList();
+    return _.DateUtils.daysInRange(firstToDisplay, lastToDisplay).toList();
   }
 
   List<DateTime> _daysInWeek(DateTime week) {
     final first = _firstDayOfWeek(week);
     final last = _lastDayOfWeek(week);
 
-    return Utils.daysInRange(first, last).toList();
+    return _.DateUtils.daysInRange(first, last).toList();
   }
 
   DateTime _firstDayOfWeek(DateTime day) {
@@ -372,12 +372,12 @@ class CalendarController {
 
   /// Returns true if `day` is currently selected.
   bool isSelected(DateTime day) {
-    return Utils.isSameDay(day, selectedDay);
+    return _.DateUtils.isSameDay(day, selectedDay);
   }
 
   /// Returns true if `day` is the same day as `DateTime.now()`.
   bool isToday(DateTime day) {
-    return Utils.isSameDay(day, DateTime.now());
+    return _.DateUtils.isSameDay(day, DateTime.now());
   }
 
   bool _isWeekend(DateTime day) {

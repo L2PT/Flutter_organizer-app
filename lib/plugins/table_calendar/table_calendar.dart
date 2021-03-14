@@ -3,7 +3,8 @@
 
 library table_calendar;
 
-import 'package:date_utils/date_utils.dart';
+import 'package:simple_gesture_detector/simple_gesture_detector.dart';
+import 'package:venturiautospurghi/utils/date_utils.dart' as _;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';

@@ -1,12 +1,8 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -14,14 +10,14 @@ import 'dart:io' show Platform;
 
 class cardEvent extends StatelessWidget {
   final Event event;
-  final DateTime selectedDay;
-  final void Function(Event) onTapAction;
-  final Map<String, Function(Event)> buttonArea;
+  final DateTime? selectedDay;
+  final void Function(Event)? onTapAction;
+  final Map<String, Function(Event)>? buttonArea;
   final int gridHourSpan;
   final double hourHeight;
   final bool dateView;
 
-  cardEvent({@required this.event,
+  cardEvent({required this.event,
     this.selectedDay,
     this.onTapAction,
     this.buttonArea,
@@ -34,13 +30,9 @@ class cardEvent extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Widget _buildButton(String text, Function onPressedAction) => Container(
-      child: RaisedButton(
+      child: TextButton(
         child: new Text(text, style: button_card),
-        shape: RoundedRectangleBorder(
-            borderRadius:
-            BorderRadius.all(Radius.circular(15.0))),
-        color: HexColor(event.color),
-        elevation: 15,
+        style: flatButtonStyle.copyWith(backgroundColor: MaterialStateProperty.all<Color>(HexColor(event.color))),
         onPressed: () {
           onPressedAction.call(event);
         },
@@ -55,7 +47,6 @@ class cardEvent extends StatelessWidget {
       double paddingContainer;
       double heightBar;
       int maxLine;
-
 
       if (gridHourSpan == 0) {
         containerHeight = hourHeight;
@@ -146,7 +137,7 @@ class cardEvent extends StatelessWidget {
                 if(buttonArea != null)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: buttonArea.entries.map((entry)=>_buildButton(entry.key, entry.value)).toList(),
+                    children: buttonArea!.entries.map((entry)=>_buildButton(entry.key, entry.value)).toList(),
                   )
               ],
             ),
@@ -156,8 +147,8 @@ class cardEvent extends StatelessWidget {
           color: black,
         );
       } else {
-        hoursDurationEvent = (((event.end.day!=selectedDay.day?Constants.MAX_WORKTIME*60:min<int>(Constants.MAX_WORKTIME*60,event.end.hour * 60 + event.end.minute)) -
-            (event.start.day!=selectedDay.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,event.start.hour * 60 + event.start.minute))) / 60);
+        hoursDurationEvent = (((event.end.day!=selectedDay!.day?Constants.MAX_WORKTIME*60:min<int>(Constants.MAX_WORKTIME*60,event.end.hour * 60 + event.end.minute)) -
+            (event.start.day!=selectedDay!.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,event.start.hour * 60 + event.start.minute))) / 60);
         containerHeight = hoursDurationEvent / gridHourSpan * hourHeight;
         heightBar = 40;
         maxLine = hoursDurationEvent < 1 ? 1:2;

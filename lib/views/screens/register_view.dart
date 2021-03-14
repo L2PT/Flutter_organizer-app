@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class Register extends StatefulWidget {
@@ -31,9 +31,9 @@ class RegisterState extends State<Register> {
   int _radioValue = 0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) {    
     return WillPopScope(
-        onWillPop: (){ PlatformUtils.backNavigator(context); },
+        onWillPop: ()=>PlatformUtils.backNavigator(context),
         child: Scaffold(
           appBar: AppBar(
             leading: new BackButton(
@@ -76,12 +76,8 @@ class RegisterState extends State<Register> {
                           ),
                         ),
                       ),
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Il campo \'Nome\' è obbligatorio';
-                        }
-                        return null;
-                      },
+                      validator: (value) => string.isNullOrEmpty(value)?
+                        'Il campo \'Nome\' è obbligatorio' : null
                     ),
                     TextFormField(
                       controller: _cognomeController,
@@ -96,12 +92,8 @@ class RegisterState extends State<Register> {
                           ),
                         ),
                       ),
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Il campo \'Cognome\' è obbligatorio';
-                        }
-                        return null;
-                      },
+                      validator: (value) => string.isNullOrEmpty(value)?
+                        'Il campo \'Cognome\' è obbligatorio' : null
                     ),
                     TextFormField(
                       controller: _emailController,
@@ -117,12 +109,8 @@ class RegisterState extends State<Register> {
                           ),
                         ),
                       ),
-                      validator: (String value) {
-                        if (value.isEmpty) {
-                          return 'Il campo \'Email\' è obbligatorio';
-                        }
-                        return null;
-                      },
+                      validator: (value) => string.isNullOrEmpty(value)?
+                        'Il campo \'Email\' è obbligatorio' : null
                     ),
                     TextFormField(
                         controller: _telefonoController,
@@ -138,14 +126,10 @@ class RegisterState extends State<Register> {
                             ),
                           ),
                         ),
-                        validator: (String value) {
-                          if (value.isEmpty) {
-                            return 'Il campo \'Telefono\' è obbligatorio';
-                          } else if (!Utils.isNumeric(value)) {
-                            return 'Inserisci un valore valido';
-                          }
-                          return null;
-                        }),
+                        validator: (value) => string.isNullOrEmpty(value)?
+                          'Il campo \'Telefono\' è obbligatorio' : Utils.isNumeric(value!)?
+                          'Inserisci un valore valido' : null
+                    ),
                     TextFormField(
                       controller: _codFiscaleController,
                       cursorColor: black,
@@ -159,12 +143,8 @@ class RegisterState extends State<Register> {
                           ),
                         ),
                       ),
-                      validator: (String value) {
-                        if (!value.isEmpty && value.length != 16) {
-                          return 'Inserisci un valore valido';
-                        }
-                        return null;
-                      },
+                      validator: (value) => string.isNullOrEmpty(value) || value!.length != 16?
+                        'Il campo \'Cognome\' è obbligatorio' : null
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 10),
@@ -221,16 +201,14 @@ class RegisterState extends State<Register> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: <Widget>[
-                            FlatButton(
+                            TextButton(
                               child: new Text('Annulla', style: label),
                               onPressed:  (){ PlatformUtils.backNavigator(context); },
                             ),
                             SizedBox(width: 20),
-                            RaisedButton(
-                              color: black,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20.0))),
+                            ElevatedButton(
                               onPressed: () async {
-                                if (_formKey.currentState.validate()) {
+                                if (_formKey.currentState!.validate()) {
                                   _register();
                                 }
                               },
@@ -246,10 +224,11 @@ class RegisterState extends State<Register> {
         ));
   }
 
-  void _handleRadioValueChanged(int value) {
-    setState(() {
-      _radioValue = value;
-    });
+  void _handleRadioValueChanged(int? value) {
+    if(value != null)
+      setState(() {
+        _radioValue = value;
+      });
   }
 
   void _register() async {
@@ -259,13 +238,13 @@ class RegisterState extends State<Register> {
       Constants.passwordNewUsers,
       displayName: _cognomeController.text + " " + _nomeController.text,
     ).then((userFirebase) {
-      if (userFirebase != null) {
-        Account newlyCreated = Account(userFirebase.user.uid, _nomeController.text, _cognomeController.text, _emailController.text.toLowerCase(),
+      if (userFirebase.user != null) {
+        Account newlyCreated = Account(userFirebase.user!.uid, _nomeController.text, _cognomeController.text, _emailController.text.toLowerCase(),
             _telefonoController.text, _codFiscaleController.text, [], [], _radioValue == Role.Reponsabile);
-        context.repository<CloudFirestoreService>().addOperator(newlyCreated);
-        context.repository<FirebaseAuthService>().sendPasswordReset(_emailController.text);
+        context.read<CloudFirestoreService>().addOperator(newlyCreated);
+        context.read<FirebaseAuthService>().sendPasswordReset(_emailController.text);
         setState(() {
-          PlatformUtils.notifyInfoMessage( "Utente " + userFirebase.user.email + " registrato con successo.");
+          PlatformUtils.notifyInfoMessage( "Utente  ${userFirebase.user!.email} registrato con successo.");
           Timer(Duration(seconds: 2), () => PlatformUtils.backNavigator(context));
         });
       } else {
@@ -275,7 +254,11 @@ class RegisterState extends State<Register> {
       }
     }).catchError((e) {
       setState(() {
-        PlatformUtils.notifyErrorMessage(e.code == 'email-already-in-use'?"Account esistente con la stessa mail.":e.toString());
+        PlatformUtils.notifyErrorMessage(e.code == 'email-already-in-use'?"Esiste già un account associato a questa mail.":e.toString());
+      });
+    }).timeout(Duration(seconds: 10), onTimeout: (){
+        setState(() {
+        PlatformUtils.notifyErrorMessage("Creazione account fallita");
       });
     });
   }

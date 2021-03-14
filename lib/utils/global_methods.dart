@@ -1,4 +1,4 @@
-library App.utils;
+library app.utils;
 
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -16,7 +16,7 @@ class TimeUtils {
     return DateTime.parse(truncatedDate);
   }
 
-  static DateTime getNextWorkTimeSpan([DateTime date]) {
+  static DateTime getNextWorkTimeSpan([DateTime? date]) {
     date = date ?? DateTime.now();
 
     DateTime nextWorkTime = date.add(new Duration(minutes: Constants.WORKTIME_SPAN));
@@ -29,14 +29,8 @@ class TimeUtils {
     return nextWorkTime;
   }
 
-  static DateTime addWorkTime(DateTime time, {int hour, int minutes}) {
-    DateTime nextTimeWork;
-    if(hour != null){
-      nextTimeWork = time.add(new Duration(hours: hour));
-    }
-    if(minutes != null){
-      nextTimeWork = time.add(new Duration(minutes: minutes));
-    }
+  static DateTime addWorkTime(DateTime time, {int? hour, int? minutes}) {
+    DateTime nextTimeWork = time.add(new Duration(hours: hour ?? 0, minutes: minutes ?? 0));
     if(nextTimeWork.hour > Constants.MAX_WORKTIME){
       nextTimeWork.add(new Duration(days: 1));
       nextTimeWork = new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
@@ -44,7 +38,6 @@ class TimeUtils {
       nextTimeWork = new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
     }
     return nextTimeWork;
-
   }
 }
 

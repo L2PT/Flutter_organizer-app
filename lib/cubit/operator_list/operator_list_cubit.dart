@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
@@ -9,10 +10,9 @@ part 'operator_list_state.dart';
 
 class OperatorListCubit extends Cubit<OperatorListState> {
   final CloudFirestoreService _databaseRepository;
-  List<Account> operators;
+  late List<Account> operators;
 
-  OperatorListCubit(this._databaseRepository)
-      : assert(_databaseRepository != null),
+  OperatorListCubit(this._databaseRepository) :
         super(LoadingOperators()){
     getAllOperators();
   }

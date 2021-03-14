@@ -50,11 +50,11 @@ class CheckboxTriState extends StatefulWidget {
   ///
   /// The value of [tristate] must not be null.
   const CheckboxTriState({
-    Key key,
-    @required this.value,
+    Key? key,
+    required this.value,
     this.tristate = true,
-    @required this.onChanged,
-    this.superColor,
+    required this.onChanged,
+    required this.superColor,
     this.activeColor,
     this.checkColor,
     this.materialTapTargetSize,
@@ -94,18 +94,18 @@ class CheckboxTriState extends StatefulWidget {
   ///   },
   /// )
   /// ```
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool?>? onChanged;
 
   /// The color to use when this checkbox is checked.
   ///
   /// Defaults to [ThemeData.toggleableActiveColor].
-  final Color superColor;
-  final Color activeColor;
+  final Color? superColor;
+  final Color? activeColor;
 
   /// The color to use for the check icon when this checkbox is checked.
   ///
   /// Defaults to Color(0xFFFFFFFF)
-  final Color checkColor;
+  final Color? checkColor;
 
   /// If true the checkbox's [value] can be true, false, or null.
   ///
@@ -126,7 +126,7 @@ class CheckboxTriState extends StatefulWidget {
   /// See also:
   ///
   ///  * [MaterialTapTargetSize], for a description of how this affects tap targets.
-  final MaterialTapTargetSize materialTapTargetSize;
+  final MaterialTapTargetSize? materialTapTargetSize;
 
   /// The width of a checkbox widget.
   static const double width = 18.0;
@@ -166,16 +166,16 @@ class _CheckboxState extends State<CheckboxTriState> with TickerProviderStateMix
 
 class _CheckboxRenderObjectWidget extends LeafRenderObjectWidget {
   const _CheckboxRenderObjectWidget({
-    Key key,
-    @required this.value,
-    @required this.tristate,
-    @required this.superColor,
-    @required this.activeColor,
-    @required this.checkColor,
-    @required this.inactiveColor,
-    @required this.onChanged,
-    @required this.vsync,
-    @required this.additionalConstraints,
+    Key? key,
+    required this.value,
+    required this.tristate,
+    required this.superColor,
+    required this.activeColor,
+    required this.checkColor,
+    required this.inactiveColor,
+    required this.onChanged,
+    required this.vsync,
+    required this.additionalConstraints,
   }) : assert(tristate != null),
         assert(tristate || value != null),
         assert(superColor != null),
@@ -184,13 +184,13 @@ class _CheckboxRenderObjectWidget extends LeafRenderObjectWidget {
         assert(vsync != null),
         super(key: key);
 
-  final bool value;
+  final bool? value;
   final bool tristate;
   final Color superColor;
   final Color activeColor;
   final Color checkColor;
   final Color inactiveColor;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool?>? onChanged;
   final TickerProvider vsync;
   final BoxConstraints additionalConstraints;
 
@@ -228,17 +228,18 @@ const double _kStrokeWidth = 2.0;
 
 class _RenderCheckbox extends RenderToggleable {
   _RenderCheckbox({
-    bool value,
-    bool tristate,
-    Color activeColor,
-    this.superColor,
-    this.checkColor,
-    Color inactiveColor,
-    BoxConstraints additionalConstraints,
-    ValueChanged<bool> onChanged,
-    @required TickerProvider vsync,
+    bool? value,
+    required bool tristate,
+    required Color activeColor,
+    required this.superColor,
+    required this.checkColor,
+    required Color inactiveColor,
+    required BoxConstraints additionalConstraints,
+    ValueChanged<bool?>? onChanged,
+    required TickerProvider vsync,
   }): _oldValue = value,
         super(
+        splashRadius: 3.0,
         value: value,
         tristate: tristate,
         activeColor: activeColor,
@@ -248,12 +249,12 @@ class _RenderCheckbox extends RenderToggleable {
         vsync: vsync,
       );
 
-  bool _oldValue;
+  bool? _oldValue;
   Color superColor;
   Color checkColor;
 
   @override
-  set value(bool newValue) {
+  set value(bool? newValue) {
     if (newValue == true){
       if(super.value == true)
         super.value = null;
@@ -285,7 +286,7 @@ class _RenderCheckbox extends RenderToggleable {
     // As t goes from 0.0 to 0.25, animate from the inactiveColor to activeColor.
     return onChanged == null
         ? inactiveColor
-        : (t >= 0.25 ? activeColor : Color.lerp(inactiveColor, activeColor, t * 4.0));
+        : (t >= 0.25 ? activeColor : Color.lerp(inactiveColor, activeColor, t * 4.0))!;
   }
 
   // White stroke used to paint the check and dash.
@@ -314,12 +315,12 @@ class _RenderCheckbox extends RenderToggleable {
     const Offset end = Offset(_kEdgeSize * 0.85, _kEdgeSize * 0.25);
     if (t < 0.5) {
       final double strokeT = t * 2.0;
-      final Offset drawMid = Offset.lerp(start, mid, strokeT);
+      final Offset drawMid = Offset.lerp(start, mid, strokeT)!;
       path.moveTo(origin.dx + start.dx, origin.dy + start.dy);
       path.lineTo(origin.dx + drawMid.dx, origin.dy + drawMid.dy);
     } else {
       final double strokeT = (t - 0.5) * 2.0;
-      final Offset drawEnd = Offset.lerp(mid, end, strokeT);
+      final Offset drawEnd = Offset.lerp(mid, end, strokeT)!;
       path.moveTo(origin.dx + start.dx, origin.dy + start.dy);
       path.lineTo(origin.dx + mid.dx, origin.dy + mid.dy);
       path.lineTo(origin.dx + drawEnd.dx, origin.dy + drawEnd.dy);
@@ -334,7 +335,7 @@ class _RenderCheckbox extends RenderToggleable {
 
     final Paint strokePaint = _createStrokePaint(false);
     final Paint strokePaintSuper = _createStrokePaint(true);
-    final Offset origin = offset + (size / 2.0 - const Size.square(_kEdgeSize) / 2.0);
+    final Offset origin = offset + (size / 2.0 - const Size.square(_kEdgeSize) / 2.0 as Offset);
     final AnimationStatus status = position.status;
     final double tNormalized = status == AnimationStatus.forward || status == AnimationStatus.completed
         ? position.value

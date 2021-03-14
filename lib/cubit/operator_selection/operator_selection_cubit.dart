@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/animation.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -13,34 +14,34 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   final Event _event;
   final bool isTriState;
 
-  OperatorSelectionCubit(this._databaseRepository, this._event, this.isTriState)
-      : assert(_databaseRepository != null),
+  OperatorSelectionCubit(this._databaseRepository, Event? _event, this.isTriState) :
+        this._event = _event ?? new Event.empty(),
         super(LoadingOperators()){
       getOperators();
   }
 
-  bool onTap(Account operator) {
+  void onTap(Account operator) {
     if(Constants.debug) print("${operator.name} ${operator.surname} selected");
     ReadyOperators state = (this.state as ReadyOperators);
     Map<String,int> selectionListUpdated = new Map.from(state.selectionList);
     if(selectionListUpdated.containsKey(operator.id)) {
-      if(selectionListUpdated[operator.id] == 2) state.primaryOperatorSelected = false;
-      int newValue = (selectionListUpdated[operator.id]+1) % ((isTriState && !state.primaryOperatorSelected)? 3 : 2);
-      if(newValue == 2) state.primaryOperatorSelected = true;
+      bool newFlag = state.primaryOperatorSelected;
+      int newValue = (selectionListUpdated[operator.id]!+1) % ((isTriState && (!state.primaryOperatorSelected || state.primaryOperatorSelected && selectionListUpdated[operator.id] == 2))? 3 : 2);
+      if(newValue == 2) newFlag = true;
       selectionListUpdated[operator.id] = newValue;
-      emit(new ReadyOperators.updateSelection(state, selectionListUpdated));
+      emit(state.assign(selectionListUpdated, newFlag));
     }
   }
 
   void getOperators() async {
-    List<Account> operators = await _databaseRepository.getOperatorsFree(_event.id??"", _event.start, _event.end);
+    List<Account> operators = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end);
     emit(new ReadyOperators(operators,event:_event));
   }
 
   void saveSelectionToEvent(){
     ReadyOperators state = (this.state as ReadyOperators);
     List<Account> tempOperators = state.operators;
-    List<Account> subOperators = List();
+    List<Account> subOperators = [];
     state.selectionList.forEach((key, value) {
       Account tempAccount = tempOperators.firstWhere((account) => account.id == key);
       if(value == 1) subOperators.add(tempAccount);

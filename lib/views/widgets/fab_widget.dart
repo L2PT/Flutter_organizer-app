@@ -16,9 +16,9 @@ import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 class Fab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Account account = context.bloc<AuthenticationBloc>().account;
+    Account account = context.read<AuthenticationBloc>().account!;
     String route = PlatformUtils.getRoute(context);
-    CloudFirestoreService repository = context.repository<CloudFirestoreService>();
+    CloudFirestoreService repository = context.read<CloudFirestoreService>();
 
     return new BlocProvider(
         create: (_) => FabCubit(context, repository, account, route),
@@ -29,7 +29,7 @@ class Fab extends StatelessWidget {
 
 class _fab extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => context.bloc<FabCubit>().content;
+  Widget build(BuildContext context) => context.select((FabCubit cubit)=>cubit.content);
 }
 
 class Fab_details_super  extends StatelessWidget {
@@ -62,7 +62,7 @@ class Fab_details_super  extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 Text("Cancella",
-                                    style: customLightTheme.textTheme.headline6
+                                    style: Theme.of(context).textTheme.headline6!
                                         .copyWith(color: white)),
                                 SizedBox(
                                   width: 10,
@@ -71,7 +71,7 @@ class Fab_details_super  extends StatelessWidget {
                                   onTap: () async {
                                     if(await ConfirmCancelAlert(parentContext, title: "CANCELLA INCARICO", text: "Confermi la cancellazione dell'incarico?").show()) {
                                       Navigator.of(dialogContext).pop(); //fab
-                                      context.bloc<DetailsEventCubit>().deleteEvent();
+                                      context.read<DetailsEventCubit>().deleteEvent();
                                     }
                                   },
                                   child: Container(
@@ -93,13 +93,13 @@ class Fab_details_super  extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 Text("Modifica",
-                                    style: customLightTheme.textTheme.headline6
+                                    style: Theme.of(context).textTheme.headline6!
                                         .copyWith(color: white)),
                                 SizedBox( width: 10, ),
                                 GestureDetector(
                                   onTap: () {
                                     Navigator.pop(dialogContext);//fab
-                                    context.bloc<DetailsEventCubit>().modifyEvent();
+                                    context.read<DetailsEventCubit>().modifyEvent();
                                   },
                                   child: Container(height: 50,width: 50,decoration: BoxDecoration(
                                       shape: BoxShape.circle,
@@ -153,7 +153,7 @@ class Fab_details_oper extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text("Responsabile",
-                                  style: customLightTheme.textTheme.headline6
+                                  style: Theme.of(context).textTheme.headline6!
                                       .copyWith(color: white)),
                               SizedBox(
                                 width: 10,
@@ -161,7 +161,7 @@ class Fab_details_oper extends StatelessWidget {
                               GestureDetector(
                                 onTap: () {
                                   Navigator.pop(dialogContext);
-                                  context.bloc<FabCubit>().callSupervisor(context.bloc<DetailsEventCubit>().state.event.operator.phone);
+                                  context.read<FabCubit>().callSupervisor(context.select((DetailsEventCubit cubit)=>cubit.state.event.operator!.phone));
                                 },
                                 child: Container(
                                   height: 50,
@@ -182,7 +182,7 @@ class Fab_details_oper extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text("Ufficio",
-                                  style: customLightTheme.textTheme.headline6
+                                  style: Theme.of(context).textTheme.headline6!
                                       .copyWith(color: white)),
                               SizedBox(
                                 width: 10,
@@ -190,7 +190,7 @@ class Fab_details_oper extends StatelessWidget {
                               GestureDetector(
                                 onTap: () {
                                   Navigator.pop(dialogContext);
-                                  context.bloc<FabCubit>().callOffice();
+                                  context.read<FabCubit>().callOffice();
                                 },
                                 child: Container(
                                   height: 50,

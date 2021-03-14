@@ -4,22 +4,22 @@ abstract class HistoryState extends Equatable {
   final int selectedStatus;
   final Map<int, List<Event>> eventsMap;
 
-  HistoryState([int selectedStatus,   Map<int, List> eventsMap]):
-      this.selectedStatus = selectedStatus ?? Status.Ended,
+  HistoryState(int? selectedStatus, [Map<int, List<Event>>? eventsMap]):
+      this.selectedStatus = selectedStatus ?? EventStatus.Ended,
       this.eventsMap = eventsMap ?? {};
-
+  
   @override
-  List<Object> get props => [selectedStatus, eventsMap[selectedStatus]?.map((e) => e)?.join(), eventsMap[selectedStatus]?.length];
+  List<Object> get props => [selectedStatus, eventsMap[selectedStatus]!=null?eventsMap[selectedStatus]!.map((e) => e).join():""];
 
 
-  HistoryReady assign({int selectedStatus, Map<int, List<Event>> eventsMap}) =>
+  HistoryReady assign({int? selectedStatus, Map<int, List<Event>>? eventsMap}) =>
       HistoryReady(selectedStatus ?? this.selectedStatus, eventsMap ?? this.eventsMap);
 
 }
 
 
 class HistoryLoading extends HistoryState{
-  HistoryLoading([int selectedStatus]):super(selectedStatus);
+  HistoryLoading(int? selectedStatus):super(selectedStatus);
 }
 
 class HistoryReady extends HistoryState{

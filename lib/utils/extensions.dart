@@ -1,17 +1,10 @@
-extension CheckNullabilityExtension on String {
-  bool isNullOrEmpty() {
-    return this == null || this == "";
-  }
-}
 extension DateTimeExtensions on DateTime {
-  @override
-  String Stringify() {
+  String stringify() {
     return this.year.toString() + '-' + ((this.month/10<1)?"0"+this.month.toString():this.month.toString()) + '-' + ((this.day/10<1)?"0"+this.day.toString():this.day.toString());
   }
 
   //LONGTERMTODO static extension is a working on for flutter team
-  @override
-  DateTime OlderBetween(DateTime compare) {
+  DateTime olderBetween(DateTime compare) {
     if(this.isAfter(compare))
       return this;
     else
@@ -19,14 +12,12 @@ extension DateTimeExtensions on DateTime {
   }
 }
 extension ListExtensions on Iterable {
-  @override
   List<List<T>> groupBy<T, Y>(Y Function(dynamic) fn) {
-    Map<Y,List<T>> a = Map.fromIterable(this, key: fn, value: (e)=>List());
-    this.forEach((element)=>{ a[fn.call(element)].add(element) });
+    Map<Y,List<T>> a = Map.fromIterable(this, key: fn, value: (e)=>[]);
+    this.forEach((element)=>{ a[fn.call(element)]!.add(element) });
     return a.values.toList();
   }
-  @override
-  //TODO to test
+  
   Map<Y,int> countBy<Y>(Y Function(dynamic) fn) {
     Map<Y,int> a = Map();
     this.forEach((element) {
@@ -34,5 +25,16 @@ extension ListExtensions on Iterable {
       a[key] = (a[key] ?? 0) +1;
     });
     return a;
+  }
+
+  T removeNulls<T>() {
+    this.toList().removeWhere((element) => element==null);
+    return this as T;    
+  }
+}
+
+extension string on String {
+  static bool isNullOrEmpty(String? v) {
+    return v == null || v == "";
   }
 }

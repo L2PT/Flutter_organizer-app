@@ -11,8 +11,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:label="venturiautospurghi"
-        android:icon="@mipmap/ic_launcher"
-        android:name=".Application">
+        android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -34,10 +33,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="FLUTTER_NOTIFICATION_CLICK" />
-                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
         <provider

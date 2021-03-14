@@ -1,5 +1,4 @@
-library App.globals;
-import 'package:flutter/foundation.dart';
+library app.globals;
 
 class Constants {
   static const String title = "Venturi Autospurghi App";
@@ -67,6 +66,7 @@ class Constants {
   static const double MIN_CALENDAR_EVENT_HEIGHT = 60.0;
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
+  static const String googleMessagingApiKey = 'AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk';
 
 
 

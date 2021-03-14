@@ -4,13 +4,13 @@ import 'package:json_annotation/json_annotation.dart';
 @immutable
 @JsonSerializable()
 class AuthUser {
-  const AuthUser({
-    @required this.uid,
+  const AuthUser(
+    this.uid,
     this.email,
     this.photoUrl,
     this.displayName,
-    this.tokens,
-  });
+    this.tokens
+  );
 
   final String uid;
   final String email;

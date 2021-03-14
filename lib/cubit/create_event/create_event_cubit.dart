@@ -1,16 +1,21 @@
+import 'dart:io';
+
 import 'package:bloc/bloc.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:equatable/equatable.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
+import 'package:google_place/google_place.dart';
+import 'package:path/path.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/plugins/firebase/firebase_messaging.dart';
-import 'package:venturiautospurghi/plugins/geo_location.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -20,44 +25,45 @@ part 'create_event_state.dart';
 enum _eventType{ create, modify }
 
 class CreateEventCubit extends Cubit<CreateEventState> {
-
   final CloudFirestoreService _databaseRepository;
   final Account _account;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> formTimeControlsKey = GlobalKey<FormState>();
-  TextEditingController addressController;
+  late TextEditingController addressController;
+  var googlePlace = GooglePlace(Constants.googleMapsApiKey);
 
-  _eventType _type;
-  bool canModify;
-  Map<String,dynamic> categories;
+  late _eventType _type;
+  late bool canModify;
+  late Map<String,dynamic> categories;
 
-  CreateEventCubit([this._databaseRepository, this._account, Event event])
-      : assert(_databaseRepository != null && _account != null), super(CreateEventState(event)) {
+  CreateEventCubit(this._databaseRepository, this._account, Event? event)
+      : super(CreateEventState(event)) {
     _type = (event==null)? _eventType.create : _eventType.modify;
     canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
     categories = _databaseRepository.categories;
     addressController = new TextEditingController();
     if(event != null ){
-      if(!event.category.isNullOrEmpty()){
+      if(!string.isNullOrEmpty(event.category)){
           radioValueChanged(categories.keys.toList().indexOf(event.category));
       }
-
-      addressController.text = state.event.address??"";
-
+      addressController.text = state.event.address;
     }
-
   }
 
   void getLocations(String text) async {
-    if(text.length >5){
-      List<String> locations = await getLocationAddresses(text);
+    if(text.length > 5){
+      List<String> locations = [];
+      var result = await googlePlace.autocomplete.get(text);
+      if(result != null && result.predictions != null)
+        result.predictions!.forEach((e) => string.isNullOrEmpty(e.description)?
+          locations.add(e.description!) : null);
       emit(state.assign(locations: locations, address: text));
     } else emit(state.assign(address: text));
   }
 
   setAddress(String address) {
     addressController.text = address;
-    emit(state.assign(locations: new List<String>(), address: address));
+    emit(state.assign(locations: <String>[], address: address));
   }
 
   bool isNew() => this._type == _eventType.create;
@@ -67,11 +73,11 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       PlatformUtils.notifyErrorMessage("Seleziona un orario di fine incarico valido");
     if (state.event.operator == null)
       PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
-    else if (state.category == null || state.category == -1)
+    else if (state.category == -1)
       PlatformUtils.notifyErrorMessage("Seleziona una categoria valida.");
-    else if((this.formTimeControlsKey.currentState.validate() || !this.canModify) && formKey.currentState.validate()) {
+    else if((this.formTimeControlsKey.currentState!.validate() || !this.canModify) && formKey.currentState!.validate()) {
       //get all data before refresh
-      formKey.currentState.save();
+      formKey.currentState!.save();
       emit(state.assign(status: _formStatus.loading));
       try {
         if(Constants.debug) print("Firebase save " + state.event.start.toString() + " : " + state.event.end.toString());
@@ -84,12 +90,12 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
         bool sendNotification = true;
         if(state.isScheduled){
-          state.event.status = Status.Accepted;
+          state.event.status = EventStatus.Accepted;
           sendNotification = false;
         }else if(state.event.end.isBefore(DateTime.now())){
           sendNotification = false;
         }else{
-          state.event.status = Status.New;
+          state.event.status = EventStatus.New;
         }
 
         state.event.documents = state.documents.keys.toList();
@@ -103,20 +109,21 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         }
         if(Constants.debug) print("Firebase save complete");
         if(Constants.debug) print("FireStorage upload");
-        List<String> cloudFiles = (await PlatformUtils.storageGetFiles(state.event.id + "/" )) ?? List<String>();
+        ListResult cloudResults = await FirebaseStorageService.listFiles(state.event.id + "/" );
+        List<String> cloudFiles = cloudResults.items.map((file) => file.name).toList();
         state.documents.forEach((name, file) {
             if (file != null) {
               if(cloudFiles.contains(name)) {
-                PlatformUtils.storageDelFile(state.event.id + "/" + name);
+                FirebaseStorageService.deleteFile(state.event.id + "/" + name);
                 cloudFiles.remove(name);
               }
-              PlatformUtils.storagePutFile(state.event.id + "/" + name, file);
+              FirebaseStorageService.uploadFile(file, state.event.id + "/" + name);
             } else if(cloudFiles.contains(name)) cloudFiles.remove(name);
         });
-        cloudFiles.forEach((name) => PlatformUtils.storageDelFile(state.event.id + "/" + name));
+        cloudFiles.forEach((name) => FirebaseStorageService.deleteFile(state.event.id + "/" + name));
         if(Constants.debug) print("FireStorage upload comeplete");
         if(sendNotification){
-            FirebaseMessagingService.sendNotifications(tokens: state.event.operator.tokens, eventId: state.event.id);
+            FirebaseMessagingService.sendNotifications(tokens: state.event.operator!.tokens, eventId: state.event.id);
         }
         if(Constants.debug) print("FireMessaging notified");
         return true;
@@ -131,15 +138,15 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   removeDocument(String name) {
-    Map<String,PlatformFile> newDocs = Map.from(state.documents);
+    Map<String, File?> newDocs = Map.from(state.documents);
     newDocs.remove(name);
     emit(state.assign(documents: newDocs));
   }
 
   void openFileExplorer() async {
     try {
-        Map<String,PlatformFile> files = Map.fromIterable((await FilePicker.platform.pickFiles(allowMultiple: true, withData: false)).files, key: (file)=>(file as PlatformFile).name, value: (file)=>file );
-        Map<String,PlatformFile> newDocs = Map.from(state.documents);
+        Map<String, File?> files = Map.fromIterable((await FilePicker.platform.pickFiles(allowMultiple: true, withData: false))?.paths??[], key: (filePath)=>basename(filePath), value: (filePath)=>File(filePath) );
+        Map<String, File?> newDocs = Map.from(state.documents);
         files.forEach((key, value) {
           newDocs[key] = value;
         });
@@ -155,7 +162,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   _removeAllOperators(Event event) {
     event.operator = null;
-    event.suboperators = new List();
+    event.suboperators = [];
   }
 
   void setAlldayLong(value) {
@@ -186,7 +193,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   setStartDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
     event.start = TimeUtils.getNextWorkTimeSpan(date);
-    event.end = TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end);
+    event.end = TimeUtils.getNextWorkTimeSpan(event.start).olderBetween(event.end);
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
@@ -194,11 +201,11 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   setStartTime(dynamic time) {
     Event event = Event.fromMap("", "", state.event.toMap());
     if(time is TimeOfDay) 
-      time = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: DateTimeField.convert(time).hour, minutes: DateTimeField.convert(time).minute));
+      time = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: DateTimeField.convert(time)!.hour, minutes: DateTimeField.convert(time)!.minute));
     event.start = time;
     event.end = TimeUtils.truncateDate(event.end, "day").add(
-        Duration(hours: (TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end)).hour,
-            minutes: (TimeUtils.getNextWorkTimeSpan(event.start).OlderBetween(event.end)).minute ));
+        Duration(hours: (TimeUtils.getNextWorkTimeSpan(event.start).olderBetween(event.end)).hour,
+            minutes: (TimeUtils.getNextWorkTimeSpan(event.start).olderBetween(event.end)).minute ));
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
@@ -212,7 +219,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   setEndTime(dynamic time) {
     Event event = Event.fromMap("", "", state.event.toMap());
     if(time is TimeOfDay)
-      time = TimeUtils.truncateDate(event.end, "day").add(Duration(hours: DateTimeField.convert(time).hour, minutes: DateTimeField.convert(time).minute));
+      time = TimeUtils.truncateDate(event.end, "day").add(Duration(hours: DateTimeField.convert(time)!.hour, minutes: DateTimeField.convert(time)!.minute));
     event.end = time;
     _removeAllOperators(event);
     emit(state.assign(event: event));
@@ -220,7 +227,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   void removeSuboperatorFromEventList(Account suboperator) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    List subOps = new List.from(event.suboperators);
+    List<Account> subOps = new List.from(event.suboperators);
     subOps.removeWhere((element) => element.id == suboperator.id);
     event.suboperators = subOps;
     emit(state.assign(event: event));
@@ -232,7 +239,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario iniziale valido");
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour > Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
-
+    //shh this is wrong, it breaks the mvvm
     PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context});
   }
 

@@ -3,40 +3,40 @@ import 'package:flutter/material.dart';
 final logo = new Image.asset('assets/logo.png', height: 128.0);
 final logo_web = new Image.asset('logo.png', height: 128.0);
 final ThemeData customLightTheme = _buildTheme();
-final title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: black, );
-final subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
-const title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: white, );
-final subtitle_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey_light2);
-final subtitle_accent = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: yellow);
-final error = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: red);
-final label = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: black);
-final label_rev = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: white);
-final time_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: white, );
-final button_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: white, );
-final title2 = TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: black );
-final subtitle2 = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey );
-final white_default = TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: white );
+final TextStyle title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: black, );
+final TextStyle subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
+const TextStyle title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: white, );
+final TextStyle subtitle_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey_light2);
+final TextStyle subtitle_accent = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: yellow);
+final TextStyle error = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: red);
+final TextStyle label = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: black);
+final TextStyle label_rev = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: white);
+final TextStyle time_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: white, );
+final TextStyle button_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: white, );
+final TextStyle title2 = TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: black );
+final TextStyle subtitle2 = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey );
+final TextStyle white_default = TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: white );
 
 ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
     accentColor: yellow, //Colore secondario <-- da sistemare quando compare
     primaryColor: black,
-    textSelectionColor: yellow,
-    textSelectionHandleColor: yellow,//appBar
     scaffoldBackgroundColor: whitebackground, //ok
     cardColor: Color(0x00000000),
     textSelectionTheme:  TextSelectionThemeData(
-          cursorColor: yellow,
-          selectionHandleColor: yellow,
-           selectionColor: yellow.withOpacity(0.7),
-        ),
-    cursorColor: Color(0xFFFFFFFF),
+      cursorColor: yellow,
+      selectionHandleColor: yellow,
+      selectionColor: yellow.withOpacity(0.7),
+    ),
     errorColor: red,
     buttonTheme: ButtonThemeData(
       buttonColor: black,
       textTheme: ButtonTextTheme.accent
     ),
+    textButtonTheme: TextButtonThemeData(style: flatButtonStyle),
+    elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
+    outlinedButtonTheme: OutlinedButtonThemeData(style: outlineButtonStyle),
     colorScheme: ColorScheme.dark().copyWith(secondary: black, secondaryVariant: black,),
     buttonBarTheme: ButtonBarThemeData(buttonTextTheme: ButtonTextTheme.accent,),
     hintColor: grey_light2,
@@ -45,8 +45,7 @@ ThemeData _buildTheme() {
         border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(50.0))),
         fillColor: black,
-
-  ),
+    ),
     textTheme: _buildShrineTextTheme(base.textTheme,black), //ok
     primaryTextTheme: _buildShrineTextTheme(base.primaryTextTheme,Color(0xFFFFFFFF)), //text appBar
     accentTextTheme: _buildShrineTextTheme(base.accentTextTheme,black), //Colore secondario <-- da sistemare quando compare
@@ -57,17 +56,17 @@ ThemeData _buildTheme() {
 
 TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
   return base.copyWith(
-    headline5: base.headline5.copyWith(
+    headline5: base.headline5!.copyWith(
       fontWeight: FontWeight.w500,
     ),
-    headline6: base.headline6.copyWith(
+    headline6: base.headline6!.copyWith(
         fontSize: 18.0
     ),
-    caption: base.caption.copyWith(
+    caption: base.caption!.copyWith(
       fontWeight: FontWeight.w400,
       fontSize: 14.0,
     ),
-    bodyText1: base.bodyText1.copyWith(
+    bodyText1: base.bodyText1!.copyWith(
       fontWeight: FontWeight.w500,
       fontSize: 16.0,
     ),
@@ -75,9 +74,49 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
     fontFamily: 'Roboto',
     displayColor: black, //dunno
     bodyColor: c, //text
-
   );
 }
+
+
+final ButtonStyle flatButtonStyle = TextButton.styleFrom(
+  primary: black,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16.0),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(2.0)),
+  ),
+);
+
+final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
+  onPrimary: black,
+  primary: black,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(15)),
+  ),
+);
+
+/// The OutlineButton style for OutlinedButton is a little more complicated because the outline’s color changes to the primary color when the button is pressed.
+/// The outline’s appearance is defined by a BorderSide and we’ll use a MaterialStateProperty to define the pressed outline color
+final ButtonStyle outlineButtonStyle = OutlinedButton.styleFrom(
+  primary: black,
+  minimumSize: Size(88, 36),
+  padding: EdgeInsets.symmetric(horizontal: 16),
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.all(Radius.circular(2)),
+  ),
+).copyWith(
+  side: MaterialStateProperty.resolveWith<BorderSide?>(
+        (Set<MaterialState> states) {
+      if (states.contains(MaterialState.pressed))
+        return BorderSide(
+          color: black,
+          width: 1,
+        );
+    },
+  ),
+);
 
 const black_dark = const Color(0xFF000000);
 const black = const Color(0xFF333333);

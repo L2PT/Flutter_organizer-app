@@ -2,7 +2,10 @@ part of 'mobile_bloc.dart';
 
 @immutable
 abstract class MobileEvent extends Equatable {
-  MobileEvent([List props = const []]);
+  MobileEvent();
+
+  @override
+  List<Object> get props => [];
 }
 
 class NavigateEvent extends MobileEvent {
@@ -16,16 +19,13 @@ class NavigateEvent extends MobileEvent {
 }
 
 class NavigateBackEvent extends MobileEvent {
-  @override
-  List<Object> get props => [];
+  
 }
 
 class RestoreEvent extends MobileEvent {
-  @override
-  List<Object> get props => [];
+  
 }
 
 class InitAppEvent extends MobileEvent {
-  @override
-  List<Object> get props => [];
+  
 }

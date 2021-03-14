@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
@@ -15,21 +14,19 @@ part 'daily_calendar_state.dart';
 class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   final CloudFirestoreService _databaseRepository;
   final Account _account;
-  final Account _operator;
-  List<Event> _events;
+  final Account? operator;
+  late List<Event> _events;
   CalendarController calendarController = new CalendarController();
 
-  DailyCalendarCubit(this._databaseRepository, this._account, this._operator, DateTime _selectedDay)
-      : assert(_databaseRepository != null),
+  DailyCalendarCubit(this._databaseRepository, this._account, this.operator, DateTime? _selectedDay) :
         super(DailyCalendarLoading(TimeUtils.truncateDate(_selectedDay??DateTime.now(), "day"))){
-    //HOW to listen to stream?
     if(_account.supervisor){
-      _databaseRepository.eventsByOperatorNewOrAbove((_operator??_account).id).listen((eventsList) {
+      _databaseRepository.eventsByOperatorNewOrAbove((operator??_account).id).listen((eventsList) {
         _events = eventsList;
         evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
       });
     }else{
-      _databaseRepository.eventsByOperatorAcceptedOrAbove((_operator??_account).id).listen((eventsList) {
+      _databaseRepository.eventsByOperatorAcceptedOrAbove((operator??_account).id).listen((eventsList) {
         _events = eventsList;
         evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
       });
@@ -51,20 +48,18 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
 
   void evaluateEventsMap(DateTime first, DateTime last){
     Map<DateTime, List<Event>> eventsMap = {};
-    if(this._events != null){
-      first = TimeUtils.truncateDate(first,"day");
-      last = TimeUtils.truncateDate(last,"day").add(Duration(hours: 23));
-     _events.forEach((singleEvent) {
-       if (singleEvent.isBetweenDate(first, last)) {
-         int diff = singleEvent.end.difference(singleEvent.start).inDays;
-         for(var i=0;i<=diff;i++){
-           DateTime dateIndex = TimeUtils.truncateDate(singleEvent.start.add(new Duration(days: i)), "day");
-           if(eventsMap[dateIndex]==null)eventsMap[dateIndex]=List();
-           eventsMap[dateIndex].add(singleEvent);
-         }
+    first = TimeUtils.truncateDate(first,"day");
+    last = TimeUtils.truncateDate(last,"day").add(Duration(hours: 23));
+    _events.forEach((singleEvent) {
+     if (singleEvent.isBetweenDate(first, last)) {
+       int diff = singleEvent.end.difference(singleEvent.start).inDays;
+       for(var i=0;i<=diff;i++){
+         DateTime dateIndex = TimeUtils.truncateDate(singleEvent.start.add(new Duration(days: i)), "day");
+         if(eventsMap[dateIndex]==null) eventsMap[dateIndex]=[];
+         eventsMap[dateIndex]!.add(singleEvent);
        }
-     });
-   }
+     }
+    });
     emit(DailyCalendarReady(eventsMap, state.selectedDay));
   }
 

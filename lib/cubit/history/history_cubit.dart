@@ -1,8 +1,8 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
 
 part 'history_state.dart';
 
@@ -10,9 +10,9 @@ class HistoryCubit extends Cubit<HistoryState> {
   final CloudFirestoreService _databaseRepository;
   var streamSub;
 
-  HistoryCubit(this._databaseRepository, int _selectedStatus) : assert(_databaseRepository != null),
-        super(HistoryLoading(_selectedStatus??Status.Ended)){
-    streamSub = _databaseRepository.eventsHistory().listen((historyEventsList) {
+  HistoryCubit(this._databaseRepository, int? _selectedStatus) :
+        super(HistoryLoading(_selectedStatus)){
+    streamSub = _databaseRepository.eventsHistory().listen((historyEventsList) { //TODO null?
       evaluateEventsMap(historyEventsList);
     });
   }
@@ -21,8 +21,8 @@ class HistoryCubit extends Cubit<HistoryState> {
     Map<int, List<Event>> eventsMap =  {};
     if(_events != null){
       _events.forEach((singleEvent) {
-        if(eventsMap[singleEvent.status]==null)eventsMap[singleEvent.status] = [];
-        eventsMap[singleEvent.status].add(singleEvent);
+        if(eventsMap[singleEvent.status]==null) eventsMap[singleEvent.status] = [];
+        eventsMap[singleEvent.status]!.add(singleEvent);
       });
     }
     emit(state.assign(eventsMap: eventsMap));
@@ -33,7 +33,8 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 
   @override
-  Future<Function> close() {
+  Future<dynamic> close() {
     streamSub.cancel();
+    return super.close();
   }
 }

@@ -62,7 +62,7 @@ class _searchBar extends StatelessWidget {
                   children: <Widget>[
                     Expanded(
                       child: TextField(
-                        onChanged: context.bloc<OperatorListCubit>().onSearchNameChanged,
+                        onChanged: context.read<OperatorListCubit>().onSearchNameChanged,
                         style: new TextStyle(color: white),
                         decoration: InputDecoration(
                           border: InputBorder.none,
@@ -75,8 +75,8 @@ class _searchBar extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                        icon: new Icon((!context.bloc<OperatorListCubit>().state.filtersBoxVisibile) ? Icons.tune : Icons.keyboard_arrow_up, color: white),
-                        onPressed: context.bloc<OperatorListCubit>().showFiltersBox
+                        icon: new Icon((!context.read<OperatorListCubit>().state.filtersBoxVisibile) ? Icons.tune : Icons.keyboard_arrow_up, color: white),
+                        onPressed: context.read<OperatorListCubit>().showFiltersBox
                     ),
                   ],
                 )));
@@ -111,27 +111,27 @@ class _filtersBox extends StatelessWidget {
                         Icon(Icons.date_range),
                         SizedBox(width: 5),
                         Expanded(
-                            child: GestureDetector(
-                          child: Text(
-                              context.bloc<OperatorListCubit>().state.searchTimeField.toString().split(' ').first,
+                          child: GestureDetector(
+                            child: Text(
+                              context.read<OperatorListCubit>().state.searchTimeField.toString().split(' ').first,
                               style: title_rev),
-                          onTap: () =>
-                              PlatformDatePicker.showDatePicker(context,
+                            onTap: () =>
+                              PlatformDatePicker.selectDate(context,
                                 maxTime: DateTime(3000),
-                                currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
-                                onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchDateChanged(date),
+                                currentTime: context.read<OperatorListCubit>().state.searchTimeField,
+                                onConfirm: (date) => context.read<OperatorListCubit>().onSearchDateChanged(date),
                               ),
                         )),
                         Icon(Icons.watch_later),
                         SizedBox(width: 5),
                         Expanded(
-                            child: GestureDetector(
-                          child: Text(context.bloc<OperatorListCubit>().state.searchTimeField.toString().split(' ').last.split('.').first.substring(0, 5),
+                          child: GestureDetector(
+                            child: Text(context.read<OperatorListCubit>().state.searchTimeField.toString().split(' ').last.split('.').first.substring(0, 5),
                               style: title_rev),
-                          onTap: () => PlatformDatePicker.showTimePicker(context,
-                            currentTime: context.bloc<OperatorListCubit>().state.searchTimeField,
-                            onConfirm: (date) => context.bloc<OperatorListCubit>().onSearchTimeChanged(date),
-                          ),
+                            onTap: () => PlatformDatePicker.selectTime(context,
+                              currentTime: context.read<OperatorListCubit>().state.searchTimeField,
+                              onConfirm: (date) => context.read<OperatorListCubit>().onSearchTimeChanged(date),
+                            ),
                         ))
                       ],
                     ))
@@ -146,7 +146,7 @@ class _operatorList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     onTileTap(Account operator) {
-      context.bloc<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, {"operator":operator}));
+      context.read<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, {"operator":operator}));
     }
 
     Widget buildOperatorList() => ListView.separated(
@@ -154,9 +154,9 @@ class _operatorList extends StatelessWidget {
           Divider(height: 2, thickness: 1, indent: 15, endIndent: 15, color: grey_light),
       physics: BouncingScrollPhysics(),
       padding: new EdgeInsets.symmetric(vertical: 8.0),
-      itemCount: (context.bloc<OperatorListCubit>().state as ReadyOperators).filteredOperators.length,
+      itemCount: (context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators.length,
       itemBuilder: (context, index) =>
-      new ListTileOperator((context.bloc<OperatorListCubit>().state as ReadyOperators).filteredOperators[index], onTap: onTileTap),
+      new ListTileOperator((context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators[index], onTap: onTileTap),
     );
 
     return BlocBuilder<OperatorListCubit, OperatorListState>(
