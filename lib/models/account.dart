@@ -7,7 +7,7 @@ class Account {
   String email = "";
   String phone = "";
   String codFiscale = "";
-  List<Account> webops = [];
+  List<Account?> webops = [];
   List<dynamic> tokens = [];
   bool supervisor = false;
 

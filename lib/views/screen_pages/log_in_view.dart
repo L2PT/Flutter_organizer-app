@@ -42,6 +42,7 @@ class _LogInState extends State<LogIn> with SingleTickerProviderStateMixin {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           logo,
+          _messageLogin(),
           _inputFields(),
           SizedBox(height: 8.0),
           _errorText(),
@@ -49,8 +50,6 @@ class _LogInState extends State<LogIn> with SingleTickerProviderStateMixin {
           _loginButton(),
           SizedBox(height: 30.0),
           _LoginPhone(),
-          SizedBox(height: 30.0),
-          _resetPasswordText(),
         ],
       ),
     );
@@ -133,11 +132,17 @@ class _inputFields extends StatelessWidget {
               Container(height: 100, width: 1000,),
               SlideTransition(
                 position: context.read<LoginCubit>().state.isEmailLoginView()?_onScreenAnimation:_offScreenAnimation,
-                child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
-                  _emailInput(),
-                  SizedBox(height: 8.0),
-                  _passwordInput(),
-                ]),
+                child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _emailInput(),
+                      SizedBox(height: 8.0),
+                      _passwordInput(),
+                      Container(
+                        margin: EdgeInsets.only(right: 20.0, top: 5.0),
+                        child: _resetPasswordText(),
+                      ),
+
+                    ]),
               ),
               SlideTransition(
                 position: context.read<LoginCubit>().state.isPhoneLoginView()?_onScreenAnimation:_offScreenAnimation,
@@ -295,6 +300,40 @@ class _phoneInput extends StatelessWidget {
   }
 }
 
+class _messageLogin extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginCubit, LoginState>(
+      buildWhen: (previous, current) => previous.isLoading(),
+      builder: (context, state) {
+        return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              new Container (
+                margin: const EdgeInsets.only(top: 10.0),
+                child: new Row (
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Benvenuto", style: titleBig,),
+                  ],
+                ),
+              ),
+              new Container (
+              margin: const EdgeInsets.only(top: 5.0, bottom: 20.0),
+              child: new Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Accedi al tuo Account", style: subtitle,)
+                ],
+              )
+              )
+            ]
+        );
+      },
+    );  
+  }
+}
+
 class _errorText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -338,7 +377,7 @@ class _loginButton extends StatelessWidget {
                           new Padding(
                             padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                             child: Text(
-                              "LOGIN",
+                              "ACCEDI",
                               style: TextStyle(color: white),
                             ),
                           ),
@@ -379,7 +418,7 @@ class _loginButton extends StatelessWidget {
   final loadingSpinner = new Center(
     heightFactor: null,
     widthFactor: null,
-    child: new CircularProgressIndicator(),
+    child: new CircularProgressIndicator(color: yellow,),
   );
 
 }
@@ -387,14 +426,61 @@ class _loginButton extends StatelessWidget {
 class _LoginPhone extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        context.read<LoginCubit>().switchLoginView();        
-      },
-      child: new Text('Phone number login', textAlign: TextAlign.center,
-        style: new TextStyle(fontSize: 18.0, color: Colors.black54),
-      ),
-    );
+    return  new Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Row(children: <Widget>[
+            Expanded(
+              child: new Container(
+                  margin: const EdgeInsets.only(left: 10.0, right: 20.0),
+                  child: Divider(
+                    color: grey_light,
+                    indent: 15,
+                    thickness: 1.5,
+                    height: 36,
+                  )),
+            ),
+            Text("oppure",style: subtitle,),
+            Expanded(
+              child: new Container(
+                  margin: const EdgeInsets.only(left: 20.0, right: 10.0),
+                  child: Divider(
+                    color: grey_light,
+                    endIndent: 15,
+                    thickness: 1.5,
+                    height: 36,
+                  )),
+            ),
+          ]),
+          Container(
+            margin: const EdgeInsets.only(top: 20.0),
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  child: ElevatedButton(
+                      style: raisedButtonStyle.copyWith(
+                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(25.0))),
+                          backgroundColor: MaterialStateProperty.all<Color>(grey_dark)
+                      ),
+                      onPressed: () {
+                        context.read<LoginCubit>().switchLoginView();
+                      },
+                      child: new Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: new Row(
+                          children: [
+                            Icon(Icons.phone,color: white,),
+                            SizedBox(width: 15,),
+                            Text("Collegati con il numero di telefono", style: label_rev,)
+                          ],
+                        ))
+                 )
+               )
+              ]
+          ),
+        )
+        ]
+      );
   }
 }
 
@@ -412,7 +498,7 @@ class _resetPasswordText extends StatelessWidget {
                 content: new Text("Sicuro di voler procedere con il reset della password?", style: label,),
                 actions: <Widget>[
                       TextButton(
-                        child: new Text('ANNULLA', style: label),
+                        child: new Text('Annulla', style: label),
                         onPressed: () {
                           PlatformUtils.backNavigator(context);
                         },
@@ -432,9 +518,7 @@ class _resetPasswordText extends StatelessWidget {
             }
         );
       },
-      child: new Text('Reset Password', textAlign: TextAlign.center,
-            style: new TextStyle(fontSize: 18.0, color: Colors.black54),
-          ),
+      child: new Text("Password dimenticata?", style: subtitle2.copyWith(fontSize: 14),),
     );
   }
 }

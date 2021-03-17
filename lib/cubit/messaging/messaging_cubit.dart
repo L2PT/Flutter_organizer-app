@@ -79,7 +79,7 @@ class MessagingCubit extends Cubit<MessagingState> {
   Future<Event?> _updateEventAndSendFeedback(RemoteMessage message, int updatedStatus) async {
     Event? event = await _databaseRepository.getEvent(message.data['id']);
     if(event != null && (updatedStatus == EventStatus.Delivered && event.isNew())) {
-      Account supervisor = await _databaseRepository.getAccount(event.supervisor.email);
+      Account supervisor = await _databaseRepository.getAccount(event.supervisor!.email);
       _databaseRepository.updateEventField(message.data['id'], Constants.tabellaEventi_stato, updatedStatus);
       FirebaseMessagingService.sendNotifications(
           tokens: supervisor.tokens,

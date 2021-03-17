@@ -449,7 +449,7 @@ class _operatorsList extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(right: 10.0),
               padding: EdgeInsets.all(3.0),
-              child: Icon(operator.supervisor?FontAwesomeIcons.userTie:FontAwesomeIcons.hardHat, color: yellow),
+              child: Icon(operator!.supervisor?FontAwesomeIcons.userTie:FontAwesomeIcons.hardHat, color: yellow),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: black,

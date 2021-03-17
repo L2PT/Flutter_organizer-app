@@ -16,9 +16,9 @@ class Event {
   String category = "";
   String color = "";
   String motivazione = "";
-  late Account supervisor;
+  late Account? supervisor;
   Account? operator;
-  List<Account> suboperators = [];
+  List<Account?> suboperators = [];
 
 
   Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione);
@@ -53,7 +53,7 @@ class Event {
       "color":this.color,
       "Responsabile":this.supervisor?.toMap(),
       "Operatore":this.operator?.toMap(),
-      "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
+      "SubOperatori":this.suboperators.map((op)=>op?.toMap()).toList()
   };
   Map<String, dynamic> toDocument(){
     return Map<String, dynamic>.of({
@@ -67,10 +67,10 @@ class Event {
       "Categoria":this.category,
       "Responsabile":this.supervisor?.toMap(),
       "Operatore":this.operator?.toMap(),
-      "SubOperatori": this.suboperators.map((op)=>op.toMap()).toList(),
+      "SubOperatori": this.suboperators.map((op)=>op?.toMap()).toList(),
       "Motivazione" : this.motivazione,
       "IdOperatore" : this.operator?.id??"",
-      "IdOperatori" : [...this.suboperators.map((op) => op.id),operator?.id??""],
+      "IdOperatori" : [...this.suboperators.map((op) => op?.id),operator?.id??""],
     });
   }
 
@@ -96,6 +96,6 @@ class Event {
   bool isEnded() => this.status == EventStatus.Ended;
 
   @override
-  String toString() => id+title+description+documents.join()+start.toString()+end.toString()+address+(status??"").toString()+category+color+(supervisor?.id??"")+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione??"");
+  String toString() => id+title+description+documents.join()+start.toString()+end.toString()+address+(status).toString()+category+color+(supervisor?.id??"")+(operator?.id??"")+suboperators.map((o) => o?.id).join()+(motivazione);
 
 }
