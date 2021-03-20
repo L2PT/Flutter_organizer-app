@@ -418,7 +418,7 @@ class _loginButton extends StatelessWidget {
   final loadingSpinner = new Center(
     heightFactor: null,
     widthFactor: null,
-    child: new CircularProgressIndicator(color: yellow,),
+    child: new CircularProgressIndicator(valueColor: new AlwaysStoppedAnimation<Color>(yellow),),
   );
 
 }

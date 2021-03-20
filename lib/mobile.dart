@@ -52,7 +52,7 @@ class _MyAppState extends State<MyApp> {
                         create: (_) =>
                           MobileBloc(
                             /*** subscription in [AuthenticationBloc]. When it updates the select make the whole tree rebuild so everything underneath can read the fields. ***/
-                            account: context.select((AuthenticationBloc bloc)=> bloc.account!),
+                            account: context.watch<AuthenticationBloc>().account!,
                             databaseRepository: databaseRepository)..add(InitAppEvent()),
                         child: Stack(children: [
                           BlocBuilder<MobileBloc, MobileState>(
@@ -74,7 +74,7 @@ class _MyAppState extends State<MyApp> {
                             create: (_) => MessagingCubit(
                               databaseRepository,
                               messagingRepository,
-                              context.select((AuthenticationBloc bloc)=> bloc.account!) // TODO evaluate a modification to the structure if it doesn't rebuild on unauthicated status
+                                context.watch<AuthenticationBloc>().account! // TODO evaluate a modification to the structure if it doesn't rebuild on unauthicated status
                             ),
                             child: BlocListener<MessagingCubit, MessagingState>(
                               listener: (BuildContext context, MessagingState state) {
