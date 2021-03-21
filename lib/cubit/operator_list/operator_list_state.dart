@@ -21,12 +21,15 @@ class ReadyOperators extends OperatorListState {
   List<Account> filteredOperators = [];
 
   ReadyOperators(List<Account> operators, {String? searchNameField, DateTime? searchTimeField}) : super(searchNameField, searchTimeField) {
-    operators.forEach((operator) {
-      String searchedFields = operator.name + " " + operator.surname;
-      if(!string.isNullOrEmpty(searchNameField) && searchedFields.toLowerCase().contains(searchNameField!.toLowerCase())){
-        filteredOperators.add(operator);
-      }
-    });
+    if(string.isNullOrEmpty(searchNameField))
+      filteredOperators = [...operators];
+    else
+      operators.forEach((operator) {
+        String searchedFields = operator.name + " " + operator.surname;
+        if(searchedFields.toLowerCase().contains(searchNameField!.toLowerCase())){
+          filteredOperators.add(operator);
+        }
+      });
   }
 
   @override
@@ -39,7 +42,7 @@ class ReadyOperators extends OperatorListState {
     bool? filterBoxState,
   }) {
     return ReadyOperators(
-        ((searchNameField == this.searchNameField || string.isNullOrEmpty(this.searchNameField) || searchNameField != null && (searchNameField).contains(this.searchNameField)) &&
+        ((searchNameField == this.searchNameField || searchNameField == null || searchNameField.contains(this.searchNameField)) &&
         (this.searchTimeField == searchTimeField)) ? 
         this.filteredOperators : operators,
         searchNameField: searchNameField ?? this.searchNameField,

@@ -38,7 +38,10 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   CreateEventCubit(this._databaseRepository, this._account, Event? event)
       : super(CreateEventState(event)) {
-    _type = (event==null)? _eventType.create : _eventType.modify;
+    if(event==null){
+      _type = _eventType.create;
+      state.event.supervisor = _account;
+    } else _type = _eventType.modify;
     canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
     categories = _databaseRepository.categories;
     addressController = new TextEditingController();
@@ -55,8 +58,10 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       List<String> locations = [];
       var result = await googlePlace.autocomplete.get(text);
       if(result != null && result.predictions != null)
-        result.predictions!.forEach((e) => string.isNullOrEmpty(e.description)?
-          locations.add(e.description!) : null);
+        result.predictions!.forEach((e) => {
+          if(!string.isNullOrEmpty(e.description))
+            locations.add(e.description!)
+        });
       emit(state.assign(locations: locations, address: text));
     } else emit(state.assign(address: text));
   }
@@ -190,6 +195,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.assign(event: event));
   }
 
+  //TODO limiti temporali sono ancora validi?
   setStartDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
     event.start = TimeUtils.getNextWorkTimeSpan(date);

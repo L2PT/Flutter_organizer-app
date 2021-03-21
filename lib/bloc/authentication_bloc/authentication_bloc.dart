@@ -17,7 +17,6 @@ part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
   final FirebaseAuthService _authenticationRepository;
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   late CloudFirestoreService _dbRepository;
   late FirebaseMessagingService _msgRepository;
   Account? account;
@@ -80,6 +79,13 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   Stream<AuthenticationState> _mapLoggedOutToState() async* {
     yield Unauthenticated();
+    String? token = await FirebaseMessagingService.getToken();
+    if(token != null) {
+      if (account!.tokens.contains(token)) {
+        account!.tokens.remove(token);
+        _dbRepository.updateAccountField(account!.id, "Tokens", account!.tokens);
+      }
+    }
     account = null;
     _authenticationRepository.signOut();
     _loginSubscription?.cancel();

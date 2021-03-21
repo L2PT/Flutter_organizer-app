@@ -15,7 +15,7 @@ class MessagingState extends Equatable {
   bool isWaiting() => this.status == _messagesQueuetatus.waiting;
 
   MessagingState assign({
-    Event? event,
+    required Event event,
   }) => MessagingState(event: event, status: _messagesQueuetatus.waiting);
   
   MessagingState signOut() // TODO must be called or the bloc recreate at auth -> unauth -> auth

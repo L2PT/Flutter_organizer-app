@@ -48,7 +48,7 @@ class MessagingCubit extends Cubit<MessagingState> {
         _databaseRepository.updateAccountField(_account.id, "Tokens", _account.tokens);
       }
     }
-    emit(state.assign());
+    emit(state.signOut());
   }
 
   void onMessageHandler(RemoteMessage message) async {
@@ -79,7 +79,7 @@ class MessagingCubit extends Cubit<MessagingState> {
   Future<Event?> _updateEventAndSendFeedback(RemoteMessage message, int updatedStatus) async {
     Event? event = await _databaseRepository.getEvent(message.data['id']);
     if(event != null && (updatedStatus == EventStatus.Delivered && event.isNew())) {
-      Account supervisor = await _databaseRepository.getAccount(event.supervisor!.email);
+      Account supervisor = await _databaseRepository.getAccount(event.supervisor.email);
       _databaseRepository.updateEventField(message.data['id'], Constants.tabellaEventi_stato, updatedStatus);
       FirebaseMessagingService.sendNotifications(
           tokens: supervisor.tokens,
@@ -89,9 +89,7 @@ class MessagingCubit extends Cubit<MessagingState> {
   }
 
   void _launchTheEvent(RemoteMessage message) async { // TODO ask for the behaviour
-    if (_isFeedbackNotification(message) && !_account.supervisor) {
-      emit(state.assign());
-    } else if(!_isFeedbackNotification(message)){
+    if (!_isFeedbackNotification(message)){
       Event? event = await _updateEventAndSendFeedback(message, EventStatus.Delivered);
       if(event != null){
         emit(state.assign(event: event));

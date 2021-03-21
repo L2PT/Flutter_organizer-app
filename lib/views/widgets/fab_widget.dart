@@ -16,7 +16,7 @@ import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 class Fab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Account account = context.read<AuthenticationBloc>().account!;
+    Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
     String route = PlatformUtils.getRoute(context);
     CloudFirestoreService repository = context.read<CloudFirestoreService>();
 

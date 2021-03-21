@@ -40,7 +40,7 @@ class _DailyCalendarViewState extends State<DailyCalendar> with TickerProviderSt
   @override
   Widget build(BuildContext context) {
     CloudFirestoreService repository = context.read<CloudFirestoreService>();
-    Account account = context.read<AuthenticationBloc>().account!;
+    Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     Widget content = Column(
         mainAxisSize: MainAxisSize.max,

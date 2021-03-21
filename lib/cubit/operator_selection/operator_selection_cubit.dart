@@ -28,6 +28,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
       bool newFlag = state.primaryOperatorSelected;
       int newValue = (selectionListUpdated[operator.id]!+1) % ((isTriState && (!state.primaryOperatorSelected || state.primaryOperatorSelected && selectionListUpdated[operator.id] == 2))? 3 : 2);
       if(newValue == 2) newFlag = true;
+      else if(newValue == 0 && newFlag) newFlag = false;
       selectionListUpdated[operator.id] = newValue;
       emit(state.assign(selectionListUpdated, newFlag));
     }

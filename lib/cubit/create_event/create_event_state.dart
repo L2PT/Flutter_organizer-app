@@ -10,7 +10,7 @@ class CreateEventState extends Equatable {
       DateTime nextStartTime = TimeUtils.getNextWorkTimeSpan();
       event.start = nextStartTime.hour == Constants.MIN_WORKTIME? nextStartTime : TimeUtils.addWorkTime( nextStartTime, hour: 1);
       event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
-    }
+    } else this.event = e;
     documents = Map<String, File?>.fromIterable(event.documents, key: (v) => v, value: (v)=>null);
   }
 

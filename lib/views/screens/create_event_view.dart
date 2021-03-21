@@ -24,7 +24,7 @@ class CreateEvent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    var account = BlocProvider.of<AuthenticationBloc>(context).account!;
+    var account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(
         create: (_) => CreateEventCubit(repository, account, _event),
@@ -449,7 +449,7 @@ class _operatorsList extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(right: 10.0),
               padding: EdgeInsets.all(3.0),
-              child: Icon(operator!.supervisor?FontAwesomeIcons.userTie:FontAwesomeIcons.hardHat, color: yellow),
+              child: Icon(operator.supervisor?FontAwesomeIcons.userTie:FontAwesomeIcons.hardHat, color: yellow),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: black,
@@ -479,7 +479,7 @@ class _operatorsList extends StatelessWidget {
   }
 }
 
-class _categoriesList extends StatelessWidget { //TODO debug session need to check if this works as supposed to work 
+class _categoriesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {

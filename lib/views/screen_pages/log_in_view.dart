@@ -314,7 +314,7 @@ class _messageLogin extends StatelessWidget {
                 child: new Row (
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Benvenuto", style: titleBig,),
+                    Text("Benvenuto", style: title_big,),
                   ],
                 ),
               ),

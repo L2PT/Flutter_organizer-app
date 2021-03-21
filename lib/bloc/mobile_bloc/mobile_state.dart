@@ -8,7 +8,7 @@ abstract class MobileState extends Equatable {
   MobileState(this.route, this.content);
 
   @override
-  List<Object> get props => [route,content];
+  List<Object> get props => [route,content??""];
 }
 
 class InBackdropState extends MobileState {

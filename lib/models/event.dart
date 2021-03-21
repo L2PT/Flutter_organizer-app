@@ -16,9 +16,9 @@ class Event {
   String category = "";
   String color = "";
   String motivazione = "";
-  late Account? supervisor;
+  late Account supervisor;
   Account? operator;
-  List<Account?> suboperators = [];
+  List<Account> suboperators = [];
 
 
   Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione);
@@ -34,11 +34,11 @@ class Event {
     documents = json["Documenti"]??[],
     status = json["Stato"],
     category = json["Categoria"],
-    color = (!string.isNullOrEmpty(color))?color:(json.containsKey("color"))?json["color"]:"",
+    color = (!string.isNullOrEmpty(color))?color:json["color"]??"",
     supervisor = json["Responsabile"]==null?Account.empty():Account.fromMap("", json["Responsabile"]),
     operator = json["Operatore"]==null?Account.empty():Account.fromMap("", json["Operatore"]),
     suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
-    motivazione = json["Motivazione"];
+    motivazione = json["Motivazione"]??"";
 
   Map<String, dynamic> toMap() => {
       "id":this.id,
@@ -51,9 +51,9 @@ class Event {
       "Stato":this.status,
       "Categoria":this.category,
       "color":this.color,
-      "Responsabile":this.supervisor?.toMap(),
+      "Responsabile":this.supervisor.toMap(),
       "Operatore":this.operator?.toMap(),
-      "SubOperatori":this.suboperators.map((op)=>op?.toMap()).toList()
+      "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
   };
   Map<String, dynamic> toDocument(){
     return Map<String, dynamic>.of({
@@ -65,12 +65,12 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
-      "Responsabile":this.supervisor?.toMap(),
+      "Responsabile":this.supervisor.toMap(),
       "Operatore":this.operator?.toMap(),
-      "SubOperatori": this.suboperators.map((op)=>op?.toMap()).toList(),
+      "SubOperatori": this.suboperators.map((op)=>op.toMap()).toList(),
       "Motivazione" : this.motivazione,
       "IdOperatore" : this.operator?.id??"",
-      "IdOperatori" : [...this.suboperators.map((op) => op?.id),operator?.id??""],
+      "IdOperatori" : [...this.suboperators.map((op) => op.id),operator?.id??""],
     });
   }
 
@@ -96,6 +96,6 @@ class Event {
   bool isEnded() => this.status == EventStatus.Ended;
 
   @override
-  String toString() => id+title+description+documents.join()+start.toString()+end.toString()+address+(status).toString()+category+color+(supervisor?.id??"")+(operator?.id??"")+suboperators.map((o) => o?.id).join()+(motivazione);
+  String toString() => id+title+description+documents.join()+start.toString()+end.toString()+address+(status).toString()+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
 
 }

@@ -15,7 +15,7 @@ class NavigateEvent extends MobileEvent {
   NavigateEvent(this.route, [this.arg]) : super();
 
   @override
-  List<Object> get props => [route,arg];
+  List<Object> get props => [route,arg??""];
 }
 
 class NavigateBackEvent extends MobileEvent {

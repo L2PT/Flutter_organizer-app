@@ -28,7 +28,7 @@ class DetailsEvent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    Account account = context.read<AuthenticationBloc>().account!;
+    Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new Scaffold(
       resizeToAvoidBottomInset: false,
@@ -46,8 +46,7 @@ class DetailsEvent extends StatelessWidget {
 class _detailsView extends StatefulWidget {
   @override
   _detailsViewState createState() => _detailsViewState();
-  
-  final List<Tab> tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
+
   final DateFormat formatterMonth = new DateFormat('MMM', "it_IT");
   final DateFormat formatterWeek = new DateFormat('E', "it_IT");
   final double sizeIcon = 30; //HANDLE
@@ -56,9 +55,10 @@ class _detailsView extends StatefulWidget {
 
 class _detailsViewState extends State<_detailsView> with TickerProviderStateMixin {
   late final TabController _controller;
-
+  final List<Tab> tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
+  
   _detailsViewState() {
-    _controller = new TabController(vsync: this, length: widget.tabsHeaders.length);
+    _controller = new TabController(vsync: this, length: tabsHeaders.length);
   }
   
   @override
@@ -123,9 +123,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: widget.sizeIcon,
                     ),
                     SizedBox(width: widget.padding,),
-                    Text( event.supervisor!.surname, style: subtitle_rev),
+                    Text( event.supervisor.surname, style: subtitle_rev),
                     SizedBox(width: 5,),
-                    Text( event.supervisor!.name, style: subtitle_rev),
+                    Text( event.supervisor.name, style: subtitle_rev),
                   ],
                 ),
               ),
@@ -324,7 +324,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => PlatformUtils.backNavigator(context),
         )),
-        floatingActionButton: Fab(),
+        floatingActionButton: Fab(), //TODO il fab ci va anche quando è terminato?
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
@@ -438,7 +438,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                         tabBarIndicatorSize:
                                         TabBarIndicatorSize.tab,
                                       ),
-                                      tabs: widget.tabsHeaders,
+                                      tabs: tabsHeaders,
                                       controller: _controller,
                                     ),
                                   ),

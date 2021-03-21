@@ -18,7 +18,7 @@ class PlatformDatePicker {
   ///
   /// Display date picker bottom sheet.
   ///
-  static Future<DateTime?> selectDate(
+  static void selectDate(
       BuildContext context, {
         DateTime? minTime,
         DateTime? maxTime,
@@ -41,7 +41,7 @@ class PlatformDatePicker {
   ///
   /// Display time picker bottom sheet.
   ///
-  static Future<DateTime?> selectTime(
+  static void selectTime(
       BuildContext context, {
         required Function onConfirm,
         DateTime? currentTime,

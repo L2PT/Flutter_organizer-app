@@ -104,7 +104,7 @@ class CloudFirestoreService {
 
   Future<List<Event>> getEvents() async { //this is db null safe, do we need it?
     return _collectionEventi.get().then((snapshot) => snapshot.docs.map((document) =>
-      document.data()==null?Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!):null).toList().removeNulls<List<Event>>());
+        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList());
   }
 
   Stream<List<Event>> subscribeEvents() {

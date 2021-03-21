@@ -25,39 +25,38 @@ class FirebaseMessagingService {
     
     return instance;
   }
-
   void init(handlerOnMessage, handlerOnMessageOpenedApp, handlerOnBackgroundMessage) async {
-    bool enabled = await requestPermission();
-    
-    // set handlers
-    if(enabled) {
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        RemoteNotification? notification = message.notification;
-        AndroidNotification? android = message.notification?.android;
-
-        if (notification != null && android != null)
-          handlerOnMessage?.call(notification);
-      });
-      
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        if (message.notification != null)
-          handlerOnMessageOpenedApp?.call(message.notification);
-      });
-
-      FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-        await Firebase.initializeApp();
-        if (message.notification != null)
-          handlerOnBackgroundMessage.call(message.notification);
-      });
-
-      _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
-        RemoteNotification? notification = message?.notification;
-        AndroidNotification? android = message?.notification?.android;
-
-        if (notification != null && android != null)
-          handlerOnMessage?.call(notification);
-      });
-    }
+    // // bool enabled = await requestPermission();
+    //
+    // // set handlers
+    // if(true) {
+    //   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //     RemoteNotification? notification = message.notification;
+    //     AndroidNotification? android = message.notification?.android;
+    //
+    //     if (notification != null && android != null)
+    //       handlerOnMessage?.call(notification);
+    //   });
+    //  
+    //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    //     if (message.notification != null)
+    //       handlerOnMessageOpenedApp?.call(message.notification);
+    //   });
+    //
+    //   FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
+    //     await Firebase.initializeApp();
+    //     if (message.notification != null)
+    //       handlerOnBackgroundMessage.call(message.notification);
+    //   });
+    //
+    //   _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
+    //     RemoteNotification? notification = message?.notification;
+    //     AndroidNotification? android = message?.notification?.android;
+    //
+    //     if (notification != null && android != null)
+    //       handlerOnMessage?.call(notification);
+    //   });
+    // }
   }
 
   Future<bool> requestPermission() async {

@@ -74,16 +74,13 @@ class _MyAppState extends State<MyApp> {
                             create: (_) => MessagingCubit(
                               databaseRepository,
                               messagingRepository,
-                                context.watch<AuthenticationBloc>().account! // TODO evaluate a modification to the structure if it doesn't rebuild on unauthicated status
+                              context.watch<AuthenticationBloc>().account! // TODO evaluate a modification to the structure if it doesn't rebuild on unauthicated status
                             ),
                             child: BlocListener<MessagingCubit, MessagingState>(
                               listener: (BuildContext context, MessagingState state) {
-                                if(context.read<AuthenticationBloc>().account == null)
-                                  context.read<MessagingCubit>().removeAccountToken();
-                                else if(state.isWaiting())
+                                if(state.isWaiting())
                                   PlatformUtils.navigator(context, Constants.waitingNotificationRoute, state.event==null?[state.event]:null);
-                                
-                              })
+                              }, child: Container(),)
                           )
                         ])
                       )

@@ -23,7 +23,7 @@ class PersistentNotification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CloudFirestoreService repository = context.read<CloudFirestoreService>();
-    final Account account = context.read<AuthenticationBloc>().account!;
+    final Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(
       create: (_) => PersistentNotificationCubit(context, repository, account, events),

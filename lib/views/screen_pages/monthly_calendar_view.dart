@@ -39,7 +39,7 @@ class _MonthlyCalendarViewState extends State<MonthlyCalendar> with TickerProvid
   @override
   Widget build(BuildContext context) {
     CloudFirestoreService repository = context.read<CloudFirestoreService>();
-    Account account = context.read<AuthenticationBloc>().account!;
+    Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(
         create: (_) => MonthlyCalendarCubit(repository, account, operator, month),

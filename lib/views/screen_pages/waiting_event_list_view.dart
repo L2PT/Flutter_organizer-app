@@ -20,7 +20,7 @@ class WaitingEventList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     CloudFirestoreService repository = context.read<CloudFirestoreService>();
-    Account account = context.read<AuthenticationBloc>().account!;
+    Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(
         create: (_) => WaitingEventListCubit(repository, account),

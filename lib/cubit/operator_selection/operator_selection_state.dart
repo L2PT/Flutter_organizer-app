@@ -18,8 +18,8 @@ class ReadyOperators extends OperatorSelectionState {
     if(event != null) {
       operators.forEach((operator) { selectionList[operator.id] = 0; });
       event.suboperators.forEach((suboperator) {
-        if(selectionList.containsKey(suboperator?.id))
-          selectionList[suboperator!.id] = 1;
+        if(selectionList.containsKey(suboperator.id))
+          selectionList[suboperator.id] = 1;
       });
       if(event.operator != null && selectionList.containsKey(event.operator!.id)) {
         selectionList[event.operator!.id] = 2;

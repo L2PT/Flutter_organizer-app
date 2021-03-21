@@ -40,7 +40,7 @@ class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final CloudFirestoreService repository = RepositoryProvider.of<CloudFirestoreService>(context);
-    final Account account = context.read<AuthenticationBloc>().account!;
+    final Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(
         create: (_) => WebCubit(repository, account),
