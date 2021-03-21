@@ -2,11 +2,12 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-storage.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.5.0/firebase-functions.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-functions.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-messaging.js"></script>
   
   <link rel="icon" href="favicon.ico">
   <link href="./assets/main.css" rel="stylesheet">
@@ -32,6 +33,7 @@
     };
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+    const messaging = firebase.messaging.isSupported() ? firebase.messaging() : null
   </script>
   <title>Gestionale Venturi Bruno</title>
 </head>
