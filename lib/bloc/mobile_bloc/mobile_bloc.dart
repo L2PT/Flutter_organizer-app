@@ -43,7 +43,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   MobileBloc({
     required CloudFirestoreService databaseRepository,
     required Account account
-  })  : assert(databaseRepository != null && account != null),
+  }) : assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository,
         _account = account,
         super(NotReady());

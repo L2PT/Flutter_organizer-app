@@ -64,7 +64,6 @@ class _largeScreen extends StatelessWidget {
     return BlocBuilder <HistoryCubit, HistoryState>(
         builder: (context, state) {
           return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) : Container(
-            height: MediaQuery.of(context).size.height,
             padding: EdgeInsets.symmetric(vertical: 10),
             child:Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,9 +81,6 @@ class _largeScreen extends StatelessWidget {
                           width: 180,
                           margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                           child: ElevatedButton(
-                              style: raisedButtonStyle.copyWith(
-                                shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
-                              ),
                               onPressed: ()=> PlatformUtils.navigator(context, Constants.createEventViewRoute),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -98,6 +94,7 @@ class _largeScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 20,),
                         Text("Archivi", style: title,),
+                        SizedBox(height: 10,),
                         ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatus)).toList()
                       ],
                     ),
@@ -111,10 +108,10 @@ class _largeScreen extends StatelessWidget {
                       children: <Widget>[
                         SizedBox(height: 5,),
                         Text("Incarichi", style: title, textAlign: TextAlign.left,),
-                        SizedBox(height: 5,),
+                        SizedBox(height: 10,),
                         (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
                             Container(
-                              height: MediaQuery.of(context).size.height - 100,
+                              height: MediaQuery.of(context).size.height - 110,
                           child: GridView(
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 350.0,

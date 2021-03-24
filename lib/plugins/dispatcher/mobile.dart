@@ -23,7 +23,7 @@ abstract class PlatformUtils {
   static const bool isMobile = true;
   static bool isIOS = Platform.isIOS;
   
-  static dynamic download(url, filename) async {
+  static Future<bool> download(url, filename) async {
     var localpath = await getExternalStorageDirectory();
     if (localpath != null) {
       return FlutterDownloader.enqueue(
@@ -34,10 +34,12 @@ abstract class PlatformUtils {
         // show download progress in status bar (for Android)
         openFileFromNotification: false, // click on notification to open downloaded file (for Android)
       ) != null;
-    }
+    } else return false;
   }
   
   static void initDownloader() => FlutterDownloader.initialize();
+  
+  static File file(path) => File(path);
 
   static dynamic navigator(BuildContext context, route, [arg]) async {
     context.read<MobileBloc>().add(NavigateEvent(route, arg));

@@ -17,7 +17,7 @@ class NavigateEvent extends WebEvent {
   NavigateEvent(this.route, [this.arg, this.callerContext]) : super();
 
   @override
-  List<Object> get props => [route,arg];
+  List<Object> get props => [route,arg??""];
 }
 
 class InitAppEvent extends WebEvent {

@@ -87,8 +87,8 @@ class _MyAppState extends State<MyApp> {
               child: BlocProvider(
                 create: (context) =>
                   WebBloc(
-                    /*** subscription in [AuthenticationBloc]. When it updates the select make the whole tree rebuild so everything underneath can read the fields. ***/
-                    account: context.select((AuthenticationBloc bloc)=> bloc.account!),
+                    /*** subscription in [AuthenticationBloc]. ***/
+                    account: context.read<AuthenticationBloc>().account!,
                     databaseRepository: databaseRepository)..add(InitAppEvent()),
                 child: WebHomepage(),
               ));

@@ -44,48 +44,48 @@ class _MyAppState extends State<MyApp> {
           } else if (state is Authenticated) {
             CloudFirestoreService databaseRepository = context.read<AuthenticationBloc>().getDbRepository()!;
             FirebaseMessagingService messagingRepository = context.read<AuthenticationBloc>().getMsgRepository()!;
-            return RepositoryProvider<CloudFirestoreService>.value( // TODO multi
-                    value: databaseRepository,
-                    child: RepositoryProvider<FirebaseMessagingService>.value(
-                      value: messagingRepository,
-                        child: BlocProvider(
-                        create: (_) =>
-                          MobileBloc(
-                            /*** subscription in [AuthenticationBloc]. When it updates the select make the whole tree rebuild so everything underneath can read the fields. ***/
-                            account: context.watch<AuthenticationBloc>().account!,
-                            databaseRepository: databaseRepository)..add(InitAppEvent()),
-                        child: Stack(children: [
-                          BlocBuilder<MobileBloc, MobileState>(
-                            buildWhen: (previous, current) => current is InBackdropState && !current.isRestoring,
-                            builder: (context, state) => state is InBackdropState ?
-                              Backdrop() : SplashScreen()
-                          ),
-                          BlocBuilder<MobileBloc, MobileState>(
-                            buildWhen: (previous, current) => (current is NotificationWaitingState || previous is NotificationWaitingState),
-                            builder: (context, state) => state is NotificationWaitingState ?
-                              state.content : Container()
-                          ),
-                          BlocBuilder<MobileBloc, MobileState>(
-                            buildWhen: (previous, current) => current is OutBackdropState ||  current is NotificationWaitingState,
-                            builder: (context, state) => (state is OutBackdropState && !state.isLeaving) ?
-                              state.content : Container()
-                          ),
-                          BlocProvider(
-                            create: (_) => MessagingCubit(
-                              databaseRepository,
-                              messagingRepository,
-                              context.watch<AuthenticationBloc>().account! // TODO evaluate a modification to the structure if it doesn't rebuild on unauthicated status
-                            ),
-                            child: BlocListener<MessagingCubit, MessagingState>(
-                              listener: (BuildContext context, MessagingState state) {
-                                if(state.isWaiting())
-                                  PlatformUtils.navigator(context, Constants.waitingNotificationRoute, state.event==null?[state.event]:null);
-                              }, child: Container(),)
-                          )
-                        ])
-                      )
-                    )
-                );
+            return MultiRepositoryProvider(
+              providers: [
+                RepositoryProvider<CloudFirestoreService>.value( value: databaseRepository),
+                RepositoryProvider<FirebaseMessagingService>.value( value: messagingRepository)
+              ],
+              child: BlocProvider(
+                create: (_) =>
+                  MobileBloc(
+                    /*** subscription in [AuthenticationBloc]. When it updates the select make the whole tree rebuild so everything underneath can read the fields. ***/
+                    account: context.watch<AuthenticationBloc>().account!,
+                    databaseRepository: databaseRepository)..add(InitAppEvent()),
+                child: Stack(children: [
+                  BlocBuilder<MobileBloc, MobileState>(
+                    buildWhen: (previous, current) => current is InBackdropState && !current.isRestoring,
+                    builder: (context, state) => state is InBackdropState ?
+                      Backdrop() : SplashScreen()
+                  ),
+                  BlocBuilder<MobileBloc, MobileState>(
+                    buildWhen: (previous, current) => (current is NotificationWaitingState || previous is NotificationWaitingState),
+                    builder: (context, state) => state is NotificationWaitingState ?
+                      state.content : Container()
+                  ),
+                  BlocBuilder<MobileBloc, MobileState>(
+                    buildWhen: (previous, current) => current is OutBackdropState ||  current is NotificationWaitingState,
+                    builder: (context, state) => (state is OutBackdropState && !state.isLeaving) ?
+                      state.content : Container()
+                  ),
+                  BlocProvider(
+                    create: (_) => MessagingCubit(
+                      databaseRepository,
+                      messagingRepository,
+                      context.watch<AuthenticationBloc>().account!
+                    ),
+                    child: BlocListener<MessagingCubit, MessagingState>(
+                      listener: (BuildContext context, MessagingState state) {
+                        if(state.isWaiting())
+                          PlatformUtils.navigator(context, Constants.waitingNotificationRoute, state.event==null?[state.event]:null);
+                      }, child: Container(),)
+                  )
+                ])
+              )
+            );
           }
           return LoadingScreen();
         }

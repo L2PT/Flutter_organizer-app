@@ -39,7 +39,7 @@ class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final CloudFirestoreService repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    final CloudFirestoreService repository = context.read<CloudFirestoreService>();
     final Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(
@@ -132,9 +132,7 @@ class _buildWebPage extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                     child: ElevatedButton(
-                        style: raisedButtonStyle.copyWith(
-                          padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
+                        style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
                         ),
                         onPressed: (){
                           jQuery('#calendar').fullCalendar('today',null);
@@ -292,14 +290,15 @@ class _buildDialogWeb extends StatelessWidget{
   _buildDialogWeb(this.parentContext) {
     jQuery('#wrap').css(CssOptions(zIndex: -1));
     WidgetsBinding.instance?.addPostFrameCallback((_) async {
-      await showDialog(
+      await showDialog( 
+        barrierDismissible: Constants.debug,
         context: parentContext,
         builder: (BuildContext context) {
           parentContext.read<WebBloc>().dialogStack.add((parentContext.read<WebBloc>().state as DialogReady).callerContext);
           return RepositoryProvider<CloudFirestoreService>.value(
               value: RepositoryProvider.of<CloudFirestoreService>(parentContext),
               child: BlocProvider.value(
-                  value: BlocProvider.of<WebBloc>(parentContext),
+                  value: parentContext.read<WebBloc>(),
                   child: AlertDialog(
                     contentPadding: EdgeInsets.all(0),
                     content: Container(

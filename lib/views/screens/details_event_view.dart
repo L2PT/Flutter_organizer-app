@@ -27,7 +27,7 @@ class DetailsEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var repository = context.read<CloudFirestoreService>();
     Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new Scaffold(

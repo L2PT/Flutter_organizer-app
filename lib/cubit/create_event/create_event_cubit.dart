@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -150,7 +151,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   void openFileExplorer() async {
     try {
-        Map<String, File?> files = Map.fromIterable((await FilePicker.platform.pickFiles(allowMultiple: true, withData: false))?.paths??[], key: (filePath)=>basename(filePath), value: (filePath)=>File(filePath) );
+      var a = (await FilePicker.platform.pickFiles(allowMultiple: true, withData: false))?.files??[];
+        Map<String, File?> files = Map.fromIterable(a, key: (file)=>(file as PlatformFile).name!, value: (file)=>PlatformUtils.file((file as PlatformFile).path!));
         Map<String, File?> newDocs = Map.from(state.documents);
         files.forEach((key, value) {
           newDocs[key] = value;

@@ -233,7 +233,7 @@ class RegisterState extends State<Register> {
 
   void _register() async {
     FocusScope.of(context).unfocus();
-    RepositoryProvider.of<FirebaseAuthService>(context).createAccount(
+    context.read<FirebaseAuthService>().createAccount(
       _emailController.text,
       Constants.passwordNewUsers,
       displayName: _cognomeController.text + " " + _nomeController.text,

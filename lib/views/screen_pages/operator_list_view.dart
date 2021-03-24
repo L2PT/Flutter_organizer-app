@@ -13,7 +13,7 @@ class OperatorList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var repository = context.read<CloudFirestoreService>();
 
     Widget content = Column(
       children: <Widget>[

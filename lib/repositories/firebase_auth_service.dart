@@ -32,7 +32,7 @@ class FirebaseAuthService {
 
   Future<AuthUser> signInWithEmailAndPassword(String email, String password) async { //intentionally unsafe to catch and handle the error in UI
     final authResult = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password).catchError((error){
-      throw error;});
+      throw error;}); //TODO buuut it doesn't pass up the error
     return _userFromFirebase(authResult.user)!;
   }
 

@@ -19,7 +19,7 @@ class OperatorSelection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if(callerContext != null) context = callerContext!;
-    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var repository = context.read<CloudFirestoreService>();
 
     return new Scaffold(
       resizeToAvoidBottomInset: false,

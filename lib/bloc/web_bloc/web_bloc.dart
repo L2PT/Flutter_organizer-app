@@ -27,11 +27,12 @@ class WebBloc extends Bloc<WebEvent, WebState> {
   WebBloc({
     required CloudFirestoreService databaseRepository,
     required Account account
-  }) : _databaseRepository = databaseRepository,
+  }) : assert(databaseRepository != null && account != null),
+        _databaseRepository = databaseRepository,
        _account = account,
        super(NotReady()){
-    if(Constants.debug) _databaseRepository.subscribeAccount(account.id).listen((userUpdate){ account.update(userUpdate);});
-
+    // if(Constants.debug)
+    //   _databaseRepository.subscribeAccount(account.id).listen((userUpdate){ _account.update(userUpdate);});
   }
 
 

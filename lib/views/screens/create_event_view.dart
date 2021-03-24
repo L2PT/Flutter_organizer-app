@@ -23,7 +23,7 @@ class CreateEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var repository = RepositoryProvider.of<CloudFirestoreService>(context);
+    var repository = context.read<CloudFirestoreService>();
     var account = context.select((AuthenticationBloc bloc)=>bloc.account!);
 
     return new BlocProvider(

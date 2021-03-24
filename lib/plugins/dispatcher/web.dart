@@ -2,8 +2,9 @@
 library jquery;
 //custom import
 import 'dart:async';
-import 'dart:html';
-
+import 'dart:convert';
+import 'dart:html' as html;
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:js/js.dart';
@@ -21,9 +22,10 @@ class PlatformUtils {
   static const bool isMobile = false;
   static const bool isIOS = false;
   
-  static dynamic download(url,filename) => false;
+  static Future<bool> download(url,filename){ html.window.open(url, filename); return Future<bool>(()=>false); }
   static void initDownloader() => null;
-
+  static File file(String path) => File.fromRawPath(base64.decode(path.replaceAll("data:application/octet-stream;base64,","")));
+  
   static dynamic navigator(BuildContext context, route, [arg]) async {
     context.read<WebBloc>().add(NavigateEvent(route, arg, context));
   }

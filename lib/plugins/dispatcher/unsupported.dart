@@ -19,6 +19,7 @@ abstract class PlatformUtils {
 
   static dynamic download(url,filename) => null;
   static void initDownloader() => null;
+  static dynamic file(path) => null;
 
   static dynamic navigator(context, route, [arg]) => null;
   static Future<bool> backNavigator(BuildContext context) => Future<bool>(()=>false);

@@ -8,7 +8,7 @@ abstract class WebState extends Equatable {
   WebState(this.route, this.content);
 
   @override
-  List<Object> get props => [route,content];
+  List<Object> get props => [route,content??""];
 }
 
 class Ready extends WebState {
