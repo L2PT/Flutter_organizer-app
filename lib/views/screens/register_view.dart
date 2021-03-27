@@ -127,7 +127,7 @@ class RegisterState extends State<Register> {
                           ),
                         ),
                         validator: (value) => string.isNullOrEmpty(value)?
-                          'Il campo \'Telefono\' è obbligatorio' : Utils.isNumeric(value!)?
+                          'Il campo \'Telefono\' è obbligatorio' : !Utils.isPhoneNumber(value!)?
                           'Inserisci un valore valido' : null
                     ),
                     TextFormField(
@@ -144,7 +144,7 @@ class RegisterState extends State<Register> {
                         ),
                       ),
                       validator: (value) => string.isNullOrEmpty(value) || value!.length != 16?
-                        'Il campo \'Cognome\' è obbligatorio' : null
+                        'Il campo \'Codice Fiscale\' è obbligatorio' : null
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 10),

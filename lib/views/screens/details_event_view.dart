@@ -90,6 +90,34 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
               Divider(height: 2, thickness: 2, indent: 35, color: black_light,),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 15.0),
+                child: Row(
+                  children: <Widget>[
+                    Icon(
+                      Icons.contact_phone,
+                      size: widget.sizeIcon,
+                    ),
+                    SizedBox(width: widget.padding,),
+                    Container(
+                      child:
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () { context.read<DetailsEventCubit>().callClient(event.client.phone); },
+                              child: Text(event.client.phone.isEmpty?'Nessun telefono indicato':event.client.phone,
+                                style: subtitle_rev,overflow: TextOverflow.visible,),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(height: 2, thickness: 2, indent: 35, color: black_light,),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 15.0),
                 child:  Row(
                     children: <Widget>[
                       Icon(

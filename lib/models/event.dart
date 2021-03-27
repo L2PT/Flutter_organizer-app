@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/client.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -17,11 +17,12 @@ class Event {
   String color = "";
   String motivazione = "";
   late Account supervisor;
+  Client client = Client.empty();
   Account? operator;
   List<Account> suboperators = [];
 
 
-  Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione);
+  Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.client);
   Event.empty();
 
   Event.fromMap(String id, String color, Map json) :
@@ -38,7 +39,8 @@ class Event {
     supervisor = json["Responsabile"]==null?Account.empty():Account.fromMap("", json["Responsabile"]),
     operator = json["Operatore"]==null?Account.empty():Account.fromMap("", json["Operatore"]),
     suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
-    motivazione = json["Motivazione"]??"";
+    motivazione = json["Motivazione"]??"",
+    client = json["Cliente"] == null? Client.empty(): Client.fromMap(id, json["Cliente"]);
 
   Map<String, dynamic> toMap() => {
       "id":this.id,
@@ -52,6 +54,7 @@ class Event {
       "Categoria":this.category,
       "color":this.color,
       "Responsabile":this.supervisor.toMap(),
+      "Cliente": this.client.toMap(),
       "Operatore":this.operator?.toMap(),
       "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
   };
@@ -66,6 +69,7 @@ class Event {
       "Stato":this.status,
       "Categoria":this.category,
       "Responsabile":this.supervisor.toMap(),
+      "Cliente": this.client.toMap(),
       "Operatore":this.operator?.toMap(),
       "SubOperatori": this.suboperators.map((op)=>op.toMap()).toList(),
       "Motivazione" : this.motivazione,

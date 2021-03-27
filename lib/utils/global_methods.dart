@@ -59,4 +59,16 @@ class Utils {
     }
     return double.tryParse(str) != null;
   }
+
+  static bool isPhoneNumber(String str) {
+    String patttern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
+    RegExp regExp = new RegExp(patttern);
+    if (str.length == 0) {
+      return false;
+    }
+    else if (!regExp.hasMatch(str)) {
+      return false;
+    }
+    return true;
+  }
 }

@@ -141,6 +141,30 @@ class _formInputList extends StatelessWidget{
               Container(
                 width: iconWidth,
                 margin: EdgeInsets.only(right: 20.0),
+                child: Icon(Icons.contact_phone, color: black, size: iconWidth),
+              ),
+              Expanded(
+                child: TextFormField(
+                  maxLines: 1,
+                  cursorColor: black,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                      hintText: 'Aggiungi telefono del cliente',
+                      hintStyle: subtitle,
+                      border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                  initialValue: event.client.phone,
+                  validator: (value) => string.isNullOrEmpty(value)?
+                  'Il campo \'Telefono del cliente\' è obbligatorio' : !Utils.isPhoneNumber(value!)?
+                  'Inserisci un valore valido' : null,
+                  onSaved: (value) => event.client.phone = value??"",
+                ),
+              ),
+            ]),
+            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+            Row(children: <Widget>[
+              Container(
+                width: iconWidth,
+                margin: EdgeInsets.only(right: 20.0),
                 child: Icon(
                   Icons.map,
                   color: black,

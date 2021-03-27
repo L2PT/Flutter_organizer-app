@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
@@ -57,6 +58,13 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     //shh this is wrong, it breaks the mvvm
     PlatformUtils.backNavigator(context);
     PlatformUtils.navigator(context, Constants.createEventViewRoute, _event);
+  }
+
+  void callClient(String phone) async {
+    phone = "tel:"+phone;
+    if(await canLaunch(phone)){
+      launch(phone);
+    }
   }
 
 }
