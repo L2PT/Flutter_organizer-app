@@ -26,7 +26,7 @@ class TableCalendarWithBuilders extends StatelessWidget {
           availableGestures: AvailableGestures.none,
           availableCalendarFormats: {CalendarFormat.month: ''},
           onDaySelected: (date, events) {
-            Navigator.of(context).pop(date.toLocal().toString());
+              Navigator.pop(context, date.toLocal().toString());
           },
           builders: CalendarBuilders(
             todayDayBuilder: (context, date, _) {

@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/mobile.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'dart:io' show Platform;
 
@@ -78,8 +79,8 @@ abstract class PlatformUtils {
     );
   }
 
-  static dynamic eventButtonsVisible(BuildContext context, event, account){
-    return event.isSeen() && context.read<MobileBloc>().savedState.route != Constants.waitingEventListRoute && event._operator.id == account.id;
+  static dynamic eventButtonsVisible(BuildContext context, Event event, account){
+    return event.isSeen() && context.read<MobileBloc>().savedState.route != Constants.waitingEventListRoute && (event.operator?.id == account.id);
   }
 
 }

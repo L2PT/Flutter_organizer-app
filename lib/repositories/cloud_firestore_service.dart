@@ -2,8 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
+import 'package:venturiautospurghi/utils/date_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 
 class CloudFirestoreService {
 
@@ -129,7 +131,7 @@ class CloudFirestoreService {
   }
 
   Stream<List<Event>> subscribeEventsByOperatorWaiting(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: EventStatus.Seen).snapshots().map((snapshot) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: EventStatus.Seen).snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
     });
@@ -144,6 +146,13 @@ class CloudFirestoreService {
 
   Stream<List<Event>> eventsByOperatorNewOrAbove(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New).snapshots().map((snapshot) {
+      var documents = snapshot.docs;
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+    });
+  }
+
+  Stream<List<Event>> eventsByOperatorRefusedOrAbove(String idOperator) {
+    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.Refused).snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
     });
@@ -213,6 +222,15 @@ class CloudFirestoreService {
     _collectionEventi.doc(id).update(Map.of({field:data}));
   }
 
+  static void backgroundUpdateEventAsDelivered(String id) async {
+    Event? event = await FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).get().then((document) => document.exists ?
+      Event.fromMap(document.id, "", document.data()!));
+      if (event != null && event.isNew()) {
+        FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).update(Map.of({Constants.tabellaEventi_stato: EventStatus.Delivered})
+      );
+    }
+  }
+
   Future<void> updateAccountField(String id, String field, dynamic data) async {
     return _collectionUtenti.doc(id).update(Map.of({field:data}));
   }
@@ -241,13 +259,39 @@ class CloudFirestoreService {
     _cloudFirestore.runTransaction(createTransaction);
   }
 
-  void endEvent(Event e) {
+  void endEvent(Event e, {bool propagate = false}) async {
     e.status = EventStatus.Ended;
+    var eventsMoved = [];
+    if(propagate) {
+      e.end = DateTime.now();
+      var eventsToPropagate = [e];
+      while(eventsToPropagate.isNotEmpty) {
+        Event e = eventsToPropagate.removeLast();
+        [e.operator, ...e.suboperators].forEach((operator) async {
+          if(operator != null) {
+            List<Event> eventsInConflict = await _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: operator.id).where(Constants.tabellaEventi_dataInizio, isGreaterThan: e.start, isLessThanOrEqualTo: e.end)
+                .get().then(((snapshot) => snapshot.docs.map((document) => Event.fromMap(document.id, "", document.data()!)).toList()));
+            eventsInConflict.forEach((eventInConflict) {
+              Duration d = eventInConflict.end.difference(eventInConflict.start);
+              eventInConflict.start = TimeUtils.addWorkTime(e.end, minutes: 5);
+              eventInConflict.end = TimeUtils.addWorkTime(eventInConflict.start, minutes: d.inMinutes-5);
+              eventsToPropagate.add(eventInConflict);
+            });
+          }
+        });
+        eventsMoved.add(e);
+      }
+    }
     final dynamic createTransaction = (dynamic tx) async {
       dynamic doc = _collectionEventi.doc(e.id);
       dynamic endedDoc = _collectionStoricoTerminati.doc(e.id);
       await tx.set(endedDoc, e.toDocument());
-      await tx.update(doc, {Constants.tabellaEventi_stato:e.status});
+      await tx.update(doc, {Constants.tabellaEventi_stato: e.status});
+      for (var eventMoved in eventsMoved) {
+        dynamic doc = _collectionEventi.doc(eventMoved.id);
+        await tx.update(doc, {Constants.tabellaEventi_dataInizio: e.start});
+        await tx.update(doc, {Constants.tabellaEventi_dataFine: e.end});
+      }
     };
     _cloudFirestore.runTransaction(createTransaction);
   }
@@ -269,7 +313,6 @@ class CloudFirestoreService {
 
   String _getColorByCategory(String? category) =>
     categories[category??Constants.categoryDefault]??Constants.fallbackHexColor;
-    
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class PlatformDatePicker {
@@ -43,18 +44,28 @@ class PlatformDatePicker {
   ///
   static void selectTime(
       BuildContext context, {
+        DateTime? minTime,
+        DateTime? maxTime,
         required Function onConfirm,
         DateTime? currentTime,
       }) async {
-
-      TimeOfDay? time = await showTimePicker(
+    TimeOfDay? time;
+    bool valid = false;
+    do {
+      time = await showTimePicker(
         context: context,
         helpText: "Seleziona un'orario".toUpperCase(),
         cancelText: "Annulla".toUpperCase(),
         initialTime: TimeOfDay.fromDateTime(currentTime ?? DateTime.now()),
         builder: dialog_theme,
       );
-      if(time != null) return onConfirm(time);
+      if(time == null) return;
+      if ((minTime == null || (minTime.hour<time.hour || minTime.hour==time.hour && minTime.minute<=time.minute)) &&
+          (maxTime == null || (time.hour<maxTime.hour || time.hour==maxTime.hour && time.minute<=maxTime.minute)))
+        valid = true;
+      else PlatformUtils.notifyErrorMessage("Insert a valid time!");
+    } while(!valid);
+    return onConfirm(time);
   }
 
 }

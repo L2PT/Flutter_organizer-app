@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
@@ -8,21 +9,23 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'dart:io' show Platform;
 
-class cardEvent extends StatelessWidget {
+class CardEvent extends StatelessWidget {
   final Event event;
   final DateTime? selectedDay;
   final void Function(Event)? onTapAction;
   final Map<String, Function(Event)>? buttonArea;
   final int gridHourSpan;
   final double hourHeight;
+  final bool externalBorder;
   final bool dateView;
 
-  cardEvent({required this.event,
+  CardEvent({required this.event,
     this.selectedDay,
     this.onTapAction,
     this.buttonArea,
     this.gridHourSpan = 0,
     this.hourHeight = 160,
+    this.externalBorder = false,
     this.dateView = false}): assert(gridHourSpan!=0?selectedDay!=null:true);
 
 
@@ -201,7 +204,12 @@ class cardEvent extends StatelessWidget {
           color: black,
         );
       }
-      return card;
+      return externalBorder? Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(4.0),
+            color: event.status<0?Colors.red:event.status<3?Colors.yellow:event.isAccepted()?Colors.green:black,
+          ),
+          child: card) : card;
     }
 
     return GestureDetector(

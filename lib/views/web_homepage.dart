@@ -2,11 +2,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/cubit/messaging/messaging_cubit.dart';
 import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
@@ -23,14 +26,31 @@ class WebHomepage extends StatefulWidget {
   _WebHomepageState createState() => _WebHomepageState();
 }
 
-class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin {
 
+
+class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin {
+  
+  String getText(int status){
+    switch(status){
+      case EventStatus.Deleted: return "Eliminato";
+      case EventStatus.Refused: return "Rifiutato";
+      case EventStatus.New: return "Nuovo";
+      case EventStatus.Delivered: return "Consegnato";
+      case EventStatus.Seen: return "Visualizzato";
+      case EventStatus.Accepted: return "Accettato";
+      case EventStatus.Ended: return "Terminato";
+      default: return "Nuovo";
+    }
+  }
+  
   @override
   void initState() {
     super.initState();
     js.context['showDialogByContext_dart'] = this.showDialogByContext;
+    js.context['eventStatusText_dart'] = EventStatus.getText;
     //TODO try to pass the [Constants] class
     init(Constants.debug, context.read<AuthenticationBloc>().account!.id);
+    
   }
 
   void showDialogByContext(String dialogType, dynamic param) {
@@ -39,11 +59,21 @@ class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
-    final CloudFirestoreService repository = context.read<CloudFirestoreService>();
+    final CloudFirestoreService databaseRepository = context.read<CloudFirestoreService>();
+    final FirebaseMessagingService messagingRepository = context.read<FirebaseMessagingService>();
     final Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
+    
+    MessagingCubit cubit = MessagingCubit(
+        databaseRepository,
+        messagingRepository,
+        context.watch<AuthenticationBloc>().account!
+    );
+    js.context['updateAccontTokens_dart'] = cubit.updateAccountTokens;
+    js.context['openEventDetails_dart'] = cubit.launchTheEvent;
+
 
     return new BlocProvider(
-        create: (_) => WebCubit(repository, account),
+        create: (_) => WebCubit(databaseRepository, account),
         child: Scaffold(
             backgroundColor: Color(0x00000000),
             body: Stack(
@@ -65,7 +95,16 @@ class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin
                         _buildDialogWeb(context);
                       }
                       return Container();
-                    })
+                    }),
+                // this is not supported at the moment; messageHandlers and token request are made in javascript
+                BlocProvider<MessagingCubit>.value(
+                  value: cubit,
+                  child: BlocListener<MessagingCubit, MessagingState>(
+                    listener: (BuildContext context, MessagingState state) {
+                      if(state.isWaiting())
+                        PlatformUtils.navigator(context, Constants.detailsEventViewRoute, state.event);
+                    }, child: Container(),)
+                )
               ],
             )
         )

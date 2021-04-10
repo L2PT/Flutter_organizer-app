@@ -1,0 +1,149 @@
+.ncf-container {
+    font-size: 14px;
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 999999
+}
+
+.ncf-container.nfc-top-left {
+    top: 12px;
+    left: 12px
+}
+
+.ncf-container.nfc-top-right {
+    top: 12px;
+    right: 12px
+}
+
+.ncf-container.nfc-bottom-right {
+    bottom: 12px;
+    right: 12px
+}
+
+.ncf-container.nfc-bottom-left {
+    bottom: 12px;
+    left: 12px
+}
+
+@media(max-width:767px) {
+    .ncf-container {
+        left: 0;
+        right: 0
+    }
+}
+
+.ncf-container .ncf {
+    background: #333;
+    transition: .3s ease;
+    position: relative;
+    pointer-events: auto;
+    overflow: hidden;
+    margin: 0 0 6px;
+    padding: 30px;
+    width: 300px;
+    border-radius: 4px 4px 4px 4px;
+    box-shadow: 0 0 12px #999;
+    color: #000;
+    opacity: .9;
+    -ms-filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=90);
+    filter: alpha(opacity=90);
+    background-position: 15px !important;
+    background-repeat: no-repeat !important;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none
+}
+
+.ncf-container .ncf:hover {
+    box-shadow: 0 0 12px #000;
+    opacity: 1;
+    cursor: pointer
+}
+
+.ncf-container .ncf .ncf-title {
+    font-weight: 700;
+    font-size: 16px;
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 6px;
+    word-wrap: break-word
+}
+
+.ncf-container .ncf .nfc-message {
+    margin: 0;
+    text-align: left;
+    word-wrap: break-word
+}
+
+.ncf-container .success {
+    color: #fff;
+    padding: 15px 15px 15px 50px;
+}
+
+.ncf-container .info {
+    color: #fff;
+    padding: 15px 15px 15px 50px;
+}
+
+.ncf-container .warning {
+    color: #fff;
+    padding: 15px 15px 15px 50px;
+}
+
+.ncf-container .error {
+    color: #fff;
+    padding: 15px 15px 15px 50px;
+}
+
+span.material-icons {
+    display: block;
+}
+
+span.material-icons::before {
+    margin-left: -40px;
+    padding: 8px;position: absolute;
+}
+
+.success span.material-icons::before {
+    content: "assignment_turned_in";
+    color: #51a351;
+}
+
+.info span.material-icons::before {
+    content: "flag";
+    color: #dddddd;
+}
+
+.warning span.material-icons::before {
+    content: "warning";
+    color: #f87400;
+}
+
+.error span.material-icons::before {
+    content: "assignment_late";
+    color: #bd362f;
+}
+
+
+
+.ncf-container button {
+    position: relative;
+    right: -.3em;
+    top: -.3em;
+    float: right;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 1px 0 #fff;
+    opacity: .8;
+    line-height: 1;
+    font-size: 16px;
+    padding: 0;
+    cursor: pointer;
+    background: 0 0;
+    border: 0
+}
+
+.ncf-container button:hover {
+    opacity: 1
+}

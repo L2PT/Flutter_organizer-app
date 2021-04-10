@@ -10,6 +10,13 @@ class Constants {
   static const int fallbackColor = 0xFF119DD1;
   static const String fallbackHexColor = "#FDA90A";
   static const String categoryDefault = "Spurgo";
+  
+  
+  static const String notificationSuccessTheme = "success";
+  static const String notificationInfoTheme = "info";
+  static const String notificationErrorTheme = "error";
+  static const String eventNotification = "event";
+  static const String feedNotification = "feed";
 
   // ROUTES
   static const String homeRoute = '/';
@@ -67,6 +74,7 @@ class Constants {
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';
   static const String googleMessagingApiKey = 'AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk';
+  static const String webPushNotificationsVapidKey = 'BJstIUpFNSxgd1Ir1xQd_qt48ijnfLG2B3Md_9unMkA7nMBpZZRVX3_6A5f2HJJLCOZJoFH2CgpmtrimGRe-rWo';
 
 
 

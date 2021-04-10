@@ -12,7 +12,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
-import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
+import 'package:venturiautospurghi/views/widgets/refuse_alert.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 
 class WaitingEventList extends StatelessWidget {
@@ -159,13 +159,13 @@ class _listTileEvent extends StatelessWidget {
     return Row(children: <Widget>[
       Expanded(
         flex: 9,
-        child: cardEvent(
+        child: CardEvent(
           event: event,
           dateView: false,
           hourHeight: 140,
           gridHourSpan: 0,
           buttonArea: <String,Function(Event)>{
-            "RIFIUTA": (event) async {RejectAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)?context.read<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
+            "RIFIUTA": (event) async {RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)?context.read<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
             "ACCETTA":context.read<WaitingEventListCubit>().cardActionConfirm},
           onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
         ),

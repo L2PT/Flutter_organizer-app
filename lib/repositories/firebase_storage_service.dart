@@ -5,9 +5,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 class FirebaseStorageService {
   static final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
   
-  static Future<void> uploadFile(File file, String storagePath) async {
+  static Future<void> uploadFile(dynamic file, String storagePath) async {
     try {
-      await _firebaseStorage.ref(storagePath).putFile(file);
+      if(file is File)
+        await _firebaseStorage.ref(storagePath).putFile(file);
+      else
+        await _firebaseStorage.ref(storagePath).putData(file);
     } on FirebaseException catch (e) {
       // e.g, e.code == 'canceled'
     }

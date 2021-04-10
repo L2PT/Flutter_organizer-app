@@ -318,6 +318,20 @@ a[data-goto]:hover {
     font-size: .85em;
     line-height: 1.3;
 }
+.fc-event.new-event, .fc-event.delivered-event, .fc-event.seen-event {
+    border-color: yellow;
+    border-style: solid;
+}
+
+.fc-event.accepted-event {
+    border-color: green;
+    border-style: solid;
+}
+
+.fc-event.refused-event {
+    border-color: red;
+    border-style: solid;
+}
 
 .fc-event,
 .fc-event-dot {

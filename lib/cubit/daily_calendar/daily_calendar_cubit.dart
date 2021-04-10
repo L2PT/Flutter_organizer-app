@@ -21,7 +21,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   DailyCalendarCubit(this._databaseRepository, this._account, this.operator, DateTime? _selectedDay) :
         super(DailyCalendarLoading(TimeUtils.truncateDate(_selectedDay??DateTime.now(), "day"))){
     if(_account.supervisor){
-      _databaseRepository.eventsByOperatorNewOrAbove((operator??_account).id).listen((eventsList) {
+      _databaseRepository.eventsByOperatorRefusedOrAbove((operator??_account).id).listen((eventsList) {
         _events = eventsList;
         evaluateEventsMap(calendarController.visibleDays.first, calendarController.visibleDays.last);
       });

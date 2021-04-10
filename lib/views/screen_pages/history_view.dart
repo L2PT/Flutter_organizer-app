@@ -120,7 +120,7 @@ class _largeScreen extends StatelessWidget {
                               childAspectRatio: 2.3,
                             ),
                             children: (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().map((event)=> Container(
-                                child: cardEvent(
+                                child: CardEvent(
                                   event: event,
                                   dateView: true,
                                   hourHeight: 120,
@@ -253,7 +253,7 @@ class _HistoryContent extends StatelessWidget {
             itemCount: state.events(e.value).length,
             itemBuilder: (context, index){
               return Container(
-                child: cardEvent(
+                child: CardEvent(
                   event: state.events(e.value)[index],
                   dateView: true,
                   hourHeight: 120,

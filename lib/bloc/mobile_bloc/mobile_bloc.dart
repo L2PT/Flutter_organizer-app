@@ -78,7 +78,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
       case Constants.operatorListRoute: Navigator.push(event.arg["context"], MaterialPageRoute(maintainState: true, builder: (context) => OperatorSelection(event.arg["event"],event.arg["requirePrimaryOperator"],event.arg["context"])))
-          .then((value) => (event.arg["context"] as BuildContext).read<CreateEventCubit>().forceRefresh());break;
+          .then((value) => (event.arg["callback"] as BuildContext).read().forceRefresh());break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
       case Constants.historyEventListRoute: yield InBackdropState(event.route, History()); break;
