@@ -246,7 +246,7 @@ class FilterWidgetEvent extends FilterWidget {
                               closeFunction: context.read<FilterEventCubbit>().removeOperatorFromEventList,
                               operators: context.read<FilterEventCubbit>().state.eventFilter.suboperators,
                               darkMode: true,
-                              isWebMode: true,
+                              isWebMode: this.isWebMode,
                             );}),
                       Text('Tipologia', style: subtitle.copyWith(color: white),),
                       Container(

@@ -97,7 +97,7 @@ class _largeScreen extends StatelessWidget {
                                   childAspectRatio: 2.3,
                                 ),
                                 children: (context.read<EventFilterViewCubit>().state as ReadyEventFilterView).filteredEvent().map((event)=> Container(
-                                    child: cardEvent(
+                                    child: CardEvent(
                                       event: event,
                                       dateView: true,
                                       hourHeight: 120,
@@ -159,7 +159,7 @@ class _smallScreen extends StatelessWidget {
                         itemCount: state.listEventFiltered.length,
                         itemBuilder: (context, index) {
                           return Container(
-                              child: cardEvent(
+                              child: CardEvent(
                                 event: state.listEventFiltered[index],
                                 dateView: true,
                                 hourHeight: 120,

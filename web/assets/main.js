@@ -224,7 +224,7 @@ function setupMessagingHandler() {
                // nfc-bottom-left
                positionClass: 'nfc-top-right',
                // callback
-               onclick: (){
+               onclick: () => {
                 openEventDetails_dart(payload.data.id);
                },
                showDuration: 5000,

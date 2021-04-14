@@ -32,7 +32,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   void endEventAndNotify(bool updateEndTime) {
     _databaseRepository.endEvent(state.event, propagate: updateEndTime);
     emit(state.changeStatus(EventStatus.Ended));
-    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens,
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens,
         style: Constants.notificationInfoTheme, type: Constants.feedNotification,
         title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"");
   }
@@ -40,7 +40,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   void acceptEventAndNotify() {
     _databaseRepository.updateEventField(state.event.id, Constants.tabellaEventi_stato, EventStatus.Accepted);
     emit(state.changeStatus(EventStatus.Accepted));
-    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens,
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens,
         style: Constants.notificationSuccessTheme, type: Constants.feedNotification,
         title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"");
   }
@@ -49,7 +49,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     state.event.motivazione = justification;
     _databaseRepository.refuseEvent(state.event);
     emit(state.changeStatus(EventStatus.Refused));
-    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens,
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens,
         style: Constants.notificationErrorTheme, type: Constants.feedNotification,
         title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"");
   }

@@ -32,7 +32,7 @@ class History extends StatefulWidget {
 class _HistoryState extends State<History> with TickerProviderStateMixin {
   final int? selectedStatus;
   final List<MapEntry<Tab,int>> tabsHeaders = [
-    MapEntry(new Tab(text: "TERMINATI",icon: Icon(Icons.flag),),EventStatus.Ended),
+    MapEntry(new Tab(text: "CONCLUSI",icon: Icon(Icons.flag),),EventStatus.Ended),
     MapEntry(new Tab(text: "ELIMINATI",icon: Icon(Icons.delete),),EventStatus.Deleted),
     MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.assignment_late),),EventStatus.Refused)
   ];
