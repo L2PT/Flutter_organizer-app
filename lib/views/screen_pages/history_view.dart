@@ -129,7 +129,7 @@ class _largeScreen extends StatelessWidget {
                               childAspectRatio: 2.3,
                             ),
                             children: (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().map((event)=> Container(
-                                child: cardEvent(
+                                child: CardEvent(
                                   event: event,
                                   dateView: true,
                                   hourHeight: 120,
@@ -154,7 +154,6 @@ class _largeScreen extends StatelessWidget {
             ),
           );
         });
-    
   }
 
   Widget FlatTab({required String text, required IconData icon, required int status, required int selectedStatus}) {
@@ -243,8 +242,6 @@ class _smallScreen extends StatelessWidget {
   }
 }
 
-
-
 class _HistoryContent extends StatelessWidget {
 
   TabController _tabController;
@@ -258,39 +255,39 @@ class _HistoryContent extends StatelessWidget {
     buildWhen: (previous, current) => previous != current,
     builder: (context, state) {
       return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) :
-        TabBarView(
-            controller: _tabController,
-            children:
-            tabsHeaders.map((e) =>  Padding(
-                padding: EdgeInsets.all(15.0),
-                child:state.events(e.value).length>0 ?
-                ListView.separated(
-                    separatorBuilder: (context, index) => SizedBox(height: 10,),
-                    physics: BouncingScrollPhysics(),
-                    padding: new EdgeInsets.symmetric(vertical: 8.0),
-                    itemCount: state.events(e.value).length,
-                    itemBuilder: (context, index){
-                      return Container(
-                          child: cardEvent(
-                            event: state.events(e.value)[index],
-                            dateView: true,
-                            hourHeight: 120,
-                            gridHourSpan: 0,
-                            buttonArea: null,
-                            onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
-                          )
-                      );
-                    }):Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico da mostrare",style: title,)),
-                    ],
-                  ),
+      TabBarView(
+        controller: _tabController,
+        children:
+         tabsHeaders.map((e) =>  Padding(
+            padding: EdgeInsets.all(15.0),
+          child:state.events(e.value).length>0 ?
+          ListView.separated(
+            separatorBuilder: (context, index) => SizedBox(height: 10,),
+            physics: BouncingScrollPhysics(),
+            padding: new EdgeInsets.symmetric(vertical: 8.0),
+            itemCount: state.events(e.value).length,
+            itemBuilder: (context, index){
+              return Container(
+                child: CardEvent(
+                  event: state.events(e.value)[index],
+                  dateView: true,
+                  hourHeight: 120,
+                  gridHourSpan: 0,
+                  buttonArea: null,
+                  onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                 )
-            ),).toList()
-        );
+              );
+            }):Container(
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico da mostrare",style: title,)),
+              ],
+            ),
+          )
+      ),).toList()
+      );
     });
   }
 }

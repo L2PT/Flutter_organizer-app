@@ -256,13 +256,14 @@ class _verticalEventsGrid extends StatelessWidget {
           Row(children: <Widget>[
             Expanded(
                 flex: 8,
-                child: cardEvent(
+                child: CardEvent(
                   event: (context.read<DailyCalendarCubit>().state as DailyCalendarReady).selectedEvents()[0],
                   hourHeight: 120,
                   gridHourSpan: 0,
-                  onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
-                  buttonArea: null,
+                  externalBorder: account.supervisor,
                   dateView: true,
+                  onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
+
                 )
             ),
           ])
@@ -297,11 +298,12 @@ class _verticalEventsGrid extends StatelessWidget {
                 ),
                 Expanded(
                   flex: 8,
-                  child: cardEvent(
+                  child: CardEvent(
                     event: event,
-                    dateView: false,
                     hourHeight: gridHourHeight,
                     gridHourSpan: gridHourSpan,
+                    dateView: false,
+                    externalBorder: account.supervisor,
                     selectedDay: context.read<DailyCalendarCubit>().state.selectedDay,
                     onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
                   ),

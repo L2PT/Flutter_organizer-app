@@ -191,11 +191,11 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
 
   void _selectedDayCallback(DateTime day) {
     if (widget.onDaySelected != null) {
+      DateTime? key;
       try {
-        final DateTime? key =
-        widget.calendarController.visibleEvents.keys.firstWhere((it) => _.DateUtils.isSameDay(it, day));
-        widget.onDaySelected!(day, widget.calendarController.visibleEvents[key] ?? []);
+        key = widget.calendarController.visibleEvents.keys.firstWhere((it) => _.DateUtils.isSameDay(it, day), orElse: null);
       }catch(e){}
+      widget.onDaySelected!(day, widget.calendarController.visibleEvents[key] ?? []);
     }
   }
 

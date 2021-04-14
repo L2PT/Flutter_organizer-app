@@ -17,7 +17,7 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
-import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
+import 'package:venturiautospurghi/views/widgets/refuse_alert.dart';
 import 'package:venturiautospurghi/views/widgets/success_alert.dart';
 
 
@@ -499,7 +499,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           ElevatedButton(
                             child: new Text('RIFIUTA', style: button_card),
                             onPressed: () async {
-                              RejectAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)? context.read<DetailsEventCubit>().refuseEventAndNotify(justification):null);
+                              RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)? context.read<DetailsEventCubit>().refuseEventAndNotify(justification):null);
                             }
                           ),
                           SizedBox(width: 15,),
@@ -518,8 +518,11 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           ElevatedButton(
                             child: new Text('TERMINA', style: button_card),
                             onPressed: () async {
-                              if(await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Confermi la terminazione dell'incarico?").show())
-                                context.read<DetailsEventCubit>().endEventAndNotify();
+                              if(await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Confermi la terminazione dell'incarico?").show()) {
+                                  bool updateEndTime = event.end.add(new Duration(minutes: 5)).isAfter(DateTime.now()) &&
+                                      (await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Aggiornare la data di fine con quella attuale?").show());
+                                  context.read<DetailsEventCubit>().endEventAndNotify(updateEndTime);
+                                }
                             },
                           ),
                         ],
@@ -549,7 +552,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         ],
                       ),
                     ):
-                    Container(height: 30,)
+                    Container(height: PlatformUtils.isIOS? 45 : 30,)
                     /*child: Row(
                   children: <Widget>[
                     SizedBox(

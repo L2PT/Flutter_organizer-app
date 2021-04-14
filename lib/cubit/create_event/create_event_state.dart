@@ -11,12 +11,12 @@ class CreateEventState extends Equatable {
       event.start = nextStartTime.hour == Constants.MIN_WORKTIME? nextStartTime : TimeUtils.addWorkTime( nextStartTime, hour: 1);
       event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
     } else this.event = e;
-    documents = Map<String, File?>.fromIterable(event.documents, key: (v) => v, value: (v)=>null);
+    documents = Map<String, dynamic>.fromIterable(event.documents, key: (v) => v, value: (v)=>null);
   }
 
   late final Event event;
   late List<String> locations;
-  late Map<String, File?> documents;
+  late Map<String, dynamic> documents;
   int category = -1;
   bool isAllDay = false;
   bool isScheduled = false;
@@ -31,7 +31,7 @@ class CreateEventState extends Equatable {
     Event? event,
     List<String>? locations,
     String? address,
-    Map<String,File?>? documents,
+    Map<String,dynamic>? documents,
     int? category,
     bool? allDayFlag,
     bool? isScheduled,

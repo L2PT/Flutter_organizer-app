@@ -4,13 +4,13 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/base_alert.dart';
 
-class RejectAlert{
+class RefuseAlert{
   final TextEditingController _controller = TextEditingController();
   final BuildContext context;
   late List<Widget> _actions;
   late Widget _content;
 
-  RejectAlert(this.context) {
+  RefuseAlert(this.context) {
 
     _actions = <Widget>[
       TextButton(

@@ -4,6 +4,8 @@ import 'dart:js' as js;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:js/js.dart';
@@ -81,9 +83,13 @@ class _MyAppState extends State<MyApp> {
             jQuery("#calendar").hide();
             return LogIn();
           } else if (state is Authenticated) {
-            var databaseRepository = context.read<AuthenticationBloc>().getDbRepository()!;
-            return RepositoryProvider.value(
-              value: databaseRepository,
+            CloudFirestoreService databaseRepository = context.read<AuthenticationBloc>().getDbRepository()!;
+            FirebaseMessagingService messagingRepository = context.read<AuthenticationBloc>().getMsgRepository()!;
+            return MultiRepositoryProvider(
+                providers: [
+                  RepositoryProvider<CloudFirestoreService>.value( value: databaseRepository),
+                  RepositoryProvider<FirebaseMessagingService>.value( value: messagingRepository)
+                ],
               child: BlocProvider(
                 create: (context) =>
                   WebBloc(
@@ -91,7 +97,8 @@ class _MyAppState extends State<MyApp> {
                     account: context.read<AuthenticationBloc>().account!,
                     databaseRepository: databaseRepository)..add(InitAppEvent()),
                 child: WebHomepage(),
-              ));
+              )
+            );
           }
           return SplashScreen();
           },

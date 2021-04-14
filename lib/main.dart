@@ -4,8 +4,10 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_strategy/url_strategy.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'bloc/authentication_bloc/authentication_bloc.dart';
 import 'bloc/simple_bloc_delegate.dart';
 
@@ -15,6 +17,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   FirebaseAuthService authenticationRepository;
   Bloc.observer = SimpleBlocObserver();
+  if(!Constants.debug) setPathUrlStrategy();
   Firebase.initializeApp(
     options: const FirebaseOptions(
         apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",

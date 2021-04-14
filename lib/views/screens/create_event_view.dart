@@ -8,6 +8,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -367,6 +368,8 @@ class _timeControls extends StatelessWidget { //TODO debug session need to check
             style: context.read<CreateEventCubit>().canModify ? title : subtitle),
           onTap: () => context.read<CreateEventCubit>().canModify ?
           PlatformDatePicker.selectTime(context,
+            minTime: TimeUtils.truncateDate(event.start, "day").add(new Duration(hours: Constants.MIN_WORKTIME)),
+            maxTime: TimeUtils.truncateDate(event.start, "day").add(new Duration(hours: Constants.MAX_WORKTIME)).subtract(new Duration(minutes: Constants.WORKTIME_SPAN)),
             currentTime: event.start,
             onConfirm: (time) => {context.read<CreateEventCubit>().setStartTime(time)},
           ) : null,
@@ -401,6 +404,8 @@ class _timeControls extends StatelessWidget { //TODO debug session need to check
             ),
             onTap: () => context.read<CreateEventCubit>().canModify ?
               PlatformDatePicker.selectTime(context,
+                minTime: event.start.add(new Duration(minutes: Constants.WORKTIME_SPAN)),
+                maxTime: TimeUtils.truncateDate(event.end, "day").add(new Duration(hours: Constants.MAX_WORKTIME)),
                 currentTime: event.end,
                 onConfirm: (time) => context.read<CreateEventCubit>().setEndTime(time),
               ) : null,

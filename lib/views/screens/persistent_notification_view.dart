@@ -12,7 +12,7 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/reject_alert.dart';
+import 'package:venturiautospurghi/views/widgets/refuse_alert.dart';
 
 class PersistentNotification extends StatelessWidget {
 
@@ -48,13 +48,13 @@ class _notificationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    Widget singleNotificationWidget() => cardEvent(
+    Widget singleNotificationWidget() => CardEvent(
       event: context.read<PersistentNotificationCubit>().state.waitingEventsList[0],
       dateView: true,
       gridHourSpan: 0,
       hourHeight: 160,
       buttonArea: <String,Function(Event)>{
-        "RIFIUTA": (event) async {RejectAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)? context.read<PersistentNotificationCubit>().cardActionRefuse(event, justification):null);},
+        "RIFIUTA": (event) async {RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)? context.read<PersistentNotificationCubit>().cardActionRefuse(event, justification):null);},
         "CONFERMA": context.read<PersistentNotificationCubit>().cardActionConfirm},
       onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, context.read<PersistentNotificationCubit>().state.waitingEventsList[0]),
     );

@@ -4,7 +4,9 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class FirebaseMessagingService {
@@ -26,39 +28,38 @@ class FirebaseMessagingService {
     return instance;
   }
   void init(handlerOnMessage, handlerOnMessageOpenedApp, handlerOnBackgroundMessage) async {
-    // // bool enabled = await requestPermission();
-    //
-    // // set handlers
-    // if(true) {
-    //   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    //     RemoteNotification? notification = message.notification;
-    //     AndroidNotification? android = message.notification?.android;
-    //
-    //     if (notification != null && android != null)
-    //       handlerOnMessage?.call(notification);
-    //   });
-    //  
-    //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    //     if (message.notification != null)
-    //       handlerOnMessageOpenedApp?.call(message.notification);
-    //   });
-    //
-    //   FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
-    //     await Firebase.initializeApp();
-    //     if (message.notification != null)
-    //       handlerOnBackgroundMessage.call(message.notification);
-    //   });
-    //
-    //   _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
-    //     RemoteNotification? notification = message?.notification;
-    //     AndroidNotification? android = message?.notification?.android;
-    //
-    //     if (notification != null && android != null)
-    //       handlerOnMessage?.call(notification);
-    //   });
-    // }
-  }
+    bool enabled = await requestPermission();
+    
+    // set handlers
+    if (enabled) {
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        RemoteNotification? notification = message.notification;
+        AndroidNotification? android = message.notification?.android;
 
+        if (notification != null && android != null)
+          handlerOnMessage?.call(message);
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        if (message.notification != null)
+          handlerOnMessageOpenedApp?.call(message);
+      });
+      
+      // https://firebase.flutter.dev/docs/messaging/usage/#background-messages
+      FirebaseMessaging.onBackgroundMessage(handlerOnBackgroundMessage);
+
+      _firebaseMessaging.getInitialMessage().then((RemoteMessage? message) {
+        if (message != null) {
+          RemoteNotification? notification = message.notification;
+          AndroidNotification? android = message.notification?.android;
+
+          if (notification != null && android != null)
+            handlerOnMessage?.call(message);
+        }
+      });
+    }
+  }  
+  
   Future<bool> requestPermission() async {
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
@@ -72,12 +73,14 @@ class FirebaseMessagingService {
     return settings.authorizationStatus == AuthorizationStatus.authorized;
   }
 
-  static Future<String?> getToken()=> FirebaseMessaging.instance.getToken(); //TODO handle vapidKey for web
+  static Future<String?> getToken()=> FirebaseMessaging.instance.getToken();
 
   static void sendNotifications({
       tokens = const [],
       title = "Nuovo incarico assegnato",
       description = "Clicca la notifica per vedere i dettagli",
+      style = Constants.notificationInfoTheme,
+      type = Constants.eventNotification,
       eventId = ""}
       ) async {
     Uri url =  Uri.parse("https://fcm.googleapis.com/fcm/send");
@@ -89,8 +92,10 @@ class FirebaseMessagingService {
       notification['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
       notification['sound'] = "default";
       data['id'] = eventId;
+      data['style'] = style;
+      data['type'] = type;
 
-      String json = "{\"to\":\"$token\",\"notification\":" + jsonEncode(notification) + ", \"data\":" + jsonEncode(data) + "}";
+      String json = "{\"to\":\"$token\", \"notification\":" + jsonEncode(notification) + ", \"data\":" + jsonEncode(data) + "}";
       var response = await http.post(
           url,
           body: json,

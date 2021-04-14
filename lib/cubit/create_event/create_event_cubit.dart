@@ -69,8 +69,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   bool isCopy() => this._type == _eventType.copy;
 
   Future<bool> saveEvent() async {
+    if(state.isLoading()) return Future<bool>(()=>false);
     if(state.event.end.isBefore(state.event.start))
-      PlatformUtils.notifyErrorMessage("Seleziona un orario di fine incarico valido");
+      PlatformUtils.notifyErrorMessage("Seleziona un'orario di fine incarico valido");
     if (state.event.operator == null)
       PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
     else if (state.category == -1)
@@ -123,7 +124,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         cloudFiles.forEach((name) => FirebaseStorageService.deleteFile(state.event.id + "/" + name));
         if(Constants.debug) print("FireStorage upload comeplete");
         if(sendNotification){
-            FirebaseMessagingService.sendNotifications(tokens: state.event.operator!.tokens, eventId: state.event.id);
+            FirebaseMessagingService.sendNotifications(tokens: state.event.operator!.tokens, title: "Nuovo incarico assegnato", eventId: state.event.id);
         }
         if(Constants.debug) print("FireMessaging notified");
         return true;
@@ -138,7 +139,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
 
   removeDocument(String name) {
-    Map<String, File?> newDocs = Map.from(state.documents);
+    Map<String, dynamic> newDocs = Map.from(state.documents);
     newDocs.remove(name);
     emit(state.assign(documents: newDocs));
   }
@@ -146,8 +147,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void openFileExplorer() async {
     try {
       var a = (await FilePicker.platform.pickFiles(allowMultiple: true, withData: false))?.files??[];
-        Map<String, File?> files = Map.fromIterable(a, key: (file)=>(file as PlatformFile).name!, value: (file)=>PlatformUtils.file((file as PlatformFile).path!));
-        Map<String, File?> newDocs = Map.from(state.documents);
+        Map<String, dynamic> files = Map.fromIterable(a, key: (file)=>(file as PlatformFile).name!, value: (file)=>PlatformUtils.file((file as PlatformFile).path!));
+        Map<String, dynamic> newDocs = Map.from(state.documents);
         files.forEach((key, value) {
           newDocs[key] = value;
         });
