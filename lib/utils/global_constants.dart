@@ -11,6 +11,8 @@ class Constants {
   static const String fallbackHexColor = "#FDA90A";
   static const String categoryDefault = "Spurgo";
 
+  static const int numDocuments = 10;
+
   // ROUTES
   static const String homeRoute = '/';
   static const String monthlyCalendarRoute = 'view/monthly_calendar';
@@ -27,6 +29,7 @@ class Constants {
   static const String resetCodeRoute = 'view/reset_code_page';
   static const String logInRoute = 'view/log_in';
   static const String logOut = 'log_out';
+  static const String filterEventView = 'view/filter_event';
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
@@ -54,10 +57,19 @@ class Constants {
   static const String tabellaEventi_operatore = 'Operatore';
   static const String tabellaEventi_subOperatori = 'SubOperatori';
   static const String tabellaEventi_responsabile = 'Responsabile';
+  static const String tabellaEventi_cliente = 'Cliente';
 
   // TABLE COSTANTI
   static const String tabellaCostanti_Categorie = 'Categorie';
   static const String tabellaCostanti_Telefoni = 'Telefoni';
+
+  //TABLE CLIENTE
+  static const String tabellaClienti_codicefiscale = 'CodiceFiscale';
+  static const String tabellaClienti_company = 'Company';
+  static const String tabellaClienti_email = 'Email';
+  static const String tabellaClienti_nome = 'Nome';
+  static const String tabellaClienti_partitaIva = 'PartitaIva';
+  static const String tabellaClienti_telefono = 'Telefono';
 
   // HANDLES
   static const int MIN_WORKTIME = 6;

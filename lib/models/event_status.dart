@@ -41,4 +41,12 @@ class EventStatus {
       default: return "Nuovo";
     }
   }
+
+  static String getTextHistory(int status){
+    switch(status){
+      case EventStatus.Deleted: return "Eliminati";
+      case EventStatus.Refused: return "Rifiutati";
+      default: return "Conclusi";
+    }
+  }
 }

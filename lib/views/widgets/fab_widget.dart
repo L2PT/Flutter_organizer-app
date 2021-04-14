@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
 import 'package:venturiautospurghi/cubit/fab_widget/fab_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -56,6 +55,35 @@ class Fab_details_super  extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
+                          Container(
+                            margin: EdgeInsets.symmetric(vertical: 5.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Text("Copia",
+                                    style: Theme.of(context).textTheme.headline6!
+                                        .copyWith(color: white)),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(dialogContext);//fab
+                                    context.read<DetailsEventCubit>().copyEvent();
+                                  },
+                                  child: Container(
+                                    height: 50,
+                                    width: 50,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: black,
+                                    ),
+                                    child: Icon(Icons.copy, color: white,),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                           Container(
                             margin: EdgeInsets.symmetric(vertical: 5.0),
                             child: Row(

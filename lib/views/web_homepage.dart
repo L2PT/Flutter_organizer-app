@@ -12,7 +12,6 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
-import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/web.dart';
 
 
@@ -134,6 +133,21 @@ class _buildWebPage extends StatelessWidget {
                     child: ElevatedButton(
                         style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
                         ),
+                        onPressed: () => PlatformUtils.navigator(context, Constants.filterEventView),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.search, color: white,),
+                            SizedBox(width:5),
+                            Text("Cerca interventi", style: subtitle_rev,),
+                          ],
+                        )
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
+                    child: ElevatedButton(
+                        style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
+                        ),
                         onPressed: (){
                           jQuery('#calendar').fullCalendar('today',null);
                           context.read<WebCubit>().getDateCalendar(jQueryDate());
@@ -216,7 +230,7 @@ class _buildWebPage extends StatelessWidget {
                               alignment: Alignment.centerRight,
                               child: Row(children: <Widget>[
                                 IconButton(
-                                  icon: FaIcon(FontAwesomeIcons.userAlt, color: white),
+                                  icon: FaIcon(FontAwesomeIcons.userTie, color: white),
                                   onPressed: (){},
                                 ),
                                 Text( account.surname.toUpperCase(), textAlign: TextAlign.right,style: title_rev),
@@ -328,7 +342,7 @@ class _buildDialogWeb extends StatelessWidget{
                   .whenComplete((){jQuery('#calendar').fullCalendar("refetchResources", null);});
             }break;
             case Constants.operatorListRoute :{
-              caller.read<CreateEventCubit>().forceRefresh();
+              (parentContext.read<WebBloc>().state as DialogReady).callback?.call();
             }
           }
         }

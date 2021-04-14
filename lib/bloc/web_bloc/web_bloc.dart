@@ -8,6 +8,7 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
+import 'package:venturiautospurghi/views/screen_pages/event_filter_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
@@ -49,11 +50,12 @@ class WebBloc extends Bloc<WebEvent, WebState> {
     switch(event.route){
       case Constants.homeRoute: yield Ready(event.route); break;
       case Constants.historyEventListRoute: yield Ready(event.route, History()); break;
+      case Constants.filterEventView: yield Ready(event.route, EventFilterView()); break;
       case Constants.detailsEventViewRoute: yield DialogReady(event.route, DetailsEvent((event.arg is Event)?event.arg:_getEventFromJson(event.arg)), event.callerContext!); break;
       case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(event.arg), event.callerContext!); break;
       case Constants.monthlyCalendarRoute: yield DialogReady(event.route, TableCalendarWithBuilders(), event.callerContext!); break;
       case Constants.registerRoute: yield DialogReady(event.route, Register(), event.callerContext!); break;
-      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection((event.arg is Map)?event.arg["event"]:event.arg, (event.arg is Map)?event.arg["requirePrimaryOperator"]:false), event.callerContext!); break;
+      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection((event.arg is Map)?event.arg["event"]:event.arg, (event.arg is Map)?event.arg["requirePrimaryOperator"]:false), event.callerContext!, event.arg["callback"]); break;
       case Constants.addWebOperatorRoute: Event e = new Event.empty()..suboperators = _account.webops; e.start = e.end = DateTime(0); yield DialogReady(event.route, OperatorSelection(e), event.callerContext!); break;
     }
   }

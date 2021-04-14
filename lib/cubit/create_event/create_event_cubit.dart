@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloc/bloc.dart';
@@ -8,8 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_place/google_place.dart';
-import 'package:path/path.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
@@ -23,7 +20,7 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 
 part 'create_event_state.dart';
 
-enum _eventType{ create, modify }
+enum _eventType{ create, modify, copy }
 
 class CreateEventCubit extends Cubit<CreateEventState> {
   final CloudFirestoreService _databaseRepository;
@@ -31,7 +28,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final GlobalKey<FormState> formTimeControlsKey = GlobalKey<FormState>();
   late TextEditingController addressController;
-  var googlePlace = GooglePlace(Constants.googleMapsApiKey);
 
   late _eventType _type;
   late bool canModify;
@@ -42,27 +38,23 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(event==null){
       _type = _eventType.create;
       state.event.supervisor = _account;
-    } else _type = _eventType.modify;
-    canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
-    categories = _databaseRepository.categories;
-    addressController = new TextEditingController();
-    if(event != null ){
-      if(!string.isNullOrEmpty(event.category)){
+    } else if(event.id == '') {
+      _type = _eventType.copy;
+    }else _type = _eventType.modify;
+      canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
+      categories = _databaseRepository.categories;
+      addressController = new TextEditingController();
+      if(event != null ){
+        if(!string.isNullOrEmpty(event.category)){
           radioValueChanged(categories.keys.toList().indexOf(event.category));
+        }
+        addressController.text = state.event.address;
       }
-      addressController.text = state.event.address;
-    }
   }
 
   void getLocations(String text) async {
     if(text.length > 5){
-      List<String> locations = [];
-      var result = await googlePlace.autocomplete.get(text);
-      if(result != null && result.predictions != null)
-        result.predictions!.forEach((e) => {
-          if(!string.isNullOrEmpty(e.description))
-            locations.add(e.description!)
-        });
+      List<String> locations = await GeoUtils.getLocations(text);
       emit(state.assign(locations: locations, address: text));
     } else emit(state.assign(address: text));
   }
@@ -73,6 +65,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   bool isNew() => this._type == _eventType.create;
+
+  bool isCopy() => this._type == _eventType.copy;
 
   Future<bool> saveEvent() async {
     if(state.event.end.isBefore(state.event.start))
@@ -105,7 +99,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         }
 
         state.event.documents = state.documents.keys.toList();
-        if(this.isNew()) {
+        if(this.isNew() || this.isCopy()) {
           state.event.id = state.event.end.isBefore(DateTime.now())?
              await _databaseRepository.addEventPast(state.event): await _databaseRepository.addEvent(state.event);
         } else {
@@ -197,7 +191,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.assign(event: event));
   }
 
-  //TODO limiti temporali sono ancora validi?
   setStartDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
     event.start = TimeUtils.getNextWorkTimeSpan(date);
@@ -241,6 +234,10 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     emit(state.assign(event: event));
   }
 
+  bool checkModifyOperator(Account operator) {
+    return operator != state.event.operator &&  this.canModify;
+  }
+
 
   void addOperatorDialog(BuildContext context) async {
     if(state.event.start.hour < Constants.MIN_WORKTIME || state.event.start.hour >= Constants.MAX_WORKTIME )
@@ -248,7 +245,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour > Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
     //shh this is wrong, it breaks the mvvm
-    PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context});
+    PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context, 'callback': forceRefresh});
   }
 
   void forceRefresh() {

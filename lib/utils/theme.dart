@@ -30,6 +30,7 @@ ThemeData _buildTheme() {
       selectionHandleColor: yellow,
       selectionColor: yellow.withOpacity(0.7),
     ),
+    disabledColor: grey,
     errorColor: red,
     buttonTheme: ButtonThemeData(
       buttonColor: black,
@@ -94,7 +95,7 @@ final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(15)),
+    borderRadius: BorderRadius.all(Radius.circular(5)),
   ),
 );
 
@@ -131,6 +132,7 @@ const whitebackground = const Color(0xFFFFFFFF); //background
 const whiteoverlapbackground = const Color(0x99FFFFFF); //overlap background
 const red = const Color(0xFFC5032B);
 const yellow = const Color(0xFFF8AD09);
+const yellow_light = const Color(0xFFF8D009);
 const blue = const Color(0xFF119DD1);
 const green = const Color(0xFF00664D);
 const green_success = const Color(0xFF1A7C4F);

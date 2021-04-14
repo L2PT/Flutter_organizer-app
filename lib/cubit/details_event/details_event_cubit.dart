@@ -10,6 +10,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
+import 'package:venturiautospurghi/utils/global_methods.dart';
 
 part 'details_event_state.dart';
 
@@ -31,20 +32,20 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   void endEventAndNotify() {
     _databaseRepository.endEvent(state.event);
     emit(state.changeStatus(EventStatus.Ended));
-    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens, title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"");
   }
 
   void acceptEventAndNotify() {
     _databaseRepository.updateEventField(state.event.id, Constants.tabellaEventi_stato, EventStatus.Accepted);
     emit(state.changeStatus(EventStatus.Accepted));
-    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens, title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"");
   }
 
   void refuseEventAndNotify(String justification) {
     state.event.motivazione = justification;
     _databaseRepository.refuseEvent(state.event);
     emit(state.changeStatus(EventStatus.Refused));
-    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor.tokens, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"");
+    FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens, title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"");
   }
 
   void deleteEvent() {
@@ -58,6 +59,18 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     //shh this is wrong, it breaks the mvvm
     PlatformUtils.backNavigator(context);
     PlatformUtils.navigator(context, Constants.createEventViewRoute, _event);
+  }
+
+  void copyEvent() {
+    PlatformUtils.backNavigator(context);
+    Event e = Event.fromMap("", "", _event.toMap());
+    e.id = '';
+    e.suboperators = List.empty();
+    e.operator = null;
+    DateTime nextStartTime = TimeUtils.getNextWorkTimeSpan();
+    e.start = nextStartTime.hour == Constants.MIN_WORKTIME? nextStartTime : TimeUtils.addWorkTime( nextStartTime, hour: 1);
+    e.end = e.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
+    PlatformUtils.navigator(context, Constants.createEventViewRoute, e);
   }
 
   void callClient(String phone) async {

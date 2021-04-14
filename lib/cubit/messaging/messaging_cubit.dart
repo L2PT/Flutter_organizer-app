@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:path/path.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
@@ -12,7 +11,6 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 
 part 'messaging_state.dart';
@@ -79,7 +77,7 @@ class MessagingCubit extends Cubit<MessagingState> {
   Future<Event?> _updateEventAndSendFeedback(RemoteMessage message, int updatedStatus) async {
     Event? event = await _databaseRepository.getEvent(message.data['id']);
     if(event != null && (updatedStatus == EventStatus.Delivered && event.isNew())) {
-      Account supervisor = await _databaseRepository.getAccount(event.supervisor.email);
+      Account supervisor = await _databaseRepository.getAccount(event.supervisor!.email);
       _databaseRepository.updateEventField(message.data['id'], Constants.tabellaEventi_stato, updatedStatus);
       FirebaseMessagingService.sendNotifications(
           tokens: supervisor.tokens,

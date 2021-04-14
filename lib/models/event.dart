@@ -1,5 +1,5 @@
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/models/client.dart';
+import 'package:venturiautospurghi/models/customer.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -16,13 +16,13 @@ class Event {
   String category = "";
   String color = "";
   String motivazione = "";
-  late Account supervisor;
-  Client client = Client.empty();
+  Account? supervisor;
+  Customer customer = Customer.empty();
   Account? operator;
   List<Account> suboperators = [];
 
 
-  Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.client);
+  Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer);
   Event.empty();
 
   Event.fromMap(String id, String color, Map json) :
@@ -40,7 +40,7 @@ class Event {
     operator = json["Operatore"]==null?Account.empty():Account.fromMap("", json["Operatore"]),
     suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
     motivazione = json["Motivazione"]??"",
-    client = json["Cliente"] == null? Client.empty(): Client.fromMap(id, json["Cliente"]);
+    customer = json["Cliente"] == null? Customer.empty(): Customer.fromMap(id, json["Cliente"]);
 
   Map<String, dynamic> toMap() => {
       "id":this.id,
@@ -53,8 +53,8 @@ class Event {
       "Stato":this.status,
       "Categoria":this.category,
       "color":this.color,
-      "Responsabile":this.supervisor.toMap(),
-      "Cliente": this.client.toMap(),
+      "Responsabile":this.supervisor?.toMap(),
+      "Cliente": this.customer.toMap(),
       "Operatore":this.operator?.toMap(),
       "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
   };
@@ -68,8 +68,8 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
-      "Responsabile":this.supervisor.toMap(),
-      "Cliente": this.client.toMap(),
+      "Responsabile":this.supervisor?.toMap(),
+      "Cliente": this.customer.toMap(),
       "Operatore":this.operator?.toMap(),
       "SubOperatori": this.suboperators.map((op)=>op.toMap()).toList(),
       "Motivazione" : this.motivazione,
@@ -84,6 +84,51 @@ class Event {
     }else{
       return false;
     }
+  }
+
+  bool isFilteredEvent(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate){
+    if(!this.title.contains(e.title)){
+      return false;
+    }
+    if(!this.address.contains(e.address)){
+      return false;
+    }
+    if(!this.customer.phone.contains(e.customer.phone)){
+      return false;
+    }
+    if(filterStartDate && filterEndDate){
+      if(!this.isBetweenDate(e.start, e.end)) return false;
+    }else if(filterEndDate){
+      if(this.end.isAfter(e.end)) return false;
+    }else if(filterStartDate){
+      if(this.start.isBefore(e.start)) return false;
+    }
+
+    List<String> listCategory = categorySelected.keys.where((key) => categorySelected[key]!).toList();
+    if(listCategory.isNotEmpty){
+      listCategory = listCategory.where((category) => this.category == category).toList();
+      if(listCategory.isEmpty) return false;
+    }
+
+    List<String> idOperators = [...this.suboperators.map((op) => op.id),operator?.id??""];
+    if(e.suboperators.isNotEmpty && e.suboperators.where((element) => idOperators.contains(element.id)).isEmpty) return false;
+
+    return true;
+  }
+
+  bool isFilteredEventSimple(String address, DateTime start, DateTime end, bool filterStartDate, bool filterEndDate){
+    if(!this.address.contains(address)){
+      return false;
+    }
+    if(filterStartDate && filterEndDate){
+      if(!this.isBetweenDate(start, end)) return false;
+    }else if(filterEndDate){
+      if(this.end.isAfter(end)) return false;
+    }else if(filterStartDate){
+      if(this.start.isBefore(start)) return false;
+    }
+
+    return true;
   }
 
   bool isAllDayLong() {

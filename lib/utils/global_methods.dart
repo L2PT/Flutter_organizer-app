@@ -1,6 +1,8 @@
 library app.utils;
 
+import 'package:google_place/google_place.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class TimeUtils {
@@ -71,4 +73,19 @@ class Utils {
     }
     return true;
   }
+}
+
+class GeoUtils {
+
+  static Future<List<String>>  getLocations(String address) async {
+    List<String> locations = [];
+    var result = await GooglePlace(Constants.googleMapsApiKey).autocomplete.get(address);
+    if(result != null && result.predictions != null)
+      result.predictions!.forEach((e) => {
+        if(!string.isNullOrEmpty(e.description))
+          locations.add(e.description!)
+      });
+    return locations;
+  }
+
 }

@@ -125,8 +125,15 @@ class cardEvent extends StatelessWidget {
                                 ),
                                 Center(
                                   child: Text(DateFormat('E', "it_IT").format(event.start),
-                                      style: title_rev.copyWith(fontSize: 15, fontWeight: FontWeight.normal)),
-                                )
+                                      style: title_rev.copyWith(fontSize: 14, fontWeight: FontWeight.normal)),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 2),
+                                  child: Center(
+                                    child: Text(DateFormat('y', "it_IT").format(event.start),
+                                        style: title_rev.copyWith(fontSize: 14)),
+                                  ),
+                                ),
                               ],
                             ),
                           ),

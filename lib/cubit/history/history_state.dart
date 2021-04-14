@@ -12,7 +12,10 @@ abstract class HistoryState extends Equatable {
   List<Object> get props => [selectedStatus, eventsMap[selectedStatus]!=null?eventsMap[selectedStatus]!.map((e) => e).join():""];
 
 
-  HistoryReady assign({int? selectedStatus, Map<int, List<Event>>? eventsMap}) =>
+  HistoryReady assign({
+    int? selectedStatus,
+    Map<int, List<Event>>? eventsMap,
+  }) =>
       HistoryReady(selectedStatus ?? this.selectedStatus, eventsMap ?? this.eventsMap);
 
 }
@@ -26,7 +29,7 @@ class HistoryReady extends HistoryState{
 
   List<Event> selectedEvents() => eventsMap[selectedStatus] ?? [];
 
-  List<Event> events(int status) => eventsMap[status]??[];
+  List<Event> events(int status) => eventsMap[status]!.reversed.toList();
 
   HistoryReady(int selectedStatus, Map<int, List<Event>> eventsMap) : super(selectedStatus,eventsMap) {
     eventsMap[selectedStatus]?.sort((a, b) => a.start.compareTo(b.start));

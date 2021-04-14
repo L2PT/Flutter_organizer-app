@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/cubit/operator_selection/operator_selection_cubit.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/views/widgets/filter_operators_widget.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
@@ -35,7 +34,7 @@ class OperatorSelection extends StatelessWidget {
 class _operatorSelectableList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildOperatorsList() => (context.read<OperatorSelectionCubit>().state as ReadyOperators).operators.map((operator) => new ListTileOperator(
+    List<Widget> buildOperatorsList() => (context.read<OperatorSelectionCubit>().state as ReadyOperators).filteredOperators.map((operator) => new ListTileOperator(
         operator,
         checkbox: context.read<OperatorSelectionCubit>().isTriState?2:1,
         isChecked: (context.read<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id]!,
@@ -76,7 +75,18 @@ class _operatorSelectableList extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 15.0),
-            Padding(padding: EdgeInsets.only(left: 20), child: Text("Scegli tra gli operatori disponibili", style: label,)),
+            BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(builder: (context, state) {
+              return FilterWidgetOperators(
+                onSearchDateChanged: context.read<OperatorSelectionCubit>().onSearchDateChanged,
+                onSearchTimeChanged: context.read<OperatorSelectionCubit>().onSearchTimeChanged,
+                searchTimeField: DateTime.now(),
+                showFiltersBox: context.read<OperatorSelectionCubit>().showFiltersBox,
+                onSearchChanged: context.read<OperatorSelectionCubit>().onSearchNameChanged,
+                hintTextSearch: "Cerca un operatore",
+                showIconExpanded: false,
+              );
+            }),
+            Padding(padding: EdgeInsets.only(left: 20, top: 10), child: Text("Scegli tra gli operatori disponibili", style: label,)),
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(
               buildWhen: (previous, current) => true,
               builder: (context, state) {

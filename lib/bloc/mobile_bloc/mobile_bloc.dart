@@ -4,13 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/event_filter_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
@@ -78,12 +78,12 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
       case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
       case Constants.operatorListRoute: Navigator.push(event.arg["context"], MaterialPageRoute(maintainState: true, builder: (context) => OperatorSelection(event.arg["event"],event.arg["requirePrimaryOperator"],event.arg["context"])))
-          .then((value) => (event.arg["context"] as BuildContext).read<CreateEventCubit>().forceRefresh());break;
+          .then((value) { (event.arg["callback"]).call(); });break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
       case Constants.historyEventListRoute: yield InBackdropState(event.route, History()); break;
+      case Constants.filterEventView: yield InBackdropState(event.route, EventFilterView()); break;
       default: yield InBackdropState(event.route, Profile()); break;
-      break;
     }
   }
 

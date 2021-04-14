@@ -10,7 +10,7 @@ abstract class OperatorListState extends Equatable {
         this.searchTimeField = searchTimeField ?? DateTime.now();
   
   @override
-  List<Object> get props => [searchTimeField, searchTimeField, filtersBoxVisibile];
+  List<Object> get props => [searchNameField, searchTimeField, filtersBoxVisibile];
 }
 
 class LoadingOperators extends OperatorListState {

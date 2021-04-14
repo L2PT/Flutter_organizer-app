@@ -16,6 +16,7 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 
@@ -95,7 +96,14 @@ class _largeScreen extends StatelessWidget {
                         SizedBox(height: 20,),
                         Text("Archivi", style: title,),
                         SizedBox(height: 10,),
-                        ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatus)).toList()
+                        ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatus)).toList(),
+                        FilterWidgetEvent(
+                          hintTextSearch: 'Cerca gli interventi',
+                          clearFilter: context.read<HistoryCubit>().clearFilter,
+                          filterEvent:  context.read<HistoryCubit>().filterHistoryEvent,
+                          maxHeightContainerExpanded: MediaQuery.of(context).size.height-450,
+                          isWebMode: true,
+                        ),
                       ],
                     ),
                   ),
@@ -105,9 +113,10 @@ class _largeScreen extends StatelessWidget {
                   child: Container(
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         SizedBox(height: 5,),
-                        Text("Incarichi", style: title, textAlign: TextAlign.left,),
+                        Text("Tutti Gli Incarichi "+EventStatus.getTextHistory(state.selectedStatus), style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 10,),
                         (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
                             Container(
@@ -145,6 +154,7 @@ class _largeScreen extends StatelessWidget {
             ),
           );
         });
+    
   }
 
   Widget FlatTab({required String text, required IconData icon, required int status, required int selectedStatus}) {
@@ -216,7 +226,13 @@ class _smallScreen extends StatelessWidget {
                 tabs: tabsHeaders.map((pair) => pair.key).toList(),
                 controller: _tabController,
               ),
-            ), !PlatformUtils.isMobile ?
+            ),
+          FilterWidgetEvent(
+            hintTextSearch: 'Cerca gli interventi',
+            clearFilter: context.read<HistoryCubit>().clearFilter,
+            filterEvent:  context.read<HistoryCubit>().filterHistoryEvent,
+          ),
+            !PlatformUtils.isMobile ?
             Container(height: MediaQuery.of(context).size.height - 150, child: _HistoryContent(_tabController,tabsHeaders),) :
             Expanded(
               child: _HistoryContent(_tabController,tabsHeaders),)
@@ -226,6 +242,8 @@ class _smallScreen extends StatelessWidget {
     );
   }
 }
+
+
 
 class _HistoryContent extends StatelessWidget {
 
@@ -240,39 +258,39 @@ class _HistoryContent extends StatelessWidget {
     buildWhen: (previous, current) => previous != current,
     builder: (context, state) {
       return !(state is HistoryReady) ? Center(child: CircularProgressIndicator()) :
-      TabBarView(
-        controller: _tabController,
-        children:
-         tabsHeaders.map((e) =>  Padding(
-            padding: EdgeInsets.all(15.0),
-          child:state.events(e.value).length>0 ?
-          ListView.separated(
-            separatorBuilder: (context, index) => SizedBox(height: 10,),
-            physics: BouncingScrollPhysics(),
-            padding: new EdgeInsets.symmetric(vertical: 8.0),
-            itemCount: state.events(e.value).length,
-            itemBuilder: (context, index){
-              return Container(
-                child: cardEvent(
-                  event: state.events(e.value)[index],
-                  dateView: true,
-                  hourHeight: 120,
-                  gridHourSpan: 0,
-                  buttonArea: null,
-                  onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
+        TabBarView(
+            controller: _tabController,
+            children:
+            tabsHeaders.map((e) =>  Padding(
+                padding: EdgeInsets.all(15.0),
+                child:state.events(e.value).length>0 ?
+                ListView.separated(
+                    separatorBuilder: (context, index) => SizedBox(height: 10,),
+                    physics: BouncingScrollPhysics(),
+                    padding: new EdgeInsets.symmetric(vertical: 8.0),
+                    itemCount: state.events(e.value).length,
+                    itemBuilder: (context, index){
+                      return Container(
+                          child: cardEvent(
+                            event: state.events(e.value)[index],
+                            dateView: true,
+                            hourHeight: 120,
+                            gridHourSpan: 0,
+                            buttonArea: null,
+                            onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
+                          )
+                      );
+                    }):Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico da mostrare",style: title,)),
+                    ],
+                  ),
                 )
-              );
-            }):Container(
-              child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico da mostrare",style: title,)),
-              ],
-            ),
-          )
-      ),).toList()
-      );
+            ),).toList()
+        );
     });
   }
 }

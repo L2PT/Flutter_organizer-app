@@ -1,6 +1,6 @@
 import 'package:venturiautospurghi/utils/extensions.dart';
 
-class Client {
+class Customer {
   String id = "";
   String name = "";
   String email = "";
@@ -10,10 +10,10 @@ class Client {
   List<dynamic> address = [];
   bool company = false;
 
-  Client(this.id,this.name,this.email,this.phone, this.partitaIva,this.codFiscale, this.company, this.address);
-  Client.empty();
+  Customer(this.id,this.name,this.email,this.phone, this.partitaIva,this.codFiscale, this.company, this.address);
+  Customer.empty();
 
-  Client.fromMap(String id, Map<String,dynamic> json) :
+  Customer.fromMap(String id, Map<String,dynamic> json) :
         id = !string.isNullOrEmpty(id)? id : json["Id"] ?? json["id"] ?? "",
         name = json['Nome'],
         email = json['Email'],
@@ -59,7 +59,7 @@ class Client {
     });
   }
 
-  void update(Client clientUpdate) {
+  void update(Customer clientUpdate) {
     this.name = clientUpdate.name;
     this.email = clientUpdate.email;
     this.phone = clientUpdate.phone;

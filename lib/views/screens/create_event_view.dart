@@ -12,6 +12,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
+import 'package:venturiautospurghi/views/widgets/operator_list_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 import 'package:venturiautospurghi/views/widgets/success_alert.dart';
 
@@ -38,7 +39,7 @@ class CreateEvent extends StatelessWidget {
                     onPressed: () => PlatformUtils.backNavigator(context)
                   ),
                   title: new Text(
-                    _event == null ? 'NUOVO EVENTO' : 'MODIFICA EVENTO',
+                    _event == null ? 'NUOVO INTERVENTO' : _event!.id == ''?'COPIA INTERVENTO' : 'MODIFICA INTERVENTO',
                     style: title_rev,
                   ),
                   actions: <Widget>[ _viewHeader()
@@ -123,13 +124,17 @@ class _formInputList extends StatelessWidget{
               ),
               Expanded(
                 child: TextFormField(
-                  maxLines: 3,
+                  maxLines: null,
                   cursorColor: black,
-                  keyboardType: TextInputType.text,
+                  keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
                       hintText: 'Aggiungi note',
                       hintStyle: subtitle,
-                      border: OutlineInputBorder(borderSide: BorderSide(color: black, width: 1.0))),
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          width: 2.0,
+                          style: BorderStyle.solid,
+                        ),)),
                   initialValue: event.description,
                   validator: (value) => null,
                   onSaved: (value) => event.description = value??"",
@@ -152,11 +157,11 @@ class _formInputList extends StatelessWidget{
                       hintText: 'Aggiungi telefono del cliente',
                       hintStyle: subtitle,
                       border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
-                  initialValue: event.client.phone,
+                  initialValue: event.customer.phone,
                   validator: (value) => string.isNullOrEmpty(value)?
                   'Il campo \'Telefono del cliente\' è obbligatorio' : !Utils.isPhoneNumber(value!)?
                   'Inserisci un valore valido' : null,
-                  onSaved: (value) => event.client.phone = value??"",
+                  onSaved: (value) => event.customer.phone = value??"",
                 ),
               ),
             ]),
@@ -174,7 +179,8 @@ class _formInputList extends StatelessWidget{
               Expanded(
                   child: TextFormField(
                     onChanged: (text) => context.read<CreateEventCubit>().getLocations(text),
-                    keyboardType: TextInputType.text,
+                    keyboardType: TextInputType.multiline,
+                    maxLines: null,
                     cursorColor: black,
                     controller: context.read<CreateEventCubit>().addressController,
                     decoration: InputDecoration(
@@ -230,7 +236,16 @@ class _formInputList extends StatelessWidget{
                   onPressed: () => context.read<CreateEventCubit>().addOperatorDialog(context)
               ) : Container()
             ]),
-            _operatorsList(),
+            BlocBuilder<CreateEventCubit, CreateEventState>(
+                buildWhen: (previous, current) => previous.event.toString() != current.event.toString(),
+            builder: (context, state) {
+                  return OperatorsList(operators: context.read<CreateEventCubit>().state.event.operator != null
+                      ? [context.read<CreateEventCubit>().state.event.operator!, ...context.read<CreateEventCubit>().state.event.suboperators]
+                      : context.read<CreateEventCubit>().state.event.suboperators,
+                      closeFunction: context.read<CreateEventCubit>().removeSuboperatorFromEventList,
+                    canRemove: context.read<CreateEventCubit>().checkModifyOperator,
+                  );
+            }),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
             _categoriesList(),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
@@ -453,52 +468,6 @@ class _timeControls extends StatelessWidget { //TODO debug session need to check
             dateTimeEndPicker(),
           ])
       ) 
-    );
-  }
-}
-
-class _operatorsList extends StatelessWidget {
-
-  @override
-  Widget build(BuildContext context) {
-    List<Widget> buildOperatorsList() => (context.read<CreateEventCubit>().state.event.operator != null
-        ? [context.read<CreateEventCubit>().state.event.operator!, ...context.read<CreateEventCubit>().state.event.suboperators]
-        : context.read<CreateEventCubit>().state.event.suboperators).map((operator) {
-      return Container(
-        height: 50,
-        margin: EdgeInsets.symmetric(horizontal: 15),
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Row(
-          children: <Widget>[
-            Container(
-              margin: EdgeInsets.only(right: 10.0),
-              padding: EdgeInsets.all(3.0),
-              child: Icon(operator.supervisor?FontAwesomeIcons.userTie:FontAwesomeIcons.hardHat, color: yellow),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(5.0)),
-                color: black,
-              ),
-            ),
-            Text(operator.surname.toUpperCase() + " ", style: title),
-            Text(operator.name, style: subtitle),
-            Expanded(
-              child: Container(),
-            ),
-            operator != context.read<CreateEventCubit>().state.event.operator && context.read<CreateEventCubit>().canModify ?
-            IconButton(
-              icon: Icon(Icons.delete, color: black, size: 25),
-              onPressed: () => context.read<CreateEventCubit>().removeSuboperatorFromEventList(operator)
-            ) : Container()
-          ],
-        ),
-      );
-    }).toList();
-
-    return BlocBuilder<CreateEventCubit, CreateEventState>(
-      buildWhen: (previous, current) => previous.event.toString() != current.event.toString(),
-      builder: (context, state) {
-        return Container(child: Column(children: buildOperatorsList()));
-      },
     );
   }
 }

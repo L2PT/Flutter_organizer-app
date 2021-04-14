@@ -8,6 +8,7 @@ part 'history_state.dart';
 
 class HistoryCubit extends Cubit<HistoryState> {
   final CloudFirestoreService _databaseRepository;
+  List<Event> listEvent = [];
   var streamSub;
 
   HistoryCubit(this._databaseRepository, int? _selectedStatus) :
@@ -29,7 +30,29 @@ class HistoryCubit extends Cubit<HistoryState> {
   }
 
   void onStatusSelect(int status) {
+    if(listEvent.isNotEmpty){
+      Map<int, List<Event>> eventsMap =  Map.from(state.eventsMap);
+      eventsMap[state.selectedStatus] = listEvent;
+      listEvent = [];
+      emit(state.assign(eventsMap: eventsMap));
+    }
     emit(state.assign(selectedStatus: status));
+  }
+
+  void filterHistoryEvent(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate){
+    Map<int, List<Event>> eventsMap =  Map.from(state.eventsMap);
+    if(listEvent.isEmpty) listEvent =  state.eventsMap[state.selectedStatus]!;
+    eventsMap[state.selectedStatus] = listEvent.where((event) => event.isFilteredEvent(e, categorySelected, filterStartDate, filterEndDate)).toList();
+    emit(state.assign(eventsMap: eventsMap));
+  }
+
+  void clearFilter(){
+    if(listEvent.isNotEmpty){
+      Map<int, List<Event>> eventsMap =  Map.from(state.eventsMap);
+      eventsMap[state.selectedStatus] = listEvent;
+      listEvent = [];
+      emit(state.assign(eventsMap: eventsMap));
+    }
   }
 
   @override
@@ -37,4 +60,7 @@ class HistoryCubit extends Cubit<HistoryState> {
     streamSub.cancel();
     return super.close();
   }
+
+
+
 }

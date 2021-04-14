@@ -104,8 +104,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             GestureDetector(
-                              onTap: () { context.read<DetailsEventCubit>().callClient(event.client.phone); },
-                              child: Text(event.client.phone.isEmpty?'Nessun telefono indicato':event.client.phone,
+                              onTap: () { context.read<DetailsEventCubit>().callClient(event.customer.phone); },
+                              child: Text(event.customer.phone.isEmpty?'Nessun telefono indicato':event.customer.phone,
                                 style: subtitle_rev,overflow: TextOverflow.visible,),
                             )
                           ],
@@ -151,9 +151,9 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: widget.sizeIcon,
                     ),
                     SizedBox(width: widget.padding,),
-                    Text( event.supervisor.surname, style: subtitle_rev),
+                    Text( event.supervisor!.surname, style: subtitle_rev),
                     SizedBox(width: 5,),
-                    Text( event.supervisor.name, style: subtitle_rev),
+                    Text( event.supervisor!.name, style: subtitle_rev),
                   ],
                 ),
               ),
@@ -413,8 +413,12 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                   Center(
                                     child: Text(widget.formatterWeek.format(event.start),
                                         style: title_rev.copyWith(fontSize: 15)),
-                                  )
-                                ],
+                                  ), Padding(padding: EdgeInsets.only(top: 2),
+                                      child: Center(child: Text(DateFormat('y', "it_IT").format(event.start),
+                                      style: title_rev.copyWith(fontSize: 14)),
+                                      ),
+                                  ),
+                            ],
                               ),
                             ),
                             Flexible(

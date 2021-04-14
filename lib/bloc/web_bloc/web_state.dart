@@ -19,8 +19,9 @@ class Ready extends WebState {
 
 class DialogReady extends WebState {
   final BuildContext callerContext;
+  Function? callback;
 
-  DialogReady(String route, content, this.callerContext) : super(route, content);
+  DialogReady(String route, content, this.callerContext, [ this.callback ]) : super(route, content);
 
   @override
   List<Object> get props => [route,content,callerContext];

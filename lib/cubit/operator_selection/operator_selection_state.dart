@@ -1,7 +1,13 @@
 part of 'operator_selection_cubit.dart';
 
 abstract class OperatorSelectionState extends Equatable {
-  const OperatorSelectionState();
+  String searchNameField;
+  OperatorSelectionState([String? searchNameField,]):
+        this.searchNameField = searchNameField ?? "";
+
+  @override
+  List<Object> get props => [searchNameField];
+
 }
 
 class LoadingOperators extends OperatorSelectionState {
@@ -10,13 +16,13 @@ class LoadingOperators extends OperatorSelectionState {
 }
 
 class ReadyOperators extends OperatorSelectionState {
-  List<Account> operators;
   Map<String,int> selectionList = Map();
   bool primaryOperatorSelected = false;
+  List<Account> filteredOperators = [];
 
-  ReadyOperators(this.operators, {Event? event}) {
+  ReadyOperators(this.filteredOperators, {String? searchNameField, Event? event}): super(searchNameField){
     if(event != null) {
-      operators.forEach((operator) { selectionList[operator.id] = 0; });
+      filteredOperators.forEach((operator) { selectionList[operator.id] = 0; });
       event.suboperators.forEach((suboperator) {
         if(selectionList.containsKey(suboperator.id))
           selectionList[suboperator.id] = 1;
@@ -27,14 +33,15 @@ class ReadyOperators extends OperatorSelectionState {
       }
     }
   }
-  
-  ReadyOperators.update(this.operators, this.selectionList, this.primaryOperatorSelected);
 
-  ReadyOperators assign(Map<String, int> preSelectedList, bool primaryOperatorSelected) => ReadyOperators.update(
-      this.operators,
-      preSelectedList,
-      primaryOperatorSelected);
+  ReadyOperators.update(this.filteredOperators, this.selectionList, this.primaryOperatorSelected);
+
+  ReadyOperators assign({List<Account>? filteredOperators, Map<String, int>? preSelectedList, bool? primaryOperatorSelected}) =>
+      ReadyOperators.update(
+      filteredOperators??this.filteredOperators,
+      preSelectedList??this.selectionList,
+      primaryOperatorSelected??this.primaryOperatorSelected);
 
   @override
-  List<Object> get props => [operators, selectionList, primaryOperatorSelected];
+  List<Object> get props => [filteredOperators.map((op) => op.id).join(), selectionList, primaryOperatorSelected];
 }
