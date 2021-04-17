@@ -352,7 +352,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
               icon: Icon(Icons.arrow_back, color: white),
               onPressed: () => PlatformUtils.backNavigator(context),
         )),
-        floatingActionButton: Fab(), //TODO il fab ci va anche quando è terminato?
+        floatingActionButton: Fab(),
         body: Material(
             elevation: 12.0,
             child: Stack(children: <Widget>[
@@ -519,8 +519,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                             child: new Text('TERMINA', style: button_card),
                             onPressed: () async {
                               if(await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Confermi la terminazione dell'incarico?").show()) {
-                                  bool updateEndTime = event.end.add(new Duration(minutes: 5)).isAfter(DateTime.now()) &&
-                                      (await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Aggiornare la data di fine con quella attuale?").show());
+                                  bool updateEndTime = event.end.add(new Duration(minutes: 5)).isBefore(DateTime.now())?
+                                      (await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Aggiornare la data di fine con quella attuale?").show()) : false;
                                   context.read<DetailsEventCubit>().endEventAndNotify(updateEndTime);
                                 }
                             },

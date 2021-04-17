@@ -89,11 +89,12 @@ class FirebaseMessagingService {
       Map<String, String> data = new Map<String, String>();
       notification['title'] = title;
       notification['body'] = description;
-      notification['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
       notification['sound'] = "default";
       data['id'] = eventId;
       data['style'] = style;
       data['type'] = type;
+      data['click_action'] = "FLUTTER_NOTIFICATION_CLICK";
+
 
       String json = "{\"to\":\"$token\", \"notification\":" + jsonEncode(notification) + ", \"data\":" + jsonEncode(data) + "}";
       var response = await http.post(

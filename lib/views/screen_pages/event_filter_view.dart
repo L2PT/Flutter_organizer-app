@@ -10,7 +10,7 @@ import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/filter_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
-class EventFilterView extends StatelessWidget {
+class FilterEventList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {

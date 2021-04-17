@@ -36,7 +36,7 @@ class Constants {
   static const String resetCodeRoute = 'view/reset_code_page';
   static const String logInRoute = 'view/log_in';
   static const String logOut = 'log_out';
-  static const String filterEventView = 'view/filter_event';
+  static const String filterEventListRoute = 'view/filter_event';
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';

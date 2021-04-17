@@ -174,7 +174,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       event.end = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: Constants.MAX_WORKTIME));
     } else {
       event.start = event.start;
-      event.end = TimeUtils.addWorkTime(event.start, minutes: Constants.WORKTIME_SPAN);
+      event.end = TimeUtils.addWorkTime(event.start, Duration(minutes: Constants.WORKTIME_SPAN));
     }
     _removeAllOperators(event);
     emit(state.assign(event: event, allDayFlag: value));
@@ -194,8 +194,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   setStartDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    event.start = TimeUtils.getNextWorkTimeSpan(date);
-    event.end = TimeUtils.getNextWorkTimeSpan(event.start).olderBetween(event.end);
+    event.start = TimeUtils.getStartWorkTimeSpan(from: date);
+    event.end = TimeUtils.getStartWorkTimeSpan(from: event.start).olderBetween(event.end);
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
@@ -206,8 +206,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       time = TimeUtils.truncateDate(event.start, "day").add(Duration(hours: DateTimeField.convert(time)!.hour, minutes: DateTimeField.convert(time)!.minute));
     event.start = time;
     event.end = TimeUtils.truncateDate(event.end, "day").add(
-        Duration(hours: (TimeUtils.getNextWorkTimeSpan(event.start).olderBetween(event.end)).hour,
-            minutes: (TimeUtils.getNextWorkTimeSpan(event.start).olderBetween(event.end)).minute ));
+        Duration(hours: (TimeUtils.getStartWorkTimeSpan(from: event.start).olderBetween(event.end)).hour,
+            minutes: (TimeUtils.getStartWorkTimeSpan(from: event.start).olderBetween(event.end)).minute ));
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
@@ -236,9 +236,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   bool checkModifyOperator(Account operator) {
-    return operator != state.event.operator &&  this.canModify;
+    return operator != state.event.operator && this.canModify;
   }
-
 
   void addOperatorDialog(BuildContext context) async {
     if(state.event.start.hour < Constants.MIN_WORKTIME || state.event.start.hour >= Constants.MAX_WORKTIME )

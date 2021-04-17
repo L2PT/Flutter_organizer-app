@@ -254,10 +254,7 @@ class Fab_daily_super extends StatelessWidget {
     return FloatingActionButton(
       child: Icon(Icons.add,size: 40, color: white),
       onPressed: (){
-        Event ev = Event.empty();
-        ev.start = TimeUtils.getNextWorkTimeSpan(DateTime.now());
-        ev.end = TimeUtils.getNextWorkTimeSpan(ev.start);
-        PlatformUtils.navigator(context, Constants.createEventViewRoute, ev);
+        PlatformUtils.navigator(context, Constants.createEventViewRoute);
       },
       backgroundColor: black,
     );

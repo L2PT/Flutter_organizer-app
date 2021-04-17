@@ -20,16 +20,16 @@ import 'package:venturiautospurghi/views/widgets/filter_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 
-class History extends StatefulWidget {
+class HistoryEventList extends StatefulWidget {
   final int? selectedStatus;
 
-  History([this.selectedStatus,Key? key]) : super(key: key);
+  HistoryEventList([this.selectedStatus,Key? key]) : super(key: key);
 
   @override
-  _HistoryState createState() => _HistoryState(selectedStatus);
+  _HistoryEventListState createState() => _HistoryEventListState(selectedStatus);
 }
 
-class _HistoryState extends State<History> with TickerProviderStateMixin {
+class _HistoryEventListState extends State<HistoryEventList> with TickerProviderStateMixin {
   final int? selectedStatus;
   final List<MapEntry<Tab,int>> tabsHeaders = [
     MapEntry(new Tab(text: "CONCLUSI",icon: Icon(Icons.flag),),EventStatus.Ended),
@@ -37,7 +37,7 @@ class _HistoryState extends State<History> with TickerProviderStateMixin {
     MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.assignment_late),),EventStatus.Refused)
   ];
 
-  _HistoryState(this.selectedStatus);
+  _HistoryEventListState(this.selectedStatus);
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +116,7 @@ class _largeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         SizedBox(height: 5,),
-                        Text("Tutti Gli Incarichi "+EventStatus.getTextHistory(state.selectedStatus), style: title, textAlign: TextAlign.left,),
+                        Text("Tutti Gli Incarichi "+EventStatus.getCategoryText(state.selectedStatus), style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 10,),
                         (context.read<HistoryCubit>().state as HistoryReady).selectedEvents().length>0 ?
                             Container(
@@ -187,7 +187,7 @@ class _smallScreen extends StatelessWidget {
   late TabController _tabController;
   final List<MapEntry<Tab,int>> tabsHeaders;
 
-  _smallScreen(_HistoryState ticker, this.tabsHeaders){
+  _smallScreen(_HistoryEventListState ticker, this.tabsHeaders){
     _tabController = new TabController(vsync: ticker, length: tabsHeaders.length);
   }
 

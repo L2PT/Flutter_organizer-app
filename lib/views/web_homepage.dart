@@ -101,6 +101,8 @@ class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin
                   child: BlocListener<MessagingCubit, MessagingState>(
                     listener: (BuildContext context, MessagingState state) {
                       if(state.isWaiting())
+                        if(context.read<WebBloc>().state.route == Constants.detailsEventViewRoute)
+                          PlatformUtils.backNavigator(context);
                         PlatformUtils.navigator(context, Constants.detailsEventViewRoute, state.event);
                     }, child: Container(),)
                 )
@@ -172,7 +174,7 @@ class _buildWebPage extends StatelessWidget {
                     child: ElevatedButton(
                         style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
                         ),
-                        onPressed: () => PlatformUtils.navigator(context, Constants.filterEventView),
+                        onPressed: () => PlatformUtils.navigator(context, Constants.filterEventListRoute),
                         child: Row(
                           children: <Widget>[
                             Icon(Icons.search, color: white,),

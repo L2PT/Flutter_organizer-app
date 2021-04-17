@@ -40,7 +40,9 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
     _databaseRepository.updateEventField(event.id, Constants.tabellaEventi_stato, EventStatus.Accepted);
     FirebaseMessagingService.sendNotifications(tokens: event.supervisor!.tokens,
         style: Constants.notificationSuccessTheme, type: Constants.feedNotification,
-        title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${event.title}\"");
+        title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${event.title}\"",
+        eventId: event.id
+    );
     context.read<MobileBloc>().add(RestoreEvent());
   }
 
@@ -49,7 +51,9 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
     _databaseRepository.refuseEvent(event);
     FirebaseMessagingService.sendNotifications(tokens: event.supervisor!.tokens,
         style: Constants.notificationErrorTheme, type: Constants.feedNotification,
-        title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${event.title}\"");
+        title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${event.title}\"",
+        eventId: event.id
+    );
     context.read<MobileBloc>().add(RestoreEvent());
   }
 

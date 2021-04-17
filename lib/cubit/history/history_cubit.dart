@@ -60,7 +60,4 @@ class HistoryCubit extends Cubit<HistoryState> {
     streamSub.cancel();
     return super.close();
   }
-
-
-
 }

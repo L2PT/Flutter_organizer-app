@@ -312,18 +312,18 @@ class CloudFirestoreService {
       var eventsToPropagate = [e];
       while(eventsToPropagate.isNotEmpty) {
         Event e = eventsToPropagate.removeLast();
-        [e.operator, ...e.suboperators].forEach((operator) async {
+        for(var operator in [e.operator, ...e.suboperators]){
           if(operator != null) {
             List<Event> eventsInConflict = await _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: operator.id).where(Constants.tabellaEventi_dataInizio, isGreaterThan: e.start, isLessThanOrEqualTo: e.end)
                 .get().then(((snapshot) => snapshot.docs.map((document) => Event.fromMap(document.id, "", document.data()!)).toList()));
             eventsInConflict.forEach((eventInConflict) {
-              Duration d = eventInConflict.end.difference(eventInConflict.start);
-              eventInConflict.start = TimeUtils.addWorkTime(e.end, minutes: 5);
-              eventInConflict.end = TimeUtils.addWorkTime(eventInConflict.start, minutes: d.inMinutes-5);
+              Duration d = eventInConflict.end.difference(eventInConflict.start.add(Duration(minutes: 5)));
+              eventInConflict.start = TimeUtils.getStartWorkTimeSpan(from: e.end.add(new Duration(minutes: 5)), ofDuration: d);
+              eventInConflict.end =  eventInConflict.start.add(d);
               eventsToPropagate.add(eventInConflict);
             });
           }
-        });
+        }
         eventsMoved.add(e);
       }
     }
@@ -334,8 +334,8 @@ class CloudFirestoreService {
       await tx.update(doc, {Constants.tabellaEventi_stato: e.status});
       for (var eventMoved in eventsMoved) {
         dynamic doc = _collectionEventi.doc(eventMoved.id);
-        await tx.update(doc, {Constants.tabellaEventi_dataInizio: e.start});
-        await tx.update(doc, {Constants.tabellaEventi_dataFine: e.end});
+        await tx.update(doc, {Constants.tabellaEventi_dataInizio: eventMoved.start});
+        await tx.update(doc, {Constants.tabellaEventi_dataFine: eventMoved.end});
       }
     };
     _cloudFirestore.runTransaction(createTransaction);

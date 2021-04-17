@@ -49,8 +49,8 @@ class WebBloc extends Bloc<WebEvent, WebState> {
   Stream<WebState> _mapUpdateViewToState(NavigateEvent event) async* {
     switch(event.route){
       case Constants.homeRoute: yield Ready(event.route); break;
-      case Constants.historyEventListRoute: yield Ready(event.route, History()); break;
-      case Constants.filterEventView: yield Ready(event.route, EventFilterView()); break;
+      case Constants.historyEventListRoute: yield Ready(event.route, HistoryEventList()); break;
+      case Constants.filterEventListRoute: yield Ready(event.route, FilterEventList()); break;
       case Constants.detailsEventViewRoute: yield DialogReady(event.route, DetailsEvent((event.arg is Event)?event.arg:_getEventFromJson(event.arg)), event.callerContext!); break;
       case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(event.arg), event.callerContext!); break;
       case Constants.monthlyCalendarRoute: yield DialogReady(event.route, TableCalendarWithBuilders(), event.callerContext!); break;

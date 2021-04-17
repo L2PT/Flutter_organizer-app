@@ -42,7 +42,7 @@ class EventStatus {
     }
   }
 
-  static String getTextHistory(int status){
+  static String getCategoryText(int status){
     switch(status){
       case EventStatus.Deleted: return "Eliminati";
       case EventStatus.Refused: return "Rifiutati";

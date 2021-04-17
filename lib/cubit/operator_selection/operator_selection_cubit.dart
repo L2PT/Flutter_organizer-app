@@ -63,7 +63,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
     }
   }
 
-  showFiltersBox(){}
+  showFiltersBox(){}// TODO
   onSearchTimeChanged(DateTime date){}
   onSearchDateChanged(DateTime date){}
 
