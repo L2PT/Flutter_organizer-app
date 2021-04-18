@@ -35,22 +35,22 @@ self.addEventListener('push', (e) => {
     // Skip if event is our own custom event
     if (e.custom) return;
 
-    // Kep old event data to override
-    let oldData = e.data
+    // Old event content data
+    let oldNotificationWrapper = e.data
 
     // Create a new event to dispatch, pull values from notification key and put it in data key,
     // and then remove notification key
     let newEvent = new CustomPushEvent({
         data: {
-            ehheh: oldData.json(),
             json() {
-                let newData = oldData.json()
-                newData.data = {
-                    ...newData.data,
-                    ...newData.notification
+                let newNotificationWrapper = oldNotificationWrapper.json()
+                // rewrite the data map appending the notification field
+                newNotificationWrapper.data = {
+                    ...newNotificationWrapper.data,
+                    ...newNotificationWrapper.notification
                 }
-                delete newData.notification
-                return newData
+                delete newNotificationWrapper.notification
+                return newNotificationWrapper
             },
         },
         waitUntil: e.waitUntil.bind(e),
@@ -85,8 +85,6 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-
-
 const messaging = firebase.messaging();
 
 // If you would like to customize notifications that are received in the
@@ -103,7 +101,10 @@ messaging.onBackgroundMessage(function(payload) {
   const notificationOptions = {
     body: payload.data.title.split("\"")[0],
     icon: '../assets/icona-app.png',
-    data: { url:'https://gestionaleventuribruno.it/#/' },
+    data: {
+        url:'https://gestionaleventuribruno.it/',
+        click_action:'https://gestionaleventuribruno.it/'
+      },
   };
 
   self.registration.showNotification(notificationTitle,notificationOptions);

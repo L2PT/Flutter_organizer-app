@@ -86,6 +86,7 @@ class Event {
     }
   }
 
+  //TODO move the logic outside
   bool isFilteredEvent(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate){
     if(!this.title.contains(e.title)){
       return false;
