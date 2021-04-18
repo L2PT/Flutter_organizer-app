@@ -70,7 +70,7 @@ class Constants {
   static const String tabellaCostanti_Categorie = 'Categorie';
   static const String tabellaCostanti_Telefoni = 'Telefoni';
 
-  //TABLE CLIENTE
+  // TABLE CLIENTE
   static const String tabellaClienti_codicefiscale = 'CodiceFiscale';
   static const String tabellaClienti_company = 'Company';
   static const String tabellaClienti_email = 'Email';

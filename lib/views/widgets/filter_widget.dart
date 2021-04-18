@@ -40,13 +40,12 @@ class FilterWidget extends StatelessWidget {
                   top: 16.0, right: 14.0, bottom: 14.0, left: 14.0),
               decoration: BoxDecoration(color: black,
                   borderRadius: BorderRadius.all(Radius.circular(15.0))),
-              child: Column(children: [
-                this.filterBox(context),
-                SizedBox(height: 10.0),
-                this.showActionFilters
-                    ? this.actionFilter(context)
-                    : Container(),
-              ],
+              child: Column(
+                children: [
+                  this.filterBox(context),
+                  SizedBox(height: 10.0),
+                  this.showActionFilters ? this.actionFilter(context) : Container(),
+                ],
               ))
               : Container(),
         ],);

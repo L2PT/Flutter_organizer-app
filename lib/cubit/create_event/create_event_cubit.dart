@@ -218,6 +218,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }
+  
   setEndTime(dynamic time) {
     Event event = Event.fromMap("", "", state.event.toMap());
     if(time is TimeOfDay)

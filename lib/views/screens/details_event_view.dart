@@ -15,10 +15,10 @@ import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/delete_alert.dart';
+import 'package:venturiautospurghi/views/widgets/alert_delete.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
-import 'package:venturiautospurghi/views/widgets/refuse_alert.dart';
-import 'package:venturiautospurghi/views/widgets/success_alert.dart';
+import 'package:venturiautospurghi/views/widgets/alert_refuse.dart';
+import 'package:venturiautospurghi/views/widgets/alert_success.dart';
 
 
 class DetailsEvent extends StatelessWidget {

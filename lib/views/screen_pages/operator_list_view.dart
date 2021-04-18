@@ -21,7 +21,7 @@ class OperatorList extends StatelessWidget {
         logo,
         SizedBox(height: 8.0),
         BlocBuilder<OperatorListCubit, OperatorListState>(builder: (context, state) {
-          return FilterWidgetOperators(
+          return OperatorsFilterWidget(
             onSearchDateChanged: context.read<OperatorListCubit>().onSearchDateChanged,
             onSearchTimeChanged: context.read<OperatorListCubit>().onSearchTimeChanged,
             searchTimeField: context.read<OperatorListCubit>().state.searchTimeField,

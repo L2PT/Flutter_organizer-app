@@ -1,10 +1,10 @@
-part of 'history_cubit.dart';
+part of 'history_event_list_cubit.dart';
 
-abstract class HistoryState extends Equatable {
+abstract class HistoryEventListState extends Equatable {
   final int selectedStatus;
   final Map<int, List<Event>> eventsMap;
 
-  HistoryState(int? selectedStatus, [Map<int, List<Event>>? eventsMap]):
+  HistoryEventListState(int? selectedStatus, [Map<int, List<Event>>? eventsMap]):
       this.selectedStatus = selectedStatus ?? EventStatus.Ended,
       this.eventsMap = eventsMap ?? {};
   
@@ -21,11 +21,11 @@ abstract class HistoryState extends Equatable {
 }
 
 
-class HistoryLoading extends HistoryState{
+class HistoryLoading extends HistoryEventListState{
   HistoryLoading(int? selectedStatus):super(selectedStatus);
 }
 
-class HistoryReady extends HistoryState{
+class HistoryReady extends HistoryEventListState{
 
   List<Event> selectedEvents() => eventsMap[selectedStatus] ?? [];
 

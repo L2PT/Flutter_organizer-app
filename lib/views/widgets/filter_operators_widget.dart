@@ -4,13 +4,13 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/filter_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 
-class FilterWidgetOperators extends FilterWidget{
+class OperatorsFilterWidget extends FilterWidget{
 
   final DateTime searchTimeField;
   final void Function(DateTime) onSearchDateChanged;
   final void Function(DateTime) onSearchTimeChanged;
 
-  FilterWidgetOperators({
+  OperatorsFilterWidget({
     bool filtersBoxVisibile = false,
     bool showIconExpanded = true,
     required void Function()? showFiltersBox,

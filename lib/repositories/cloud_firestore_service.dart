@@ -190,7 +190,7 @@ class CloudFirestoreService {
     return await table.doc(id).get().then((doc) => doc);
   }
 
-  Stream<List<Event>> subscribeEventsFiltered(Query table, Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate,)  {
+  Stream<List<Event>> subscribeEventsFiltered(Query table, Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate)  {
 
     if(e.title != ''){
       table = table.where(Constants.tabellaEventi_titolo, isGreaterThanOrEqualTo: e.title).where(Constants.tabellaEventi_titolo, isLessThanOrEqualTo: e.title + '~' );
@@ -217,18 +217,18 @@ class CloudFirestoreService {
     });
   }
 
-  Stream<List<Event>> subscribeEventsHistoryFiltered(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate,) {
+  Stream<List<Event>> subscribeEventsHistoryFiltered(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate) {
     CollectionReference table = _collectionStoricoTerminati;
      if(e.isRefused()){
       table = _collectionStoricoRifiutati;
     }else if(e.isDeleted()){
       table = _collectionStoricoEliminati;
     }
-    return subscribeEventsFiltered(table, e, categorySelected, filterStartDate, filterEndDate,);
+    return subscribeEventsFiltered(table, e, categorySelected, filterStartDate, filterEndDate);
   }
 
-  Stream<List<Event>> subscribeEventsWorkFiltered(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate,) {
-    return subscribeEventsFiltered(_collectionEventi, e, categorySelected, filterStartDate, filterEndDate, );
+  Stream<List<Event>> subscribeEventsWorkFiltered(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate) {
+    return subscribeEventsFiltered(_collectionEventi, e, categorySelected, filterStartDate, filterEndDate);
   }
 
   Future<String> addEvent(Event data) async {

@@ -76,7 +76,7 @@ class _operatorSelectableList extends StatelessWidget {
           children: <Widget>[
             SizedBox(height: 15.0),
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(builder: (context, state) {
-              return FilterWidgetOperators(
+              return OperatorsFilterWidget(
                 onSearchDateChanged: context.read<OperatorSelectionCubit>().onSearchDateChanged,
                 onSearchTimeChanged: context.read<OperatorSelectionCubit>().onSearchTimeChanged,
                 searchTimeField: DateTime.now(),

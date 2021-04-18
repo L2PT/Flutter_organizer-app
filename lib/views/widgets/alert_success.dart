@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/base_alert.dart';
+import 'package:venturiautospurghi/views/widgets/alert_base.dart';
 
 class SuccessAlert {
   final BuildContext context;

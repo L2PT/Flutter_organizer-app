@@ -8,11 +8,11 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/views/screen_pages/event_filter_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/filter_event_list_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/history_event_list_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
+import 'package:venturiautospurghi/views/screens/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screens/register_view.dart';
 import 'package:venturiautospurghi/views/screens/table_calendar_view.dart';
 

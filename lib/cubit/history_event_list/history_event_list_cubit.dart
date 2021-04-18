@@ -4,14 +4,14 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 
-part 'history_state.dart';
+part 'history_event_list_state.dart';
 
-class HistoryCubit extends Cubit<HistoryState> {
+class HistoryEventListCubit extends Cubit<HistoryEventListState> {
   final CloudFirestoreService _databaseRepository;
   List<Event> listEvent = [];
   var streamSub;
 
-  HistoryCubit(this._databaseRepository, int? _selectedStatus) :
+  HistoryEventListCubit(this._databaseRepository, int? _selectedStatus) :
         super(HistoryLoading(_selectedStatus)){
     streamSub = _databaseRepository.eventsHistory().listen((historyEventsList) { //TODO null?
       evaluateEventsMap(historyEventsList);
