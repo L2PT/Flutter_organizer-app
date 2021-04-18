@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class PlatformDatePicker {
@@ -63,7 +63,7 @@ class PlatformDatePicker {
       if ((minTime == null || (minTime.hour<time.hour || minTime.hour==time.hour && minTime.minute<=time.minute)) &&
           (maxTime == null || (time.hour<maxTime.hour || time.hour==maxTime.hour && time.minute<=maxTime.minute)))
         valid = true;
-      else PlatformUtils.notifyErrorMessage("Insert a valid time!");
+      else PlatformUtils.notifyErrorMessage("Inserisci un orario compreso tra 6:00 - 21:00");
     } while(!valid);
     return onConfirm(time);
   }

@@ -213,8 +213,8 @@ function setupMessagingHandler() {
       try{
         messaging = firebase.messaging();
         messaging.onMessage((payload) => {
-            message = payload.notification.title.split("\"")[0];
-            job = payload.notification.title.split("\"")[1];
+            message = payload.data.title.split("\"")[0];
+            job = payload.data.title.split("\"")[1];
             type = payload.data.style;
             window.createNotification({
                closeOnClick: true,
@@ -227,7 +227,7 @@ function setupMessagingHandler() {
                onclick: () => {
                 openEventDetails_dart(payload.data.id);
                },
-               showDuration: 5000,
+               showDuration: 60000,
                // success, info, warning, error, and none
                theme: type
              })({

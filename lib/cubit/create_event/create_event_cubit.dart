@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:bloc/bloc.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:equatable/equatable.dart';
@@ -54,7 +52,12 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   void getLocations(String text) async {
     if(text.length > 5){
-      List<String> locations = await GeoUtils.getLocations(text);
+      List<String> locations = [];
+      if(PlatformUtils.isMobile){
+        locations = await GeoUtils.getLocations(text);
+      }else{
+        locations = await GeoUtils.getLocationsWeb(text);
+      }
       emit(state.assign(locations: locations, address: text));
     } else emit(state.assign(address: text));
   }
@@ -214,7 +217,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
 
   setEndDate(DateTime date) {
     Event event = Event.fromMap("", "", state.event.toMap());
-    event.end = TimeUtils.truncateDate(date, "day");
+    event.end = TimeUtils.truncateDate(date, "day").add(
+        Duration(hours: event.end.hour,
+            minutes: event.end.minute));
     _removeAllOperators(event);
     emit(state.assign(event: event));
   }

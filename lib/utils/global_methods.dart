@@ -1,5 +1,6 @@
 library app.utils;
 
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:google_place/google_place.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -86,6 +87,35 @@ class GeoUtils {
           locations.add(e.description!)
       });
     return locations;
+  }
+
+  static Future getLocationsWeb(String address) async {
+    List<String> locations = [];
+    String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input='+address+'&country=it&language=it&key='+Constants.googleMapsApiKey;
+    HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
+      'getDataFromUrl',);
+    try {
+      final HttpsCallableResult result = await callable.call(
+        <String, dynamic>{
+          'url': url,
+        },
+      );
+      List predictions = result.data['predictions'];
+      predictions.forEach((address) {
+        locations.add(address['description']);
+      });
+      return locations;
+    } on FirebaseFunctionsException catch (e) {
+      print('caught firebase functions exception');
+      print(e.code);
+      print(e.message);
+      print(e.details);
+      return null;
+    } catch (e) {
+      print('caught generic exception');
+      print(e);
+      return null;
+    }
   }
 
 }

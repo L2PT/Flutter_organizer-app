@@ -99,8 +99,11 @@ class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin
                 BlocProvider<MessagingCubit>.value(
                   value: cubit,
                   child: BlocListener<MessagingCubit, MessagingState>(
-                    listener: (BuildContext context, MessagingState state) {
+                    listenWhen: (previous, current) => true,
+                    listener: (BuildContext context, MessagingState state){
                       if(state.isWaiting())
+                        if(context.read<WebBloc>().state.route == Constants.detailsEventViewRoute)
+                          PlatformUtils.backNavigator(context);
                         PlatformUtils.navigator(context, Constants.detailsEventViewRoute, state.event);
                     }, child: Container(),)
                 )
