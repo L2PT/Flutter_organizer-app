@@ -29,19 +29,6 @@ class WebHomepage extends StatefulWidget {
 
 class _WebHomepageState extends State<WebHomepage> with TickerProviderStateMixin {
   
-  String getText(int status){
-    switch(status){
-      case EventStatus.Deleted: return "Eliminato";
-      case EventStatus.Refused: return "Rifiutato";
-      case EventStatus.New: return "Nuovo";
-      case EventStatus.Delivered: return "Consegnato";
-      case EventStatus.Seen: return "Visualizzato";
-      case EventStatus.Accepted: return "Accettato";
-      case EventStatus.Ended: return "Terminato";
-      default: return "Nuovo";
-    }
-  }
-  
   @override
   void initState() {
     super.initState();
@@ -175,7 +162,7 @@ class _buildWebPage extends StatelessWidget {
                     child: ElevatedButton(
                         style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
                         ),
-                        onPressed: () => PlatformUtils.navigator(context, Constants.filterEventView),
+                        onPressed: () => PlatformUtils.navigator(context, Constants.filterEventListRoute),
                         child: Row(
                           children: <Widget>[
                             Icon(Icons.search, color: white,),

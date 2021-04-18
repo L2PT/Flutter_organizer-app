@@ -12,7 +12,7 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
-import 'package:venturiautospurghi/views/widgets/refuse_alert.dart';
+import 'package:venturiautospurghi/views/widgets/alert_refuse.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 
 class WaitingEventList extends StatelessWidget {

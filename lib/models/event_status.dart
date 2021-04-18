@@ -13,6 +13,8 @@ class EventStatus {
     switch(status){
       case Deleted:
         return Icons.delete;
+      case Refused:
+        return Icons.assignment_late;
       case New:
         return Icons.assignment;
       case Delivered:
@@ -21,8 +23,6 @@ class EventStatus {
         return Icons.assignment_ind;
       case Accepted:
         return Icons.assignment_turned_in;
-      case Refused:
-        return Icons.assignment_late;
       case Ended:
         return Icons.flag;
       default: return Icons.assignment;
@@ -42,7 +42,7 @@ class EventStatus {
     }
   }
 
-  static String getTextHistory(int status){
+  static String getCategoryText(int status){
     switch(status){
       case EventStatus.Deleted: return "Eliminati";
       case EventStatus.Refused: return "Rifiutati";

@@ -8,9 +8,9 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
-part 'filter_event_state.dart';
+part 'filter_events_state.dart';
 
-class FilterEventCubbit extends Cubit<FilterEventState> {
+class EventsFilterCubit extends Cubit<EventsFilterState> {
   final CloudFirestoreService _databaseRepository;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Map<String,dynamic> categories;
@@ -22,7 +22,7 @@ class FilterEventCubbit extends Cubit<FilterEventState> {
 
 
 
-  FilterEventCubbit(this._databaseRepository) : super(FilterEventState()) {
+  EventsFilterCubit(this._databaseRepository) : super(EventsFilterState()) {
     titleController = new TextEditingController();
     addressController = new TextEditingController();
     customerController = new TextEditingController();

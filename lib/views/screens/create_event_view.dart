@@ -15,7 +15,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/operator_list_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
-import 'package:venturiautospurghi/views/widgets/success_alert.dart';
+import 'package:venturiautospurghi/views/widgets/alert_success.dart';
 
 class CreateEvent extends StatelessWidget {
   final Event? _event;

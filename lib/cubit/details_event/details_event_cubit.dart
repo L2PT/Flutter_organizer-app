@@ -34,7 +34,10 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     emit(state.changeStatus(EventStatus.Ended));
     FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens,
         style: Constants.notificationInfoTheme, type: Constants.feedNotification,
-        title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"");
+        title: "${_account.surname} ${_account.name} ha terminato il lavoro \"${state.event.title}\"",
+        eventId: state.event.id
+    );
+    PlatformUtils.backNavigator(context);
   }
 
   void acceptEventAndNotify() {
@@ -42,7 +45,9 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     emit(state.changeStatus(EventStatus.Accepted));
     FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens,
         style: Constants.notificationSuccessTheme, type: Constants.feedNotification,
-        title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"");
+        title: "${_account.surname} ${_account.name} ha accettato il lavoro \"${state.event.title}\"",
+        eventId: state.event.id
+    );
   }
 
   void refuseEventAndNotify(String justification) {
@@ -51,7 +56,10 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     emit(state.changeStatus(EventStatus.Refused));
     FirebaseMessagingService.sendNotifications(tokens: state.event.supervisor!.tokens,
         style: Constants.notificationErrorTheme, type: Constants.feedNotification,
-        title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"");
+        title: "${_account.surname} ${_account.name} ha rifiutato il lavoro \"${state.event.title}\"",
+        eventId: state.event.id
+    );
+    PlatformUtils.backNavigator(context);
   }
 
   void deleteEvent() {
@@ -73,8 +81,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     e.id = '';
     e.suboperators = List.empty();
     e.operator = null;
-    DateTime nextStartTime = TimeUtils.getNextWorkTimeSpan();
-    e.start = nextStartTime.hour == Constants.MIN_WORKTIME? nextStartTime : TimeUtils.addWorkTime( nextStartTime, hour: 1);
+    e.start = TimeUtils.getNextStartWorkTimeSpan();
     e.end = e.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
     PlatformUtils.navigator(context, Constants.createEventViewRoute, e);
   }

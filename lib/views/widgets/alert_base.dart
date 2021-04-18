@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 
 class Alert extends StatelessWidget {
   final Widget content;
@@ -15,7 +16,7 @@ class Alert extends StatelessWidget {
       titlePadding: EdgeInsets.all(0),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.all(Radius.circular(20.0))),
-      title: title!= ''?Container(
+      title: (!string.isNullOrEmpty(title))? Container(
         height: 50,
         decoration: BoxDecoration(
           color: black,

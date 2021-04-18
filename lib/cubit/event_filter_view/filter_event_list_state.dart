@@ -1,10 +1,10 @@
-part of 'event_filter_view_cubit.dart';
+part of 'filter_event_list_cubit.dart';
 
-abstract class EventFilterViewState extends Equatable {
+abstract class FilterEventListState extends Equatable {
 
   List<Event> listEventFiltered;
 
-  EventFilterViewState([List<Event>? listEvent]):
+  FilterEventListState([List<Event>? listEvent]):
     this.listEventFiltered = listEvent??[];
 
   List<Object?> get props => [this.listEventFiltered.map((e) => e.id).join()];
@@ -16,9 +16,9 @@ abstract class EventFilterViewState extends Equatable {
 
 }
 
-class LoadingEventFilterView extends EventFilterViewState {}
+class LoadingEventFilterView extends FilterEventListState {}
 
-class ReadyEventFilterView extends EventFilterViewState {
+class ReadyEventFilterView extends FilterEventListState {
 
   List<Event> filteredEvent() => this.listEventFiltered;
 

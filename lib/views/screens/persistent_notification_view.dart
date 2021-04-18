@@ -12,7 +12,7 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/refuse_alert.dart';
+import 'package:venturiautospurghi/views/widgets/alert_refuse.dart';
 
 class PersistentNotification extends StatelessWidget {
 

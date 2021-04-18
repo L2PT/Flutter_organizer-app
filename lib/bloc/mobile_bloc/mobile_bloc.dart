@@ -10,14 +10,14 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/event_filter_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/operator_selection_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/filter_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/history_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/history_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_list_view.dart';
+import 'package:venturiautospurghi/views/screens/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screens/persistent_notification_view.dart';
 import 'package:venturiautospurghi/views/screens/register_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/waiting_event_list_view.dart';
@@ -81,8 +81,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
           .then((value) { (event.arg["callback"]).call(); });break;
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
-      case Constants.historyEventListRoute: yield InBackdropState(event.route, History()); break;
-      case Constants.filterEventView: yield InBackdropState(event.route, EventFilterView()); break;
+      case Constants.historyEventListRoute: yield InBackdropState(event.route, HistoryEventList()); break;
+      case Constants.filterEventListRoute: yield InBackdropState(event.route, FilterEventList()); break;
       default: yield InBackdropState(event.route, Profile()); break;
     }
   }

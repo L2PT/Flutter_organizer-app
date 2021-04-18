@@ -1,8 +1,8 @@
-part of 'filter_event_cubit.dart';
+part of 'filter_events_cubit.dart';
 
 enum _filterStatus { normal, loading }
 
-class FilterEventState extends Equatable {
+class EventsFilterState extends Equatable {
 
   Event eventFilter = Event.empty();
   bool filtersBoxVisibile = false;
@@ -12,7 +12,7 @@ class FilterEventState extends Equatable {
   bool filterEndDate = false;
   bool enableSearchField = true;
 
-  FilterEventState({Event? eventFilter}){
+  EventsFilterState({Event? eventFilter}){
     this.eventFilter = eventFilter ??  Event.empty();
   }
 
@@ -22,10 +22,10 @@ class FilterEventState extends Equatable {
   List<Object> get props => [eventFilter, filtersBoxVisibile, categorySelected, status, filterEndDate,
     filterStartDate, enableSearchField];
 
-  FilterEventState.update(this.eventFilter, this.categorySelected, this.filtersBoxVisibile,
+  EventsFilterState.update(this.eventFilter, this.categorySelected, this.filtersBoxVisibile,
       this.status, this.filterStartDate, this.filterEndDate, this.enableSearchField);
 
-  FilterEventState assign({
+  EventsFilterState assign({
     Event? eventFilter,
     Map<String,bool>? categorySelected,
     bool? filtersBoxVisibile,
@@ -33,8 +33,7 @@ class FilterEventState extends Equatable {
     _filterStatus? status,
     bool? filterStartDate,
     bool? filterEndDate
-  }) =>
-      FilterEventState.update(
+  }) => EventsFilterState.update(
           eventFilter??this.eventFilter,
           categorySelected??this.categorySelected,
           filtersBoxVisibile??this.filtersBoxVisibile,

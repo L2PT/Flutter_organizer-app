@@ -85,7 +85,9 @@ class MessagingCubit extends Cubit<MessagingState> {
       // FirebaseMessagingService.sendNotifications(
       //     tokens: supervisor.tokens,
       //     priority: Constants.notificationInfoTheme,
-      //     title: "L'avviso è stato cosegnato a ${event.operator?.surname} ${event.operator?.name}");
+      //     title: "L'avviso è stato cosegnato a ${event.operator?.surname} ${event.operator?.name}",
+      //     eventId: state.event.id
+      // );
     }
     return event;
   }

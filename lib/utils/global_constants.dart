@@ -36,7 +36,7 @@ class Constants {
   static const String resetCodeRoute = 'view/reset_code_page';
   static const String logInRoute = 'view/log_in';
   static const String logOut = 'log_out';
-  static const String filterEventView = 'view/filter_event';
+  static const String filterEventListRoute = 'view/filter_event';
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
@@ -70,7 +70,7 @@ class Constants {
   static const String tabellaCostanti_Categorie = 'Categorie';
   static const String tabellaCostanti_Telefoni = 'Telefoni';
 
-  //TABLE CLIENTE
+  // TABLE CLIENTE
   static const String tabellaClienti_codicefiscale = 'CodiceFiscale';
   static const String tabellaClienti_company = 'Company';
   static const String tabellaClienti_email = 'Email';

@@ -1,24 +1,23 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:venturiautospurghi/cubit/event_filter_view/event_filter_view_cubit.dart';
+import 'package:venturiautospurghi/cubit/event_filter_view/filter_event_list_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/filter_event_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter_events_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
-class EventFilterView extends StatelessWidget {
+class FilterEventList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CloudFirestoreService repository = RepositoryProvider.of<
-        CloudFirestoreService>(context);
+    CloudFirestoreService repository = context.read<CloudFirestoreService>();
 
     return new BlocProvider(
-        create: (_) => EventFilterViewCubit(repository),
+        create: (_) => FilterEventListCubit(repository),
         child: ResponsiveWidget(
           smallScreen: _smallScreen(),
           largeScreen: _largeScreen(),
@@ -33,7 +32,7 @@ class _largeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder <EventFilterViewCubit, EventFilterViewState>(
+    return BlocBuilder <FilterEventListCubit, FilterEventListState>(
         builder: (context, state) {
           return !(state is ReadyEventFilterView) ? Center(child: CircularProgressIndicator()) : Container(
             padding: EdgeInsets.symmetric(vertical: 10),
@@ -65,10 +64,10 @@ class _largeScreen extends StatelessWidget {
                           ),
                         ),
                         SizedBox(height: 20,),
-                        FilterWidgetEvent(
+                        EventsFilterWidget(
                           hintTextSearch: 'Cerca gli interventi',
-                          clearFilter: context.read<EventFilterViewCubit>().clearFilter,
-                          filterEvent:  context.read<EventFilterViewCubit>().filterEvent,
+                          clearFilter: context.read<FilterEventListCubit>().clearFilter,
+                          filterEvent:  context.read<FilterEventListCubit>().filterEvent,
                           maxHeightContainerExpanded: MediaQuery.of(context).size.height-270,
                           isWebMode: true,
                         ),
@@ -86,7 +85,7 @@ class _largeScreen extends StatelessWidget {
                         SizedBox(height: 5,),
                         Text("Tutti Gli Incarichi ", style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 10,),
-                        (context.read<EventFilterViewCubit>().state as ReadyEventFilterView).filteredEvent().length>0 ?
+                        (context.read<FilterEventListCubit>().state as ReadyEventFilterView).filteredEvent().length>0 ?
                         Container(
                             height: MediaQuery.of(context).size.height - 110,
                             child: GridView(
@@ -96,7 +95,7 @@ class _largeScreen extends StatelessWidget {
                                   crossAxisSpacing: 5.0,
                                   childAspectRatio: 2.3,
                                 ),
-                                children: (context.read<EventFilterViewCubit>().state as ReadyEventFilterView).filteredEvent().map((event)=> Container(
+                                children: (context.read<FilterEventListCubit>().state as ReadyEventFilterView).filteredEvent().map((event)=> Container(
                                     child: CardEvent(
                                       event: event,
                                       dateView: true,
@@ -139,12 +138,12 @@ class _smallScreen extends StatelessWidget {
           topRight: new Radius.circular(16.0)),
       child: Column(
         children: [
-          FilterWidgetEvent(
+          EventsFilterWidget(
             hintTextSearch: 'Cerca gli interventi',
-            clearFilter: context.read<EventFilterViewCubit>().clearFilter,
-            filterEvent: context.read<EventFilterViewCubit>().filterEvent,
+            clearFilter: context.read<FilterEventListCubit>().clearFilter,
+            filterEvent: context.read<FilterEventListCubit>().filterEvent,
           ),
-          BlocBuilder<EventFilterViewCubit, EventFilterViewState>(
+          BlocBuilder<FilterEventListCubit, FilterEventListState>(
               buildWhen: (previous, current) => previous != current,
               builder: (context, state) {
                 return !(state is ReadyEventFilterView) ? Center(

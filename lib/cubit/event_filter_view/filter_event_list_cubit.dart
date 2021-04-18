@@ -3,13 +3,13 @@ import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 
-part 'event_filter_view_state.dart';
+part 'filter_event_list_state.dart';
 
-class EventFilterViewCubit extends Cubit<EventFilterViewState> {
+class FilterEventListCubit extends Cubit<FilterEventListState> {
   final CloudFirestoreService _databaseRepository;
   List<Event> listEvent = [];
 
-  EventFilterViewCubit(this._databaseRepository) : super(LoadingEventFilterView()){
+  FilterEventListCubit(this._databaseRepository) : super(LoadingEventFilterView()){
     _databaseRepository.subscribeEvents().listen((eventsList) {
       emit(state.assign(eventsList: eventsList));
     });

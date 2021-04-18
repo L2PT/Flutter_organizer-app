@@ -19,26 +19,31 @@ class TimeUtils {
     return DateTime.parse(truncatedDate);
   }
 
-  static DateTime getNextWorkTimeSpan([DateTime? date]) {
-    date = date ?? DateTime.now();
+  static DateTime getNextStartWorkTimeSpan({DateTime? from, Duration? ofDuration}) {
+    DateTime date = from ?? DateTime.now();
 
-    DateTime nextWorkTime = date.add(new Duration(minutes: Constants.WORKTIME_SPAN));
-    if(nextWorkTime.hour > Constants.MAX_WORKTIME){
-      nextWorkTime.add(new Duration(days: 1));
-      nextWorkTime = new DateTime(nextWorkTime.year,nextWorkTime.month, nextWorkTime.day, Constants.MIN_WORKTIME);
-    }else if(nextWorkTime.hour < Constants.MIN_WORKTIME) {
-      nextWorkTime = new DateTime(nextWorkTime.year,nextWorkTime.month, nextWorkTime.day, Constants.MIN_WORKTIME);
-    }
-    return nextWorkTime;
+    DateTime nextWorkTime = TimeUtils.addWorkTime(date, new Duration(minutes: Constants.WORKTIME_SPAN));
+    return getStartWorkTimeSpan(from:nextWorkTime, ofDuration: ofDuration);
   }
 
-  static DateTime addWorkTime(DateTime time, {int? hour, int? minutes}) {
-    DateTime nextTimeWork = time.add(new Duration(hours: hour ?? 0, minutes: minutes ?? 0));
-    if(nextTimeWork.hour > Constants.MAX_WORKTIME){
-      nextTimeWork.add(new Duration(days: 1));
-      nextTimeWork = new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
+  static DateTime getStartWorkTimeSpan({required DateTime from, Duration? ofDuration}) {
+    Duration duration = ofDuration ?? Duration(minutes: Constants.WORKTIME_SPAN);
+
+    DateTime startTimePeriod = from.add(duration);
+    if(from.day != startTimePeriod.day || startTimePeriod.hour > Constants.MAX_WORKTIME || (startTimePeriod.hour == Constants.MAX_WORKTIME && startTimePeriod.minute > 0))
+      startTimePeriod = TimeUtils.truncateDate(from, "day").add(new Duration(days: 1, hours: Constants.MIN_WORKTIME));
+    else if(from.hour < Constants.MIN_WORKTIME){
+      startTimePeriod = TimeUtils.truncateDate(startTimePeriod, "day").add(new Duration(hours: Constants.MIN_WORKTIME));
+    }
+    return startTimePeriod;
+  }
+
+  static DateTime addWorkTime(DateTime time,  Duration duration) {
+    DateTime nextTimeWork = time.add(duration);
+    if(nextTimeWork.hour > Constants.MAX_WORKTIME || (nextTimeWork.hour == Constants.MAX_WORKTIME && nextTimeWork.minute > 0)){
+      nextTimeWork = TimeUtils.truncateDate(time, "day").add(new Duration(days: 1, hours: Constants.MIN_WORKTIME));
     }else if(nextTimeWork.hour < Constants.MIN_WORKTIME){
-      nextTimeWork = new DateTime(nextTimeWork.year,nextTimeWork.month, nextTimeWork.day, Constants.MIN_WORKTIME);
+      nextTimeWork = TimeUtils.truncateDate(nextTimeWork, "day").add(new Duration(hours: Constants.MIN_WORKTIME));
     }
     return nextTimeWork;
   }

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
-import 'package:venturiautospurghi/cubit/filter_event/filter_event_cubit.dart';
+import 'package:venturiautospurghi/cubit/filter_events/filter_events_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
@@ -15,7 +15,7 @@ import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/operator_list_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 
-class FilterWidgetEvent extends FilterWidget {
+class EventsFilterWidget extends FilterWidget {
 
   late bool isSupervisor;
   final void Function() clearFilter;
@@ -24,7 +24,7 @@ class FilterWidgetEvent extends FilterWidget {
       bool filterStartDate, bool filterEndDate) filterEvent;
   double maxHeightContainerExpanded;
 
-  FilterWidgetEvent({
+  EventsFilterWidget({
     bool filtersBoxVisibile = false,
     bool showIconExpanded = true,
     bool isWebMode = false,
@@ -44,33 +44,33 @@ class FilterWidgetEvent extends FilterWidget {
     int i = 0;
 
 
-    return context.read<FilterEventCubbit>().categories.map((categoryName, categoryColor) =>
+    return context.read<EventsFilterCubit>().categories.map((categoryName, categoryColor) =>
       MapEntry(  Column(children: <Widget>[
         Theme(data: ThemeData(
           unselectedWidgetColor: grey, // Your color
         ), child:
-        context.read<FilterEventCubbit>().getCategorySelected(categoryName)? new Transform.scale(
+        context.read<EventsFilterCubit>().getCategorySelected(categoryName)? new Transform.scale(
           scale: isWebMode?1:1.5, child: Checkbox(
-              value: context.read<FilterEventCubbit>().getCategorySelected(categoryName),
+              value: context.read<EventsFilterCubit>().getCategorySelected(categoryName),
               splashRadius: 1,
               checkColor: white,
               hoverColor: HexColor(categoryColor),
               activeColor: HexColor(categoryColor),
               onChanged: (bool? val) => {
-                context.read<FilterEventCubbit>().checkCategory(categoryName,val)},
+                context.read<EventsFilterCubit>().checkCategory(categoryName,val)},
             )): Checkbox(
-          value: context.read<FilterEventCubbit>().getCategorySelected(categoryName),
+          value: context.read<EventsFilterCubit>().getCategorySelected(categoryName),
           splashRadius: 1,
           checkColor: white,
           hoverColor: HexColor(categoryColor),
           activeColor: HexColor(categoryColor),
 
           onChanged: (bool? val) => {
-            context.read<FilterEventCubbit>().checkCategory(categoryName,val)},
+            context.read<EventsFilterCubit>().checkCategory(categoryName,val)},
         )
         ),
             new Text(categoryName.toUpperCase(),
-                style: context.read<FilterEventCubbit>().getCategorySelected(categoryName)? subtitle_rev.copyWith(fontSize: this.isWebMode?12:14,color: white) : subtitle.copyWith(fontSize: this.isWebMode?12:14, color: grey)),
+                style: context.read<EventsFilterCubit>().getCategorySelected(categoryName)? subtitle_rev.copyWith(fontSize: this.isWebMode?12:14,color: white) : subtitle.copyWith(fontSize: this.isWebMode?12:14, color: grey)),
           ]), i++)).keys.toList();
   }
 
@@ -82,7 +82,7 @@ class FilterWidgetEvent extends FilterWidget {
     DateFormat formatDate = DateFormat('d MMM y','it_IT');
 
     return new Form(
-          key: context.read<FilterEventCubbit>().formKey,
+          key: context.read<EventsFilterCubit>().formKey,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,children: <Widget>[
@@ -110,7 +110,7 @@ class FilterWidgetEvent extends FilterWidget {
                               Expanded(
                                   child: TextFormField(
                                     cursorColor: white,
-                                    controller: context.read<FilterEventCubbit>().titleController,
+                                    controller: context.read<EventsFilterCubit>().titleController,
                                     style: TextStyle(color: white),
                                     keyboardType: TextInputType.text,
                                     decoration: InputDecoration(
@@ -120,7 +120,7 @@ class FilterWidgetEvent extends FilterWidget {
                                       hintStyle: subtitle,
                                       border: InputBorder.none,
                                     ),
-                                    onSaved: (value) => context.read<FilterEventCubbit>().state.eventFilter.title = value??"",
+                                    onSaved: (value) => context.read<EventsFilterCubit>().state.eventFilter.title = value??"",
                                   )),
                             ],
                           )),
@@ -134,7 +134,7 @@ class FilterWidgetEvent extends FilterWidget {
                                   child: TextFormField(
                                     keyboardType: TextInputType.text,
                                     cursorColor: white,
-                                    controller: context.read<FilterEventCubbit>().addressController,
+                                    controller: context.read<EventsFilterCubit>().addressController,
                                     style: TextStyle(color: white),
                                     decoration: InputDecoration(
                                       isDense: true,
@@ -143,7 +143,7 @@ class FilterWidgetEvent extends FilterWidget {
                                       hintStyle: subtitle,
                                       border: InputBorder.none,
                                     ),
-                                    onSaved: (value) => context.read<FilterEventCubbit>().state.eventFilter.address = value??"",
+                                    onSaved: (value) => context.read<EventsFilterCubit>().state.eventFilter.address = value??"",
                                   )),
                             ]),
                       ),
@@ -156,7 +156,7 @@ class FilterWidgetEvent extends FilterWidget {
                               SizedBox(width: spaceIconText),
                               Expanded(
                                   child: TextFormField(
-                                    controller: context.read<FilterEventCubbit>().customerController,
+                                    controller: context.read<EventsFilterCubit>().customerController,
                                     cursorColor: white,
                                     keyboardType: TextInputType.phone,
                                     style: TextStyle(color: white),
@@ -166,11 +166,11 @@ class FilterWidgetEvent extends FilterWidget {
                                       hintText: 'Cerca per numero cliente',
                                       hintStyle: subtitle,
                                       border: InputBorder.none,),
-                                    onSaved: (value) => context.read<FilterEventCubbit>().state.eventFilter.customer.phone = value??"",
+                                    onSaved: (value) => context.read<EventsFilterCubit>().state.eventFilter.customer.phone = value??"",
                                   )),
                             ],
                           )),
-                      BlocBuilder<FilterEventCubbit, FilterEventState>(
+                      BlocBuilder<EventsFilterCubit, EventsFilterState>(
                           buildWhen: (previous, current) => previous.filterStartDate != current.filterStartDate ||  previous.filterEndDate != current.filterEndDate,
                           builder: (context, state) {
                             return Padding(
@@ -181,21 +181,21 @@ class FilterWidgetEvent extends FilterWidget {
                                     SizedBox(width: spaceIconText),
                                     Expanded(
                                       child: GestureDetector(
-                                        child: Text(context.read<FilterEventCubbit>().state.filterStartDate?
-                                        formatDate.format(context.read<FilterEventCubbit>().state.eventFilter.start):'Data inizio',
-                                          style: subtitle.copyWith(color: context.read<FilterEventCubbit>().state.filterStartDate?white:grey, fontSize: this.isWebMode?14:16 ),
+                                        child: Text(context.read<EventsFilterCubit>().state.filterStartDate?
+                                        formatDate.format(context.read<EventsFilterCubit>().state.eventFilter.start):'Data inizio',
+                                          style: subtitle.copyWith(color: context.read<EventsFilterCubit>().state.filterStartDate?white:grey, fontSize: this.isWebMode?14:16 ),
                                           textAlign: TextAlign.center,),
                                         onTap: () =>
                                             PlatformDatePicker.selectDate(context,
                                               maxTime: DateTime(3000),
-                                              currentTime: context.read<FilterEventCubbit>().state.eventFilter.start,
-                                              onConfirm: (date) => context.read<FilterEventCubbit>().setStartDate(date),
+                                              currentTime: context.read<EventsFilterCubit>().state.eventFilter.start,
+                                              onConfirm: (date) => context.read<EventsFilterCubit>().setStartDate(date),
                                             ),
                                       ),),
                                     IconButton(
                                         icon: Icon(Icons.clear, size: 16, color: grey),
                                         onPressed: () {
-                                          context.read<FilterEventCubbit>().clearStartDate();
+                                          context.read<EventsFilterCubit>().clearStartDate();
                                         }
                                     ),
                                     SizedBox(width: 10),
@@ -203,22 +203,22 @@ class FilterWidgetEvent extends FilterWidget {
                                     SizedBox(width: 10),
                                     Expanded(
                                       child: GestureDetector(
-                                        child: Text(context.read<FilterEventCubbit>().state.filterEndDate?
-                                        formatDate.format(context.read<FilterEventCubbit>().state.eventFilter.end):'Data fine',
-                                          style: subtitle.copyWith(color: context.read<FilterEventCubbit>().state.filterEndDate?white:grey),
+                                        child: Text(context.read<EventsFilterCubit>().state.filterEndDate?
+                                        formatDate.format(context.read<EventsFilterCubit>().state.eventFilter.end):'Data fine',
+                                          style: subtitle.copyWith(color: context.read<EventsFilterCubit>().state.filterEndDate?white:grey),
                                           textAlign: TextAlign.center,),
                                         onTap: () =>
                                             PlatformDatePicker.selectDate(context,
-                                              minTime: TimeUtils.truncateDate(context.read<FilterEventCubbit>().state.eventFilter.start, "day"),
+                                              minTime: TimeUtils.truncateDate(context.read<EventsFilterCubit>().state.eventFilter.start, "day"),
                                               maxTime: DateTime(3000),
-                                              currentTime: context.read<FilterEventCubbit>().state.eventFilter.start,
-                                              onConfirm: (date) => context.read<FilterEventCubbit>().setEndDate(date),
+                                              currentTime: context.read<EventsFilterCubit>().state.eventFilter.start,
+                                              onConfirm: (date) => context.read<EventsFilterCubit>().setEndDate(date),
                                             ),
                                       ),),
                                     IconButton(
                                         icon: Icon(Icons.clear, size: 16,color: grey),
                                         onPressed: () {
-                                          context.read<FilterEventCubbit>().clearEndDate();
+                                          context.read<EventsFilterCubit>().clearEndDate();
                                         }
                                     ),
 
@@ -233,18 +233,18 @@ class FilterWidgetEvent extends FilterWidget {
                           IconButton(
                               icon: Icon(Icons.add, color: grey),
                               onPressed: () {
-                                context.read<FilterEventCubbit>().addOperatorDialog(context);
+                                context.read<EventsFilterCubit>().addOperatorDialog(context);
                               }
                           )
                         ],
                       ): Container(),
-                      BlocBuilder<FilterEventCubbit, FilterEventState>(
+                      BlocBuilder<EventsFilterCubit, EventsFilterState>(
                           buildWhen: (previous, current) => previous.eventFilter.suboperators.toString() != current.eventFilter.suboperators.toString(),
                           builder: (context, state) {
                             return OperatorsList(
                               canRemove: (Account operator) => true,
-                              closeFunction: context.read<FilterEventCubbit>().removeOperatorFromEventList,
-                              operators: context.read<FilterEventCubbit>().state.eventFilter.suboperators,
+                              closeFunction: context.read<EventsFilterCubit>().removeOperatorFromEventList,
+                              operators: context.read<EventsFilterCubit>().state.eventFilter.suboperators,
                               darkMode: true,
                               isWebMode: this.isWebMode,
                             );}),
@@ -254,7 +254,7 @@ class FilterWidgetEvent extends FilterWidget {
                           child: Padding(
                             padding: EdgeInsets.only(top: 10.0),
                             child: Center(
-                              child: BlocBuilder<FilterEventCubbit, FilterEventState>(
+                              child: BlocBuilder<EventsFilterCubit, EventsFilterState>(
                                   buildWhen: (previous, current) => previous.categorySelected != current.categorySelected ,
                                   builder: (context, state) {
                                     return GridView(
@@ -283,29 +283,28 @@ class FilterWidgetEvent extends FilterWidget {
 
   @override
   void clearFilters(BuildContext context) {
-    context.read<FilterEventCubbit>().clearFilter();
+    context.read<EventsFilterCubit>().clearFilter();
     this.clearFilter();
   }
 
   @override
   void filterValues(BuildContext context){
-    context.read<FilterEventCubbit>().filterValue(filterEvent);
+    context.read<EventsFilterCubit>().filterValue(filterEvent);
   }
 
   @override
   Widget build(BuildContext context) {
-    CloudFirestoreService repository = RepositoryProvider.of<
-        CloudFirestoreService>(context);
+    CloudFirestoreService repository = context.read<CloudFirestoreService>();
 
     return new BlocProvider(
-      create: (_) => FilterEventCubbit(repository),
-      child: BlocBuilder<FilterEventCubbit, FilterEventState>(
+      create: (_) => EventsFilterCubit(repository),
+      child: BlocBuilder<EventsFilterCubit, EventsFilterState>(
           buildWhen: (previous, current) => previous != current,
           builder: (context, state) {
             this.isSupervisor = context.select((AuthenticationBloc bloc)=>bloc.account!).supervisor;
-            super.showFiltersBox = context.read<FilterEventCubbit>().showFiltersBox;
+            super.showFiltersBox = context.read<EventsFilterCubit>().showFiltersBox;
             super.filtersBoxVisibile = state.filtersBoxVisibile;
-            super.onSearchChanged = (text) => context.read<FilterEventCubbit>().onSearchChanged(text, this.filterEvent);
+            super.onSearchChanged = (text) => context.read<EventsFilterCubit>().onSearchChanged(text, this.filterEvent);
             super.enableSearchField = state.enableSearchField;
             if(!state.isLoading()){
                 return !isWebMode?Padding(padding: EdgeInsets.only(top: 25),
