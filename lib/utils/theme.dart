@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 final logo = new Image.asset('assets/logo.png', height: 128.0);
 final logo_web = new Image.asset('logo.png', height: 128.0);
+final logoNoEvent = new Image.asset('assets/emptyEventLogo.png', width: 200,);
 final ThemeData customLightTheme = _buildTheme();
 final TextStyle title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: black, );
 final TextStyle title_big = TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: black, );
@@ -85,7 +86,7 @@ final ButtonStyle flatButtonStyle = TextButton.styleFrom(
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16.0),
   shape: const RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(2.0)),
+    borderRadius: BorderRadius.all(Radius.circular(10.0)),
   ),
 );
 
@@ -136,3 +137,6 @@ const yellow_light = const Color(0xFFF8D009);
 const blue = const Color(0xFF119DD1);
 const green = const Color(0xFF00664D);
 const green_success = const Color(0xFF1A7C4F);
+const colorRefused = const Color(0xFFC34638);
+const colorWaiting = const Color(0xFFF8D009);
+const colorAccepted = const Color(0xFF419D33);

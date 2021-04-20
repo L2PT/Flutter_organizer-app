@@ -20,6 +20,7 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
+import 'package:venturiautospurghi/views/widgets/empty_event_widget.dart';
 
 class DailyCalendar extends StatefulWidget {
   final DateTime? day;
@@ -48,7 +49,7 @@ class _DailyCalendarViewState extends State<DailyCalendar> with TickerProviderSt
         <Widget>[
           _rowCalendar(this),
           const SizedBox(height: 8.0),
-          _verticalEventsGrid()
+          _verticalEventsGrid(this)
         ]);
 
     return new BlocProvider(
@@ -185,7 +186,6 @@ class _rowCalendar extends StatelessWidget {
           onVisibleDaysChanged: context.read<DailyCalendarCubit>().onVisibleDaysChanged,
           selectNext: () {
             context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
-            context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
             _animationController.dispose();
            },
           selectPrevious: () {},
@@ -197,8 +197,13 @@ class _rowCalendar extends StatelessWidget {
 }
 
 class _verticalEventsGrid extends StatelessWidget {
+  var _animationController;
 
-  @override
+  _verticalEventsGrid(_DailyCalendarViewState ticker) {
+    _animationController = AnimationController(duration: const Duration(milliseconds: 400), vsync: ticker);
+  }
+
+    @override
   Widget build(BuildContext context) {
     Account account = context.read<AuthenticationBloc>().account!;
     int gridHourSpan = context.select((DailyCalendarCubit cubit) => cubit.state.gridHourSpan);
@@ -325,6 +330,12 @@ class _verticalEventsGrid extends StatelessWidget {
         builder: (context, state) {
           if (!(state is DailyCalendarReady))
             return Center(child: CircularProgressIndicator());
+          if((state as DailyCalendarReady).selectedEvents().isEmpty)
+            return Padding(padding: EdgeInsets.all(20), child:EmptyEvent(onPressedFunction: () {
+                context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
+                _animationController.dispose();
+            }, textMessage: 'Nessun intervento in programma per questa data',
+              subMessage: "Controlla i tuoi incarichi",));
 
           _backGridLength = gridHourSpan == 0 ? 0 : (Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) ~/ gridHourSpan;
           _barHourHeight = gridHourHeight / 2;

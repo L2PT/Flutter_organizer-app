@@ -106,3 +106,4 @@ flutter:
   # see https://flutter.io/custom-fonts/#from-packages
   assets:
     - assets/logo.png
+    - assets/emptyEventLogo.png

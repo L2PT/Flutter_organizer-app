@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 
 class EventStatus {
   static const int Deleted = -2;
@@ -49,4 +50,15 @@ class EventStatus {
       default: return "Conclusi";
     }
   }
+
+  static Color getColorStatus(int status){
+    switch(status){
+      case EventStatus.Refused: return colorRefused;
+      case EventStatus.Accepted: return colorAccepted;
+      case EventStatus.Deleted: return colorRefused;
+      case EventStatus.Ended: return black;
+      default: return colorWaiting;
+    }
+  }
+
 }

@@ -69,7 +69,7 @@ class Utils {
   }
 
   static bool isPhoneNumber(String str) {
-    String patttern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
+    String patttern = r'(^(?:[+3]9)?[0-9]{8,12}$)';
     RegExp regExp = new RegExp(patttern);
     if (str.length == 0) {
       return false;

@@ -11,6 +11,7 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/views/widgets/empty_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/alert_refuse.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
@@ -59,21 +60,11 @@ class _eventList extends StatelessWidget{
       itemCount: eventsGroupedByDay.length,
       itemBuilder: (context, index) => _listGroup(eventsGroupedByDay[index]),);
 
-    Widget noContent =  Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Padding(padding: EdgeInsets.only(bottom: 5) ,child:Text("Nessun incarico in sospeso",style: title,)),
-          Padding(padding: EdgeInsets.only(bottom: 5), child: Text("Controlla i tuoi incarichi accettati", style: subtitle,)),
-          ElevatedButton(
-            child: new Text('VEDI CALENDARIO', style: button_card),
-            onPressed: _onCalendarPressed,
-          ),
-        ],
-      ),
-
-    );
+    Widget noContent =  Container(child: EmptyEvent(
+      onPressedFunction: _onCalendarPressed,
+      textMessage: 'Nessun incarico in sospeso',
+      subMessage: "Controlla i tuoi incarichi accettati",
+    ),);
 
 
     return BlocBuilder<WaitingEventListCubit, WaitingEventListState>(

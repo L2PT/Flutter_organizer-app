@@ -1,13 +1,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'dart:io' show Platform;
 
 class CardEvent extends StatelessWidget {
   final Event event;
@@ -214,7 +213,7 @@ class CardEvent extends StatelessWidget {
       return externalBorder? Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4.0),
-            color: event.status<0?Colors.red:event.status<3?Colors.yellow:event.isAccepted()?Colors.green:black,
+            color: EventStatus.getColorStatus(event.status),
           ),
           child: card) : card;
     }
