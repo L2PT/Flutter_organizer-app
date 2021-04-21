@@ -267,8 +267,7 @@ class CloudFirestoreService {
   }
 
   static void backgroundUpdateEventAsDelivered(String id) async {
-    Event? event = await FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).get().then((document) => document.exists ?
-      Event.fromMap(document.id, "", document.data()!));
+    Event? event = await FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).get().then((document) => document.exists ? Event.fromMap(document.id, "", document.data()!));
       if (event != null && event.isNew()) {
         FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).update(Map.of({Constants.tabellaEventi_stato: EventStatus.Delivered})
       );
