@@ -37,4 +37,7 @@ extension string on String {
   static bool isNullOrEmpty(String? v) {
     return v == null || v == "";
   }
+  String capitalize() {
+    return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
 }

@@ -29,6 +29,7 @@ class RegisterState extends State<Register> {
   final TextEditingController _telefonoController = TextEditingController();
   final TextEditingController _codFiscaleController = TextEditingController();
   int _radioValue = 0;
+  static const iconWidth = 30.0;
 
   @override
   Widget build(BuildContext context) {    
@@ -63,89 +64,126 @@ class RegisterState extends State<Register> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    TextFormField(
-                      cursorColor: black,
-                      controller: _nomeController,
-                      decoration: InputDecoration(
-                        hintText: "Nome",
-                        hintStyle: subtitle,
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 2.0,
-                            style: BorderStyle.solid,
-                          ),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(Icons.account_box, color: black, size: iconWidth),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          maxLines: 1,
+                          cursorColor: black,
+                          controller: _nomeController,
+                          decoration: InputDecoration(
+                            hintText: 'Nome',
+                            hintStyle: subtitle,
+                            border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                            validator: (value) => string.isNullOrEmpty(value)?
+                            'Il campo \'Nome\' è obbligatorio' : null,
                         ),
                       ),
-                      validator: (value) => string.isNullOrEmpty(value)?
-                        'Il campo \'Nome\' è obbligatorio' : null
-                    ),
-                    TextFormField(
-                      controller: _cognomeController,
-                      cursorColor: black,
-                      decoration: InputDecoration(
-                        hintText: 'Cognome',
-                        hintStyle: subtitle,
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 2.0,
-                            style: BorderStyle.solid,
-                          ),
+                    ]),
+                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(Icons.account_box, color: black, size: iconWidth),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          maxLines: 1,
+                          cursorColor: black,
+                          controller: _cognomeController,
+                          decoration: InputDecoration(
+                            hintText: 'Cognome',
+                            hintStyle: subtitle,
+                            border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                          validator: (value) => string.isNullOrEmpty(value)?
+                          'Il campo \'Cognome\' è obbligatorio' : null,
                         ),
                       ),
-                      validator: (value) => string.isNullOrEmpty(value)?
-                        'Il campo \'Cognome\' è obbligatorio' : null
-                    ),
-                    TextFormField(
-                      controller: _emailController,
-                      cursorColor: black,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: InputDecoration(
-                        hintText: 'Email',
-                        hintStyle: subtitle,
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 2.0,
-                            style: BorderStyle.solid,
-                          ),
+                    ]),
+                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(FontAwesomeIcons.solidAddressCard, color: black, size: iconWidth),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          maxLines: 1,
+                          cursorColor: black,
+                          controller: _codFiscaleController,
+                          decoration: InputDecoration(
+                            hintText: 'Codice Fiscale',
+                            hintStyle: subtitle,
+                            border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                            validator: (value) => string.isNullOrEmpty(value) || value!.length != 16?
+                            'Il campo \'Codice Fiscale\' è obbligatorio' : null
                         ),
                       ),
-                      validator: (value) => string.isNullOrEmpty(value)?
-                        'Il campo \'Email\' è obbligatorio' : null
-                    ),
-                    TextFormField(
-                        controller: _telefonoController,
-                        cursorColor: black,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          hintText: 'Telefono',
-                          hintStyle: subtitle,
-                          border: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                              width: 2.0,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                        ),
-                        validator: (value) => string.isNullOrEmpty(value)?
-                          'Il campo \'Telefono\' è obbligatorio' : !Utils.isPhoneNumber(value!)?
-                          'Inserisci un valore valido' : null
-                    ),
-                    TextFormField(
-                      controller: _codFiscaleController,
-                      cursorColor: black,
-                      decoration: InputDecoration(
-                        hintText: 'Codice Fiscale',
-                        hintStyle: subtitle,
-                        border: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                            width: 2.0,
-                            style: BorderStyle.solid,
-                          ),
+                    ]),
+                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(Icons.mail, color: black, size: iconWidth),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                            maxLines: 1,
+                            cursorColor: black,
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              hintText: 'Indirizzo e-mail',
+                              hintStyle: subtitle,
+                              border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                            validator: (value) => string.isNullOrEmpty(value)?
+                            'Il campo \'Email\' è obbligatorio' : null
                         ),
                       ),
-                      validator: (value) => string.isNullOrEmpty(value) || value!.length != 16?
-                        'Il campo \'Codice Fiscale\' è obbligatorio' : null
-                    ),
+                    ]),
+                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(Icons.phone, color: black, size: iconWidth),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                            maxLines: 1,
+                            cursorColor: black,
+                            controller: _telefonoController,
+                            keyboardType: TextInputType.phone,
+                            decoration: InputDecoration(
+                              hintText: 'Telefono',
+                              hintStyle: subtitle,
+                              border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                            validator: (value) => string.isNullOrEmpty(value)?
+                            'Il campo \'Telefono\' è obbligatorio' : !Utils.isPhoneNumber(value!)?
+                            'Inserisci un valore valido' : null
+                        ),
+                      ),
+                    ]),
+                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+                    SizedBox(height: 10,),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(Icons.assignment_ind, color: black, size: iconWidth),
+                      ),
+                      Expanded( child:
+                          Text("Seleziona il ruolo", style: subtitle.copyWith(fontWeight: FontWeight.bold, color: black ),),
+                      )
+                    ]),
+                    SizedBox(height: 10),
                     Padding(
                       padding: EdgeInsets.symmetric(vertical: 10),
                       child: new Row(
@@ -170,9 +208,7 @@ class RegisterState extends State<Register> {
                                       style: (_radioValue == Role.Operatore) ? subtitle_rev : subtitle.copyWith(color: black)),
                                 ])),
                           ),
-                          SizedBox(
-                            width: 30,
-                          ),
+                          SizedBox(width: 30,),
                           GestureDetector(
                             onTap: () => _handleRadioValueChanged(Role.Reponsabile),
                             child: Container(
@@ -195,25 +231,26 @@ class RegisterState extends State<Register> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 20,),
                     Container(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        alignment: Alignment.topRight,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            TextButton(
-                              child: new Text('Annulla', style: label),
-                              onPressed:  (){ PlatformUtils.backNavigator(context); },
-                            ),
-                            SizedBox(width: 20),
                             ElevatedButton(
                               onPressed: () async {
                                 if (_formKey.currentState!.validate()) {
                                   _register();
                                 }
                               },
-                              child: Text('CONFERMA', style: title_rev),
+                              child: Text('CONFERMA', style: button_card),
                             ),
+                            TextButton(
+                              child: new Text('Annulla', style: label),
+                              onPressed:  (){ PlatformUtils.backNavigator(context); },
+                            ),
+
                           ],
                         )),
                   ],
@@ -239,8 +276,8 @@ class RegisterState extends State<Register> {
       displayName: _cognomeController.text + " " + _nomeController.text,
     ).then((userFirebase) {
       if (userFirebase.user != null) {
-        Account newlyCreated = Account(userFirebase.user!.uid, _nomeController.text, _cognomeController.text, _emailController.text.toLowerCase(),
-            _telefonoController.text, _codFiscaleController.text, [], [], _radioValue == Role.Reponsabile);
+        Account newlyCreated = Account(userFirebase.user!.uid, _nomeController.text.capitalize(), _cognomeController.text.capitalize(), _emailController.text.toLowerCase(),
+            _telefonoController.text, _codFiscaleController.text.toUpperCase(), [], [], _radioValue == Role.Reponsabile);
         context.read<CloudFirestoreService>().addOperator(newlyCreated);
         context.read<FirebaseAuthService>().sendPasswordReset(_emailController.text);
         setState(() {
