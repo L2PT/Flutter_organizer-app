@@ -217,6 +217,12 @@ tr.fc-collapsed>td>div {
     position: relative;
     padding-top: 10px;
     padding-bottom: 10px;
+    width: 100%;
+}
+
+.divElementOperator > div:first-child{
+    display: flex;
+    align-items: center;
 }
 
 .fc-time-area .fc-bgevent,

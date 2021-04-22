@@ -88,13 +88,13 @@ class Event {
 
   //TODO move the logic outside
   bool isFilteredEvent(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate){
-    if(!this.title.contains(e.title)){
+    if(!this.title.toUpperCase().contains(e.title.toUpperCase())){
       return false;
     }
-    if(!this.address.contains(e.address)){
+    if(!this.address.toUpperCase().contains(e.address.toUpperCase())){
       return false;
     }
-    if(!this.customer.phone.contains(e.customer.phone)){
+    if(!this.customer.phone.toUpperCase().contains(e.customer.phone.toUpperCase())){
       return false;
     }
     if(filterStartDate && filterEndDate){
@@ -118,7 +118,7 @@ class Event {
   }
 
   bool isFilteredEventSimple(String address, DateTime start, DateTime end, bool filterStartDate, bool filterEndDate){
-    if(!this.address.contains(address)){
+    if(!this.address.toUpperCase().contains(address.toUpperCase())){
       return false;
     }
     if(filterStartDate && filterEndDate){
