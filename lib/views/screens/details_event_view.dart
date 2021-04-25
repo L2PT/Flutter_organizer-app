@@ -167,8 +167,17 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: widget.sizeIcon,
                     ),
                     SizedBox(width: widget.padding,),
-                    Text([event.operator, ...event.suboperators].map((operator) => "${operator?.name} ${operator?.surname}").reduce((value, element) => value+"; "+element), style: subtitle_rev)
-                  ],
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text([event.operator, ...event.suboperators].map((operator) =>
+                                "${operator?.name} ${operator?.surname}").reduce((value, element) => value+"; "+element),
+                              style: subtitle_rev, overflow: TextOverflow.visible,),
+                        ],
+                      ),
+                    ),
+                    ],
                 ),
               ),
               Divider(height: 2, thickness: 2, indent: 35, color: black_light,),
@@ -415,7 +424,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                         style: title_rev.copyWith(fontSize: 15)),
                                   ), Padding(padding: EdgeInsets.only(top: 2),
                                       child: Center(child: Text(DateFormat('y', "it_IT").format(event.start),
-                                      style: title_rev.copyWith(fontSize: 14)),
+                                      style: title_rev.copyWith(fontSize: 13)),
                                       ),
                                   ),
                             ],
@@ -510,7 +519,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           SizedBox(width: 30,),
                         ],
                       ),
-                    ): event.isAccepted() && DateTime.now().isAfter(event.start) && event.operator!.id == account.id?
+                    ): event.isAccepted() && DateTime.now().isAfter(event.start) &&
+                        (event.operator!.id == account.id || event.suboperators.contains(account.id))?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -518,11 +528,12 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           ElevatedButton(
                             child: new Text('TERMINA', style: button_card),
                             onPressed: () async {
-                              if(await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Confermi la terminazione dell'incarico?").show()) {
-                                  bool updateEndTime = event.end.add(new Duration(minutes: 5)).isBefore(DateTime.now())?
-                                      (await ConfirmCancelAlert(context, title: "TERMINA INCARICO", text: "Aggiornare la data di fine con quella attuale?").show()) : false;
-                                  context.read<DetailsEventCubit>().endEventAndNotify(updateEndTime);
-                                }
+                              bool delay = event.end.add(new Duration(minutes: 15)).isBefore(DateTime.now());
+                              ConfirmCancelAlert(context, title: "TERMINA INCARICO",
+                                  text: "Confermi la terminazione dell'incarico?",showDetailsContent: delay).show().then(
+                                  (res) {
+                                    if(res.first) context.read<DetailsEventCubit>().endEventAndNotify(res.last);
+                                  });
                             },
                           ),
                         ],

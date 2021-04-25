@@ -97,10 +97,12 @@ class Fab_details_super  extends StatelessWidget {
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    if(await ConfirmCancelAlert(parentContext, title: "CANCELLA INCARICO", text: "Confermi la cancellazione dell'incarico?").show()) {
-                                      Navigator.of(dialogContext).pop(); //fab
-                                      context.read<DetailsEventCubit>().deleteEvent();
-                                    }
+                                    ConfirmCancelAlert(parentContext, title: "CANCELLA INCARICO", text: "Confermi la cancellazione dell'incarico?").show().then((value) {
+                                      if(value.first){
+                                        Navigator.of(dialogContext).pop(); //fab
+                                        context.read<DetailsEventCubit>().deleteEvent();
+                                      }
+                                    });
                                   },
                                   child: Container(
                                     height: 50,

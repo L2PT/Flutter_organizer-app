@@ -7,48 +7,58 @@ class ConfirmCancelAlert {
   final BuildContext context;
   final String title;
   final String text;
+  final bool showDetailsContent;
   late List<Widget> _actions;
-  late Widget _content;
 
-  ConfirmCancelAlert(this.context, {required this.title, required this.text}) {
 
-      _actions = <Widget>[
-      TextButton(
-        child: new Text('Annulla', style: label),
-        onPressed: () {
-          Navigator.pop(context, false);
-        },
-      ),
-      SizedBox(
-        width: 15,
-      ),
-      ElevatedButton(
-        child: new Text('CONFERMA', style: button_card),
-        onPressed: () {
-          Navigator.pop(context, true);
-        },
-      ),
-    ];
+  ConfirmCancelAlert(this.context, {required this.title, required this.text, this.showDetailsContent = false});
 
-    _content = SingleChildScrollView(
-      child: ListBody(children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(bottom: 10),
-          child: Text( text, style: label, ),
-        ),
-      ]),
-    );
-  }
-
-  Future<bool> show() async => await showDialog(
+  Future<List<bool>> show() async => await showDialog(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return Alert(
-          actions: _actions,
-          content: _content,
-          title: title,
-        );
+        bool updateEndDate = false;
+        return StatefulBuilder(
+        builder: (context, setState) {
+          return Alert(
+            actions: <Widget>[
+              TextButton(
+                child: new Text('Annulla', style: label),
+                onPressed: () {
+                  Navigator.pop(context, [false, false]);
+                },
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              ElevatedButton(
+                child: new Text('CONFERMA', style: button_card),
+                onPressed: () {
+                  Navigator.pop(context, [true, updateEndDate]);
+                },
+              ),
+            ],
+            content: SingleChildScrollView(
+              child: ListBody(children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text( text, style: label, ),
+                ),
+                showDetailsContent?
+                Row(children: [
+                  Icon(Icons.update_outlined, color: updateEndDate?black:grey_dark, size: 25),
+                  SizedBox(width: 5,),
+                  Text("Aggiornare la data di fine",style: label.copyWith(color: updateEndDate?black:grey_dark),),
+                  Switch(value: updateEndDate, onChanged: (value) {
+                    setState((){ updateEndDate = value; });
+                  },activeColor: yellow,)
+                ])
+                    : Container(),
+              ]),
+            ),
+            title: title,
+          );
+        });
       });
 }
 

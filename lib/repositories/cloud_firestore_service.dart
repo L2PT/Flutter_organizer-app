@@ -315,8 +315,8 @@ class CloudFirestoreService {
             List<Event> eventsInConflict = await _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: operator.id).where(Constants.tabellaEventi_dataInizio, isGreaterThan: e.start, isLessThanOrEqualTo: e.end)
                 .get().then(((snapshot) => snapshot.docs.map((document) => Event.fromMap(document.id, "", document.data())).toList()));
             eventsInConflict.forEach((eventInConflict) {
-              Duration d = eventInConflict.end.difference(eventInConflict.start.add(Duration(minutes: 5)));
-              eventInConflict.start = TimeUtils.getStartWorkTimeSpan(from: e.end.add(new Duration(minutes: 5)), ofDuration: d);
+              Duration d = eventInConflict.end.difference(eventInConflict.start.add(Duration(minutes: 15)));
+              eventInConflict.start = TimeUtils.getStartWorkTimeSpan(from: e.end.add(new Duration(minutes: 15)), ofDuration: d);
               eventInConflict.end =  eventInConflict.start.add(d);
               eventsToPropagate.add(eventInConflict);
             });

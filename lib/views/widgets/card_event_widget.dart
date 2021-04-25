@@ -133,7 +133,7 @@ class CardEvent extends StatelessWidget {
                                   padding: EdgeInsets.only(top: 2),
                                   child: Center(
                                     child: Text(DateFormat('y', "it_IT").format(event.start),
-                                        style: title_rev.copyWith(fontSize: 14)),
+                                        style: title_rev.copyWith(fontSize: 13)),
                                   ),
                                 ),
                               ],
