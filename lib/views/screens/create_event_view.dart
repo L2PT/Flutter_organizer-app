@@ -159,7 +159,7 @@ class _formInputList extends StatelessWidget{
                       hintStyle: subtitle,
                       border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
                   initialValue: event.customer.phone,
-                  validator: (value) =>  !Utils.isPhoneNumber(value!)? 'Inserisci un valore valido' : null,
+                  validator: (value) =>  value != null? (value.isNotEmpty? (!Utils.isPhoneNumber(value)? 'Inserisci un valore valido' : null): null) : null ,
                   onSaved: (value) => event.customer.phone = value??"",
                 ),
               ),

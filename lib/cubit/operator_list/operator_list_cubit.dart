@@ -19,6 +19,7 @@ class OperatorListCubit extends Cubit<OperatorListState> {
 
   void getAllOperators() async {
     operators = await _databaseRepository.getOperators();
+    operators.sort((a,b) => a.surname.compareTo(b.surname));
     emit(ReadyOperators(operators));
   }
 

@@ -90,7 +90,7 @@ class CheckboxTriState extends StatefulWidget {
   const CheckboxTriState({
     Key? key,
     required this.value,
-    this.tristate = false,
+    this.tristate = true,
     required this.onChanged,
     this.mouseCursor,
     this.activeColor,
