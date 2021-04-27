@@ -20,7 +20,7 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/empty_event_widget.dart';
+import 'package:venturiautospurghi/views/widgets/no_events_widget.dart';
 
 class DailyCalendar extends StatefulWidget {
   final DateTime? day;

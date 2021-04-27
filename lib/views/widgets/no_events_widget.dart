@@ -16,7 +16,7 @@ class EmptyEvent extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          logoNoEvent,
+          no_events_image,
           SizedBox(height: 30,),
           Text(textMessage,style: title, textAlign: TextAlign.center,),
           Padding(padding: EdgeInsets.only(top: 5), child: Text(subMessage, style: subtitle,)),

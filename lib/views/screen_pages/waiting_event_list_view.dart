@@ -11,7 +11,7 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/views/widgets/empty_event_widget.dart';
+import 'package:venturiautospurghi/views/widgets/no_events_widget.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/alert_refuse.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
