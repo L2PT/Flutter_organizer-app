@@ -56,7 +56,7 @@ class CloudFirestoreService {
   Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime startFrom, DateTime endTo) async {
     List<Account> accounts = await this.getOperators();
 
-    final List<Event> listEvents = await this.getEvents();
+    final List<Event> listEvents = await this.getEventsAfterWeek(startFrom);
     if(Constants.debug) listEvents.removeWhere((event) => event.status == EventStatus.Refused || event.status == EventStatus.Deleted); //TODO lasciamolo per un po'
     listEvents.forEach((event) {
       if (event.id != eventIdToIgnore) {
@@ -106,6 +106,12 @@ class CloudFirestoreService {
   Future<List<Event>> getEvents() async { //this is db null safe, do we need it?
     return _collectionEventi.orderBy(Constants.tabellaEventi_dataInizio).get().then((snapshot) => snapshot.docs.map((document) =>
         Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList());
+  }
+
+  Future<List<Event>> getEventsAfterWeek(DateTime date) async { //this is db null safe, do we need it?
+    date = date.subtract(Duration( days: 1));
+    return _collectionEventi.where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo:  date).orderBy(Constants.tabellaEventi_dataInizio).get().then((snapshot) => snapshot.docs.map((document) =>
+        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data())).toList());
   }
 
   Stream<List<Event>> subscribeEvents() {

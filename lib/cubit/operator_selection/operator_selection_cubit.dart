@@ -27,9 +27,9 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
     Map<String,int> selectionListUpdated = new Map.from(state.selectionList);
     if(selectionListUpdated.containsKey(operator.id)) {
       bool newFlag = state.primaryOperatorSelected;
-      int newValue = (selectionListUpdated[operator.id]!+1) % ((isTriState && (!state.primaryOperatorSelected || state.primaryOperatorSelected && selectionListUpdated[operator.id] == 2))? 3 : 2);
+      int newValue = (selectionListUpdated[operator.id]!+1) % ((isTriState && (!newFlag || selectionListUpdated[operator.id] == 2))? 3 : 2);
       if(newValue == 2) newFlag = true;
-      else if(newValue == 0 && newFlag) newFlag = false;
+      else if(newValue == 0 && selectionListUpdated[operator.id] == 2) newFlag = false;
       selectionListUpdated[operator.id] = newValue;
       emit(state.assign(preSelectedList: selectionListUpdated, primaryOperatorSelected: newFlag));
     }
@@ -37,6 +37,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
 
   void getOperators() async {
     operators = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end);
+    operators.sort((a,b) => a.surname.compareTo(b.surname));
     emit(new ReadyOperators(operators,event:_event));
   }
 
@@ -63,7 +64,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
     }
   }
 
-  showFiltersBox(){}// TODO
+  showFiltersBox(){}
   onSearchTimeChanged(DateTime date){}
   onSearchDateChanged(DateTime date){}
 

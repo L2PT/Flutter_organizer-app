@@ -35,7 +35,7 @@ class ListTileOperator extends StatelessWidget {
             Text(operator.name, style: subtitle),
             Expanded(child: Container(),),
             checkbox>=2?CheckboxTriState(onChanged: (v)=>onTap?.call(operator),
-              value: isChecked>0?true:false, tristate: true, activeColor: black, checkColor: isChecked>=2?yellow:white, superColor: yellow,):
+              value: isChecked>0?true:false, activeColor: black, checkColor: isChecked>=2?yellow:white, superColor: yellow,):
             checkbox>=1?Checkbox(onChanged: (v)=>onTap?.call(operator),
               value: isChecked>0?true:false, activeColor: black, checkColor: white,):
             Container(),
