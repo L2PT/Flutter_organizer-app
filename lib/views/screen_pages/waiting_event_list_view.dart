@@ -152,7 +152,6 @@ class _listTileEvent extends StatelessWidget {
         flex: 9,
         child: CardEvent(
           event: event,
-          dateView: false,
           height: 140,
           buttonArea: <String,Function(Event)>{
             "RIFIUTA": (event) async {RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)?context.read<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},

@@ -50,8 +50,8 @@ class _notificationWidget extends StatelessWidget {
 
     Widget singleNotificationWidget() => CardEvent(
       event: context.read<PersistentNotificationCubit>().state.waitingEventsList[0],
-      dateView: true,
       height: 160,
+      showEventDetails: true,
       buttonArea: <String,Function(Event)>{
         "RIFIUTA": (event) async {RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)? context.read<PersistentNotificationCubit>().cardActionRefuse(event, justification):null);},
         "CONFERMA": context.read<PersistentNotificationCubit>().cardActionConfirm},

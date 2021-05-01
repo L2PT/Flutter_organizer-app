@@ -14,16 +14,14 @@ class CardEvent extends StatelessWidget {
   final Map<String, Function(Event)>? buttonArea;
   final double height;
   final bool externalBorder;
-  final bool dateView;
-  final bool gridStyle;
+  final bool showEventDetails;
 
   CardEvent({required this.event,
     this.onTapAction,
     this.buttonArea,
     this.height = 160,
     this.externalBorder = false,
-    this.dateView = false,
-    this.gridStyle = false});
+    this.showEventDetails = false});
 
 
   @override
@@ -46,7 +44,7 @@ class CardEvent extends StatelessWidget {
       double heightBar;
       int maxLine;
 
-      if (gridStyle) {
+      if (showEventDetails) {
         paddingContainer = 15;
         heightBar = 60;
 
@@ -92,7 +90,8 @@ class CardEvent extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(vertical: 4.0),
                       ),
                     ),
-                    if(dateView)
+                    if(showEventDetails)
+                      // if a view don't need to show the time but need the date, add a flag parameter for the class
                       Expanded(
                         flex: 3,
                         child: Container(

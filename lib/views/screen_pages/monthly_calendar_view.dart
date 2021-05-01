@@ -74,6 +74,7 @@ class _contentTableCalendar extends StatelessWidget {
       _animationController.forward();
 
       return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
+
           buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
               previous.eventsMap != current.eventsMap,
           builder: (context, state) {
