@@ -70,6 +70,10 @@ class Constants {
   static const String tabellaCostanti_Categorie = 'Categorie';
   static const String tabellaCostanti_Telefoni = 'Telefoni';
 
+  // TABLE UTENTI
+  static const String tabellaUtenti_Nome = 'Nome';
+  static const String tabellaUtenti_Cognome = 'Cognome';
+
   // TABLE CLIENTE
   static const String tabellaClienti_codicefiscale = 'CodiceFiscale';
   static const String tabellaClienti_company = 'Company';
@@ -81,7 +85,7 @@ class Constants {
   // HANDLES
   static const int MIN_WORKTIME = 6;
   static const int MAX_WORKTIME = 21;
-  static const int WORKTIME_SPAN = 30;
+  static const int WORKTIME_SPAN = 5;
   static const double MIN_CALENDAR_EVENT_HEIGHT = 60.0;
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';

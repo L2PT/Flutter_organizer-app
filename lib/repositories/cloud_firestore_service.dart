@@ -56,8 +56,15 @@ class CloudFirestoreService {
   Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime startFrom, DateTime endTo) async {
     List<Account> accounts = await this.getOperators();
 
-    final List<Event> listEvents = await this.getEventsAfterWeek(startFrom);
-    if(Constants.debug) listEvents.removeWhere((event) => event.status == EventStatus.Refused || event.status == EventStatus.Deleted); //TODO lasciamolo per un po'
+    final List<Event> listEvents = await this.getFutureEvents(startFrom);
+    if(Constants.debug){
+      listEvents.forEach((event) async {
+        if (event.status == EventStatus.Refused || event.status == EventStatus.Deleted) {
+          _collectionEventi.doc(event.id).delete();
+        }
+      });
+      listEvents.removeWhere((event) => event.status == EventStatus.Refused || event.status == EventStatus.Deleted);
+    }
     listEvents.forEach((event) {
       if (event.id != eventIdToIgnore) {
         if (event.isBetweenDate(startFrom, endTo)) {
@@ -76,8 +83,15 @@ class CloudFirestoreService {
     return accounts;
   }
 
-  Future<List<Account>> getOperators() async {
-    return _collectionUtenti.get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
+  Future<List<Account>> getOperators({limit, startFrom}) async {
+    if (limit != null && startFrom != null)
+      return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).limit(limit).startAfter([startFrom]).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
+    else if (limit != null)
+      return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).limit(limit).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
+    else if (startFrom != null)
+      return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).startAfter([startFrom]).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
+
+    return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
   }
 
   void addOperator(Account u) {
@@ -103,15 +117,15 @@ class CloudFirestoreService {
         Event.fromMap(document.id,  _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!) : null);
   }
 
-  Future<List<Event>> getEvents() async { //this is db null safe, do we need it?
+  Future<List<Event>> getEvents() async {
     return _collectionEventi.orderBy(Constants.tabellaEventi_dataInizio).get().then((snapshot) => snapshot.docs.map((document) =>
         Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList());
   }
 
-  Future<List<Event>> getEventsAfterWeek(DateTime date) async { //this is db null safe, do we need it?
+  Future<List<Event>> getFutureEvents(DateTime date) async {
     date = date.subtract(Duration( days: 1));
     return _collectionEventi.where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo:  date).orderBy(Constants.tabellaEventi_dataInizio).get().then((snapshot) => snapshot.docs.map((document) =>
-        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data())).toList());
+        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList());
   }
 
   Stream<List<Event>> subscribeEvents() {
@@ -142,25 +156,20 @@ class CloudFirestoreService {
     });
   }
 
-  Stream<List<Event>> eventsByOperatorAcceptedOrAbove(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.Accepted).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    });
-  }
-
-  Stream<List<Event>> eventsByOperatorNewOrAbove(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    });
-  }
-
-  Stream<List<Event>> eventsByOperatorRefusedOrAbove(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.Refused).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    });
+  Stream<List<Event>> eventsByOperator(String idOperator, {required int statusEqualOrAbove, DateTime? from, DateTime? to}) {
+    if(from != null && to != null)
+      return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator)
+          .where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo: from)
+          .where(Constants.tabellaEventi_dataInizio, isLessThan: to).snapshots().map((snapshot) {
+        var documents = snapshot.docs;
+        return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).where((event) => event.status>=statusEqualOrAbove).toList();
+      });
+    else
+      return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator)
+          .where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: statusEqualOrAbove).snapshots().map((snapshot) {
+        var documents = snapshot.docs;
+        return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      });
   }
 
   Stream<List<Event>> eventsHistory() {

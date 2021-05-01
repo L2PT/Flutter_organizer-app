@@ -182,8 +182,7 @@ class _rowCalendar extends StatelessWidget {
           onDaySelected: (date, events) {
             context.read<DailyCalendarCubit>().onDaySelected(date);
             //_animationController.forward(from: 0.0);
-           },
-          onVisibleDaysChanged: context.read<DailyCalendarCubit>().onVisibleDaysChanged,
+           },//    if(state is DailyCalendarReady)
           selectNext: () {
             context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
             _animationController.dispose();
@@ -206,8 +205,9 @@ class _verticalEventsGrid extends StatelessWidget {
     @override
   Widget build(BuildContext context) {
     Account account = context.read<AuthenticationBloc>().account!;
-    int gridHourSpan = context.select((DailyCalendarCubit cubit) => cubit.state.gridHourSpan);
+    int backGridHourSpan = context.select((DailyCalendarCubit cubit) => cubit.state.gridHourSpan);
     double gridHourHeight = context.select((DailyCalendarCubit cubit) => cubit.state.gridHourHeight);
+    bool allDayEvent = context.select((DailyCalendarCubit cubit) => cubit.state.allDayEvent);
 
     late int _backGridLength;
     late double _barHourHeight;
@@ -216,7 +216,7 @@ class _verticalEventsGrid extends StatelessWidget {
 
     List<Widget> backGrid() =>
         List.generate(_backGridLength, (i) {
-          int n = ((i) * gridHourSpan) + Constants.MIN_WORKTIME;
+          int n = ((i) * backGridHourSpan) + Constants.MIN_WORKTIME;
           return Row(children: <Widget>[Expanded(
               flex: 2,
               child: Container(
@@ -247,7 +247,7 @@ class _verticalEventsGrid extends StatelessWidget {
         }).toList();
 
     List<Widget> frontEventList() =>
-        (gridHourSpan == 0) ?
+      (backGridHourSpan == 0 && allDayEvent) ?
         //evento che dura tutto il giorno
         <Widget>[
           SizedBox(height: 5),
@@ -263,41 +263,29 @@ class _verticalEventsGrid extends StatelessWidget {
                 flex: 8,
                 child: CardEvent(
                   event: (context.read<DailyCalendarCubit>().state as DailyCalendarReady).selectedEvents()[0],
-                  hourHeight: 120,
-                  gridHourSpan: 0,
+                  height: gridHourHeight,
                   externalBorder: account.supervisor,
                   dateView: true,
+                  gridStyle: true,
                   onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
 
                 )
             ),
           ])
-        ] :
-        //lista di eventi
+        ] : (backGridHourSpan == 0) ?
+        //lista di eventi continua
         <Widget>[
-          SizedBox(height: _barHourHeight),
+          SizedBox(height: 5),
           ...(context
               .read<DailyCalendarCubit>()
-              .state as DailyCalendarReady).selectedEvents().map((event) {
-            List <Widget> element = <Widget>[
-              SizedBox(height: ((DailyCalendarCubit.minDailyHour(event.start, context
-                  .read<DailyCalendarCubit>()
-                  .state
-                  .selectedDay) -
-                  (_base.hour * 60 + _base.minute)) / 60) / gridHourSpan * gridHourHeight),
-              Row(children: <Widget>[
+              .state as DailyCalendarReady).selectedEvents().map((event) => Padding(
+              padding: EdgeInsets.symmetric(vertical: 5.0),
+              child: Row(children: <Widget>[
                 Expanded(
                     flex: 2,
                     child: Container(
                       padding: EdgeInsets.only(right: 40),
-                      height: ((DailyCalendarCubit.maxDailyHour(event.end, context
-                          .read<DailyCalendarCubit>()
-                          .state
-                          .selectedDay) -
-                          DailyCalendarCubit.minDailyHour(event.start, context
-                              .read<DailyCalendarCubit>()
-                              .state
-                              .selectedDay)) / 60) / gridHourSpan * gridHourHeight,
+                      height: gridHourHeight,
                       child: account.supervisor ? Icon(EventStatus.getIcon(event.status), color: black) : Container(),
                     )
                 ),
@@ -305,22 +293,49 @@ class _verticalEventsGrid extends StatelessWidget {
                   flex: 8,
                   child: CardEvent(
                     event: event,
-                    hourHeight: gridHourHeight,
-                    gridHourSpan: gridHourSpan,
-                    dateView: false,
+                    dateView: true,
+                    gridStyle: true,
+                    height: gridHourHeight,
                     externalBorder: account.supervisor,
-                    selectedDay: context.read<DailyCalendarCubit>().state.selectedDay,
+                    onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
+                  ),
+                ),
+              ])))
+        ] :
+        //lista di eventi spaziati
+        <Widget>[
+          SizedBox(height: _barHourHeight),
+          ...(context
+              .read<DailyCalendarCubit>()
+              .state as DailyCalendarReady).selectedEvents().map((event) {
+            List <Widget> element = <Widget>[
+              SizedBox( height: context.read<DailyCalendarCubit>().calcWidgetHeightInGrid(firstWorkedMinute: _base.hour * 60 + _base.minute, end: event.start)),
+              Row(children: <Widget>[
+                Expanded(
+                    flex: 2,
+                    child: Container(
+                      padding: EdgeInsets.only(right: 40),
+                      height: context.read<DailyCalendarCubit>().calcWidgetHeightInGrid(start: event.start, end: event.end),
+                      child: account.supervisor ? Icon(EventStatus.getIcon(event.status), color: black) : Container(),
+                    )
+                ),
+                Expanded(
+                  flex: 8,
+                  child: CardEvent(
+                    event: event,
+                    height: context.read<DailyCalendarCubit>().calcWidgetHeightInGrid(start: event.start, end: event.end),
+                    externalBorder: account.supervisor,
                     onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
                   ),
                 ),
               ])
             ];
-            int newBaseMinutes = DailyCalendarCubit.maxDailyHour(event.end, context.read<DailyCalendarCubit>().state.selectedDay);
+            int newBaseMinutes = DailyCalendarCubit.getLastDailyWorkedMinute(event.end, context.read<DailyCalendarCubit>().state.selectedDay);
             _base = TimeUtils.truncateDate(_base, "day").add(
                 Duration(hours: newBaseMinutes ~/ 60, minutes: (newBaseMinutes % 60).toInt()));
             return element;
           }).expand((i) => i).toList(),
-          SizedBox(height: (((_top.hour * 60 + _top.minute) - (_base.hour * 60 + _base.minute)) / 60) / gridHourSpan *
+          SizedBox(height: (((_top.hour * 60 + _top.minute) - (_base.hour * 60 + _base.minute)) / 60) / backGridHourSpan *
               gridHourHeight)
         ];
 
@@ -331,13 +346,18 @@ class _verticalEventsGrid extends StatelessWidget {
           if (!(state is DailyCalendarReady))
             return Center(child: CircularProgressIndicator());
           if((state as DailyCalendarReady).selectedEvents().isEmpty)
-            return Padding(padding: EdgeInsets.all(20), child:EmptyEvent(onPressedFunction: () {
-                context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
-                _animationController.dispose();
-            }, textMessage: 'Nessun intervento in programma per questa data',
-              subMessage: "Controlla i tuoi incarichi",));
+            return Padding(
+              padding: EdgeInsets.all(20),
+              child: EmptyEvent(
+                onPressedFunction: () {
+                    context.read<MobileBloc>().add( NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
+                    _animationController.dispose();
+                },
+                titleMessage: 'Nessun intervento in programma per questa data',
+                subtitleMessage: "Controlla i tuoi incarichi",
+            ));
 
-          _backGridLength = gridHourSpan == 0 ? 0 : (Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) ~/ gridHourSpan;
+          _backGridLength = backGridHourSpan == 0 ? 0 : (Constants.MAX_WORKTIME - Constants.MIN_WORKTIME + 1) ~/ backGridHourSpan;
           _barHourHeight = gridHourHeight / 2;
           _base = new DateTime(1990, 1, 1, Constants.MIN_WORKTIME, 0, 0);
           _top = new DateTime(1990, 1, 1, Constants.MAX_WORKTIME, 0, 0);
@@ -345,7 +365,7 @@ class _verticalEventsGrid extends StatelessWidget {
                   children: <Widget>[
                     Stack(
                         children: <Widget>[
-                          gridHourSpan == 0 ? Container(height: 20) :
+                          backGridHourSpan == 0 ? Container(height: 20) :
                           Column(
                             mainAxisSize: MainAxisSize.max,
                               children: backGrid()

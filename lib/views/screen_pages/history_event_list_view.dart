@@ -131,8 +131,7 @@ class _largeScreen extends StatelessWidget {
                                 child: CardEvent(
                                   event: event,
                                   dateView: true,
-                                  hourHeight: 120,
-                                  gridHourSpan: 0,
+                                  height: 120,
                                   buttonArea: null,
                                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                                 ))).toList()
@@ -271,8 +270,7 @@ class _historyContent extends StatelessWidget {
                 child: CardEvent(
                   event: state.events(e.value)[index],
                   dateView: true,
-                  hourHeight: 120,
-                  gridHourSpan: 0,
+                  height: 120,
                   buttonArea: null,
                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                 )

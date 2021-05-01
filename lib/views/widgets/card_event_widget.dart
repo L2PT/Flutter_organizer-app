@@ -10,22 +10,20 @@ import 'package:venturiautospurghi/utils/theme.dart';
 
 class CardEvent extends StatelessWidget {
   final Event event;
-  final DateTime? selectedDay;
   final void Function(Event)? onTapAction;
   final Map<String, Function(Event)>? buttonArea;
-  final int gridHourSpan;
-  final double hourHeight;
+  final double height;
   final bool externalBorder;
   final bool dateView;
+  final bool gridStyle;
 
   CardEvent({required this.event,
-    this.selectedDay,
     this.onTapAction,
     this.buttonArea,
-    this.gridHourSpan = 0,
-    this.hourHeight = 160,
+    this.height = 160,
     this.externalBorder = false,
-    this.dateView = false}): assert(gridHourSpan!=0?selectedDay!=null:true);
+    this.dateView = false,
+    this.gridStyle = false});
 
 
   @override
@@ -44,20 +42,17 @@ class CardEvent extends StatelessWidget {
 
     Widget _buildCardEvent() {
       Widget card;
-      double hoursDurationEvent;
-      double containerHeight;
       double paddingContainer;
       double heightBar;
       int maxLine;
 
-      if (gridHourSpan == 0) {
-        containerHeight = hourHeight;
+      if (gridStyle) {
         paddingContainer = 15;
         heightBar = 60;
 
         card = Card(
           child: Container(
-            height: containerHeight,
+            height: height,
             padding: EdgeInsets.only(left: 10, top: paddingContainer),
             child: Column(
               children: <Widget>[
@@ -156,15 +151,13 @@ class CardEvent extends StatelessWidget {
           color: black,
         );
       } else {
-        hoursDurationEvent = (((event.end.day!=selectedDay!.day?Constants.MAX_WORKTIME*60:min<int>(Constants.MAX_WORKTIME*60,event.end.hour * 60 + event.end.minute)) -
-            (event.start.day!=selectedDay!.day?Constants.MIN_WORKTIME*60:max<int>(Constants.MIN_WORKTIME*60,event.start.hour * 60 + event.start.minute))) / 60);
-        containerHeight = hoursDurationEvent / gridHourSpan * hourHeight;
+
         heightBar = 40;
-        maxLine = hoursDurationEvent < 1 ? 1:2;
+        maxLine = height <= Constants.MIN_CALENDAR_EVENT_HEIGHT ? 1:2;
 
         card = Card(
           child: Container(
-            height: containerHeight,
+            height: height,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[

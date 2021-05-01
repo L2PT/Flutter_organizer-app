@@ -62,8 +62,8 @@ class _eventList extends StatelessWidget{
 
     Widget noContent =  Container(child: EmptyEvent(
       onPressedFunction: _onCalendarPressed,
-      textMessage: 'Nessun incarico in sospeso',
-      subMessage: "Controlla i tuoi incarichi accettati",
+      titleMessage: 'Nessun incarico in sospeso',
+      subtitleMessage: "Controlla i tuoi incarichi accettati",
     ),);
 
 
@@ -153,8 +153,7 @@ class _listTileEvent extends StatelessWidget {
         child: CardEvent(
           event: event,
           dateView: false,
-          hourHeight: 140,
-          gridHourSpan: 0,
+          height: 140,
           buttonArea: <String,Function(Event)>{
             "RIFIUTA": (event) async {RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)?context.read<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
             "ACCETTA":context.read<WaitingEventListCubit>().cardActionConfirm},
