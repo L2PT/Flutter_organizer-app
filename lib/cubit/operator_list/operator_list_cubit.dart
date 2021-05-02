@@ -11,15 +11,19 @@ part 'operator_list_state.dart';
 class OperatorListCubit extends Cubit<OperatorListState> {
   final CloudFirestoreService _databaseRepository;
   late List<Account> operators;
+  final int startingElements = 15;
+  final int loadingElements = 10;
+  late bool canLoadMore;
 
   OperatorListCubit(this._databaseRepository) :
         super(LoadingOperators()){
-    getAllOperators();
+    getOperators();
   }
 
-  void getAllOperators() async {
-    operators = await _databaseRepository.getOperators();
-    operators.sort((a,b) => a.surname.compareTo(b.surname));
+  void getOperators() async {
+    operators = await _databaseRepository.getOperators(limit: startingElements);
+    canLoadMore = operators.length == startingElements;
+    // operators.sort((a,b) => a.surname.compareTo(b.surname));
     emit(ReadyOperators(operators));
   }
 
@@ -48,5 +52,14 @@ class OperatorListCubit extends Cubit<OperatorListState> {
   void showFiltersBox() {
     emit((state as ReadyOperators).assign(filterBoxState:!state.filtersBoxVisibile, operators: operators));
   }
+
+  void loadMoreData() async {
+    int prevSize = operators.length;
+    operators.addAll(await _databaseRepository.getOperators(limit: loadingElements, startFrom: operators.last.surname));
+    canLoadMore = operators.length == prevSize + loadingElements;
+    emit(ReadyOperators(operators));
+  }
+
+
 
 }

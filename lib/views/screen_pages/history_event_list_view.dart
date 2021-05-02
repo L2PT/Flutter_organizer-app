@@ -130,10 +130,8 @@ class _largeScreen extends StatelessWidget {
                             children: (context.read<HistoryEventListCubit>().state as HistoryReady).selectedEvents().map((event)=> Container(
                                 child: CardEvent(
                                   event: event,
-                                  dateView: true,
-                                  hourHeight: 120,
-                                  gridHourSpan: 0,
-                                  buttonArea: null,
+                                  height: 120,
+                                  showEventDetails: true,
                                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                                 ))).toList()
                         )): Container(
@@ -270,10 +268,8 @@ class _historyContent extends StatelessWidget {
               return Container(
                 child: CardEvent(
                   event: state.events(e.value)[index],
-                  dateView: true,
-                  hourHeight: 120,
-                  gridHourSpan: 0,
-                  buttonArea: null,
+                  height: 120,
+                  showEventDetails: true,
                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                 )
               );

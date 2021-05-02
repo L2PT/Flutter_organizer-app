@@ -55,7 +55,7 @@ class EventStatus {
     switch(status){
       case EventStatus.Refused: return colorRefused;
       case EventStatus.Accepted: return colorAccepted;
-      case EventStatus.Deleted: return colorRefused;
+      case EventStatus.Deleted: return colorDeleted;
       case EventStatus.Ended: return black;
       default: return colorWaiting;
     }

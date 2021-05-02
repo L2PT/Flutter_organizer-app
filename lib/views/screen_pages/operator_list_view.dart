@@ -53,7 +53,27 @@ class OperatorList extends StatelessWidget {
   }
 }
 
-class _operatorList extends StatelessWidget {
+class _operatorList extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => _operatorListState();
+
+}
+
+class _operatorListState extends State<_operatorList> {
+  ScrollController _scrollController = new ScrollController();
+
+  @override
+  void initState() {
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels ==
+          _scrollController.position.maxScrollExtent) {
+        if(context.read<OperatorListCubit>().canLoadMore)
+          context.read<OperatorListCubit>().loadMoreData();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,13 +82,21 @@ class _operatorList extends StatelessWidget {
     }
 
     Widget buildOperatorList() => ListView.separated(
+      controller: _scrollController,
       separatorBuilder: (context, index) =>
           Divider(height: 2, thickness: 1, indent: 15, endIndent: 15, color: grey_light),
       physics: BouncingScrollPhysics(),
       padding: new EdgeInsets.symmetric(vertical: 8.0),
-      itemCount: (context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators.length,
-      itemBuilder: (context, index) =>
-      new ListTileOperator((context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators[index], onTap: onTileTap),
+      itemCount: (context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators.length+1,
+      itemBuilder: (context, index) => index != (context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators.length?
+        new ListTileOperator((context.read<OperatorListCubit>().state as ReadyOperators).filteredOperators[index], onTap: onTileTap) :
+      context.read<OperatorListCubit>().canLoadMore?Center(
+          child: Container(
+            margin: new EdgeInsets.symmetric(vertical: 13.0),
+            height: 26,
+            width: 26,
+            child: CircularProgressIndicator(),
+          )):Container()
     );
 
     return BlocBuilder<OperatorListCubit, OperatorListState>(
@@ -80,5 +108,12 @@ class _operatorList extends StatelessWidget {
       },
     );
   }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
 
 }

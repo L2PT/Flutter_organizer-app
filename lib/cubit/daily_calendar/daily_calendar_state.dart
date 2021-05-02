@@ -2,13 +2,16 @@ part of 'daily_calendar_cubit.dart';
 
 abstract class DailyCalendarState extends Equatable {
   Map<DateTime, List<Event>> eventsMap;
+  List<DateTime> subscribedDays;
   DateTime selectedDay;
   double gridHourHeight = 0;
   int gridHourSpan = 0;
+  bool allDayEvent = false;
 
-  DailyCalendarState([DateTime? selectedDay, Map<DateTime, List<Event>>? eventsMap]) :
+  DailyCalendarState([DateTime? selectedDay, Map<DateTime, List<Event>>? eventsMap, List<DateTime>? subscribedDays, ]) :
         this.eventsMap = eventsMap ?? {},
-        this.selectedDay = selectedDay ?? TimeUtils.truncateDate(DateTime.now(), "day");
+        this.selectedDay = selectedDay ?? TimeUtils.truncateDate(DateTime.now(), "day"),
+        this.subscribedDays = subscribedDays ?? [];
 
   @override
   List<Object> get props => [eventsMap.entries, selectedDay, gridHourHeight, gridHourSpan];
@@ -24,7 +27,7 @@ class DailyCalendarReady extends DailyCalendarState {
 
   List<Event> selectedEvents() => eventsMap[selectedDay] ?? [];
 
-  DailyCalendarReady(Map<DateTime, List<Event>> eventsMap, DateTime selectedDay) : super(selectedDay, eventsMap) {
+  DailyCalendarReady(Map<DateTime, List<Event>> eventsMap, DateTime selectedDay, List<DateTime> subscribedDays) : super(selectedDay, eventsMap, subscribedDays) {
     //the verticalGridEvents need the events of the selectedDay ordered
     List<Event> listEvent = eventsMap[selectedDay] ?? [];
     listEvent.sort((a, b) => a.start.compareTo(b.start));
@@ -37,23 +40,29 @@ class DailyCalendarReady extends DailyCalendarState {
       if (selectedEvents.length == 1 &&
           selectedEvents[0].start.compareTo(selectedDay.add(Duration(hours: Constants.MIN_WORKTIME))) <= 0 &&
           selectedEvents[0].end.compareTo(selectedDay.add(Duration(hours: Constants.MAX_WORKTIME))) >= 0) {
-        this.gridHourHeight = Constants.MIN_CALENDAR_EVENT_HEIGHT;
+        allDayEvent = true;
+        this.gridHourHeight = 120;
         gridHourSpan = 0;
       } else {
+        allDayEvent = false;
         //identify minimum duration's event
-        int md = 4;
+        double md = 4;
         selectedEvents.forEach((e) => {
-          md = max(0, min(md.toInt(), (DailyCalendarCubit.maxDailyHour(e.end, selectedDay) - DailyCalendarCubit.minDailyHour(e.start, selectedDay)) ~/ 60))
+          md = max(0, min(md, (DailyCalendarCubit.getLastDailyWorkedMinute(e.end, selectedDay) - DailyCalendarCubit.getFirstDailyWorkedMinute(e.start, selectedDay)) / 60))
         });
-        if (md == 0) {
+        if(md>0 && md<0.5){
+          gridHourHeight = 120;
+          gridHourSpan = 0;
+        } else if (md.floor() == 0) {
           gridHourHeight = Constants.MIN_CALENDAR_EVENT_HEIGHT * 2;
           gridHourSpan = 1;
         } else {
+          int mid = md.floor();
           int i = 0;
-          while (md == (max(pow(2, i), md)))i++;
-          md = (min(pow(2, i - 1).toInt(), md));
+          while (mid == (max(pow(2, i), mid))) i++;
+          mid = (min(pow(2, i - 1).toInt(), mid));
           gridHourHeight = Constants.MIN_CALENDAR_EVENT_HEIGHT;
-          gridHourSpan = md;
+          gridHourSpan = mid;
         }
       }
     } else {

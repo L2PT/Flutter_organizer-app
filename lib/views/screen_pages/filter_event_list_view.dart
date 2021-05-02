@@ -98,10 +98,8 @@ class _largeScreen extends StatelessWidget {
                                 children: (context.read<FilterEventListCubit>().state as ReadyEventFilterView).filteredEvent().map((event)=> Container(
                                     child: CardEvent(
                                       event: event,
-                                      dateView: true,
-                                      hourHeight: 120,
-                                      gridHourSpan: 0,
-                                      buttonArea: null,
+                                      height: 120,
+                                      showEventDetails: true,
                                       onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                                     ))).toList()
                             )): Container(
@@ -160,10 +158,8 @@ class _smallScreen extends StatelessWidget {
                           return Container(
                               child: CardEvent(
                                 event: state.listEventFiltered[index],
-                                dateView: true,
-                                hourHeight: 120,
-                                gridHourSpan: 0,
-                                buttonArea: null,
+                                height: 120,
+                                showEventDetails: true,
                                 onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                               )
                           );
