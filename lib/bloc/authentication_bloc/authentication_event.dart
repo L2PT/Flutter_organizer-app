@@ -15,6 +15,12 @@ class LoggedOut extends AuthenticationEvent {
 
 }
 
+class NotUpdateApp extends AuthenticationEvent{
+
+}
+class UpdateApp extends AuthenticationEvent {
+
+}
 class LoggedIn extends AuthenticationEvent {
   final AuthUser user;
 

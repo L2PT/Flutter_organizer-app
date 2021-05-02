@@ -7,9 +7,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
-import 'package:venturiautospurghi/utils/extensions.dart';
 
 part 'authentication_event.dart';
 
@@ -26,8 +24,12 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
   AuthenticationBloc({
     required FirebaseAuthService authenticationRepository,
-  })  :  _authenticationRepository = authenticationRepository,
-        super(Uninitialized()) {
+    required CloudFirestoreService dbCloudFirestore,
+    required FirebaseMessagingService messagingService,
+  }) :  _authenticationRepository = authenticationRepository,
+      _msgRepository = messagingService,
+      _dbRepository = dbCloudFirestore,
+        super(Uninitialized())  {
     _userSubscription = _authenticationRepository.onAuthStateChanged.listen((user){
           if(user!=null) {
             if(state is Unauthenticated) add(LoggedIn(user));
@@ -48,12 +50,39 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       yield* _mapLoggedOutToState();
     } else if (event is ResetAction) {
       yield* _mapResetActionToState(event);
+    }else if (event is NotUpdateApp){
+      yield Unavailable();
+    }else if (event is UpdateApp){
+      yield* _mapAppUpdateToState();
     }
   }
 
   Stream<AuthenticationState> _mapAppStartedToState() async* {
-    _dbRepository = await CloudFirestoreService.create();
-    _msgRepository = await FirebaseMessagingService.create();
+    int numVersionApp =  await PlatformUtils.getVersionApp() ;
+    int numBuildApp =  await PlatformUtils.getNumBuildApp();
+    _dbRepository.getInfoApp().listen((infoApp)  {
+      bool checkVersion = false;
+      int numVersionDB = 0;
+      var version = infoApp["Versione"].toString();
+      var numBuild = int.parse(infoApp["NumBuild"].toString());
+      version.split(".").forEach((numDB) {
+        numVersionDB += int.parse(numDB);
+      });
+      if(numVersionDB > numVersionApp){
+        checkVersion = true;
+        add(NotUpdateApp());
+      }
+      if(!checkVersion && numBuild > numBuildApp) {
+        checkVersion = true;
+        add(NotUpdateApp());
+      }
+      if(!checkVersion){
+        add(UpdateApp());
+      }
+    });
+  }
+
+  Stream<AuthenticationState> _mapAppUpdateToState() async* {
     try {
       var user = await _authenticationRepository.currentUser();
       if (user != null) {
@@ -68,6 +97,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       yield Unauthenticated();
     }
   }
+
 
   Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
     var user = event.user;
@@ -96,11 +126,11 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   }
 
   CloudFirestoreService? getDbRepository(){
-    if(state is Authenticated) return _dbRepository;
+    return _dbRepository;
   }
   
   FirebaseMessagingService? getMsgRepository(){
-    if(state is Authenticated) return _msgRepository;
+    return _msgRepository;
   }
 
   @override

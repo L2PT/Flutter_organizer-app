@@ -8,6 +8,7 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/backdrop.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/reset_auth_account_view.dart';
+import 'package:venturiautospurghi/views/screens/version_app_view.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/splash_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -23,6 +24,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(var context) {
+
+    CloudFirestoreService databaseRepository = context.read<AuthenticationBloc>().getDbRepository()!;
+    FirebaseMessagingService messagingRepository = context.read<AuthenticationBloc>().getMsgRepository()!;
+
     return MaterialApp(
       title: Constants.title,
       debugShowCheckedModeBanner: Constants.debug,
@@ -35,21 +40,21 @@ class _MyAppState extends State<MyApp> {
         const Locale('it', 'IT'),
       ],
       theme: customLightTheme,
-      home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+      home: MultiRepositoryProvider(
+        providers: [
+          RepositoryProvider<CloudFirestoreService>.value( value: databaseRepository),
+          RepositoryProvider<FirebaseMessagingService>.value( value: messagingRepository)
+        ],
+      child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {
-          if (state is Reset) {
+          if(state is Unavailable){
+            return VersionApp();
+          }else if (state is Reset) {
             return ResetAuthAccount(state.autofilledEmail, state.autofilledPhone);
           } else if (state is Unauthenticated) {
             return LogIn();
           } else if (state is Authenticated) {
-            CloudFirestoreService databaseRepository = context.read<AuthenticationBloc>().getDbRepository()!;
-            FirebaseMessagingService messagingRepository = context.read<AuthenticationBloc>().getMsgRepository()!;
-            return MultiRepositoryProvider(
-              providers: [
-                RepositoryProvider<CloudFirestoreService>.value( value: databaseRepository),
-                RepositoryProvider<FirebaseMessagingService>.value( value: messagingRepository)
-              ],
-              child: BlocProvider(
+            return  BlocProvider(
                 create: (_) =>
                   MobileBloc(
                     /*** subscription in [AuthenticationBloc]. When it updates the select make the whole tree rebuild so everything underneath can read the fields. ***/
@@ -84,12 +89,12 @@ class _MyAppState extends State<MyApp> {
                       }, child: Container(),)
                   )
                 ])
-              )
             );
           }
           return LoadingScreen();
         }
       ),
+      )
     );
   }
 }

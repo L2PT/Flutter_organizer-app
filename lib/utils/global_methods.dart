@@ -1,6 +1,7 @@
 library app.utils;
 
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter/services.dart';
 import 'package:google_place/google_place.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';

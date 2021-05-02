@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
@@ -81,6 +82,20 @@ abstract class PlatformUtils {
 
   static dynamic eventButtonsVisible(BuildContext context, Event event, account){
     return event.isSeen() && context.read<MobileBloc>().savedState.route != Constants.waitingEventListRoute && (event.operator?.id == account.id);
+  }
+
+  static Future<int> getVersionApp() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    int numVersion = 0;
+    info.version.split(".").forEach((num) {
+      numVersion += int.parse(num);
+    });
+    return numVersion;
+  }
+
+  static Future<int> getNumBuildApp() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    return int.parse(info.buildNumber);
   }
 
 }

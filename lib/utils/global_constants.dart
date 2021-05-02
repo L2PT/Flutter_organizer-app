@@ -30,6 +30,7 @@ class Constants {
   static const String detailsEventViewRoute = 'view/details_event';
   static const String createEventViewRoute = 'view/form_event_creator';
   static const String waitingEventListRoute = 'view/waiting_event_list';
+  static const String notUpadateversionAppRoute = 'view/version_app';
   static const String waitingNotificationRoute = 'view/persistent_notification';
   static const String historyEventListRoute = 'view/history_event_list';
   static const String profileRoute = 'view/profile';
@@ -69,6 +70,7 @@ class Constants {
   // TABLE COSTANTI
   static const String tabellaCostanti_Categorie = 'Categorie';
   static const String tabellaCostanti_Telefoni = 'Telefoni';
+  static const String tabellaCostanti_InfoApp = 'InfoApp';
 
   // TABLE CLIENTE
   static const String tabellaClienti_codicefiscale = 'CodiceFiscale';

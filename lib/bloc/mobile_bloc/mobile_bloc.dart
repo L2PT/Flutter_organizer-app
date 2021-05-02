@@ -101,7 +101,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
             //build over
             add(NavigateEvent(Constants.waitingNotificationRoute, notifications));
             if(background == null) {
-              background = new Timer.periodic(Duration(seconds: 45), _notificationReminder);
+              background = new Timer.periodic(Duration(seconds: 25), _notificationReminder);
             }
         } else if (notifications.length == 0) {
           background?.cancel();

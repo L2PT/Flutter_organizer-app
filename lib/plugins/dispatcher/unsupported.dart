@@ -30,4 +30,7 @@ abstract class PlatformUtils {
   static dynamic notifyInfoMessage(message) => null;
 
   static dynamic eventButtonsVisible(BuildContext context, event, account) => null;
+
+  static Future<int> getVersionApp() async  { return 999; }
+  static Future<int> getNumBuildApp() async { return 999; }
 }

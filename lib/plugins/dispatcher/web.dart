@@ -52,4 +52,7 @@ class PlatformUtils {
   static dynamic eventButtonsVisible(BuildContext context, event, account){
     return false;
   }
+
+  static Future<int> getVersionApp() async { return 999; }
+  static Future<int> getNumBuildApp() async { return 999;  }
 }

@@ -82,8 +82,8 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                       size: widget.sizeIcon,
                     ),
                     SizedBox(width: widget.padding,),
-                    Text((event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm",'it_IT'):DateFormat.Hm()).format(event.start) + " - " +
-                        (event.start.day!=event.end.day?DateFormat("(MMM dd) hh:mm",'it_IT'):DateFormat.Hm()).format(event.end), style: subtitle_rev)
+                    Text((event.start.day!=event.end.day?DateFormat("(MMM dd) HH:mm",'it_IT'):DateFormat.Hm()).format(event.start) + " - " +
+                        (event.start.day!=event.end.day?DateFormat("(MMM dd) HH:mm",'it_IT'):DateFormat.Hm()).format(event.end), style: subtitle_rev)
                   ],
                 ),
               ),
@@ -528,7 +528,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                           ElevatedButton(
                             child: new Text('TERMINA', style: button_card),
                             onPressed: () async {
-                              bool delay = event.end.add(new Duration(minutes: 15)).isBefore(DateTime.now());
+                              bool delay = event.end.add(new Duration(hours: 1)).isBefore(DateTime.now());
                               ConfirmCancelAlert(context, title: "TERMINA INCARICO",
                                   text: "Confermi la terminazione dell'incarico?",showDetailsContent: delay).show().then(
                                   (res) {

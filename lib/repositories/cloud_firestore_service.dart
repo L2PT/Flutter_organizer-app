@@ -94,6 +94,10 @@ class CloudFirestoreService {
     return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data()!);
   }
 
+  Stream<Map<String, dynamic>> getInfoApp() {
+    return _collectionCostanti.doc(Constants.tabellaCostanti_InfoApp).snapshots().map((document)  => document.data()!);
+  }
+
   Future<Map<String, dynamic>> getPhoneNumbers() async {
     return _collectionCostanti.doc(Constants.tabellaCostanti_Telefoni).get().then((document) => document.data()!);
   }
@@ -310,7 +314,7 @@ class CloudFirestoreService {
 
   void endEvent(Event e, {bool propagate = false}) async {
     e.status = EventStatus.Ended;
-    var eventsMoved = [];
+    Map<String, Event> eventsMoved = Map();
     if(propagate) {
       e.end = DateTime.now();
       var eventsToPropagate = [e];
@@ -320,15 +324,20 @@ class CloudFirestoreService {
           if(operator != null) {
             List<Event> eventsInConflict = await _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: operator.id).where(Constants.tabellaEventi_dataInizio, isGreaterThan: e.start, isLessThanOrEqualTo: e.end)
                 .get().then(((snapshot) => snapshot.docs.map((document) => Event.fromMap(document.id, "", document.data())).toList()));
+            eventsInConflict.sort((a,b) => a.start.compareTo(b.start));
+            Event eventConflict = e;
             eventsInConflict.forEach((eventInConflict) {
-              Duration d = eventInConflict.end.difference(eventInConflict.start.add(Duration(minutes: 15)));
-              eventInConflict.start = TimeUtils.getStartWorkTimeSpan(from: e.end.add(new Duration(minutes: 15)), ofDuration: d);
+              Duration d = eventInConflict.end.difference(eventInConflict.start.add(Duration(minutes: 5)));
+              eventInConflict.start = TimeUtils.getStartWorkTimeSpan(from: eventConflict.end.add(new Duration(minutes: 5)), ofDuration: d);
               eventInConflict.end =  eventInConflict.start.add(d);
               eventsToPropagate.add(eventInConflict);
+              eventConflict = eventInConflict;
             });
           }
         }
-        eventsMoved.add(e);
+        if(eventsMoved[e.id] == null || eventsMoved[e.id]!.start.isBefore(e.start))
+            eventsMoved[e.id] = e;
+
       }
     }
     final dynamic createTransaction = (dynamic tx) async {
@@ -336,7 +345,7 @@ class CloudFirestoreService {
       dynamic endedDoc = _collectionStoricoTerminati.doc(e.id);
       await tx.set(endedDoc, e.toDocument());
       await tx.update(doc, {Constants.tabellaEventi_stato: e.status});
-      for (var eventMoved in eventsMoved) {
+      for (Event eventMoved in eventsMoved.values){
         dynamic doc = _collectionEventi.doc(eventMoved.id);
         await tx.update(doc, {Constants.tabellaEventi_dataInizio: eventMoved.start});
         await tx.update(doc, {Constants.tabellaEventi_dataFine: eventMoved.end});

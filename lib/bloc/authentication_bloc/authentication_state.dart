@@ -16,6 +16,10 @@ class Unauthenticated extends AuthenticationState {
 
 }
 
+class Unavailable extends AuthenticationState {
+
+}
+
 class Authenticated extends AuthenticationState {
   final Account user;
   final bool isSupervisor;
