@@ -18,7 +18,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   OperatorSelectionCubit(this._databaseRepository, Event? _event, this.isTriState) :
         this._event = _event ?? new Event.empty(),
         super(LoadingOperators()){
-      getOperators();
+      getOperators(isTriState);
   }
 
   void onTap(Account operator) {
@@ -35,9 +35,13 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
     }
   }
 
-  void getOperators() async {
-    operators = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end);
-    operators.sort((a,b) => a.surname.compareTo(b.surname));
+  void getOperators(bool isTriState) async {
+    if(isTriState){
+      operators = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end);
+      operators.sort((a,b) => a.surname.compareTo(b.surname));
+    }else {
+      operators = await _databaseRepository.getOperators();
+    }
     emit(new ReadyOperators(operators,event:_event));
   }
 
