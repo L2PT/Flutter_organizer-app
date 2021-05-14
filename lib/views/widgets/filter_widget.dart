@@ -7,7 +7,6 @@ class FilterWidget extends StatelessWidget {
 
   bool filtersBoxVisibile;
   void Function()? showFiltersBox;
-  final TextEditingController titleController = new TextEditingController();
   final String hintTextSearchField;
   final bool showActionFilters;
   bool isExpandable;
@@ -85,7 +84,7 @@ class FilterWidget extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: TextField(
-                controller: titleController,
+                controller: titleController(context),
                 onChanged: (s)=>onSearchFieldTextChanged(context,s),
                 style: new TextStyle(color: white),
                 decoration: InputDecoration(
@@ -122,7 +121,7 @@ class FilterWidget extends StatelessWidget {
             onPressed: () => this.applyFilters(context),
           ),
         ],
-   );
+    );
 
   }
 
@@ -131,5 +130,7 @@ class FilterWidget extends StatelessWidget {
   void clearFilters(BuildContext context){}
 
   void applyFilters(BuildContext context){}
+
+  TextEditingController titleController(BuildContext context) => new TextEditingController();
 
 }

@@ -79,11 +79,13 @@ class OperatorsFilterWidget extends FilterWidget {
         ]);
   }
 
-
   @override
   void onSearchFieldTextChanged(BuildContext context, text){
     context.read<OperatorsFilterCubit>().onSearchFieldTextChanged(text);
   }
+
+  @override
+  TextEditingController titleController(BuildContext context) => context.read<OperatorsFilterCubit>().titleController;
 
   @override
   Widget build(BuildContext context) {

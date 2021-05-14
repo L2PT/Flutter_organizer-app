@@ -194,7 +194,8 @@ class CloudFirestoreService {
     return await table.doc(id).get().then((doc) => doc);
   }
 
-  Future<List<Event>> _getEventsFiltered(Query query, Map<String, FilterWrapper> filters, [limit, startFrom]) async {
+  Future<List<Event>> _getEventsFiltered(Query query, Map<String, FilterWrapper> filters, [limit, startFrom, remaining]) async {
+    Query startQuery = query;
     filters = Map.from(filters);
     // due to firebase limitations (we can't build a query with all filters) let the repository do ALL filtering work
     // despite some fields will be handled in the firebase query and some other in code
@@ -227,14 +228,15 @@ class CloudFirestoreService {
 
     List<Event> events = docs.map((document) =>
         Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    events = events.where((event){
-      bool a = filters.values.every((wrapper) =>
-          event.filter(wrapper.filterFunction, wrapper.fieldValue));
-      return a;
-    }).toList();
+    DateTime lastRetrieved = events.last.start;
 
-    return events.length>=limit || endOfList ? events :
-      [...events, ...(await _getEventsFiltered(query, filters, limit, events.last.start))];
+    events = events.where((event) => filters.values.every((wrapper) =>
+          event.filter(wrapper.filterFunction, wrapper.fieldValue))
+    ).toList();
+
+    var a = (events.length>=(remaining??limit) || endOfList) ? events :
+      [...events, ...(await _getEventsFiltered(startQuery, filters, limit, lastRetrieved, limit-events.length))];
+    return a;
   }
 
   Future<List<Event>> getEventsHistoryFiltered(int category, Map<String, FilterWrapper> filters, {limit, startFrom}) {

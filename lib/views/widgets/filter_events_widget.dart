@@ -293,13 +293,17 @@ class EventsFilterWidget extends FilterWidget {
   }
 
   @override
+  TextEditingController titleController(BuildContext context) => context.read<EventsFilterCubit>().titleController;
+
+
+  @override
   Widget build(BuildContext context) {
     CloudFirestoreService repository = context.read<CloudFirestoreService>();
     Account account = context.read<AuthenticationBloc>().account!;
     this.isSupervisor = account.supervisor;
 
     return new BlocProvider(
-      create: (_) => EventsFilterCubit(repository, callbackSearchFieldChanged, callbackFiltersChanged, this.titleController),
+      create: (_) => EventsFilterCubit(repository, callbackSearchFieldChanged, callbackFiltersChanged),
       child: BlocBuilder<EventsFilterCubit, EventsFilterState>(
           buildWhen: (previous, current) => previous != current,
           builder: (context, state) {

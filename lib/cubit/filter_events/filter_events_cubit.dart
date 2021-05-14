@@ -17,11 +17,12 @@ class EventsFilterCubit extends Cubit<EventsFilterState> {
   final Function callbackSearchFieldChanged;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Map<String,dynamic> categories;
-  final TextEditingController titleController;
+  late TextEditingController titleController;
   late TextEditingController addressController;
   late TextEditingController customerController;
 
-  EventsFilterCubit(this._databaseRepository, this.callbackSearchFieldChanged, this.callbackFiltersChanged, this.titleController) : super(EventsFilterState()) {
+  EventsFilterCubit(this._databaseRepository, this.callbackSearchFieldChanged, this.callbackFiltersChanged) : super(EventsFilterState()) {
+    titleController = new TextEditingController();
     addressController = new TextEditingController();
     customerController = new TextEditingController();
     initFilters();
