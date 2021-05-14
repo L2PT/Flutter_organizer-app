@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
+import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -53,10 +54,13 @@ class CloudFirestoreService {
     });
   }
 
-  Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime startFrom, DateTime endTo) async {
-    List<Account> accounts = await this.getOperators();
+  Future<List<Account>> getOperatorsFree(String eventIdToIgnore, DateTime fromDate, DateTime toDate, {limit, startFrom}) async {
+    bool endOfList = false;
+    List<Account> accounts = await this.getOperators(limit: limit, startFrom: startFrom);
 
-    final List<Event> listEvents = await this.getFutureEvents(startFrom);
+    if(limit != null && accounts.length < limit) endOfList = true;
+
+    final List<Event> listEvents = await this.getFutureEvents(fromDate);
     if(Constants.debug){
       listEvents.forEach((event) async {
         if (event.status == EventStatus.Refused || event.status == EventStatus.Deleted) {
@@ -67,7 +71,7 @@ class CloudFirestoreService {
     }
     listEvents.forEach((event) {
       if (event.id != eventIdToIgnore) {
-        if (event.isBetweenDate(startFrom, endTo)) {
+        if (event.isBetweenDate(fromDate, toDate)) {
           [event.operator, ...event.suboperators].map((e) => e!.id).forEach((idOperator) {
             bool checkDelete = false;
             for (int i = 0; i < accounts.length && !checkDelete; i++) {
@@ -80,18 +84,14 @@ class CloudFirestoreService {
         }
       }
     });
-    return accounts;
+    return accounts.length==limit || endOfList ? accounts :
+      [...accounts, ...(await getOperatorsFree(eventIdToIgnore, fromDate, toDate, limit: limit-accounts.length, startFrom: accounts.last.surname))];
   }
 
   Future<List<Account>> getOperators({limit, startFrom}) async {
-    if (limit != null && startFrom != null)
-      return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).limit(limit).startAfter([startFrom]).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
-    else if (limit != null)
-      return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).limit(limit).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
-    else if (startFrom != null)
-      return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).startAfter([startFrom]).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
-
-    return _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
+    Query query = _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome);
+    query = addPagination(query, limit, startFrom);
+    return query.get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
   }
 
   void addOperator(Account u) {
@@ -139,28 +139,14 @@ class CloudFirestoreService {
     });
   }
 
-  Stream<List<Event>> subscribeEventsByOperator(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    });
-  }
-
-  Stream<List<Event>> subscribeEventsByOperatorAcceptedOrBelow(String idOperator) {
-    return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: EventStatus.Accepted).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id,  _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    });
-  }
-
   Stream<List<Event>> subscribeEventsByOperatorWaiting(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: EventStatus.Seen).snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
     });
-  }
+  }// TODO merge subscription queries
 
-  Stream<List<Event>> eventsByOperator(String idOperator, {required int statusEqualOrAbove, DateTime? from, DateTime? to}) {
+  Stream<List<Event>> subscribeEventsByOperator(String idOperator, {required int statusEqualOrAbove, DateTime? from, DateTime? to}) {
     if(from != null && to != null)
       return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator)
           .where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo: from)
@@ -176,7 +162,7 @@ class CloudFirestoreService {
       });
   }
 
-  Stream<List<Event>> eventsHistory() {
+  Stream<List<Event>> subscribeEventsHistory() {
     return _collectionSubStoricoEventi.orderBy(Constants.tabellaEventi_dataInizio, descending: true).snapshots().map((snapshot) {
       var documents = snapshot.docs;
       return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
@@ -208,45 +194,61 @@ class CloudFirestoreService {
     return await table.doc(id).get().then((doc) => doc);
   }
 
-  Stream<List<Event>> subscribeEventsFiltered(Query table, Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate)  {
+  Future<List<Event>> _getEventsFiltered(Query query, Map<String, FilterWrapper> filters, [limit, startFrom]) async {
+    filters = Map.from(filters);
+    // due to firebase limitations (we can't build a query with all filters) let the repository do ALL filtering work
+    // despite some fields will be handled in the firebase query and some other in code
+    bool endOfList = false;
 
-    if(e.title != ''){
-      table = table.where(Constants.tabellaEventi_titolo, isGreaterThanOrEqualTo: e.title).where(Constants.tabellaEventi_titolo, isLessThanOrEqualTo: e.title + '~' );
+    query = query.where(Constants.tabellaEventi_dataInizio, isLessThan: DateTime.now()).orderBy(Constants.tabellaEventi_dataInizio, descending: true);
+    query = addPagination(query, limit, startFrom);
+
+    // if(filters.containsKey("title") && filters["title"]!.fieldValue!=null){
+    //   String title = filters.remove("title")!.fieldValue;
+    //   query = query.where(Constants.tabellaEventi_titolo, isGreaterThanOrEqualTo: title).where(Constants.tabellaEventi_titolo, isLessThanOrEqualTo: title + '~' ).orderBy(Constants.tabellaEventi_titolo, descending: false);
+    // }
+
+    if(filters.containsKey("suboperators") && filters["suboperators"]!.fieldValue!=null){
+      List<Account> suboperators = filters["suboperators"]!.fieldValue;
+      if(suboperators.length>0){
+        query = query.where(Constants.tabellaEventi_idOperatori, arrayContains: suboperators[0].id);
+        if(suboperators.length==1) filters.remove("suboperators");
+      }
     }
 
-    if(e.customer.phone != ''){
-      table = table.where(Constants.tabellaEventi_cliente+'.'+Constants.tabellaClienti_telefono, isGreaterThanOrEqualTo: e.customer.phone)
-          .where(Constants.tabellaEventi_cliente+'.'+Constants.tabellaClienti_telefono, isLessThanOrEqualTo: e.customer.phone + '~' );
+    if(filters.containsKey("categories") && filters["categories"]!.fieldValue!=null){
+      Map<String,bool> categories = Map.from(filters.remove("categories")!.fieldValue);
+      categories.removeWhere((key, value) => !value);
+      if(categories.length>0) query = query.where(Constants.tabellaEventi_categoria, whereIn: categories.keys.toList());
     }
 
-    if(e.suboperators.isNotEmpty){
-      table = table.where(Constants.tabellaEventi_idOperatori, arrayContains: [...e.suboperators.map((op) => op.id)]);
-    }
+    var docs = await query.get().then((snapshot) => snapshot.docs);
+    if(limit != null && docs.length < limit) endOfList = true;
 
-    List<String> listCategory = categorySelected.keys.where((key) => categorySelected[key]!).toList();
-    if(listCategory.isNotEmpty){
-      table = table.where(Constants.tabellaEventi_categoria, whereIn: listCategory);
-    }
+    List<Event> events = docs.map((document) =>
+        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+    events = events.where((event){
+      bool a = filters.values.every((wrapper) =>
+          event.filter(wrapper.filterFunction, wrapper.fieldValue));
+      return a;
+    }).toList();
 
-    return table.orderBy(Constants.tabellaEventi_dataInizio, descending: true).limit(Constants.numDocuments).snapshots().map((snapshot) {
-      var documents = snapshot.docs;
-      List<Event> listEvent = documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-      return listEvent.where((event) => event.isFilteredEventSimple(e.address, e.start, e.end, filterStartDate, filterEndDate)).toList();
-    });
+    return events.length>=limit || endOfList ? events :
+      [...events, ...(await _getEventsFiltered(query, filters, limit, events.last.start))];
   }
 
-  Stream<List<Event>> subscribeEventsHistoryFiltered(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate) {
+  Future<List<Event>> getEventsHistoryFiltered(int category, Map<String, FilterWrapper> filters, {limit, startFrom}) {
     CollectionReference table = _collectionStoricoTerminati;
-     if(e.isRefused()){
+    if(category == EventStatus.Refused){
       table = _collectionStoricoRifiutati;
-    }else if(e.isDeleted()){
+    }else if(category == EventStatus.Refused){
       table = _collectionStoricoEliminati;
     }
-    return subscribeEventsFiltered(table, e, categorySelected, filterStartDate, filterEndDate);
+    return _getEventsFiltered(table, filters, limit, startFrom);
   }
 
-  Stream<List<Event>> subscribeEventsWorkFiltered(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate) {
-    return subscribeEventsFiltered(_collectionEventi, e, categorySelected, filterStartDate, filterEndDate);
+  Future<List<Event>> getEventsActiveFiltered(Map<String, FilterWrapper> filters, {limit, startFrom}) {
+    return _getEventsFiltered(_collectionEventi, filters, limit, startFrom);
   }
 
   Future<String> addEvent(Event data) async {
@@ -283,18 +285,6 @@ class CloudFirestoreService {
 
   void updateEventField(String id, String field, dynamic data) {
     _collectionEventi.doc(id).update(Map.of({field:data}));
-  }
-
-  static void backgroundUpdateEventAsDelivered(String id) async {
-    Event? event = await FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).get().then((document) => document.exists ? Event.fromMap(document.id, "", document.data()!) : null );
-      if (event != null && event.isNew()) {
-        FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).update(Map.of({Constants.tabellaEventi_stato: EventStatus.Delivered})
-      );
-    }
-  }
-
-  Future<void> updateAccountField(String id, String field, dynamic data) async {
-    return _collectionUtenti.doc(id).update(Map.of({field:data}));
   }
 
   void deleteEvent(Event e) async {
@@ -374,12 +364,37 @@ class CloudFirestoreService {
     _cloudFirestore.runTransaction(createTransaction);
   }
 
+  String _getColorByCategory(String? category) =>
+    categories[category??Constants.categoryDefault]??Constants.fallbackHexColor;
+
+  static void backgroundUpdateEventAsDelivered(String id) async {
+    Event? event = await FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).get().then((document) => document.exists ? Event.fromMap(document.id, "", document.data()!) : null );
+    if (event != null && event.isNew()) {
+      FirebaseFirestore.instance.collection(Constants.tabellaEventi).doc(id).update(Map.of({Constants.tabellaEventi_stato: EventStatus.Delivered})
+      );
+    }
+  }
+
+  Query addPagination(Query query, [limit, startFrom]) {
+    if (limit != null && startFrom != null)
+      query = query.limit(limit).startAfter([startFrom]);
+    else if (limit != null)
+      query = query.limit(limit);
+    else if (startFrom != null)
+      query = query.startAfter([startFrom]);
+
+    return query;
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  Future<void> updateAccountField(String id, String field, dynamic data) async {
+    return _collectionUtenti.doc(id).update(Map.of({field:data}));
+  }
+
   Future<Account> getUserByPhone(String phoneNumber) async{
     return _collectionUtenti.where('Telefono', isEqualTo: phoneNumber).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).first);
   }
-
-  String _getColorByCategory(String? category) =>
-    categories[category??Constants.categoryDefault]??Constants.fallbackHexColor;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -34,7 +34,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   }
 
   void loadMoreData([DateTime? start, DateTime? end]){
-    _databaseRepository.eventsByOperator((operator??_account).id, statusEqualOrAbove: _account.supervisor? EventStatus.Refused : EventStatus.Accepted,
+    _databaseRepository.subscribeEventsByOperator((operator??_account).id, statusEqualOrAbove: _account.supervisor? EventStatus.Refused : EventStatus.Accepted,
         from: TimeUtils.truncateDate(start??DateTime.now().subtract(new Duration(days: 7)), "day"),
         to: end?.add(new Duration(days: 1))??TimeUtils.truncateDate(start??DateTime.now().add(new Duration(days: 7)), "day")).listen((eventsList) {
       _events = eventsList;

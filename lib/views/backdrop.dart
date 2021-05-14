@@ -44,11 +44,6 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
   late AnimationController _controller;
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    context.read<MobileBloc>().lifecycleState = state; // TODO is this useless
-  }
-
-  @override
   void initState() {
     super.initState();
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
@@ -57,8 +52,8 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
 
   @override
   Widget build(BuildContext context) {
-    final account = context.read<AuthenticationBloc>().account!; // TODO check
-    final state = context.read<MobileBloc>().state is InBackdropState ? context.watch<MobileBloc>().state : context.watch<MobileBloc>().savedState; // TODO
+    final account = context.read<AuthenticationBloc>().account!;
+    final state = context.read<MobileBloc>().state is InBackdropState ? context.watch<MobileBloc>().state : context.watch<MobileBloc>().savedState;
     _toggleBackdropLayerVisibility(false);
     return WillPopScope(
         onWillPop: _onBackPressed,
@@ -138,7 +133,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
     }
   }
 
-  Future<bool> _onBackPressed() async { //TODO check
+  Future<bool> _onBackPressed() async {
     bool ret = false;
     if(context.read<MobileBloc>().state is OutBackdropState)
       PlatformUtils.backNavigator(context);

@@ -3,14 +3,13 @@ part of 'operator_list_cubit.dart';
 abstract class OperatorListState extends Equatable {
   String searchNameField;
   DateTime searchTimeField;
-  bool filtersBoxVisibile = false;
 
   OperatorListState([String? searchNameField, DateTime? searchTimeField]) :
         this.searchNameField = searchNameField ?? "",
         this.searchTimeField = searchTimeField ?? DateTime.now();
   
   @override
-  List<Object> get props => [searchNameField, searchTimeField, filtersBoxVisibile];
+  List<Object> get props => [searchNameField, searchTimeField];
 }
 
 class LoadingOperators extends OperatorListState {
@@ -33,20 +32,17 @@ class ReadyOperators extends OperatorListState {
   }
 
   @override
-  List<Object> get props => [filteredOperators.map((op) => op.id).join(), searchNameField, searchTimeField, filtersBoxVisibile];
+  List<Object> get props => [filteredOperators.map((op) => op.id).join(), searchNameField, searchTimeField];
 
   ReadyOperators assign({
-    required List<Account> operators,
+    List<Account>? operators,
     String? searchNameField,
     DateTime? searchTimeField,
-    bool? filterBoxState,
   }) {
     return ReadyOperators(
-        ((searchNameField == this.searchNameField || searchNameField == null || searchNameField.contains(this.searchNameField)) &&
-        (this.searchTimeField == searchTimeField)) ? 
-        this.filteredOperators : operators,
+        operators ?? this.filteredOperators,
         searchNameField: searchNameField ?? this.searchNameField,
         searchTimeField: searchTimeField ?? this.searchTimeField
-    )..filtersBoxVisibile = filterBoxState ?? this.filtersBoxVisibile;
+    );
   }
 }

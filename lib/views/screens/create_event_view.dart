@@ -12,8 +12,8 @@ import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
-import 'package:venturiautospurghi/views/widgets/operator_list_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 import 'package:venturiautospurghi/views/widgets/alert_success.dart';
 
@@ -236,14 +236,16 @@ class _formInputList extends StatelessWidget{
               ) : Container()
             ]),
             BlocBuilder<CreateEventCubit, CreateEventState>(
-                buildWhen: (previous, current) => previous.event.toString() != current.event.toString(),
-            builder: (context, state) {
-                  return OperatorsList(operators: context.read<CreateEventCubit>().state.event.operator != null
-                      ? [context.read<CreateEventCubit>().state.event.operator!, ...context.read<CreateEventCubit>().state.event.suboperators]
-                      : context.read<CreateEventCubit>().state.event.suboperators,
-                      closeFunction: context.read<CreateEventCubit>().removeSuboperatorFromEventList,
-                    canRemove: context.read<CreateEventCubit>().checkModifyOperator,
-                  );
+              buildWhen: (previous, current) => previous.event.toString() != current.event.toString(),
+              builder: (context, state) {
+                return Column(children: <Widget>[...(context.read<CreateEventCubit>().state.event.operator != null ?
+                  [context.read<CreateEventCubit>().state.event.operator!, ...context.read<CreateEventCubit>().state.event.suboperators] :
+                  context.read<CreateEventCubit>().state.event.suboperators).map((operator) =>
+                  new ListTileOperator(
+                    operator,
+                    onRemove: context.read<CreateEventCubit>().removeSuboperatorFromEventList,
+                    darkStyle: false,
+                  )).toList()]);
             }),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
             _categoriesList(),
@@ -334,7 +336,7 @@ class _fileStorageList extends StatelessWidget {
   }
 }
 
-class _timeControls extends StatelessWidget { //TODO debug session need to check if this works as supposed to work 
+class _timeControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {

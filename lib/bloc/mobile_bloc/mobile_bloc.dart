@@ -37,7 +37,6 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   final Account _account;
   Timer? background;
   StreamSubscription<List<Event>>? _notificationSubscription;
-  late AppLifecycleState lifecycleState;
   late MobileState savedState;
   
   MobileBloc({
@@ -90,7 +89,6 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
   Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
-    //TODO inspect here with [lifecycleState]
     add(NavigateEvent(Constants.homeRoute));
     int counter = 0;
     if (!_account.supervisor) {
@@ -127,5 +125,4 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
     return super.close();
   }
 
-// bool outBackdropResultIsPositive(value) => (value != null && (!(value is bool) || value != false));
 }

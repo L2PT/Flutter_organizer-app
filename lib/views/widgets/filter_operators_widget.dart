@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/cubit/filter_operators/filter_operators_cubit.dart';
+import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/filter_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
+import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
-class OperatorsFilterWidget extends FilterWidget{
+class OperatorsFilterWidget extends FilterWidget {
 
-  final DateTime searchTimeField;
-  final void Function(DateTime) onSearchDateChanged;
-  final void Function(DateTime) onSearchTimeChanged;
+  final Function callbackFiltersChanged;
+  final Function callbackSearchFieldChanged;
 
   OperatorsFilterWidget({
-    bool filtersBoxVisibile = false,
-    bool showIconExpanded = true,
-    required void Function()? showFiltersBox,
-    required void Function(String) onSearchChanged,
-    bool isWebMode = false,
     String hintTextSearch = '',
-    required this.searchTimeField,
-    required this.onSearchDateChanged,
-    required this.onSearchTimeChanged,
-  }) : super(
+    required void Function(Map<String, FilterWrapper> filters) onFiltersChanged,
+    required void Function(Map<String, FilterWrapper> filters) onSearchFieldChanged,
+    bool isExpandable = true,
+    bool filtersBoxVisibile = false,
+  }) : callbackFiltersChanged = onFiltersChanged,
+        callbackSearchFieldChanged = onSearchFieldChanged, super(
       filtersBoxVisibile: filtersBoxVisibile,
-      showIconExpanded: showIconExpanded,
-      showFiltersBox: showFiltersBox,
-      onSearchChanged: onSearchChanged,
-      hintTextSearch: hintTextSearch,
-      isWebMode: isWebMode,
+      isExpandable: isExpandable,
+      hintTextSearchField: hintTextSearch,
       showActionFilters: false,
   );
 
@@ -54,12 +51,13 @@ class OperatorsFilterWidget extends FilterWidget{
                       Icon(Icons.date_range),
                       SizedBox(width: 5),
                       GestureDetector(
-                        child: Text(formatDate.format(searchTimeField), style: time_card),
+                        child: Text(context.read<OperatorsFilterCubit>().state.filters["date"] != null ?
+                        formatDate.format(context.read<OperatorsFilterCubit>().state.filters["date"]!.fieldValue??DateTime.now()):'Data inizio', style: time_card),
                         onTap: () =>
                             PlatformDatePicker.selectDate(context,
                               maxTime: DateTime(3000),
-                              currentTime: searchTimeField,
-                              onConfirm: (date) => onSearchDateChanged(date),
+                              currentTime: context.read<OperatorsFilterCubit>().state.filters["date"]!.fieldValue??DateTime.now(),
+                              onConfirm: (date) => context.read<OperatorsFilterCubit>().setSearchDate(date),
                             ),
                       ),
                     ],
@@ -68,17 +66,42 @@ class OperatorsFilterWidget extends FilterWidget{
                     Icon(Icons.watch_later),
                     SizedBox(width: 5),
                     GestureDetector(
-                      child: Text(searchTimeField.toString().split(' ').last.split('.').first.substring(0, 5), style: time_card),
+                      child: Text((context.read<OperatorsFilterCubit>().state.filters["date"]!.fieldValue??DateTime.now()).toString().split(' ').last.split('.').first.substring(0, 5), style: time_card),
                       onTap: () =>
                           PlatformDatePicker.selectTime(context,
-                            currentTime: searchTimeField,
-                            onConfirm: (date) => onSearchTimeChanged(date),
+                            currentTime: context.read<OperatorsFilterCubit>().state.filters["date"]!.fieldValue,
+                            onConfirm: (time) => context.read<OperatorsFilterCubit>().setSearchTime(time),
                           ),
                     )
                   ]),
                 ],
               ))
         ]);
+  }
+
+
+  @override
+  void onSearchFieldTextChanged(BuildContext context, text){
+    context.read<OperatorsFilterCubit>().onSearchFieldTextChanged(text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    largeScreen = !ResponsiveWidget.isSmallScreen(context);
+
+    return new BlocProvider(
+      create: (_) => OperatorsFilterCubit(callbackSearchFieldChanged, callbackFiltersChanged),
+      child: BlocBuilder<OperatorsFilterCubit, OperatorsFilterState>(
+          builder: (context, state) {
+            super.showFiltersBox = context.read<OperatorsFilterCubit>().showFiltersBox;
+            super.filtersBoxVisibile = state.filtersBoxVisibile;
+            return largeScreen?
+            Padding(
+              padding: EdgeInsets.only(top: 25),
+              child: super.build(context),
+            ): super.build(context);
+          }
+      ),);
   }
 
 }

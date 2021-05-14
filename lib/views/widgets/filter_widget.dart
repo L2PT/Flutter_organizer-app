@@ -1,31 +1,32 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:venturiautospurghi/cubit/filter_events/filter_events_cubit.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class FilterWidget extends StatelessWidget {
 
   bool filtersBoxVisibile;
   void Function()? showFiltersBox;
-  void Function(String)? onSearchChanged;
-  final bool isWebMode;
-  final String hintTextSearch;
+  final TextEditingController titleController = new TextEditingController();
+  final String hintTextSearchField;
   final bool showActionFilters;
-  bool enableSearchField;
-  bool showIconExpanded;
+  bool isExpandable;
+  late bool largeScreen;
+
 
   FilterWidget({
     required this.filtersBoxVisibile,
     this.showFiltersBox,
-    required this.showIconExpanded,
-    this.onSearchChanged,
-    required this.hintTextSearch,
+    required this.isExpandable,
+    required this.hintTextSearchField,
     this.showActionFilters = true,
-    this.isWebMode = false,
-    this.enableSearchField = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    largeScreen = !ResponsiveWidget.isSmallScreen(context);
 
     Widget MobileFilter() {
       return Column(
@@ -68,7 +69,7 @@ class FilterWidget extends StatelessWidget {
           ));
     }
 
-    return isWebMode?WebFilter():MobileFilter();
+    return PlatformUtils.isMobile?MobileFilter():WebFilter();
 
   }
 
@@ -84,8 +85,8 @@ class FilterWidget extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: TextField(
-                enabled: enableSearchField,
-                onChanged: onSearchChanged,
+                controller: titleController,
+                onChanged: (s)=>onSearchFieldTextChanged(context,s),
                 style: new TextStyle(color: white),
                 decoration: InputDecoration(
                   border: InputBorder.none,
@@ -93,11 +94,11 @@ class FilterWidget extends StatelessWidget {
                     Icons.search,
                     color: white,
                   ),
-                  hintText: hintTextSearch,
+                  hintText: hintTextSearchField,
                 ),
               ),
             ),
-            showIconExpanded?IconButton(
+            isExpandable?IconButton(
                 icon: new Icon((!filtersBoxVisibile) ? Icons.tune : Icons.keyboard_arrow_up, color: white),
                 onPressed: showFiltersBox
             ):Container(),
@@ -118,15 +119,17 @@ class FilterWidget extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(side: BorderSide(width: 1.0, color: white,)),
             child: new Text('FILTRA', style: button_card),
-            onPressed: () => this.filterValues(context),
+            onPressed: () => this.applyFilters(context),
           ),
         ],
    );
 
   }
 
+  void onSearchFieldTextChanged(BuildContext context, String text){}
+
   void clearFilters(BuildContext context){}
 
-  void filterValues(BuildContext context){}
+  void applyFilters(BuildContext context){}
 
 }

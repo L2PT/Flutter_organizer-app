@@ -1,22 +1,23 @@
 part of 'history_event_list_cubit.dart';
 
 abstract class HistoryEventListState extends Equatable {
-  final int selectedStatus;
+  Map<String, FilterWrapper> filters = {};
   final Map<int, List<Event>> eventsMap;
+  final int selectedStatusTab;
 
-  HistoryEventListState(int? selectedStatus, [Map<int, List<Event>>? eventsMap]):
-      this.selectedStatus = selectedStatus ?? EventStatus.Ended,
-      this.eventsMap = eventsMap ?? {};
-  
+  HistoryEventListState(int? selectedStatus, [Map<int, List<Event>>? eventsMap, Map<String, FilterWrapper>? filters]):
+      this.selectedStatusTab = selectedStatus ?? EventStatus.Ended,
+      this.eventsMap = eventsMap ?? {},
+      this.filters = filters ?? {};
+
   @override
-  List<Object> get props => [selectedStatus, eventsMap[selectedStatus]!=null?eventsMap[selectedStatus]!.map((e) => e).join():""];
-
+  List<Object> get props => [selectedStatusTab, eventsMap[selectedStatusTab]!=null?eventsMap[selectedStatusTab]!.map((e) => e).join():""];
 
   HistoryReady assign({
-    int? selectedStatus,
+    Map<String, FilterWrapper>? filters,
     Map<int, List<Event>>? eventsMap,
-  }) =>
-      HistoryReady(selectedStatus ?? this.selectedStatus, eventsMap ?? this.eventsMap);
+    int? selectedStatus,
+  }) => HistoryReady(selectedStatus ?? this.selectedStatusTab, eventsMap ?? this.eventsMap, filters ?? this.filters);
 
 }
 
@@ -27,12 +28,10 @@ class HistoryLoading extends HistoryEventListState{
 
 class HistoryReady extends HistoryEventListState{
 
-  List<Event> selectedEvents() => eventsMap[selectedStatus] ?? [];
+  List<Event> selectedEvents() => eventsMap[selectedStatusTab] ?? [];
 
-  List<Event> events(int status) => (eventsMap[status] ?? []).reversed.toList() ;
+  List<Event> events(int status) => (eventsMap[status] ?? []).toList() ;
 
-  HistoryReady(int selectedStatus, Map<int, List<Event>> eventsMap) : super(selectedStatus,eventsMap) {
-    eventsMap[selectedStatus]?.sort((a, b) => a.start.compareTo(b.start));
-  }
+  HistoryReady(int selectedStatus, Map<int, List<Event>> eventsMap, Map<String, FilterWrapper> filters) : super(selectedStatus,eventsMap, filters);
 
 }

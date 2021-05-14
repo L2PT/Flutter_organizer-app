@@ -2,28 +2,28 @@ part of 'filter_event_list_cubit.dart';
 
 abstract class FilterEventListState extends Equatable {
 
+  Map<String, FilterWrapper> filters = {};
   List<Event> listEventFiltered;
 
-  FilterEventListState([List<Event>? listEvent]):
-    this.listEventFiltered = listEvent??[];
+  FilterEventListState([Map<String, FilterWrapper>? filters, List<Event>? listEvent]):
+        this.filters = filters??{},
+        this.listEventFiltered = listEvent??[];
 
   List<Object?> get props => [this.listEventFiltered.map((e) => e.id).join()];
 
-  ReadyEventFilterView assign({
+  ReadyFilterEventList assign({
+    Map<String, FilterWrapper>? filters,
     List<Event>? eventsList,
-  }) =>
-      ReadyEventFilterView(eventsList ?? this.listEventFiltered,);
+  }) => ReadyFilterEventList(
+    filters ?? this.filters,
+    eventsList ?? this.listEventFiltered);
 
 }
 
-class LoadingEventFilterView extends FilterEventListState {}
+class LoadingFilterEventList extends FilterEventListState {}
 
-class ReadyEventFilterView extends FilterEventListState {
+class ReadyFilterEventList extends FilterEventListState {
 
-  List<Event> filteredEvent() => this.listEventFiltered;
-
-  ReadyEventFilterView(List<Event>eventsList,) : super(eventsList);
-
-
+  ReadyFilterEventList( Map<String, FilterWrapper> filters, List<Event> listEvent) : super(filters, listEvent);
 
 }

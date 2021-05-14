@@ -22,13 +22,9 @@ class OperatorList extends StatelessWidget {
         SizedBox(height: 8.0),
         BlocBuilder<OperatorListCubit, OperatorListState>(builder: (context, state) {
           return OperatorsFilterWidget(
-            onSearchDateChanged: context.read<OperatorListCubit>().onSearchDateChanged,
-            onSearchTimeChanged: context.read<OperatorListCubit>().onSearchTimeChanged,
-            searchTimeField: context.read<OperatorListCubit>().state.searchTimeField,
-            filtersBoxVisibile: context.read<OperatorListCubit>().state.filtersBoxVisibile,
-            showFiltersBox: context.read<OperatorListCubit>().showFiltersBox,
-            onSearchChanged: context.read<OperatorListCubit>().onSearchNameChanged,
             hintTextSearch: "Cerca un operatore",
+            onSearchFieldChanged: context.read<OperatorListCubit>().onSearchFieldChanged,
+            onFiltersChanged: context.read<OperatorListCubit>().onFiltersChanged,
           );
         }),
         Container(
@@ -61,14 +57,12 @@ class _operatorList extends StatefulWidget {
 }
 
 class _operatorListState extends State<_operatorList> {
-  ScrollController _scrollController = new ScrollController();
 
   @override
   void initState() {
-
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels ==
-          _scrollController.position.maxScrollExtent) {
+    context.read<OperatorListCubit>().scrollController.addListener(() {
+      if (context.read<OperatorListCubit>().scrollController.position.pixels ==
+          context.read<OperatorListCubit>().scrollController.position.maxScrollExtent) {
         if(context.read<OperatorListCubit>().canLoadMore)
           context.read<OperatorListCubit>().loadMoreData();
       }
@@ -82,7 +76,7 @@ class _operatorListState extends State<_operatorList> {
     }
 
     Widget buildOperatorList() => ListView.separated(
-      controller: _scrollController,
+      controller: context.read<OperatorListCubit>().scrollController,
       separatorBuilder: (context, index) =>
           Divider(height: 2, thickness: 1, indent: 15, endIndent: 15, color: grey_light),
       physics: BouncingScrollPhysics(),
@@ -111,9 +105,8 @@ class _operatorListState extends State<_operatorList> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    context.read<OperatorListCubit>().scrollController.dispose();
     super.dispose();
   }
-
 
 }

@@ -31,7 +31,7 @@ class MessagingCubit extends Cubit<MessagingState> {
   void updateAccountTokens([String? currentToken]) async {
     String? token = currentToken ?? await FirebaseMessagingService.getToken();
     if(token != null) {
-      //TODO ci metto una pezza qua? (è possibile/necessario avere più sessioni pc collegate?)
+      //TODO cambiare struttura db per i token for web reliability (è possibile/necessario avere più sessioni web collegate)
       if (!_account.tokens.contains(token)) {
         _account.tokens.add(token);
         _databaseRepository.updateAccountField(_account.id, "Tokens", _account.tokens);
@@ -53,7 +53,7 @@ class MessagingCubit extends Cubit<MessagingState> {
 
   void onMessageHandler(RemoteMessage message) async {
     if (Constants.debug) print('on message: $message');
-    if (_isFeedbackNotification(message)) {// TODO add a check for null title after debug session
+    if (_isFeedbackNotification(message)) {
       PlatformUtils.notifyInfoMessage(message.notification?.title??"");
     } else {
       _updateEventAndSendFeedback(message, EventStatus.Delivered);
