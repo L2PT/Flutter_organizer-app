@@ -1,8 +1,10 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -12,92 +14,91 @@ part 'filter_events_state.dart';
 
 class EventsFilterCubit extends Cubit<EventsFilterState> {
   final CloudFirestoreService _databaseRepository;
+  final Function callbackFiltersChanged;
+  final Function callbackSearchFieldChanged;
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   late Map<String,dynamic> categories;
-  late TextEditingController titleController;
+  final TextEditingController titleController;
   late TextEditingController addressController;
   late TextEditingController customerController;
 
-  List<Event> listEv = [];
-
-
-
-  EventsFilterCubit(this._databaseRepository) : super(EventsFilterState()) {
-    titleController = new TextEditingController();
+  EventsFilterCubit(this._databaseRepository, this.callbackSearchFieldChanged, this.callbackFiltersChanged, this.titleController) : super(EventsFilterState()) {
     addressController = new TextEditingController();
     customerController = new TextEditingController();
-    titleController.text = state.eventFilter.title;
-    addressController.text= state.eventFilter.address;
-    customerController.text= state.eventFilter.customer.phone;
-    getCategory();
-  }
-  
-  void showFiltersBox() {
-    emit(state.assign(filtersBoxVisibile:!state.filtersBoxVisibile, enableSearchField: !state.enableSearchField));
+    initFilters();
   }
 
-  void onSearchChanged(String text, void Function(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate) filterEvent){
-    Event e = Event.empty();
-    e.title = text;
-    filterEvent(e, Map(), false, false);
+  void initFilters(){
+    titleController.text = '';
+    addressController.text= '';
+    customerController.text= '';
+    Map<String, FilterWrapper> filters = Map.from(EventsFilterState().filters);
+    filters["categories"]!.fieldValue = getCategories();
+    emit(state.assign(filters: filters));
   }
 
-  void getCategory() async {
+  Map<String,bool> getCategories() {
     categories = _databaseRepository.categories;
-    Map<String,bool> categorySelected = new Map.from(state.categorySelected);
-    categories.keys.forEach((category) { categorySelected[category] = false; });
-    emit(state.assign(categorySelected: categorySelected));
+    Map<String,bool> categoriesSelected = {};
+    categories.keys.forEach((category) { categoriesSelected[category] = false; });
+    return categoriesSelected;
+  }
+
+  void showFiltersBox() {
+    emit(state.assign(filtersBoxVisibile:!state.filtersBoxVisibile));
   }
 
   void addOperatorDialog(BuildContext context) async {
     if(formKey.currentState!.validate()){
       formKey.currentState!.save();
-      PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.eventFilter, 'requirePrimaryOperator' : false, 'context' : context, 'callback' : forceRefresh});
+      Event ev = Event.empty();
+      ev.suboperators = state.filters["suboperators"]!.fieldValue;
+      PlatformUtils.navigator(context, Constants.operatorListRoute, <String,dynamic>{'event' : ev, 'requirePrimaryOperator' : false, 'context' : context, 'callback' : forceRefresh});
     }
   }
 
-  void removeOperatorFromEventList(Account operator) {
-    Event event = Event.fromMap("", "", state.eventFilter.toMap());
-    List<Account> ops = new List.from(event.suboperators);
-    ops.removeWhere((element) => element.id == operator.id);
-    event.suboperators = ops;
-    emit(state.assign(eventFilter: event));
+  void removeOperatorFromFilter(Account operator) {
+    Map<String, FilterWrapper> filters = Map.from(state.filters);
+    List<Account> suboperators = new List.from(state.filters["suboperators"]!.fieldValue);
+    suboperators.removeWhere((element) => element.id == operator.id);
+    filters["suboperators"] = new FilterWrapper("suboperators", suboperators, state.filters["suboperators"]!.filterFunction);
+    emit(state.assign(filters: filters));
+  }
+
+  void onSearchFieldTextChanged(String text){
+    state.filters["title"]!.fieldValue = text;
+    callbackSearchFieldChanged(state.filters);
   }
 
   setStartDate(DateTime date) {
-    Event event = Event.fromMap("", "", state.eventFilter.toMap());
-    event.start = TimeUtils.truncateDate(date, "day");
-    emit(state.assign(eventFilter: event, filterStartDate: true));
+    state.filters["startDate"]!.fieldValue = TimeUtils.truncateDate(date, "day");
+    forceRefresh();
   }
 
   clearStartDate(){
-    Event event = Event.fromMap("", "", state.eventFilter.toMap());
-    event.start = TimeUtils.truncateDate(DateTime.now(), "day");
-    emit(state.assign(eventFilter: event, filterStartDate: false));
+    state.filters["startDate"]!.fieldValue = null;
+    forceRefresh();
   }
 
   setEndDate(DateTime date) {
-    Event event = Event.fromMap("", "", state.eventFilter.toMap());
-    event.end = TimeUtils.truncateDate(date, "day");
-    emit(state.assign(eventFilter: event, filterEndDate: true));
+    state.filters["endDate"]!.fieldValue = TimeUtils.truncateDate(date, "day");
+    forceRefresh();
   }
 
-  clearEndDate() {
-    Event event = Event.fromMap("", "", state.eventFilter.toMap());
-    event.end = TimeUtils.truncateDate(DateTime.now(), "day");
-    emit(state.assign(eventFilter: event, filterEndDate: false));
+  clearEndDate(){
+    state.filters["endDate"]!.fieldValue = null;
+    forceRefresh();
   }
 
-  checkCategory(String name, bool? value){
-    Map<String,bool> categorySelected = new Map.from(state.categorySelected);
-    if(categorySelected.containsKey(name)) {
-      categorySelected[name] = value??false;
+  selectCategory(String name, bool? value){
+    if(state.filters["categories"]!.fieldValue.containsKey(name)) {
+      state.filters["categories"]!.fieldValue[name] = value ?? false;
     }
-    emit(state.assign(categorySelected: categorySelected));
+    forceRefresh();
   }
 
   bool getCategorySelected(String categoryName){
-    return state.categorySelected[categoryName]?? false;
+    return state.filters["categories"]!.fieldValue[categoryName] ?? false;
   }
 
   void forceRefresh() {
@@ -105,21 +106,19 @@ class EventsFilterCubit extends Cubit<EventsFilterState> {
     emit(state.assign(status: _filterStatus.normal));
   }
 
-  void clearFilter(){
-    titleController.text = '';
-    addressController.text= '';
-    customerController.text= '';
-    Map<String,bool> categorySelected = new Map.from(state.categorySelected);
-    categories.keys.forEach((category) { categorySelected[category] = false; });
-    emit(state.assign(eventFilter: Event.empty(), categorySelected: categorySelected, filterEndDate: false, filterStartDate: false));
+  void clearFilters(){
+    Map<String, FilterWrapper> filters = Map.of(state.filters);
+    initFilters();
+    if(filters.toString() == state.filters.toString()) showFiltersBox();
+    notifyFiltersChanged(false);
   }
 
-  void filterValue(void Function(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate) filterEvent){
-    if(formKey.currentState!.validate()){
+  void notifyFiltersChanged([bool filtersBoxSave = false]){
+    if(filtersBoxSave && formKey.currentState!.validate()){
       formKey.currentState!.save();
-      filterEvent(state.eventFilter, state.categorySelected, state.filterStartDate, state.filterEndDate);
-      emit(state.assign(filtersBoxVisibile:!state.filtersBoxVisibile));
+      emit(state.assign(filtersBoxVisibile: false));
     }
+    callbackFiltersChanged(state.filters);
   }
 
 }

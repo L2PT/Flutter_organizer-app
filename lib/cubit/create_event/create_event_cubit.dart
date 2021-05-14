@@ -251,7 +251,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour > Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
     //shh this is wrong, it breaks the mvvm
-    PlatformUtils.navigator(context, Constants.operatorListRoute, {'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context, 'callback': forceRefresh});
+    PlatformUtils.navigator(context, Constants.operatorListRoute, <String, dynamic>{'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context, 'callback': forceRefresh});
   }
 
   void forceRefresh() {

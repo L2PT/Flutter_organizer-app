@@ -86,50 +86,8 @@ class Event {
     }
   }
 
-  //TODO move the logic outside
-  bool isFilteredEvent(Event e, Map<String,bool> categorySelected, bool filterStartDate, bool filterEndDate){
-    if(!this.title.toUpperCase().contains(e.title.toUpperCase())){
-      return false;
-    }
-    if(!this.address.toUpperCase().contains(e.address.toUpperCase())){
-      return false;
-    }
-    if(!this.customer.phone.toUpperCase().contains(e.customer.phone.toUpperCase())){
-      return false;
-    }
-    if(filterStartDate && filterEndDate){
-      if(!this.isBetweenDate(e.start, e.end)) return false;
-    }else if(filterEndDate){
-      if(this.end.isAfter(e.end)) return false;
-    }else if(filterStartDate){
-      if(this.start.isBefore(e.start)) return false;
-    }
-
-    List<String> listCategory = categorySelected.keys.where((key) => categorySelected[key]!).toList();
-    if(listCategory.isNotEmpty){
-      listCategory = listCategory.where((category) => this.category == category).toList();
-      if(listCategory.isEmpty) return false;
-    }
-
-    List<String> idOperators = [...this.suboperators.map((op) => op.id),operator?.id??""];
-    if(e.suboperators.isNotEmpty && e.suboperators.where((element) => idOperators.contains(element.id)).isEmpty) return false;
-
-    return true;
-  }
-
-  bool isFilteredEventSimple(String address, DateTime start, DateTime end, bool filterStartDate, bool filterEndDate){
-    if(!this.address.toUpperCase().contains(address.toUpperCase())){
-      return false;
-    }
-    if(filterStartDate && filterEndDate){
-      if(!this.isBetweenDate(start, end)) return false;
-    }else if(filterEndDate){
-      if(this.end.isAfter(end)) return false;
-    }else if(filterStartDate){
-      if(this.start.isBefore(start)) return false;
-    }
-
-    return true;
+  bool filter(lambda, value){
+    return lambda(this, value);
   }
 
   bool isAllDayLong() {

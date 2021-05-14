@@ -541,7 +541,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
         content = Stack(
           alignment: widget.calendarStyle.markersAlignment,
           children: children,
-          // clipBehavior: widget.calendarStyle.canEventMarkersOverflow ? Overflow.visible : Overflow.clip,  flutter.dev/go/clip-behavior TODO
+          // clipBehavior: widget.calendarStyle.canEventMarkersOverflow ? Overflow.visible : Overflow.clip,  flutter.dev/go/clip-behavior
         );
       }
     }

@@ -31,15 +31,50 @@ class OperatorSelection extends StatelessWidget {
   }
 }
 
-class _operatorSelectableList extends StatelessWidget {
+class _operatorSelectableList extends StatefulWidget {
+
+  @override
+  State<StatefulWidget> createState() => _operatorSelectableListState();
+
+}
+
+class _operatorSelectableListState extends State<_operatorSelectableList> {
+
+  @override
+  void initState() {
+    context.read<OperatorSelectionCubit>().scrollController.addListener(() {
+      if (context.read<OperatorSelectionCubit>().scrollController.position.pixels ==
+          context.read<OperatorSelectionCubit>().scrollController.position.maxScrollExtent) {
+        if(context.read<OperatorSelectionCubit>().canLoadMore)
+          context.read<OperatorSelectionCubit>().loadMoreData();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    List<Widget> buildOperatorsList() => (context.read<OperatorSelectionCubit>().state as ReadyOperators).filteredOperators.map((operator) => new ListTileOperator(
-        operator,
-        checkbox: context.read<OperatorSelectionCubit>().isTriState?2:1,
-        isChecked: (context.read<OperatorSelectionCubit>().state as ReadyOperators).selectionList[operator.id]!,
-        onTap: context.read<OperatorSelectionCubit>().onTap)).toList();
 
+    Widget buildOperatorsList() => ListView.separated(
+        controller: context.read<OperatorSelectionCubit>().scrollController,
+        separatorBuilder: (context, index) =>
+            Divider(height: 2, thickness: 1, indent: 15, endIndent: 15, color: grey_light),
+        physics: BouncingScrollPhysics(),
+        padding: new EdgeInsets.symmetric(vertical: 8.0),
+        itemCount: (context.read<OperatorSelectionCubit>().state as ReadyOperators).filteredOperators.length+1,
+        itemBuilder: (context, index) => index != (context.read<OperatorSelectionCubit>().state as ReadyOperators).filteredOperators.length?
+        new ListTileOperator(
+            (context.read<OperatorSelectionCubit>().state as ReadyOperators).filteredOperators[index],
+            checkbox: context.read<OperatorSelectionCubit>().isTriState?2:1,
+            isChecked: (context.read<OperatorSelectionCubit>().state as ReadyOperators).selectionList[(context.read<OperatorSelectionCubit>().state as ReadyOperators).filteredOperators[index].id]!,
+            onTap: context.read<OperatorSelectionCubit>().onTap) :
+        context.read<OperatorSelectionCubit>().canLoadMore? Center(
+            child: Container(
+              margin: new EdgeInsets.symmetric(vertical: 13.0),
+              height: 26,
+              width: 26,
+              child: CircularProgressIndicator(),
+            )):Container()
+    );
     void onExit(dynamic out) {
       Navigator.pop(context, out);
     }
@@ -77,13 +112,10 @@ class _operatorSelectableList extends StatelessWidget {
             SizedBox(height: 15.0),
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(builder: (context, state) {
               return OperatorsFilterWidget(
-                onSearchDateChanged: context.read<OperatorSelectionCubit>().onSearchDateChanged,
-                onSearchTimeChanged: context.read<OperatorSelectionCubit>().onSearchTimeChanged,
-                searchTimeField: DateTime.now(),
-                showFiltersBox: context.read<OperatorSelectionCubit>().showFiltersBox,
-                onSearchChanged: context.read<OperatorSelectionCubit>().onSearchNameChanged,
                 hintTextSearch: "Cerca un operatore",
-                showIconExpanded: false,
+                onSearchFieldChanged: context.read<OperatorSelectionCubit>().onSearchFieldChanged,
+                onFiltersChanged: context.read<OperatorSelectionCubit>().onFiltersChanged,
+                isExpandable: false,
               );
             }),
             Padding(padding: EdgeInsets.only(left: 20, top: 10), child: Text("Scegli tra gli operatori disponibili", style: label,)),
@@ -91,9 +123,8 @@ class _operatorSelectableList extends StatelessWidget {
               buildWhen: (previous, current) => true,
               builder: (context, state) {
                 return Expanded(
-                  child: (state is ReadyOperators)? ListView(
-                      padding: new EdgeInsets.symmetric(vertical: 8.0),
-                      children: buildOperatorsList()) :
+                  child: (state is ReadyOperators)?
+                      buildOperatorsList():
                   LoadingScreen()
                 );
               })
@@ -102,5 +133,12 @@ class _operatorSelectableList extends StatelessWidget {
       )
     );
   }
+
+  @override
+  void dispose() {
+    context.read<OperatorSelectionCubit>().scrollController.dispose();
+    super.dispose();
+  }
+
 }
 

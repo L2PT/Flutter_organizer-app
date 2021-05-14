@@ -16,7 +16,7 @@ class LoadingOperators extends OperatorSelectionState {
 }
 
 class ReadyOperators extends OperatorSelectionState {
-  Map<String,int> selectionList = Map();
+  Map<String,int> selectionList = {};
   bool primaryOperatorSelected = false;
   List<Account> filteredOperators = [];
 
@@ -34,13 +34,14 @@ class ReadyOperators extends OperatorSelectionState {
     }
   }
 
-  ReadyOperators.update(this.filteredOperators, this.selectionList, this.primaryOperatorSelected);
+  ReadyOperators.update(this.filteredOperators, this.selectionList, this.primaryOperatorSelected, String? searchNameField): super(searchNameField);
 
-  ReadyOperators assign({List<Account>? filteredOperators, Map<String, int>? preSelectedList, bool? primaryOperatorSelected}) =>
+  ReadyOperators assign({List<Account>? filteredOperators, Map<String, int>? preSelectedList,bool? primaryOperatorSelected, String? searchNameField}) =>
       ReadyOperators.update(
       filteredOperators??this.filteredOperators,
       preSelectedList??this.selectionList,
-      primaryOperatorSelected??this.primaryOperatorSelected);
+      primaryOperatorSelected??this.primaryOperatorSelected,
+      searchNameField??this.searchNameField);
 
   @override
   List<Object> get props => [filteredOperators.map((op) => op.id).join(), selectionList, primaryOperatorSelected];

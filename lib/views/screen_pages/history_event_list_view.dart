@@ -19,17 +19,7 @@ import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
 import 'package:venturiautospurghi/views/widgets/filter_events_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
-
-class HistoryEventList extends StatefulWidget {
-  final int? selectedStatus;
-
-  HistoryEventList([this.selectedStatus,Key? key]) : super(key: key);
-
-  @override
-  _HistoryEventListState createState() => _HistoryEventListState(selectedStatus);
-}
-
-class _HistoryEventListState extends State<HistoryEventList> with TickerProviderStateMixin {
+class HistoryEventList extends StatelessWidget{
   final int? selectedStatus;
   final List<MapEntry<Tab,int>> tabsHeaders = [
     MapEntry(new Tab(text: "CONCLUSI",icon: Icon(Icons.flag),),EventStatus.Ended),
@@ -37,7 +27,7 @@ class _HistoryEventListState extends State<HistoryEventList> with TickerProvider
     MapEntry(new Tab(text: "RIFIUTATI",icon: Icon(Icons.assignment_late),),EventStatus.Refused)
   ];
 
-  _HistoryEventListState(this.selectedStatus);
+  HistoryEventList([this.selectedStatus]);
 
   @override
   Widget build(BuildContext context) {
@@ -46,17 +36,36 @@ class _HistoryEventListState extends State<HistoryEventList> with TickerProvider
     return new BlocProvider(
         create: (_) => HistoryEventListCubit(repository, selectedStatus),
       child: ResponsiveWidget(
-        smallScreen: _smallScreen(this,this.tabsHeaders),
+        smallScreen: _smallScreen(this.tabsHeaders),
         largeScreen: _largeScreen(this.tabsHeaders),
       ));
     }
 }
 
-class _largeScreen extends StatelessWidget {
-
+class _largeScreen extends StatefulWidget {
   final List<MapEntry<Tab,int>> tabsHeaders;
 
   _largeScreen(this.tabsHeaders);
+
+  @override
+  State<StatefulWidget> createState() => _largeScreenState(tabsHeaders);
+
+}
+
+class _largeScreenState extends State<_largeScreen>  {
+  final List<MapEntry<Tab,int>> tabsHeaders;
+
+  _largeScreenState(this.tabsHeaders);
+
+  @override
+  void initState() {
+    context.read<HistoryEventListCubit>().scrollController.addListener(() {
+      if (context.read<HistoryEventListCubit>().scrollController.position.pixels == context.read<HistoryEventListCubit>().scrollController.position.maxScrollExtent) {
+        if(context.read<HistoryEventListCubit>().canLoadMore[context.read<HistoryEventListCubit>().state.selectedStatusTab]??false)
+          context.read<HistoryEventListCubit>().loadMoreData();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,13 +104,12 @@ class _largeScreen extends StatelessWidget {
                         SizedBox(height: 20,),
                         Text("Archivi", style: title,),
                         SizedBox(height: 10,),
-                        ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatus)).toList(),
+                        ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatusTab)).toList(),
                         EventsFilterWidget(
                           hintTextSearch: 'Cerca gli interventi',
-                          clearFilter: context.read<HistoryEventListCubit>().clearFilter,
-                          filterEvent:  context.read<HistoryEventListCubit>().filterHistoryEvent,
+                          onSearchFieldChanged: context.read<HistoryEventListCubit>().onFiltersChanged,
+                          onFiltersChanged: context.read<HistoryEventListCubit>().onFiltersChanged,
                           maxHeightContainerExpanded: MediaQuery.of(context).size.height-450,
-                          isWebMode: true,
                         ),
                       ],
                     ),
@@ -115,12 +123,13 @@ class _largeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         SizedBox(height: 5,),
-                        Text("Tutti Gli Incarichi "+EventStatus.getCategoryText(state.selectedStatus), style: title, textAlign: TextAlign.left,),
+                        Text("Tutti Gli Incarichi "+EventStatus.getCategoryText(state.selectedStatusTab), style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 10,),
-                        (context.read<HistoryEventListCubit>().state as HistoryReady).selectedEvents().length>0 ?
+                        (context.read<HistoryEventListCubit>().state as HistoryReady).selectedEvents().length>0 ? //TODO add pagination here
                             Container(
                               height: MediaQuery.of(context).size.height - 110,
                           child: GridView(
+                            controller: context.read<HistoryEventListCubit>().scrollController,
                             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 350.0,
                               mainAxisSpacing: 5.0,
@@ -153,6 +162,12 @@ class _largeScreen extends StatelessWidget {
         });
   }
 
+  @override
+  void dispose() {
+    context.read<HistoryEventListCubit>().scrollController.dispose();
+    super.dispose();
+  }
+
   Widget FlatTab({required String text, required IconData icon, required int status, required int selectedStatus}) {
     bool selected = status==selectedStatus;
     return  BlocBuilder <HistoryEventListCubit, HistoryEventListState>(
@@ -173,26 +188,47 @@ class _largeScreen extends StatelessWidget {
               Text("INCARICHI "+text, style: selected?button_card:subtitle),
             ],
           ),
-          onPressed: (){context.read<HistoryEventListCubit>().onStatusSelect(status);},
+          onPressed: (){context.read<HistoryEventListCubit>().onStatusTabSelected(status);},
         ),
       );
     });
   }
 }
 
-class _smallScreen extends StatelessWidget {
+
+class _smallScreen extends StatefulWidget {
+  final List<MapEntry<Tab,int>> tabsHeaders;
+
+  _smallScreen(this.tabsHeaders);
+
+  @override
+  State<StatefulWidget> createState() => _smallScreenState(tabsHeaders);
+
+}
+
+class _smallScreenState extends State<_smallScreen> with TickerProviderStateMixin {
 
   late TabController _tabController;
   final List<MapEntry<Tab,int>> tabsHeaders;
 
-  _smallScreen(_HistoryEventListState ticker, this.tabsHeaders){
-    _tabController = new TabController(vsync: ticker, length: tabsHeaders.length);
+  _smallScreenState(this.tabsHeaders){
+    _tabController = new TabController(vsync: this, length: tabsHeaders.length);
+  }
+
+  @override
+  void initState() {
+    context.read<HistoryEventListCubit>().scrollController.addListener(() {
+      if (context.read<HistoryEventListCubit>().scrollController.position.pixels == context.read<HistoryEventListCubit>().scrollController.position.maxScrollExtent) {
+        if(context.read<HistoryEventListCubit>().canLoadMore[context.read<HistoryEventListCubit>().state.selectedStatusTab]??false)
+          context.read<HistoryEventListCubit>().loadMoreData();
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    _tabController.addListener(() {
-      context.read<HistoryEventListCubit>().onStatusSelect(tabsHeaders[_tabController.index].value);
+    _tabController.addListener(() { //
+      context.read<HistoryEventListCubit>().onStatusTabSelected(tabsHeaders[_tabController.index].value);
     });
 
     return Material(
@@ -226,23 +262,32 @@ class _smallScreen extends StatelessWidget {
             ),
           EventsFilterWidget(
             hintTextSearch: 'Cerca gli interventi',
-            clearFilter: context.read<HistoryEventListCubit>().clearFilter,
-            filterEvent:  context.read<HistoryEventListCubit>().filterHistoryEvent,
+            onSearchFieldChanged: context.read<HistoryEventListCubit>().onFiltersChanged,
+            onFiltersChanged: context.read<HistoryEventListCubit>().onFiltersChanged,
           ),
             !PlatformUtils.isMobile ?
-            Container(height: MediaQuery.of(context).size.height - 150, child: _historyContent(_tabController,tabsHeaders),) :
-            Expanded(
-              child: _historyContent(_tabController,tabsHeaders),)
+              Container(
+                child: _historyContent(_tabController, tabsHeaders),
+                height: MediaQuery.of(context).size.height - 150,) :
+              Expanded(
+                child: _historyContent(_tabController, tabsHeaders)
+              )
           ],
         ),
       ),
     );
   }
+
+  @override
+  void dispose() {
+    context.read<HistoryEventListCubit>().scrollController.dispose();
+    super.dispose();
+  }
 }
 
 class _historyContent extends StatelessWidget {
-
   TabController _tabController;
+
   final List<MapEntry<Tab,int>> tabsHeaders;
 
   _historyContent(this._tabController, this.tabsHeaders);
@@ -260,20 +305,28 @@ class _historyContent extends StatelessWidget {
             padding: EdgeInsets.all(15.0),
           child:state.events(e.value).length>0 ?
           ListView.separated(
+            controller: context.read<HistoryEventListCubit>().scrollController,
             separatorBuilder: (context, index) => SizedBox(height: 10,),
             physics: BouncingScrollPhysics(),
             padding: new EdgeInsets.symmetric(vertical: 8.0),
-            itemCount: state.events(e.value).length,
-            itemBuilder: (context, index){
-              return Container(
+            itemCount: state.events(e.value).length+1,
+            itemBuilder: (context, index) => index != state.events(e.value).length?
+          Container(
                 child: CardEvent(
                   event: state.events(e.value)[index],
                   height: 120,
                   showEventDetails: true,
                   onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
                 )
-              );
-            }):Container(
+              ) :
+          context.read<HistoryEventListCubit>().canLoadMore[e.value]!? Center(
+          child: Container(
+            margin: new EdgeInsets.symmetric(vertical: 13.0),
+            height: 26,
+            width: 26,
+            child: CircularProgressIndicator(),
+          )):Container()
+            ):Container(
               child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,

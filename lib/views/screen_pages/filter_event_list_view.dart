@@ -23,18 +23,34 @@ class FilterEventList extends StatelessWidget {
           largeScreen: _largeScreen(),
         ));
   }
+}
+
+class _largeScreen extends StatefulWidget {
+
+  _largeScreen();
+
+  @override
+  State<StatefulWidget> createState() => _largeScreenState();
 
 }
 
-class _largeScreen extends StatelessWidget {
+class _largeScreenState extends State<_largeScreen>  {
 
-  _largeScreen();
+  @override
+  void initState() {
+    context.read<FilterEventListCubit>().scrollController.addListener(() {
+      if (context.read<FilterEventListCubit>().scrollController.position.pixels == context.read<FilterEventListCubit>().scrollController.position.maxScrollExtent) {
+        if(context.read<FilterEventListCubit>().canLoadMore)
+          context.read<FilterEventListCubit>().loadMoreData();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder <FilterEventListCubit, FilterEventListState>(
         builder: (context, state) {
-          return !(state is ReadyEventFilterView) ? Center(child: CircularProgressIndicator()) : Container(
+          return !(state is ReadyFilterEventList) ? Center(child: CircularProgressIndicator()) : Container(
             padding: EdgeInsets.symmetric(vertical: 10),
             child:Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,10 +82,9 @@ class _largeScreen extends StatelessWidget {
                         SizedBox(height: 20,),
                         EventsFilterWidget(
                           hintTextSearch: 'Cerca gli interventi',
-                          clearFilter: context.read<FilterEventListCubit>().clearFilter,
-                          filterEvent:  context.read<FilterEventListCubit>().filterEvent,
+                          onSearchFieldChanged: context.read<FilterEventListCubit>().onFiltersChanged,
+                          onFiltersChanged: context.read<FilterEventListCubit>().onFiltersChanged,
                           maxHeightContainerExpanded: MediaQuery.of(context).size.height-270,
-                          isWebMode: true,
                         ),
                       ],
                     ),
@@ -85,17 +100,18 @@ class _largeScreen extends StatelessWidget {
                         SizedBox(height: 5,),
                         Text("Tutti Gli Incarichi ", style: title, textAlign: TextAlign.left,),
                         SizedBox(height: 10,),
-                        (context.read<FilterEventListCubit>().state as ReadyEventFilterView).filteredEvent().length>0 ?
+                        context.read<FilterEventListCubit>().state.listEventFiltered.length>0 ? //TODO add pagination here
                         Container(
                             height: MediaQuery.of(context).size.height - 110,
                             child: GridView(
+                              controller: context.read<FilterEventListCubit>().scrollController,
                                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                                   maxCrossAxisExtent: 350.0,
                                   mainAxisSpacing: 5.0,
                                   crossAxisSpacing: 5.0,
                                   childAspectRatio: 2.3,
                                 ),
-                                children: (context.read<FilterEventListCubit>().state as ReadyEventFilterView).filteredEvent().map((event)=> Container(
+                                children: context.read<FilterEventListCubit>().state.listEventFiltered.map((event)=> Container(
                                     child: CardEvent(
                                       event: event,
                                       height: 120,
@@ -121,11 +137,34 @@ class _largeScreen extends StatelessWidget {
         });
   }
 
+  @override
+  void dispose() {
+    context.read<FilterEventListCubit>().scrollController.dispose();
+    super.dispose();
+  }
+
 }
 
-class _smallScreen extends StatelessWidget {
+class _smallScreen extends StatefulWidget {
 
   _smallScreen();
+
+  @override
+  State<StatefulWidget> createState() => _smallScreenState();
+
+}
+
+class _smallScreenState extends State<_smallScreen> with TickerProviderStateMixin {
+
+  @override
+  void initState() {
+    context.read<FilterEventListCubit>().scrollController.addListener(() {
+      if (context.read<FilterEventListCubit>().scrollController.position.pixels == context.read<FilterEventListCubit>().scrollController.position.maxScrollExtent) {
+        if(context.read<FilterEventListCubit>().canLoadMore)
+          context.read<FilterEventListCubit>().loadMoreData();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -136,34 +175,42 @@ class _smallScreen extends StatelessWidget {
           topRight: new Radius.circular(16.0)),
       child: Column(
         children: [
+          SizedBox(height: 15,),
           EventsFilterWidget(
             hintTextSearch: 'Cerca gli interventi',
-            clearFilter: context.read<FilterEventListCubit>().clearFilter,
-            filterEvent: context.read<FilterEventListCubit>().filterEvent,
+            onSearchFieldChanged: context.read<FilterEventListCubit>().onFiltersChanged,
+            onFiltersChanged: context.read<FilterEventListCubit>().onFiltersChanged,
           ),
           BlocBuilder<FilterEventListCubit, FilterEventListState>(
               buildWhen: (previous, current) => previous != current,
               builder: (context, state) {
-                return !(state is ReadyEventFilterView) ? Center(
+                return !(state is ReadyFilterEventList) ? Center(
                     child: CircularProgressIndicator()) : state.listEventFiltered.length > 0 ?
                 Expanded(child: Padding(
                     padding: EdgeInsets.all(15.0),
                     child: ListView.separated(
-                        separatorBuilder: (context, index) =>
-                            SizedBox(height: 10,),
+                        controller: context.read<FilterEventListCubit>().scrollController,
+                        separatorBuilder: (context, index) => SizedBox(height: 10,),
                         physics: BouncingScrollPhysics(),
                         padding: new EdgeInsets.symmetric(vertical: 8.0),
-                        itemCount: state.listEventFiltered.length,
-                        itemBuilder: (context, index) {
-                          return Container(
-                              child: CardEvent(
-                                event: state.listEventFiltered[index],
-                                height: 120,
-                                showEventDetails: true,
-                                onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
-                              )
-                          );
-                        }))) : Container(
+                        itemCount: state.listEventFiltered.length+1,
+                        itemBuilder: (context, index) => index != state.listEventFiltered.length?
+                        Container(
+                          child: CardEvent(
+                            event: state.listEventFiltered[index],
+                            height: 120,
+                            showEventDetails: true,
+                            onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event)
+                          )
+                        ) : context.read<FilterEventListCubit>().canLoadMore?
+                        Center(
+                          child: Container(
+                            margin: new EdgeInsets.symmetric(vertical: 13.0),
+                            height: 26,
+                            width: 26,
+                            child: CircularProgressIndicator(),
+                        )):Container()
+                    ))) : Container(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -179,5 +226,10 @@ class _smallScreen extends StatelessWidget {
       ),);
   }
 
+  @override
+  void dispose() {
+    context.read<FilterEventListCubit>().scrollController.dispose();
+    super.dispose();
+  }
 
 }
