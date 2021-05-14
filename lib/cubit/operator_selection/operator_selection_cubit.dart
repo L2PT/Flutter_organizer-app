@@ -27,11 +27,15 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
       getOperators(isTriState);
   }
 
-  void getOperators() async {
-    operators = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end, limit: startingElements);
-    // operators.sort((a,b) => a.surname.compareTo(b.surname));
-    canLoadMore = operators.length >= startingElements;
-    emit(ReadyOperators(operators,event:_event));
+  void getOperators(bool isTriState) async {
+    if (isTriState) {
+      operators = await _databaseRepository.getOperatorsFree(
+          _event.id, _event.start, _event.end);
+      operators.sort((a, b) => a.surname.compareTo(b.surname));
+    } else {
+      operators = await _databaseRepository.getOperators();
+    }
+    emit(new ReadyOperators(operators, event: _event));
   }
 
   void loadMoreData() async {
@@ -65,14 +69,7 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
     }
   }
 
-  void getOperators(bool isTriState) async {
-    if(isTriState){
-      operators = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end);
-      operators.sort((a,b) => a.surname.compareTo(b.surname));
-    }else {
-      operators = await _databaseRepository.getOperators();
-    }
-    emit(new ReadyOperators(operators,event:_event));
+
   void onSearchFieldChanged(Map<String, FilterWrapper> filters) {
     String text = filters["name"]!.fieldValue;
     state.searchNameField = text;

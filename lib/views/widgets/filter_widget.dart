@@ -1,7 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/cubit/filter_events/filter_events_cubit.dart';
-import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
@@ -14,6 +12,7 @@ class FilterWidget extends StatelessWidget {
   final bool showActionFilters;
   bool isExpandable;
   late bool largeScreen;
+  final bool textSearchFieldVisible;
 
 
   FilterWidget({
@@ -22,6 +21,7 @@ class FilterWidget extends StatelessWidget {
     required this.isExpandable,
     required this.hintTextSearchField,
     this.showActionFilters = true,
+    this.textSearchFieldVisible = false,
   });
 
   @override
@@ -69,7 +69,7 @@ class FilterWidget extends StatelessWidget {
           ));
     }
 
-    return PlatformUtils.isMobile?MobileFilter():WebFilter();
+    return !textSearchFieldVisible?MobileFilter():WebFilter();
 
   }
 

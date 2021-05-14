@@ -110,6 +110,7 @@ class _largeScreenState extends State<_largeScreen>  {
                           onSearchFieldChanged: context.read<HistoryEventListCubit>().onFiltersChanged,
                           onFiltersChanged: context.read<HistoryEventListCubit>().onFiltersChanged,
                           maxHeightContainerExpanded: MediaQuery.of(context).size.height-450,
+                          textSearchFieldVisible: true,
                         ),
                       ],
                     ),
