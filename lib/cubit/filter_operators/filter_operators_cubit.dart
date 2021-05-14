@@ -12,8 +12,11 @@ part 'filter_operators_state.dart';
 class OperatorsFilterCubit extends Cubit<OperatorsFilterState> {
   final Function callbackFiltersChanged;
   final Function callbackSearchFieldChanged;
+  late TextEditingController titleController;
 
-  OperatorsFilterCubit(this.callbackSearchFieldChanged, this.callbackFiltersChanged) : super(OperatorsFilterState());
+  OperatorsFilterCubit(this.callbackSearchFieldChanged, this.callbackFiltersChanged) : super(OperatorsFilterState()){
+    titleController = new TextEditingController();
+  }
 
   void showFiltersBox() {
     emit(state.assign(filtersBoxVisibile:!state.filtersBoxVisibile));
