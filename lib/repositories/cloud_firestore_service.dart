@@ -243,7 +243,7 @@ class CloudFirestoreService {
     CollectionReference table = _collectionStoricoTerminati;
     if(category == EventStatus.Refused){
       table = _collectionStoricoRifiutati;
-    }else if(category == EventStatus.Refused){
+    }else if(category == EventStatus.Deleted){
       table = _collectionStoricoEliminati;
     }
     return _getEventsFiltered(table, filters, limit, startFrom);

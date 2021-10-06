@@ -18,8 +18,6 @@ class Constants {
   static const String eventNotification = "event";
   static const String feedNotification = "feed";
 
-  static const int numDocuments = 10;
-
   // ROUTES
   static const String homeRoute = '/';
   static const String monthlyCalendarRoute = 'view/monthly_calendar';

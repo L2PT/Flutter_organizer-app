@@ -13,7 +13,6 @@ import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/filter_widget.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
-import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class EventsFilterWidget extends FilterWidget {
 

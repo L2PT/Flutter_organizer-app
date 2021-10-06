@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 
 part 'history_event_list_state.dart';
@@ -12,13 +13,15 @@ class HistoryEventListCubit extends Cubit<HistoryEventListState> {
   final CloudFirestoreService _databaseRepository;
   final ScrollController scrollController = new ScrollController();
   List<Event> listEvent = [];
-  final int startingElements = 5;
-  final int loadingElements = 1;
+  int startingElements = 10;
+   int loadingElements = 1;
   Map<int, bool> canLoadMore = {};
   Map<int, bool> loaded = {};
 
   HistoryEventListCubit(this._databaseRepository, int? _selectedStatusTab) :
         super(HistoryLoading(_selectedStatusTab)){
+    startingElements = PlatformUtils.isMobile? 10 : 20;
+    loadingElements = PlatformUtils.isMobile? 5 : 10;
     onStatusTabSelected(state.selectedStatusTab);
   }
 
