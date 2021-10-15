@@ -109,7 +109,6 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 15.0),
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(builder: (context, state) {
               return OperatorsFilterWidget(
                 hintTextSearch: "Cerca un operatore",

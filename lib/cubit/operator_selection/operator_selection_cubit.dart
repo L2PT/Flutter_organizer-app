@@ -17,8 +17,8 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   final Event _event;
   final bool isTriState;
   late List<Account> operators;
-  final int startingElements = 15;
-  final int loadingElements = 10;
+  final int startingElements = 10;
+  final int loadingElements = 5;
   bool canLoadMore = true;
 
   OperatorSelectionCubit(this._databaseRepository, Event? _event, this.isTriState) :
@@ -32,8 +32,10 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
       operators = await _databaseRepository.getOperatorsFree(
           _event.id, _event.start, _event.end);
       operators.sort((a, b) => a.surname.compareTo(b.surname));
+      canLoadMore = false;
     } else {
       operators = await _databaseRepository.getOperators();
+      canLoadMore = false;
     }
     emit(new ReadyOperators(operators, event: _event));
   }
@@ -41,9 +43,15 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   void loadMoreData() async {
     if(state is ReadyOperators){
       List<Account> preLoaded = [...string.isNullOrEmpty(state.searchNameField) ? operators : (state as ReadyOperators).filteredOperators];
-      List<Account> loaded = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end,
-          limit: loadingElements,
-          startFrom: (state as ReadyOperators).filteredOperators.last.surname);
+      List<Account> loaded;
+      if (isTriState) {
+        loaded = await _databaseRepository.getOperatorsFree(_event.id, _event.start, _event.end,
+            limit: loadingElements,
+            startFrom: (state as ReadyOperators).filteredOperators.last.surname);
+      }else {
+        loaded = await _databaseRepository.getOperators(limit: loadingElements, startFrom: (state as ReadyOperators).filteredOperators.last.surname);
+      }
+
       operators.addAll(loaded);
       // update the selection map with new operators
       Map<String,int> preLoadedSelectionList = Map.from((state as ReadyOperators).selectionList);

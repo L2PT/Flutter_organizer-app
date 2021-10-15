@@ -58,7 +58,7 @@ class CloudFirestoreService {
     bool endOfList = false;
     List<Account> accounts = await this.getOperators(limit: limit, startFrom: startFrom);
 
-    if(limit != null && accounts.length < limit) endOfList = true;
+    if(limit == null || (limit != null && accounts.length < limit)) endOfList = true;
 
     final List<Event> listEvents = await this.getFutureEvents(fromDate);
     if(Constants.debug){
