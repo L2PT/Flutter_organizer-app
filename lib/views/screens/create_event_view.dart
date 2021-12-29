@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:venturiautospurghi/animation/fade_animation.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -15,7 +16,8 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
-import 'package:venturiautospurghi/views/widgets/alert_success.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_success.dart';
+import 'package:venturiautospurghi/views/widgets/stepper_widget.dart';
 
 class CreateEvent extends StatelessWidget {
   final Event? _event;
@@ -43,179 +45,410 @@ class CreateEvent extends StatelessWidget {
                     _event == null ? 'NUOVO INTERVENTO' : _event!.id == ''?'COPIA INTERVENTO' : 'MODIFICA INTERVENTO',
                     style: title_rev,
                   ),
-                  actions: <Widget>[ _viewHeader()
-                  ],
                 ),
                 body: BlocBuilder<CreateEventCubit, CreateEventState>(
-                    buildWhen: (previous, current) => previous.status != current.status,
+                    buildWhen: (previous, current) => previous != current,
                     builder: (context, state) {
                       return context.select((CreateEventCubit cubit) => cubit.state.isLoading())?
-                      LoadingScreen() : _formInputList();
+                      LoadingScreen() : _EventStepper(context);
                     })
         ))
     );
   }
 }
 
-class _viewHeader extends StatelessWidget{
+
+class _EventStepper extends StatelessWidget{
+
+  final BuildContext context;
+
+  void _onSavePressed() async {
+    if (await context.read<CreateEventCubit>().saveEvent())
+      if( !(await SuccessAlert(context, text: "Incarico salvato e inviato!").show()))
+        PlatformUtils.backNavigator(context);
+  }
+
+  _EventStepper(this.context);
+
+  @override
+  Widget build(BuildContext context) {
+    int currentStep = context.read<CreateEventCubit>().state.currentStep;
+    List<StepIcon> getEventSteps() => [
+      StepIcon(
+        state: currentStep==0?StepState.editing:StepState.complete,
+        isActive: currentStep >= 0,
+        icon: FontAwesomeIcons.hardHat,
+        title: Text('Tipologia'),
+        content:  _tipologyEvent(),
+      ),
+      StepIcon(
+          state: currentStep==1?StepState.editing:currentStep<1?StepState.indexed:StepState.complete,
+          isActive: currentStep >= 1,
+          icon: Icons.assignment,
+          title: Text('Informazioni base'),
+          content: Theme(
+              data: ThemeData(
+                  colorScheme: Theme.of(context).colorScheme,
+                  textTheme: Theme.of(context).textTheme
+              ), child: ConstrainedBox(
+                    constraints: new BoxConstraints(
+                      minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:MediaQuery.of(context).size.height - 300,
+                    ),
+                    child: _formBasiclyInfo()),
+              )),
+      StepIcon(
+          state: currentStep==2?StepState.editing:currentStep<2?StepState.indexed:StepState.complete,
+          isActive: currentStep >= 2,
+          icon: Icons.person,
+          title: Text('Cliente'),
+          content: Theme(
+              data: ThemeData(
+                  colorScheme: Theme.of(context).colorScheme,
+                  textTheme: Theme.of(context).textTheme
+              ), child: ConstrainedBox(
+              constraints: new BoxConstraints(
+                minHeight:PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:MediaQuery.of(context).size.height - 300,
+              ),
+              child: _formClientInfo())
+          )
+      ),
+      StepIcon(
+          state: currentStep==3?StepState.editing:currentStep<3?StepState.indexed:StepState.complete,
+          isActive: currentStep >= 3,
+          icon: FontAwesomeIcons.hardHat,
+          title: Text('Assegnazione'),
+          content: Theme(
+              data: ThemeData(
+              colorScheme: Theme.of(context).colorScheme, textTheme: Theme.of(context).textTheme
+            ), child: ConstrainedBox(
+              constraints: new BoxConstraints(
+                minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:MediaQuery.of(context).size.height - 300,
+              ),
+              child:_formAssignedList())
+          )
+      ),
+    ];
+
+    int numSteps = getEventSteps().length;
+    return Theme(
+        data: ThemeData(
+        primarySwatch: Colors.grey,
+        textTheme: Theme.of(context).textTheme.copyWith(caption: stepper_title_nofocus),
+        colorScheme: ColorScheme.light(
+        primary: Colors.black,
+    )
+    ),
+    child: StepperIcon(
+        elevation: 0.5,
+        type: StepperType.horizontal,
+        steps: getEventSteps(),
+        currentStep: context.read<CreateEventCubit>().state.currentStep,
+        onStepCancel: context.read<CreateEventCubit>().onStepCancel,
+        onStepContinue: () => context.read<CreateEventCubit>().onStepContinue(numSteps),
+        controlsBuilder: (BuildContext context, ControlsDetails controls) {
+          return Center(
+              child:Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (controls.currentStep != 0)
+                TextButton(
+                  child: new Text('Torna indietro', style: label),
+                  onPressed: controls.onStepCancel,
+                ),
+              SizedBox(
+                width: 15,
+              ),
+              if (controls.currentStep != numSteps-1)
+              ElevatedButton(
+                child: new Text('Continua', style: button_card),
+                onPressed: (controls.currentStep > 0 && context.read<CreateEventCubit>().state.category.isEmpty)?null:
+                    () { FocusScope.of(context).unfocus(); controls.onStepContinue!();},
+              ),
+              if (controls.currentStep > 2)
+                ElevatedButton(
+                  child: new Text(context.read<CreateEventCubit>().state.event.operator == null? 'Salva in bozza': 'Salva', style: button_card),
+                  onPressed: _onSavePressed,),
+            ],
+          ));
+        },
+    ));
+
+
+  }
+
+
+}
+class _tipologyEvent extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
 
-    void _onSavePressed(BuildContext context) async {
-      if (await context.read<CreateEventCubit>().saveEvent())
-        if( !(await SuccessAlert(context, text: "Incarico salvato e inviato!").show()))
-          PlatformUtils.backNavigator(context);
+    Widget sigleTypeWidget(String key, String value){
+      return GestureDetector(
+        onTap: () => context.read<CreateEventCubit>().onSelectedType(key),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          padding: EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: context.read<CreateEventCubit>().state.typeSelected == key ? Colors.grey.shade900 : Colors.grey.shade100,
+            border: Border.all(
+              color: context.read<CreateEventCubit>().state.typeSelected == key ? yellow : yellow.withOpacity(0),
+              width: 4.0,
+            ),
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset((PlatformUtils.isMobile?'assets/':'/tipology/')+value, height: 100),
+                SizedBox(height: 5,),
+                Text(key, style: title.copyWith(color: context.read<CreateEventCubit>().state.typeSelected == key ? white: black),)
+              ]
+          ),
+        ),
+      );
     }
 
-    return new Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.all(15.0),
-      child: ElevatedButton(
-        child: new Text('SALVA', style: subtitle_rev),
-        style: raisedButtonStyle.copyWith(
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
-        ),
-        onPressed: ()=> _onSavePressed(context),
-      ));
+    return
+      Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            FadeAnimation(
+              1.2,  Text(
+                'Seleziona la tipologia di incarico che vuoi creare.',
+                style: title
+            ),
+            ),
+            ConstrainedBox(
+              constraints: new BoxConstraints(
+                minHeight: 200,
+                maxHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 280:MediaQuery.of(context).size.height-350,
+              ),
+              child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20.0),
+                  child: GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.8,
+                        crossAxisSpacing: 20.0,
+                        mainAxisSpacing: 20.0,
+                      ),
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: context.read<CreateEventCubit>().types.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return FadeAnimation((1.0 + index) / 4,
+                            sigleTypeWidget(context.read<CreateEventCubit>().types.keys.elementAt(index),
+                                context.read<CreateEventCubit>().types.values.elementAt(index)));
+                      }
+                  ),
+                ),
+            ),
+          ]
+      );
   }
 }
 
-class _formInputList extends StatelessWidget{
+class _formBasiclyInfo extends StatelessWidget{
+  double iconWidth = CreateEvent.iconWidth;
+  @override
+  Widget build(BuildContext context) {
+    Event event = context.read<CreateEventCubit>().state.event;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+      FadeAnimation(
+      1.2,  Text(
+          'Inserisci le informazioni base del ' + context.read<CreateEventCubit>().state.typeSelected.toLowerCase() +'.',
+          style: title
+        ),
+      ), SizedBox(height: 10,),
+        SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: FadeAnimation(
+          1.2,  new Form(
+            key: context.read<CreateEventCubit>().formKeyBasiclyInfo,
+            child: new Column(children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                child: TextFormField(
+                  cursorColor: black,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    hintText: 'Titolo',
+                    hintStyle: subtitle,
+                    border: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        width: 2.0,
+                        style: BorderStyle.solid,
+                      ),
+                    ),
+                  ),
+                  initialValue: event.title,
+                  validator:(value) => string.isNullOrEmpty(value)?
+                  'Il campo \'Titolo\' è obbligatorio' : null,
+                  onSaved: (value) => event.title = value??"",
+                ),
+              ),
+              Divider(height: 40, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+              Row(children: <Widget>[
+                Container(
+                  width: iconWidth,
+                  margin: EdgeInsets.only(right: 20.0),
+                  child: Icon(Icons.assignment, color: black, size: iconWidth),
+                ),
+                Expanded(
+                  child: TextFormField(
+                    maxLines: null,
+                    cursorColor: black,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                        hintText: 'Aggiungi note',
+                        hintStyle: subtitle,
+                        border: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            width: 2.0,
+                            style: BorderStyle.solid,
+                          ),)),
+                    initialValue: event.description,
+                    validator: (value) => null,
+                    onSaved: (value) => event.description = value??"",
+                  ),
+                ),
+              ]),
+              Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+              Row(children: <Widget>[
+                Container(
+                  width: iconWidth,
+                  margin: EdgeInsets.only(right: 20.0),
+                  child: Icon(
+                    Icons.file_upload,
+                    color: black,
+                    size: iconWidth,
+                  ),
+                ),
+                Expanded(
+                  child: Text("Aggiungi documenti", style: label,),
+                ),
+                IconButton(
+                    icon: Icon(Icons.add, color: black),
+                    onPressed: () => context.read<CreateEventCubit>().openFileExplorer()
+                ),
+              ]),
+              _fileStorageList(),
+              Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+              _categoriesList(),
+            ])
+          )
+        ))
+    ]);
+
+  }
+
+}
+
+class _formClientInfo extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    double iconWidth = CreateEvent.iconWidth;
+    Event event = context.read<CreateEventCubit>().state.event;
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          FadeAnimation(
+            1.2,  Text(
+              'Inserisci le informazioni sul cliente del ' + context.read<CreateEventCubit>().state.typeSelected.toLowerCase() +'.',
+              style: title
+          ),
+          ), SizedBox(height: 10,),
+          FadeAnimation( 1.2, SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: FadeAnimation(
+                  1.2,  new Form(
+                  key: context.read<CreateEventCubit>().formKeyClientInfo,
+                  child: new Column(children: <Widget>[
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(Icons.contact_phone, color: black, size: iconWidth),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          maxLines: 1,
+                          cursorColor: black,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            hintText: 'Aggiungi telefono del cliente',
+                            hintStyle: subtitle,
+                            border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
+                          initialValue: event.customer.phone,
+                          validator: (value) =>  value != null? (value.isNotEmpty? (!Utils.isPhoneNumber(value)? 'Inserisci un valore valido' : null): null) : null ,
+                          onSaved: (value) => event.customer.phone = value??"",
+                        ),
+                      ),
+                    ]),
+                    Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
+                    Row(children: <Widget>[
+                      Container(
+                        width: iconWidth,
+                        margin: EdgeInsets.only(right: 20.0),
+                        child: Icon(
+                          Icons.map,
+                          color: black,
+                          size: iconWidth,
+                        ),
+                      ),
+                      Expanded(
+                          child: TextFormField(
+                            onChanged: (text) => context.read<CreateEventCubit>().getLocations(text),
+                            keyboardType: TextInputType.multiline,
+                            maxLines: null,
+                            cursorColor: black,
+                            controller: context.read<CreateEventCubit>().addressController,
+                            decoration: InputDecoration(
+                              hintText: 'Aggiungi posizione',
+                              hintStyle: subtitle,
+                              border: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  width: 2.0,
+                                  style: BorderStyle.solid,
+                                ),
+                              ),
+                            ),
+                          )),
+                    ]),
+                    _geoLocationOptionsList(),
+                   ])
+              )
+              ))
+          )
+        ]);
+  }
+  
+}
+
+class _formAssignedList extends StatelessWidget{
   double iconWidth = CreateEvent.iconWidth;
 
   @override
   Widget build(BuildContext context) {
     Event event = context.read<CreateEventCubit>().state.event;
 
-    return SingleChildScrollView(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+      FadeAnimation(
+      1.2,  Text(
+        'Calendarizza e assegna il ' + context.read<CreateEventCubit>().state.typeSelected.toLowerCase() +' agli operatori.',
+        style: title
+    ),
+    ), SizedBox(height: 10,),
+    FadeAnimation( 1.2,SingleChildScrollView(
       scrollDirection: Axis.vertical,
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: new Form(
-          key: context.read<CreateEventCubit>().formKey,
+      child: FadeAnimation(
+        1.2,  new Form(
+          key: context.read<CreateEventCubit>().formKeyAssignedInfo,
           child: new Column(children: <Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              margin: EdgeInsets.only(top: 10),
-              child: TextFormField(
-                cursorColor: black,
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  hintText: 'Titolo',
-                  hintStyle: subtitle,
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      width: 2.0,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                ),
-                initialValue: event.title,
-                validator:(value) => string.isNullOrEmpty(value)?
-                  'Il campo \'Titolo\' è obbligatorio' : null,
-                onSaved: (value) => event.title = value??"",
-              ),
-            ),
-            Divider(height: 40, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            Row(children: <Widget>[
-              Container(
-                width: iconWidth,
-                margin: EdgeInsets.only(right: 20.0),
-                child: Icon(Icons.assignment, color: black, size: iconWidth),
-              ),
-              Expanded(
-                child: TextFormField(
-                  maxLines: null,
-                  cursorColor: black,
-                  keyboardType: TextInputType.multiline,
-                  decoration: InputDecoration(
-                      hintText: 'Aggiungi note',
-                      hintStyle: subtitle,
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 2.0,
-                          style: BorderStyle.solid,
-                        ),)),
-                  initialValue: event.description,
-                  validator: (value) => null,
-                  onSaved: (value) => event.description = value??"",
-                ),
-              ),
-            ]),
-            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            Row(children: <Widget>[
-              Container(
-                width: iconWidth,
-                margin: EdgeInsets.only(right: 20.0),
-                child: Icon(Icons.contact_phone, color: black, size: iconWidth),
-              ),
-              Expanded(
-                child: TextFormField(
-                  maxLines: 1,
-                  cursorColor: black,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                      hintText: 'Aggiungi telefono del cliente',
-                      hintStyle: subtitle,
-                      border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
-                  initialValue: event.customer.phone,
-                  validator: (value) =>  value != null? (value.isNotEmpty? (!Utils.isPhoneNumber(value)? 'Inserisci un valore valido' : null): null) : null ,
-                  onSaved: (value) => event.customer.phone = value??"",
-                ),
-              ),
-            ]),
-            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            Row(children: <Widget>[
-              Container(
-                width: iconWidth,
-                margin: EdgeInsets.only(right: 20.0),
-                child: Icon(
-                  Icons.map,
-                  color: black,
-                  size: iconWidth,
-                ),
-              ),
-              Expanded(
-                  child: TextFormField(
-                    onChanged: (text) => context.read<CreateEventCubit>().getLocations(text),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                    cursorColor: black,
-                    controller: context.read<CreateEventCubit>().addressController,
-                    decoration: InputDecoration(
-                      hintText: 'Aggiungi posizione',
-                      hintStyle: subtitle,
-                      border: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          width: 2.0,
-                          style: BorderStyle.solid,
-                        ),
-                      ),
-                    ),
-                  )),
-            ]),
-            _geoLocationOptionsList(),
-            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            Row(children: <Widget>[
-              Container(
-                width: iconWidth,
-                margin: EdgeInsets.only(right: 20.0),
-                child: Icon(
-                  Icons.file_upload,
-                  color: black,
-                  size: iconWidth,
-                ),
-              ),
-              Expanded(
-                child: Text("Aggiungi documenti", style: label,),
-              ),
-              IconButton(
-                  icon: Icon(Icons.add, color: black),
-                  onPressed: () => context.read<CreateEventCubit>().openFileExplorer()
-              ),
-            ]),
-            _fileStorageList(),
-            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
             _timeControls(),
             Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
             Row(children: <Widget>[
@@ -240,18 +473,17 @@ class _formInputList extends StatelessWidget{
               builder: (context, state) {
                 return Column(children: <Widget>[...(context.read<CreateEventCubit>().state.event.operator != null ?
                   [context.read<CreateEventCubit>().state.event.operator!, ...context.read<CreateEventCubit>().state.event.suboperators] :
-                  context.read<CreateEventCubit>().state.event.suboperators).map((operator) =>
-                  new ListTileOperator(
+                  context.read<CreateEventCubit>().state.event.suboperators).asMap().map((i, operator) =>
+                  MapEntry(i,ListTileOperator(
                     operator,
+                    detailMode: true,
+                    position: i,
                     onRemove: context.read<CreateEventCubit>().removeSuboperatorFromEventList,
                     darkStyle: false,
-                  )).toList()]);
+                  ))).values.toList()]);
             }),
-            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-            _categoriesList(),
-            Divider(height: 20, indent: 20, endIndent: 20, thickness: 2, color: grey_light2),
-          ])),
-    );
+          ]))),
+    ))]);
 
   }
 }
@@ -328,7 +560,7 @@ class _fileStorageList extends StatelessWidget {
       buildWhen: (previous, current) => previous.documents != current.documents,
       builder: (context, state) {
         return context.read<CreateEventCubit>().state.documents.keys.length > 0? new Container(
-          height: 60,
+          height: 80,
           child: buildFilesList()
         ): Container();
       },
@@ -481,46 +713,71 @@ class _categoriesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int i = 0;
-    int category = context.select((CreateEventCubit cubit)=>cubit.state.category);
 
-    List<Widget> buildCategoriesList() => context.read<CreateEventCubit>().categories.map((categoryName, categoryColor) =>
-        MapEntry( Container(
-                margin: EdgeInsets.symmetric(vertical: 5),
-                decoration: BoxDecoration(
-                    color: (category!=-1? category == i : context.read<CreateEventCubit>().state.event.category == categoryName) ? black : white,
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: grey)),
-                child: Row(children: <Widget>[
-                  new Radio(
-                    value: i,
-                    activeColor: black_light,
-                    groupValue: category,
-                    onChanged: (int? val) => context.read<CreateEventCubit>().radioValueChanged(val!),
-                  ),
-                  Container(
-                    width: 30,
-                    height: 30,
-                    margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(5.0)), color: HexColor(categoryColor)),
-                  ),
-                  new Text(categoryName.toUpperCase(),
-                      style: (category!=-1? category == i : context.read<CreateEventCubit>().state.event.category == categoryName) ?
-                        subtitle_rev : subtitle.copyWith(color: black)),
-                ])), i++)).keys.toList();
-    
-    return Container(
-      child: Row(
+    Widget sigleCategoryWidget(String key, String value){
+      return GestureDetector(
+        onTap: () => context.read<CreateEventCubit>().onSelectedCategory(key),
+        child: AnimatedContainer(
+          duration: Duration(milliseconds: 300),
+          padding: EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            color: context.read<CreateEventCubit>().state.category == key ? Colors.grey.shade900 : Colors.grey.shade100,
+            border: Border.all(
+              color: context.read<CreateEventCubit>().state.category == key ? yellow : yellow.withOpacity(0),
+              width: 4.0,
+            ),
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0)), color: HexColor(value)),
+                ),
+                SizedBox(height: 5,),
+                Text(key,textAlign: TextAlign.center, style: subtitle.copyWith(color: context.read<CreateEventCubit>().state.category == key ? white: black,
+                    fontWeight: context.read<CreateEventCubit>().state.category == key ? FontWeight.bold: FontWeight.normal),)
+              ]
+          ),
+        ),
+      );
+    }
+
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          FadeAnimation(
+            1.0,  Text(
+              'Tipologia',
+              style: title
+          ),
+          ),
           Container(
-              alignment: Alignment.topLeft,
-              margin: EdgeInsets.only(top: 5.0, right: 20.0),
-              child: Text("Tipologia", style: title)),
-          Expanded(child: Column(children: buildCategoriesList()))
-        ],
-      ),
+            height:PlatformUtils.isMobile?MediaQuery.of(context).size.height - 650:MediaQuery.of(context).size.height - 600,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 20.0),
+              child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 1,
+                    crossAxisSpacing: 10.0,
+                    mainAxisSpacing: 10.0,
+                  ),
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: context.read<CreateEventCubit>().categories.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return FadeAnimation((1.0 + index) / 4,
+                        sigleCategoryWidget(context.read<CreateEventCubit>().categories.keys.elementAt(index),
+                            context.read<CreateEventCubit>().categories.values.elementAt(index)));
+                  }
+              ),
+            ),
+          )
+        ]
     );
+
   }
 }

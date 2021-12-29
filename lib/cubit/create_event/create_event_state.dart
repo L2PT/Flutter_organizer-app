@@ -16,13 +16,15 @@ class CreateEventState extends Equatable {
   late final Event event;
   late List<String> locations;
   late Map<String, dynamic> documents;
-  int category = -1;
+  String category = '';
   bool isAllDay = false;
   bool isScheduled = false;
   _formStatus status = _formStatus.normal;
+  int currentStep = 0;
+  String typeSelected = 'Intervento';
 
   @override
-  List<Object> get props => [event.toString(), locations.join(), documents.keys.join(), documents.values.join(), category, status, isScheduled];
+  List<Object> get props => [event.toString(), locations.join(), documents.keys.join(), documents.values.join(), category, status, isScheduled, currentStep, typeSelected];
 
   bool isLoading() => this.status == _formStatus.loading;
 
@@ -31,10 +33,12 @@ class CreateEventState extends Equatable {
     List<String>? locations,
     String? address,
     Map<String,dynamic>? documents,
-    int? category,
+    String? category,
     bool? allDayFlag,
     bool? isScheduled,
-    _formStatus? status
+    _formStatus? status,
+    int? currentStep,
+    String? typeSelected,
   }) {
     var form = CreateEventState(event??this.event);
     form.category = category??this.category;
@@ -44,6 +48,8 @@ class CreateEventState extends Equatable {
     form.isScheduled = isScheduled??this.isScheduled;
     if(!string.isNullOrEmpty(address)) form.event.address = address!;
     form.locations = locations??this.locations;
+    form.currentStep = currentStep ?? this.currentStep;
+    form.typeSelected = typeSelected ?? this.typeSelected;
     return form;
   }
 }

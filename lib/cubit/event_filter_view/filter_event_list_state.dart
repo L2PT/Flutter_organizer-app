@@ -6,7 +6,7 @@ abstract class FilterEventListState extends Equatable {
   List<Event> listEventFiltered;
 
   FilterEventListState([Map<String, FilterWrapper>? filters, List<Event>? listEvent]):
-        this.filters = filters??{},
+        this.filters = filters??FilterWrapper.initFilter(),
         this.listEventFiltered = listEvent??[];
 
   List<Object?> get props => [this.listEventFiltered.map((e) => e.id).join()];

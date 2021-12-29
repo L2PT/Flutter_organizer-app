@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'dart:html' as html;
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:js/js.dart';
@@ -55,4 +56,18 @@ class PlatformUtils {
 
   static Future<int> getVersionApp() async { return 999; }
   static Future<int> getNumBuildApp() async { return 999;  }
+
+  static Future<FirebaseApp> firebaseInitializeApp(){
+    return Firebase.initializeApp(
+        options: const FirebaseOptions(
+            apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
+            authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
+            databaseURL: "https://com-l2pt-venturiautospurghi.firebaseio.com",
+            projectId: "com-l2pt-venturiautospurghi",
+            storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
+            messagingSenderId: "964614131015",
+            appId: "1:964614131015:web:8a10af66f5b15bad589062"
+        )
+    );
+  }
 }

@@ -9,7 +9,7 @@ abstract class MonthlyCalendarState extends Equatable {
         this.selectedMonth = selectedMonth ?? DateTime.now();
 
   @override
-  List<Object> get props => [eventsMap, selectedMonth];
+  List<Object> get props => [eventsMap.entries, selectedMonth];
 }
 
 class MonthlyCalendarLoading extends MonthlyCalendarState{

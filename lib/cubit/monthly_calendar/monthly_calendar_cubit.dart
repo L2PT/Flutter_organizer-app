@@ -25,7 +25,7 @@ class MonthlyCalendarCubit extends Cubit<MonthlyCalendarState> {
   }
 
   void loadMoreData([DateTime? start, DateTime? end]) {
-    _databaseRepository.subscribeEventsByOperator((operator??_account).id, statusEqualOrAbove: _account.supervisor? EventStatus.Accepted : EventStatus.Accepted,
+    _databaseRepository.subscribeEventsByOperator((operator??_account).id, statusEqualOrAbove: _account.supervisor? EventStatus.Refused : EventStatus.Accepted,
         from: TimeUtils.truncateDate(start??DateTime.now(), "month"),
         to: end??TimeUtils.truncateDate(start??DateTime.now(), "month").add(new Duration(days: 31))).listen((eventsList) {
       _events = eventsList;
@@ -46,4 +46,10 @@ class MonthlyCalendarCubit extends Cubit<MonthlyCalendarState> {
     emit(MonthlyCalendarReady(eventsMap, state.selectedMonth));
   }
 
+  void selectNextorPrevious() {
+    DateTime start = TimeUtils.truncateDate(calendarController.focusedDay, "month");
+    loadMoreData(start);
+    if(state is MonthlyCalendarLoading) state.selectedMonth = start;
+    else emit(MonthlyCalendarReady((state as MonthlyCalendarReady).eventsMap, start));
+  }
 }

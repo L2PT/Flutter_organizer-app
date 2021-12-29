@@ -183,11 +183,10 @@ class _rowCalendar extends StatelessWidget {
             context.read<DailyCalendarCubit>().onDaySelected(date);
             //_animationController.forward(from: 0.0);
            },//    if(state is DailyCalendarReady)
-          selectNext: () {
+          selectMonthCalendar: () {
             context.read<MobileBloc>().add(NavigateEvent(Constants.monthlyCalendarRoute, {'month': context.read<DailyCalendarCubit>().state.selectedDay, 'operator' : context.read<DailyCalendarCubit>().operator}));
             _animationController.dispose();
-           },
-          selectPrevious: () {},
+          },
         );
       },
     );

@@ -72,6 +72,7 @@ class _operatorListState extends State<_operatorList> {
   @override
   Widget build(BuildContext context) {
     onTileTap(Account operator) {
+      context.read<OperatorListCubit>().scrollController.dispose();
       context.read<MobileBloc>().add(NavigateEvent(Constants.dailyCalendarRoute, {"operator":operator}));
     }
 
@@ -105,7 +106,6 @@ class _operatorListState extends State<_operatorList> {
 
   @override
   void dispose() {
-    context.read<OperatorListCubit>().scrollController.dispose();
     super.dispose();
   }
 

@@ -1,4 +1,5 @@
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
@@ -33,4 +34,5 @@ abstract class PlatformUtils {
 
   static Future<int> getVersionApp() async  { return 999; }
   static Future<int> getNumBuildApp() async { return 999; }
+  static dynamic firebaseInitializeApp() => null;
 }

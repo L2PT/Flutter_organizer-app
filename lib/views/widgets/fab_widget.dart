@@ -10,7 +10,7 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/views/widgets/alert_delete.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_delete.dart';
 
 class Fab extends StatelessWidget {
   @override

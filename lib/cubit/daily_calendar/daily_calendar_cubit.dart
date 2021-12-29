@@ -36,7 +36,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   void loadMoreData([DateTime? start, DateTime? end]){
     _databaseRepository.subscribeEventsByOperator((operator??_account).id, statusEqualOrAbove: _account.supervisor? EventStatus.Refused : EventStatus.Accepted,
         from: TimeUtils.truncateDate(start??DateTime.now().subtract(new Duration(days: 7)), "day"),
-        to: end?.add(new Duration(days: 1))??TimeUtils.truncateDate(start??DateTime.now().add(new Duration(days: 7)), "day")).listen((eventsList) {
+        to: end?.add(new Duration(days: 1))??TimeUtils.truncateDate((start??DateTime.now()).add(new Duration(days: 7)), "day")).listen((eventsList) {
       _events = eventsList;
       evaluateEventsMap(start??TimeUtils.truncateDate(calendarController.visibleDays.first, "day"), end??TimeUtils.truncateDate(calendarController.visibleDays.last, "day").add(new Duration(days: 1)));
     });
@@ -56,7 +56,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
        }
      }
     });
-    emit(DailyCalendarReady(eventsMap, state.selectedDay, calendarController.visibleDays));
+    emit(DailyCalendarReady(eventsMap, TimeUtils.truncateDate(state.selectedDay, "day"), calendarController.visibleDays));
   }
 
   double calcWidgetHeightInGrid({DateTime? start, DateTime? end, int? firstWorkedMinute, int? lastWorkedMinute}) {

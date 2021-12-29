@@ -76,7 +76,7 @@ class _contentTableCalendar extends StatelessWidget {
       return BlocBuilder<MonthlyCalendarCubit, MonthlyCalendarState>(
 
           buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType) ||
-              previous.eventsMap != current.eventsMap,
+              previous.eventsMap != current.eventsMap  ,
           builder: (context, state) {
             return !(state is MonthlyCalendarReady) ? Center(child: CircularProgressIndicator()) :
              TableCalendar(
@@ -89,8 +89,7 @@ class _contentTableCalendar extends StatelessWidget {
               startingDayOfWeek: StartingDayOfWeek.monday,
               availableGestures: AvailableGestures.horizontalSwipe,
               availableCalendarFormats: {CalendarFormat.month: ''},
-              initialSelectedDay:
-              context.read<MonthlyCalendarCubit>().state.selectedMonth,
+              initialSelectedDay: state.selectedMonth,
               headerStyle: HeaderStyle(rightChevronIcon: Icon(null)),
               builders: CalendarBuilders(
                 selectedDayBuilder: (context, date, _) {
@@ -157,8 +156,8 @@ class _contentTableCalendar extends StatelessWidget {
                 _animationController.forward(from: 0.0);
                 _animationController.dispose();
               },
-              selectNext: () {},
-              selectPrevious: () {},
+              selectNext: context.read<MonthlyCalendarCubit>().selectNextorPrevious,
+              selectPrevious: context.read<MonthlyCalendarCubit>().selectNextorPrevious,
             );
           });
   }

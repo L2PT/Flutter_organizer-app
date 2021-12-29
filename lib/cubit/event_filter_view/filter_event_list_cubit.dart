@@ -11,11 +11,14 @@ class FilterEventListCubit extends Cubit<FilterEventListState> {
   final CloudFirestoreService _databaseRepository;
   final ScrollController scrollController = new ScrollController();
   List<Event> listEvent = [];
-  final int startingElements = 15;
+  final int startingElements = 25;
   final int loadingElements = 10;
   bool canLoadMore = true;
 
-  FilterEventListCubit(this._databaseRepository) : super(LoadingFilterEventList()){
+  FilterEventListCubit(this._databaseRepository, Map<String, dynamic> filters) : super(LoadingFilterEventList()){
+    filters.keys.forEach((key) {
+      state.filters[key]!.fieldValue = filters[key];
+    });
     onFiltersChanged(state.filters);
   }
 
@@ -35,7 +38,7 @@ class FilterEventListCubit extends Cubit<FilterEventListState> {
   }
 
   void scrollToTheTop(){
-    if(scrollController != null)
+    if(scrollController != null && scrollController.hasClients)
       scrollController.animateTo(
         0.0,
         curve: Curves.easeOut,

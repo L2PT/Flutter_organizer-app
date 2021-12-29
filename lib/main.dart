@@ -18,19 +18,11 @@ void main() {
   FirebaseAuthService authenticationRepository;
   Bloc.observer = SimpleBlocObserver();
   if(!Constants.debug) setPathUrlStrategy();
-  Firebase.initializeApp(
-    options: const FirebaseOptions(
-        apiKey: "AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk",
-        authDomain: "com-l2pt-venturiautospurghi.firebaseapp.com",
-        databaseURL: "https://com-l2pt-venturiautospurghi.firebaseio.com",
-        projectId: "com-l2pt-venturiautospurghi",
-        storageBucket: "com-l2pt-venturiautospurghi.appspot.com",
-        messagingSenderId: "964614131015",
-        appId: "1:964614131015:web:8a10af66f5b15bad589062"
-    )).then((_) {
+  PlatformUtils.firebaseInitializeApp().then((_) {
         authenticationRepository = FirebaseAuthService();
         CloudFirestoreService.create().then((db) {
           FirebaseMessagingService.create().then((messaging){
+            PlatformUtils.initDownloader();
             runApp(
               RepositoryProvider.value(
                 value: authenticationRepository,
@@ -45,5 +37,5 @@ void main() {
             );
           });
         });
-  }).then((_) => PlatformUtils.initDownloader());
+  });
 }

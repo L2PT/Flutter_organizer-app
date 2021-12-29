@@ -15,6 +15,8 @@ typedef void SelectPrevious();
 //VISIBLE METHOD ADDED
 typedef void SelectNext();
 
+typedef void SelectMonthCalendar();
+
 /// Builder signature for any text that can be localized and formatted with `DateFormat`.
 typedef String TextBuilder(DateTime date, dynamic locale);
 
@@ -64,6 +66,8 @@ class TableCalendar extends StatefulWidget {
 
   //ADDED
   final SelectNext? selectNext;
+
+  final SelectMonthCalendar? selectMonthCalendar;
 
   /// Initially selected DateTime. Usually it will be `DateTime.now()`.
   /// This property can be used to programmatically select a new date.
@@ -143,6 +147,7 @@ class TableCalendar extends StatefulWidget {
     this.onVisibleDaysChanged,
     this.selectPrevious = null,
     this.selectNext = null,
+    this.selectMonthCalendar = null,
     this.initialSelectedDay,
     this.startDay,
     this.endDay,
@@ -164,7 +169,9 @@ class TableCalendar extends StatefulWidget {
     this.builders = const CalendarBuilders(),
   })  : assert(availableCalendarFormats.keys.contains(initialCalendarFormat)),
         assert(availableCalendarFormats.length <= CalendarFormat.values.length),
-        super(key: key);
+        super(key: key) {
+    this.calendarController._events = this.events;
+  }
 
   @override
   _TableCalendarState createState() => _TableCalendarState();
@@ -202,14 +209,22 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
   void _selectPrevious() {
     setState(() {
       widget.calendarController._selectPrevious();
+      if (widget.selectPrevious != null) {
+        widget.selectPrevious!();
+      }
     });
   }
 
   void _selectNext() {
     setState(() {
       widget.calendarController._selectNext();
+      if (widget.selectNext != null) {
+        widget.selectNext!();
+      }
     });
   }
+
+  void _selectMonthCalendar(){}
 
   void _selectDay(DateTime day) {
     setState(() {
@@ -308,7 +323,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
       ),
       _CustomIconButton(
         icon: widget.headerStyle.rightChevronIcon,
-        onTap: (widget.selectNext is Function)? widget.selectNext! : _selectNext,
+        onTap: (widget.selectMonthCalendar is Function)? widget.selectMonthCalendar! : _selectMonthCalendar,
         margin: widget.headerStyle.rightChevronMargin,
         padding: widget.headerStyle.rightChevronPadding,
       ),

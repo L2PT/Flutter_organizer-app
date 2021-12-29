@@ -8,6 +8,7 @@ class Event {
   String id = "";
   String title = "";
   String description = "";
+  String notaOperator = "";
   DateTime start = DateTime.now();
   DateTime end = DateTime.now();
   String address = "";
@@ -22,13 +23,14 @@ class Event {
   List<Account> suboperators = [];
 
 
-  Event(this.id, this.title, this.description, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer);
+  Event(this.id, this.title, this.description, this.notaOperator, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer);
   Event.empty();
 
   Event.fromMap(String id, String color, Map json) :
     id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"",
     title = json["Titolo"],
     description = json["Descrizione"],
+    notaOperator = json["NotaOperatore"]??'',
     start = json["DataInizio"] is DateTime?json["DataInizio"]:DateTime.fromMillisecondsSinceEpoch(json["DataInizio"].seconds*1000).toLocal(),
     end = json["DataFine"] is DateTime?json["DataFine"]:DateTime.fromMillisecondsSinceEpoch(json["DataFine"].seconds*1000).toLocal(),
     address = json["Indirizzo"],
@@ -46,6 +48,7 @@ class Event {
       "id":this.id,
       "Titolo":this.title,
       "Descrizione":this.description,
+      "NotaOperatore":this.notaOperator,
       "DataInizio":this.start,
       "DataFine":this.end,
       "Indirizzo":this.address,
@@ -62,6 +65,7 @@ class Event {
     return Map<String, dynamic>.of({
       "Titolo":this.title,
       "Descrizione":this.description,
+      "NotaOperatore":this.notaOperator,
       "DataInizio":this.start.toUtc(),
       "DataFine":this.end.toUtc(),
       "Indirizzo":this.address,
@@ -102,8 +106,9 @@ class Event {
   bool isAccepted() => this.status == EventStatus.Accepted;
   bool isRefused() => this.status == EventStatus.Refused;
   bool isEnded() => this.status == EventStatus.Ended;
+  bool isBozza() => this.status == EventStatus.Bozza;
 
   @override
-  String toString() => id+title+description+documents.join()+start.toString()+end.toString()+address+(status).toString()+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
+  String toString() => id+title+description+notaOperator+documents.join()+start.toString()+end.toString()+address+(status).toString()+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
 
 }

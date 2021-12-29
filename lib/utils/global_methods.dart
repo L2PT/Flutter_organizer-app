@@ -86,7 +86,8 @@ class GeoUtils {
 
   static Future<List<String>>  getLocations(String address) async {
     List<String> locations = [];
-    var result = await GooglePlace(Constants.googleMapsApiKey).autocomplete.get(address);
+    var result = await GooglePlace(Constants.googleMapsApiKey).autocomplete.get(address, language: "it",
+        components: [new Component("country", "it")] );
     if(result != null && result.predictions != null)
       result.predictions!.forEach((e) => {
         if(!string.isNullOrEmpty(e.description))
@@ -97,7 +98,7 @@ class GeoUtils {
 
   static Future getLocationsWeb(String address) async {
     List<String> locations = [];
-    String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input='+address+'&country=it&language=it&key='+Constants.googleMapsApiKey;
+    String url = 'https://maps.googleapis.com/maps/api/place/autocomplete/json?input='+address+'&country=it&components=country:it&language=it&key='+Constants.googleMapsApiKey;
     HttpsCallable callable = FirebaseFunctions.instance.httpsCallable(
       'getDataFromUrl',);
     try {

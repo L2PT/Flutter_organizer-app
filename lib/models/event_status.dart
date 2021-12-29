@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class EventStatus {
+  static const int Bozza = -3;
   static const int Deleted = -2;
   static const int Refused = -1;
   static const int New = 0;
@@ -12,6 +13,8 @@ class EventStatus {
 
   static IconData getIcon(int status){
     switch(status){
+      case Bozza:
+        return Icons.edit;
       case Deleted:
         return Icons.delete;
       case Refused:
@@ -32,6 +35,7 @@ class EventStatus {
 
   static String getText(int status){
     switch(status){
+      case EventStatus.Bozza: return "Bozza";
       case EventStatus.Deleted: return "Eliminato";
       case EventStatus.Refused: return "Rifiutato";
       case EventStatus.New: return "Nuovo";

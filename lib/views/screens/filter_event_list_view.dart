@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/cubit/event_filter_view/filter_event_list_cubit.dart';
+import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -12,12 +13,16 @@ import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class FilterEventList extends StatelessWidget {
 
+  Map<String, dynamic> filters;
+
+  FilterEventList({Map<String, dynamic>? filters}) : this.filters = filters??{};
+
   @override
   Widget build(BuildContext context) {
     CloudFirestoreService repository = context.read<CloudFirestoreService>();
 
     return new BlocProvider(
-        create: (_) => FilterEventListCubit(repository),
+        create: (_) => FilterEventListCubit(repository, filters),
         child: ResponsiveWidget(
           smallScreen: _smallScreen(),
           largeScreen: _largeScreen(),

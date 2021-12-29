@@ -9,6 +9,8 @@ import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
+import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
@@ -22,10 +24,12 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
 
   DetailsEventCubit(this.context, CloudFirestoreService databaseRepository, Account account, Event event) :
       _databaseRepository = databaseRepository, _account = account, _event = event,
-      super(DetailsEventState(event)) {
-    if(state.event.operator!.id == _account.id && state.event.status < EventStatus.Seen){
+        super(DetailsEventState(event, event.notaOperator, event.status, event.documents.cast<String>()) ) {
+    if (state.event.operator!.id == _account.id &&
+        state.event.status < EventStatus.Seen) {
       emit(state.changeStatus(EventStatus.Seen));
-      _databaseRepository.updateEventField(state.event.id, Constants.tabellaEventi_stato, EventStatus.Seen);
+      _databaseRepository.updateEventField(
+          state.event.id, Constants.tabellaEventi_stato, EventStatus.Seen);
     }
   }
 
@@ -91,6 +95,23 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     if(await canLaunch(phone)){
       launch(phone);
     }
+  }
+
+  void addEventNotaOperator(String notaOperator){
+    _databaseRepository.updateEventField(_event.id, Constants.tabellaEventi_notaOperatore, notaOperator);
+    emit(state.changeNotaOperator(notaOperator));
+  }
+
+  void openFileExplorer() async {
+    Map<String, dynamic> file = new Map();
+    List<String> listDocuments = _event.documents.cast<String>();
+    file = await FileUtils.openFileExplorer(file);
+    file.forEach((name, file) {
+      FirebaseStorageService.uploadFile(file, _event.id + "/" + name);
+      listDocuments.add(name);
+    });
+    _databaseRepository.updateEventField(_event.id, Constants.tabellaEventi_documenti, listDocuments);
+    emit(state.changeListDocuments(listDocuments));
   }
 
 }

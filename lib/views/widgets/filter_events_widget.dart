@@ -6,6 +6,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/cubit/filter_events/filter_events_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -241,6 +242,7 @@ class EventsFilterWidget extends FilterWidget {
                                 operator,
                                 onRemove: context.read<EventsFilterCubit>().removeOperatorFromFilter,
                                 darkStyle: true,
+                                padding: PlatformUtils.isMobile?10:5,
                             ))]);
                       }),
                       Text('Tipologia', style: subtitle.copyWith(color: white),),

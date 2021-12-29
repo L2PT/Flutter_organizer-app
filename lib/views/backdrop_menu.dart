@@ -17,6 +17,7 @@ final Map<String, LinkMenu> menuOperatore = const {
 final Map<String, LinkMenu> menuResponsabile = const {
   Constants.homeRoute: const LinkMenu(Icons.home, Colors.white, 30, "Home", title_rev),
   Constants.historyEventListRoute: const LinkMenu(Icons.history, Colors.white, 30, "Storico incarichi", title_rev),
+  Constants.bozzeEventListRoute: const LinkMenu(Icons.assignment, Colors.white, 30, "Incarichi in bozza", title_rev),
   Constants.createEventViewRoute: const LinkMenu(Icons.edit, Colors.white, 30, "Crea evento", title_rev),
   Constants.filterEventListRoute: const LinkMenu(Icons.search, Colors.white, 30, "Ricerca incarichi", title_rev),
   Constants.registerRoute: const LinkMenu(Icons.person_add, Colors.white, 30, "Crea utente", title_rev),

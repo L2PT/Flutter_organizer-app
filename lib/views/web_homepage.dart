@@ -254,6 +254,19 @@ class _buildWebPage extends StatelessWidget {
                                 child: Text("STORICO",style: button_card),
                               ),
                             ),
+                            Container(
+                              decoration: BoxDecoration(border: Border(
+                                  top: BorderSide(width: 4, color: black),
+                                  bottom: BorderSide(
+                                      color: context.read<WebBloc>().state.route == Constants.bozzeEventListRoute?yellow:black,
+                                      width: 4
+                                  )
+                              )),
+                              child: TextButton(
+                                onPressed: ()=>PlatformUtils.navigator(context, Constants.bozzeEventListRoute),
+                                child: Text("BOZZE",style: button_card),
+                              ),
+                            ),
                             Expanded(child: Container(),),
                             Container(
                               alignment: Alignment.centerRight,

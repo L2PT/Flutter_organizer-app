@@ -36,6 +36,7 @@ class Constants {
   static const String logInRoute = 'view/log_in';
   static const String logOut = 'log_out';
   static const String filterEventListRoute = 'view/filter_event';
+  static const String bozzeEventListRoute = 'view/bozze_event_list';
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
@@ -64,11 +65,14 @@ class Constants {
   static const String tabellaEventi_subOperatori = 'SubOperatori';
   static const String tabellaEventi_responsabile = 'Responsabile';
   static const String tabellaEventi_cliente = 'Cliente';
+  static const String tabellaEventi_notaOperatore = 'NotaOperatore';
+  static const String tabellaEventi_documenti = 'Documenti';
 
   // TABLE COSTANTI
   static const String tabellaCostanti_Categorie = 'Categorie';
   static const String tabellaCostanti_Telefoni = 'Telefoni';
   static const String tabellaCostanti_InfoApp = 'InfoApp';
+  static const String tabellaCostanti_Tipologie = 'Tipologie';
 
   // TABLE UTENTI
   static const String tabellaUtenti_Nome = 'Nome';
@@ -85,7 +89,7 @@ class Constants {
   // HANDLES
   static const int MIN_WORKTIME = 6;
   static const int MAX_WORKTIME = 21;
-  static const int WORKTIME_SPAN = 5;
+  static const int WORKTIME_SPAN = 30;
   static const double MIN_CALENDAR_EVENT_HEIGHT = 60.0;
 
   static const String googleMapsApiKey = 'AIzaSyD3A8jbx8IRtXvnmoGSwJy2VyRCvo0yjGk';

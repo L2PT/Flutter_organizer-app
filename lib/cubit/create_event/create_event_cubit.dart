@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:equatable/equatable.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,6 +11,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
+import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -23,16 +23,21 @@ enum _eventType{ create, modify, copy }
 class CreateEventCubit extends Cubit<CreateEventState> {
   final CloudFirestoreService _databaseRepository;
   final Account _account;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKeyAssignedInfo = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKeyBasiclyInfo = GlobalKey<FormState>();
+  final GlobalKey<FormState> formKeyClientInfo = GlobalKey<FormState>();
   final GlobalKey<FormState> formTimeControlsKey = GlobalKey<FormState>();
   late TextEditingController addressController;
 
   late _eventType _type;
   late bool canModify;
   late Map<String,dynamic> categories;
+  late Map<String,dynamic> types;
+  late Map<int, GlobalKey<FormState>> forms;
 
   CreateEventCubit(this._databaseRepository, this._account, Event? event)
       : super(CreateEventState(event)) {
+    fillMapForms();
     if(event==null){
       _type = _eventType.create;
       state.event.supervisor = _account;
@@ -41,17 +46,18 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     }else _type = _eventType.modify;
       canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
       categories = _databaseRepository.categories;
+      types = _databaseRepository.types;
       addressController = new TextEditingController();
       if(event != null ){
         if(!string.isNullOrEmpty(event.category)){
-          radioValueChanged(categories.keys.toList().indexOf(event.category));
+          onSelectedCategory(event.category);
         }
         addressController.text = state.event.address;
       }
   }
 
   void getLocations(String text) async {
-    if(text.length > 5){
+    if(text.length > 5 && text != state.event.address){
       List<String> locations = [];
       if(PlatformUtils.isMobile){
         locations = await GeoUtils.getLocations(text);
@@ -59,7 +65,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         locations = await GeoUtils.getLocationsWeb(text);
       }
       emit(state.assign(locations: locations, address: text));
-    } else emit(state.assign(address: text));
+    }
   }
 
   setAddress(String address) {
@@ -75,30 +81,29 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(state.isLoading()) return Future<bool>(()=>false);
     if(state.event.end.isBefore(state.event.start))
       PlatformUtils.notifyErrorMessage("Seleziona un'orario di fine incarico valido");
-    if (state.event.operator == null)
-      PlatformUtils.notifyErrorMessage("Assegna un'operatore di riferimento.");
-    else if (state.category == -1)
-      PlatformUtils.notifyErrorMessage("Seleziona una categoria valida.");
-    else if((this.formTimeControlsKey.currentState!.validate() || !this.canModify) && formKey.currentState!.validate()) {
+    else if((this.formTimeControlsKey.currentState!.validate() || !this.canModify) && formKeyAssignedInfo.currentState!.validate()) {
       //get all data before refresh
-      formKey.currentState!.save();
+      formKeyAssignedInfo.currentState!.save();
       emit(state.assign(status: _formStatus.loading));
       try {
-        if(Constants.debug) print("Firebase save " + state.event.start.toString() + " : " + state.event.end.toString());
+        if (Constants.debug) print(
+            "Firebase save " + state.event.start.toString() + " : " +
+                state.event.end.toString());
         state.event.supervisor = _account;
-        int i=0;
-        this.categories.forEach((key, value) { if(i++==state.category){
-          state.event.category = key;
-          state.event.color = value;
-        }});
+        state.event.category = state.category;
+        state.event.color = this.categories[state.category];
+        if(state.typeSelected == 'Contratto') state.event.title = state.typeSelected + " - " + state.event.title;
 
         bool sendNotification = true;
-        if(state.isScheduled){
+        if (state.event.operator == null){
+          state.event.status = EventStatus.Bozza;
+          sendNotification = false;
+        } else if (state.isScheduled) {
           state.event.status = EventStatus.Accepted;
           sendNotification = false;
-        }else if(state.event.end.isBefore(DateTime.now())){
+        } else if (state.event.end.isBefore(DateTime.now())) {
           sendNotification = false;
-        }else{
+        } else{
           state.event.status = EventStatus.New;
         }
 
@@ -148,21 +153,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void openFileExplorer() async {
-    try {
-      var a = (await FilePicker.platform.pickFiles(allowMultiple: true, withData: false))?.files??[];
-        Map<String, dynamic> files = Map.fromIterable(a, key: (file)=>(file as PlatformFile).name!, value: (file)=>PlatformUtils.file((file as PlatformFile).path!));
-        Map<String, dynamic> newDocs = Map.from(state.documents);
-        files.forEach((key, value) {
-          newDocs[key] = value;
-        });
-        emit(state.assign(documents: newDocs));
-    } on Exception catch (e) {
-      print("Unsupported operation:" + e.toString());
-    }
-  }
-
-  void radioValueChanged(int value) {
-    emit(state.assign(category: value));
+    Map<String, dynamic> newDocs = await FileUtils.openFileExplorer(state.documents);
+    emit(state.assign(documents: newDocs));
   }
 
   _removeAllOperators(Event event) {
@@ -236,8 +228,15 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void removeSuboperatorFromEventList(Account suboperator) {
     Event event = Event.fromMap("", "", state.event.toMap());
     List<Account> subOps = new List.from(event.suboperators);
-    subOps.removeWhere((element) => element.id == suboperator.id);
-    event.suboperators = subOps;
+    if(event.operator!.id == suboperator.id) {
+      event.operator = null;
+      subOps = [];
+      event.suboperators = subOps;
+    }
+    if(subOps.isNotEmpty){
+      subOps.removeWhere((element) => element.id == suboperator.id);
+      event.suboperators = subOps;
+    }
     emit(state.assign(event: event));
   }
 
@@ -257,5 +256,46 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void forceRefresh() {
     emit(state.assign(status: _formStatus.loading));
     emit(state.assign(status: _formStatus.normal));
+  }
+
+
+
+  /* STEPPER CONTROLLER */
+  void onStepContinue(int numberStep){
+    if(state.currentStep != numberStep-1){
+      GlobalKey<FormState>? form = forms[state.currentStep];
+      if(form != null){
+        if(form.currentState!.validate()){
+          form.currentState!.save();
+          emit(state.assign(currentStep: state.currentStep+1));
+        }
+      }else{
+        emit(state.assign(currentStep: state.currentStep+1));
+      }
+    }
+  }
+
+  void onStepCancel(){
+    if(state.currentStep != 0){
+      emit(state.assign(currentStep: state.currentStep-1));
+    }
+  }
+
+  void onStepTapped(int step){
+    emit(state.assign(currentStep: step));
+  }
+
+  void onSelectedType(String key){
+    emit(state.assign(typeSelected: key));
+  }
+
+  void onSelectedCategory(String key){
+    emit(state.assign(category: key));
+  }
+
+  void fillMapForms(){
+    forms = Map();
+    forms.putIfAbsent(1, () => formKeyBasiclyInfo);
+    forms.putIfAbsent(2, () => formKeyClientInfo);
   }
 }

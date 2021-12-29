@@ -7,7 +7,7 @@ final ThemeData customLightTheme = _buildTheme();
 final TextStyle title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: black, );
 final TextStyle title_big = TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: black, );
 final TextStyle subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
-const TextStyle title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: white, );
+const TextStyle title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: white, );
 const TextStyle title_rev_big = TextStyle(fontWeight: FontWeight.bold, fontSize: 26, color: white, );
 final TextStyle subtitle_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey_light2);
 final TextStyle subtitle_accent = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: yellow);
@@ -19,11 +19,11 @@ final TextStyle button_card = TextStyle(fontWeight: FontWeight.bold, fontSize: 1
 final TextStyle title2 = TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: black );
 final TextStyle subtitle2 = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey );
 final TextStyle white_default = TextStyle(fontWeight: FontWeight.normal, fontSize: 12, color: white );
+final TextStyle stepper_title_nofocus = TextStyle(fontWeight: FontWeight.normal, fontSize: 10, color: grey);
 
 ThemeData _buildTheme() {
   final ThemeData base = ThemeData.light();
   return base.copyWith(
-    accentColor: yellow, //Colore secondario <-- da sistemare quando compare
     primaryColor: black,
     scaffoldBackgroundColor: whitebackground, //ok
     cardColor: Color(0x00000000),
@@ -38,10 +38,11 @@ ThemeData _buildTheme() {
       buttonColor: black,
       textTheme: ButtonTextTheme.accent
     ),
+    appBarTheme: AppBarTheme(color: black),
     textButtonTheme: TextButtonThemeData(style: flatButtonStyle),
     elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
     outlinedButtonTheme: OutlinedButtonThemeData(style: outlineButtonStyle),
-    colorScheme: ColorScheme.dark().copyWith(secondary: black, secondaryVariant: black,),
+    colorScheme: ColorScheme.dark().copyWith(secondary: black, secondaryVariant: black, primary: yellow, background: black),
     buttonBarTheme: ButtonBarThemeData(buttonTextTheme: ButtonTextTheme.accent,),
     hintColor: grey_light2,
     buttonColor: black,
@@ -51,8 +52,7 @@ ThemeData _buildTheme() {
         fillColor: black,
     ),
     textTheme: _buildShrineTextTheme(base.textTheme,black), //ok
-    primaryTextTheme: _buildShrineTextTheme(base.primaryTextTheme,Color(0xFFFFFFFF)), //text appBar
-    accentTextTheme: _buildShrineTextTheme(base.accentTextTheme,black), //Colore secondario <-- da sistemare quando compare
+    primaryTextTheme: _buildShrineTextTheme(base.primaryTextTheme,Color(0xFFFFFFFF)), //Colore secondario <-- da sistemare quando compare
     iconTheme: IconThemeData(color: Color(0xFFF4F4F4)), //dunno
     primaryIconTheme: IconThemeData(color: Color(0xFFFFFFFF)) //icon
   );

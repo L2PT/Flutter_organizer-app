@@ -8,7 +8,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/alert_base.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_base.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class LogIn extends StatefulWidget{

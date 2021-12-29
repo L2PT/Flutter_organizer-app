@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -15,10 +16,11 @@ import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/alert_delete.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_delete.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_nota.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
-import 'package:venturiautospurghi/views/widgets/alert_refuse.dart';
-import 'package:venturiautospurghi/views/widgets/alert_success.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_refuse.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_success.dart';
 
 
 class DetailsEvent extends StatelessWidget {
@@ -60,7 +62,12 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
   _detailsViewState() {
     _controller = new TabController(vsync: this, length: tabsHeaders.length);
   }
-  
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Account account = context.read<AuthenticationBloc>().account!;
@@ -182,34 +189,38 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
               ),
               Divider(height: 2, thickness: 2, indent: 35, color: black_light,),
               account.supervisor ?
-              Column(
-                  children: <Widget>[Container(
-                      padding: event.isRefused()?EdgeInsets.only(top: 15.0):EdgeInsets.symmetric(vertical: 15.0),
-                      child: Row(
-                          children: <Widget>[
-                            Icon(
-                              EventStatus.getIcon(event.status),
-                              size: widget.sizeIcon,
-                            ),
-                            SizedBox(width: widget.padding,),
-                            Text(EventStatus.getText(event.status), style: subtitle_rev),
-                          ]
-                      )),
-                      event.isRefused()?
-                      Container(
-                        padding: EdgeInsets.only( bottom: 15.0),
+              BlocBuilder<DetailsEventCubit, DetailsEventState>(
+                buildWhen: (previous, current) => previous.status != current.status,
+                builder: (context, state) {
+                return Column(
+                    children: <Widget>[Container(
+                        padding: event.isRefused()?EdgeInsets.only(top: 15.0):EdgeInsets.symmetric(vertical: 15.0),
                         child: Row(
-                          children: [
-                            SizedBox(width: widget.padding+widget.sizeIcon,),
-                            Expanded(
-                              child: Text(event.motivazione == null?'Nessuna motivazione indicata':event.motivazione,
-                                style: label_rev, overflow: TextOverflow.visible,),
-                            ),
-                          ],
-                        ),
-                      ): Container(),
-                      Divider(height: 2, thickness: 2, indent: 35, color: black_light,)]
-              ): Container(),
+                            children: <Widget>[
+                              Icon(
+                                EventStatus.getIcon(event.status),
+                                size: widget.sizeIcon,
+                              ),
+                              SizedBox(width: widget.padding,),
+                              Text(EventStatus.getText(event.status), style: subtitle_rev),
+                            ]
+                        )),
+                        event.isRefused()?
+                        Container(
+                          padding: EdgeInsets.only( bottom: 15.0),
+                          child: Row(
+                            children: [
+                              SizedBox(width: widget.padding+widget.sizeIcon,),
+                              Expanded(
+                                child: Text(event.motivazione == null || event.motivazione == ''?'Nessuna motivazione indicata':event.motivazione,
+                                  style: label_rev, overflow: TextOverflow.visible,),
+                              ),
+                            ],
+                          ),
+                        ): Container(),
+                        Divider(height: 2, thickness: 2, indent: 35, color: black_light,)]
+                );
+              }): Container(),
               Container(
                 alignment: Alignment.topLeft,
                 padding: EdgeInsets.symmetric(vertical: 15.0),
@@ -261,82 +272,179 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
       ],
     );
 
-    Widget detailsDocument() => Container(
-        margin: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-        child: event.documents.length>0?ListView.separated(
-            itemCount: event.documents.length,
-            itemBuilder: (BuildContext context, int index) {
-              final String fileName = event.documents[index];
-              return new Container(
+    Widget detailsDocument() => BlocBuilder<DetailsEventCubit, DetailsEventState>(
+        buildWhen: (previous, current) => previous.listDocuments != current.listDocuments,
+        builder: (context, state) {
+          return Flex(
+          direction: Axis.vertical,
+          children: [
+            Container(
+              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height-380),
+              margin: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+              child: event.documents.length>0?ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: event.documents.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final String fileName = event.documents[index].toString();
+                    return Container(
+                      decoration: BoxDecoration(
+                      color: white,
+                      borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                      ), child: ListTile(
+                        leading: IconButton(icon: Icon(Icons.insert_drive_file, size: widget.sizeIcon, color: black,), onPressed: null,),
+                        title: new Text(fileName, style: subtitle.copyWith(color: black, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.visible),
+                        trailing: IconButton(
+                          icon:Icon(Icons.file_download, size: widget.sizeIcon, color: black),
+                          onPressed: () async {
+                            var url = await FirebaseStorageService.downloadURL(event.id+"/"+fileName);
+                            if( await PlatformUtils.download(url, fileName))
+                              SuccessAlert(context, text: "Documento scaricato!", icon: Icons.download_done_rounded).show();
+                          },
+                        ),
+                        )
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index){return SizedBox(height: 10.0,);}
+              ):Container(
                   padding: EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: white,
-                    borderRadius: BorderRadius.all(Radius.circular(15.0)),
+                  child:
+                  Text("Nessun documento per questo interveto",
+                    style: subtitle.copyWith(
+                        color: white, fontWeight: FontWeight.bold),
+                    overflow: TextOverflow.visible,
+                    textAlign: TextAlign.center,
+                  )
+              ),
+            ),
+            Center(
+              child: Container(
+                width: 230,
+                child: ElevatedButton(
+                  style: raisedButtonStyle.copyWith(
+                      backgroundColor: MaterialStateProperty.all<Color>(HexColor(event.color))
                   ),
-                  child: Row(children: <Widget>[
-                    Icon(Icons.insert_drive_file, size: widget.sizeIcon, color: black),
+                  child: Center(
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.file_upload,
+                          color: white,
+                          size: 30.0,
+                        ),
+                        Text('CARICA DOCUMENTO', style: button_card)
+                      ],
+                    ),
+                  ),
+                  onPressed: () => context.read<DetailsEventCubit>().openFileExplorer(),
+                ),
+              ),
+            )
+
+          ],
+        );
+    });
+
+    Widget detailsNote() => BlocBuilder<DetailsEventCubit, DetailsEventState>(
+        buildWhen: (previous, current) => previous.notaOperator != current.notaOperator,
+        builder: (context, state) {
+          return Container(
+          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+          child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child:Flex(
+            direction: Axis.vertical,
+            children: <Widget>[
+              Container(
+                alignment: Alignment.topLeft,
+                padding: EdgeInsets.symmetric(vertical: 15.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Icon(
+                      Icons.assignment,
+                      size: widget.sizeIcon,
+                    ),
                     SizedBox(
                       width: widget.padding,
                     ),
-                    Expanded(child: Container(
-                        child: Text(fileName,
-                          style: subtitle.copyWith(color: black, fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.visible,
-                        )
-                    ),),
-                    IconButton(
-                      icon:Icon(Icons.file_download, size: widget.sizeIcon, color: black),
-                      onPressed: () async {
-                        var url = await FirebaseStorageService.downloadURL(event.id+"/"+fileName);
-                        if( await PlatformUtils.download(url, fileName))
-                          SuccessAlert(context, text: "Documento scaricato!", icon: Icons.download_done_rounded).show();
-                      },
-                    ),
-                  ])
-              );
-            },
-            separatorBuilder: (BuildContext context, int index){return SizedBox(height: 10.0,);}
-        ):Container(
-          padding: EdgeInsets.all(10.0),
-          child:
-              Text("Nessun documento per questo interveto",
-                style: subtitle.copyWith(
-                    color: white, fontWeight: FontWeight.bold),
-                overflow: TextOverflow.visible,
-                textAlign: TextAlign.center,
-              )
-        ),
-    );
-
-    Widget detailsNote() => Container(
-        padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
-        child: Flex(
-          direction: Axis.vertical,
-          children: <Widget>[
-            Container(
-              alignment: Alignment.topLeft,
-              padding: EdgeInsets.symmetric(vertical: 10.0),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Icon(
-                    Icons.assignment,
-                    size: widget.sizeIcon,
-                  ),
-                  SizedBox(
-                    width: widget.padding,
-                  ),
-                  new Expanded(
-                      flex: 1,
-                      child: new SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: new Text(event.description.isEmpty?'Nessuna nota indicata':event.description, style: subtitle_rev),
-                      ))
-                ],
+                    new Expanded(
+                        flex: 1,
+                        child: new SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: new Text(event.description.isEmpty?'Nessuna nota indicata':event.description, style: subtitle_rev),
+                        ))
+                  ],
+                ),
               ),
-            ),
-          ],
-        ));
+              event.notaOperator.isNotEmpty?
+                Column(
+                  children: [
+                    Divider(height: 2, thickness: 2, indent: 35, color: black_light,),
+                    Container(
+                      alignment: Alignment.topLeft,
+                      padding: EdgeInsets.symmetric(vertical: 15.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Icon(
+                            Icons.assignment_ind,
+                            size: widget.sizeIcon,
+                          ),
+                          SizedBox(
+                            width: widget.padding,
+                          ),
+                          new Expanded(
+                              flex: 1,
+                              child: new SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: new Text(event.notaOperator, style: subtitle_rev),
+                              ))
+                        ],
+                      ),
+                    )
+                  ],
+                ):Container(),
+              SizedBox(
+                height: widget.padding,
+              ),
+              !account.supervisor?
+              Center(
+                child: GestureDetector(
+                  child: Container(
+                    width: 200,
+                      decoration: BoxDecoration(
+                        color: HexColor(event.color),
+                        borderRadius:
+                        BorderRadius.all(Radius.circular(15.0)),
+                      ),
+                      child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                top: 5, bottom: 5, left: 20, right: 20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.edit,
+                                  size: widget.sizeIcon/1.5,
+                                ),
+                                SizedBox(
+                                  width: 5,
+                                ),
+                                Text(event.notaOperator.isNotEmpty?"MODIFICA NOTA":"INSERISCI NOTA",
+                                  style: subtitle_rev.copyWith(color: white),
+                                ),
+                              ],
+                            )
+                          ))),
+                  onTap: () async {
+                    NotaAlert(context,text: event.notaOperator, editMode: event.notaOperator.isNotEmpty).show().then((notaOperator)=>(notaOperator != null)?context.read<DetailsEventCubit>().addEventNotaOperator(notaOperator):null);
+                  },
+                )
+              ):Container(),
+            ],
+        )));});
 
     List<Widget> _tabsContents = [detailsContent(),detailsDocument(),detailsNote()];
 

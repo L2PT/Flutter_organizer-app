@@ -6,11 +6,14 @@ import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/event_status.dart';
+import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
+import 'package:venturiautospurghi/views/screen_pages/bozze_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/filter_event_list_view.dart';
+import 'package:venturiautospurghi/views/screens/filter_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
@@ -38,6 +41,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   Timer? background;
   StreamSubscription<List<Event>>? _notificationSubscription;
   late MobileState savedState;
+  Map<String, FilterWrapper> filters = {};
   
   MobileBloc({
     required CloudFirestoreService databaseRepository,
@@ -81,7 +85,8 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
       case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
       case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
       case Constants.historyEventListRoute: yield InBackdropState(event.route, HistoryEventList()); break;
-      case Constants.filterEventListRoute: yield InBackdropState(event.route, FilterEventList()); break;
+      case Constants.filterEventListRoute: yield InBackdropState(event.route, FilterEventList(filters: !_account.supervisor?{"suboperators" : [_account]}:{})); break;
+      case Constants.bozzeEventListRoute: yield InBackdropState(event.route, BozzeEventList()); break;
       default: yield InBackdropState(event.route, Profile()); break;
     }
   }

@@ -19,7 +19,7 @@ import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/views/backdrop_menu.dart';
-import 'package:venturiautospurghi/views/widgets/alert_base.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_base.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:flutter/material.dart';
 import '../utils/theme.dart';

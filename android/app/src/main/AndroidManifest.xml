@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.l2pt.venturiautospurghi">
+    package="com.l2pt.venturiautospurghi" xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -11,7 +11,8 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:label="venturiautospurghi"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -45,12 +46,20 @@
                 android:resource="@xml/provider_paths"/>
         </provider>
 
+        <!-- Begin FlutterDownloader customization -->
+        <!-- disable default Initializer -->
         <provider
-            android:name="androidx.work.impl.WorkManagerInitializer"
-            android:authorities="${applicationId}.workmanager-init"
-            android:enabled="false"
-            android:exported="false" />
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
+        <!-- declare customized Initializer -->
         <provider
             android:name="vn.hunghd.flutterdownloader.FlutterDownloaderInitializer"
             android:authorities="${applicationId}.flutter-downloader-init"
@@ -60,6 +69,8 @@
                 android:name="vn.hunghd.flutterdownloader.MAX_CONCURRENT_TASKS"
                 android:value="5" />
         </provider>
+        <!-- End FlutterDownloader customization -->
+
     </application>
     <meta-data
         android:name="flutterEmbedding"

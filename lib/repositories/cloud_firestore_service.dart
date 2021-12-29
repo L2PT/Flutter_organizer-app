@@ -19,6 +19,7 @@ class CloudFirestoreService {
   late CollectionReference _collectionCostanti;
 
   late Map<String,dynamic> categories;
+  late Map<String,dynamic> types;
 
   CloudFirestoreService([FirebaseFirestore? cloudFirestore])
       : _cloudFirestore = cloudFirestore ??  FirebaseFirestore.instance {
@@ -34,6 +35,7 @@ class CloudFirestoreService {
   static Future<CloudFirestoreService> create() async {
     CloudFirestoreService instance = CloudFirestoreService();
     instance.categories = await instance._getCategories();
+    instance.types = await instance._getTypes();
     return instance;
   }
 
@@ -43,14 +45,14 @@ class CloudFirestoreService {
   /// However the mail is also an unique field.
   Future<Account> getAccount(String email, {String? phoneId}) async {
     if(!string.isNullOrEmpty(email))
-      return _collectionUtenti.where('Email', isEqualTo: email).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).first);
+      return _collectionUtenti.where('Email', isEqualTo: email).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data() as Map<String, dynamic>)).first);
     else
-      return _collectionUtenti.where('TelefonoId', isEqualTo: phoneId??"").get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).first);
+      return _collectionUtenti.where('TelefonoId', isEqualTo: phoneId??"").get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data() as Map<String, dynamic>)).first);
   }
 
   Stream<Account> subscribeAccount(String id)  {
     return _collectionUtenti.doc(id).snapshots().map((user) {
-      return Account.fromMap(user.id, user.data()!);
+      return Account.fromMap(user.id, user.data()! as Map<String, dynamic>);
     });
   }
 
@@ -91,7 +93,7 @@ class CloudFirestoreService {
   Future<List<Account>> getOperators({limit, startFrom}) async {
     Query query = _collectionUtenti.orderBy(Constants.tabellaUtenti_Cognome);
     query = addPagination(query, limit, startFrom);
-    return query.get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).toList());
+    return query.get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data() as Map<String, dynamic>)).toList());
   }
 
   void addOperator(Account u) {
@@ -105,44 +107,48 @@ class CloudFirestoreService {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
   Future<Map<String, dynamic>> _getCategories() async {
-    return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data()!);
+    return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data()! as Map<String, dynamic>);
+  }
+
+  Future<Map<String, dynamic>> _getTypes() async {
+    return _collectionCostanti.doc(Constants.tabellaCostanti_Tipologie).get().then((document) => document.data()! as Map<String, dynamic>);
   }
 
   Stream<Map<String, dynamic>> getInfoApp() {
-    return _collectionCostanti.doc(Constants.tabellaCostanti_InfoApp).snapshots().map((document)  => document.data()!);
+    return _collectionCostanti.doc(Constants.tabellaCostanti_InfoApp).snapshots().map((document)  => document.data()! as Map<String, dynamic>);
   }
 
   Future<Map<String, dynamic>> getPhoneNumbers() async {
-    return _collectionCostanti.doc(Constants.tabellaCostanti_Telefoni).get().then((document) => document.data()!);
+    return _collectionCostanti.doc(Constants.tabellaCostanti_Telefoni).get().then((document) => document.data()! as Map<String, dynamic>);
   }
 
   Future<Event?> getEvent(String id) async {
     return _collectionEventi.doc(id).get().then((document) => document.exists?
-        Event.fromMap(document.id,  _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!) : null);
+        Event.fromMap(document.id,  _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()! as Map<String, dynamic>) : null);
   }
 
   Future<List<Event>> getEvents() async {
     return _collectionEventi.orderBy(Constants.tabellaEventi_dataInizio).get().then((snapshot) => snapshot.docs.map((document) =>
-        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList());
+        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList());
   }
 
   Future<List<Event>> getFutureEvents(DateTime date) async {
     date = date.subtract(Duration( days: 1));
     return _collectionEventi.where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo:  date).orderBy(Constants.tabellaEventi_dataInizio).get().then((snapshot) => snapshot.docs.map((document) =>
-        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList());
+        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList());
   }
 
   Stream<List<Event>> subscribeEvents() {
     return _collectionEventi.orderBy(Constants.tabellaEventi_dataInizio, descending: true).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsByOperatorWaiting(String idOperator) {
     return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator).where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New).where(Constants.tabellaEventi_stato, isLessThanOrEqualTo: EventStatus.Seen).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
     });
   }// TODO merge subscription queries
 
@@ -152,41 +158,41 @@ class CloudFirestoreService {
           .where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo: from)
           .where(Constants.tabellaEventi_dataInizio, isLessThan: to).snapshots().map((snapshot) {
         var documents = snapshot.docs;
-        return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).where((event) => event.status>=statusEqualOrAbove).toList();
+        return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).where((event) => event.status>=statusEqualOrAbove).toList();
       });
     else
       return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator)
           .where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: statusEqualOrAbove).snapshots().map((snapshot) {
         var documents = snapshot.docs;
-        return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+        return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
       });
   }
 
   Stream<List<Event>> subscribeEventsHistory() {
     return _collectionSubStoricoEventi.orderBy(Constants.tabellaEventi_dataInizio, descending: true).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsDeleted() {
     return _collectionStoricoEliminati.orderBy(Constants.tabellaEventi_dataInizio).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsRefuse() {
     return _collectionStoricoRifiutati.orderBy(Constants.tabellaEventi_dataInizio).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
     });
   }
 
   Stream<List<Event>> subscribeEventsEnded() {
     return _collectionStoricoTerminati.orderBy(Constants.tabellaEventi_dataInizio).snapshots().map((snapshot) {
       var documents = snapshot.docs;
-      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
+      return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();
     });
   }
 
@@ -194,14 +200,21 @@ class CloudFirestoreService {
     return await table.doc(id).get().then((doc) => doc);
   }
 
-  Future<List<Event>> _getEventsFiltered(Query query, Map<String, FilterWrapper> filters, [limit, startFrom, remaining]) async {
+  Future<List<Event>> _getEventsFiltered(Query query, Map<String, FilterWrapper> filters, [limit, startFrom, remaining, history]) async {
     Query startQuery = query;
     filters = Map.from(filters);
     // due to firebase limitations (we can't build a query with all filters) let the repository do ALL filtering work
     // despite some fields will be handled in the firebase query and some other in code
     bool endOfList = false;
 
-    query = query.where(Constants.tabellaEventi_dataInizio, isLessThan: DateTime.now()).orderBy(Constants.tabellaEventi_dataInizio, descending: true);
+    if (filters.containsKey("status") && filters["status"]!.fieldValue != null){
+      query = query.where(Constants.tabellaEventi_stato, isEqualTo: filters["status"]!.fieldValue);
+    }else if(!history){
+      query = query.where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New)
+          .orderBy(Constants.tabellaEventi_stato, descending: false);
+    }
+    query = query.orderBy(
+        Constants.tabellaEventi_dataInizio, descending: true);
     query = addPagination(query, limit, startFrom);
 
     // if(filters.containsKey("title") && filters["title"]!.fieldValue!=null){
@@ -209,33 +222,36 @@ class CloudFirestoreService {
     //   query = query.where(Constants.tabellaEventi_titolo, isGreaterThanOrEqualTo: title).where(Constants.tabellaEventi_titolo, isLessThanOrEqualTo: title + '~' ).orderBy(Constants.tabellaEventi_titolo, descending: false);
     // }
 
-    if(filters.containsKey("suboperators") && filters["suboperators"]!.fieldValue!=null){
-      List<Account> suboperators = filters["suboperators"]!.fieldValue;
-      if(suboperators.length>0){
+    if (filters.containsKey("suboperators") && filters["suboperators"]!.fieldValue != null) {
+      List<Account> suboperators = new List.from(filters["suboperators"]!.fieldValue);
+      if (suboperators.length > 0) {
         query = query.where(Constants.tabellaEventi_idOperatori, arrayContains: suboperators[0].id);
-        if(suboperators.length==1) filters.remove("suboperators");
+        if (suboperators.length == 1) filters.remove("suboperators");
       }
     }
 
-    if(filters.containsKey("categories") && filters["categories"]!.fieldValue!=null){
-      Map<String,bool> categories = Map.from(filters.remove("categories")!.fieldValue);
+    if (filters.containsKey("categories") && filters["categories"]!.fieldValue != null) {
+      Map<String, bool> categories = Map.from(filters.remove("categories")!.fieldValue);
       categories.removeWhere((key, value) => !value);
-      if(categories.length>0) query = query.where(Constants.tabellaEventi_categoria, whereIn: categories.keys.toList());
+      if (categories.length > 0) query = query.where(Constants.tabellaEventi_categoria, whereIn: categories.keys.toList());
     }
 
     var docs = await query.get().then((snapshot) => snapshot.docs);
-    if(limit != null && docs.length < limit) endOfList = true;
+    if (limit != null && docs.length < limit) endOfList = true;
 
     List<Event> events = docs.map((document) =>
-        Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data()!)).toList();
-    DateTime lastRetrieved = events.last.start;
+        Event.fromMap(document.id, _getColorByCategory(
+            document.get(Constants.tabellaEventi_categoria)),
+            document.data() as Map<String, dynamic>)).toList();
+
+    DateTime lastRetrieved = events.isNotEmpty?events.last.start:DateTime.now();
 
     events = events.where((event) => filters.values.every((wrapper) =>
-          event.filter(wrapper.filterFunction, wrapper.fieldValue))
+            event.filter(wrapper.filterFunction, wrapper.fieldValue))
     ).toList();
 
     var a = (events.length>=(remaining??limit) || endOfList) ? events :
-      [...events, ...(await _getEventsFiltered(startQuery, filters, limit, lastRetrieved, limit-events.length))];
+    [...events, ...(await _getEventsFiltered(startQuery, filters, limit, lastRetrieved, limit-events.length, history))];
     return a;
   }
 
@@ -246,11 +262,11 @@ class CloudFirestoreService {
     }else if(category == EventStatus.Deleted){
       table = _collectionStoricoEliminati;
     }
-    return _getEventsFiltered(table, filters, limit, startFrom);
+    return _getEventsFiltered(table, filters, limit, startFrom, null, true);
   }
 
   Future<List<Event>> getEventsActiveFiltered(Map<String, FilterWrapper> filters, {limit, startFrom}) {
-    return _getEventsFiltered(_collectionEventi, filters, limit, startFrom);
+    return _getEventsFiltered(_collectionEventi, filters, limit, startFrom, null, false);
   }
 
   Future<String> addEvent(Event data) async {
@@ -278,15 +294,29 @@ class CloudFirestoreService {
     data.status = EventStatus.Ended;
     final dynamic createTransaction = (dynamic tx) async {
       dynamic doc = _collectionEventi.doc(id);
-      dynamic endedDoc = _collectionStoricoTerminati.doc(id);
-      await tx.update(endedDoc, data.toDocument());
+      DocumentReference endedDoc = _collectionStoricoTerminati.doc(id);
+      DocumentSnapshot docEnded = await endedDoc.get();
+      if(docEnded.exists){
+        await tx.update(endedDoc, data.toDocument());
+      }else{
+        await tx.set(endedDoc, data.toDocument());
+      }
       await tx.update(doc, data.toDocument());
     };
     _cloudFirestore.runTransaction(createTransaction);
   }
 
   void updateEventField(String id, String field, dynamic data) {
-    _collectionEventi.doc(id).update(Map.of({field:data}));
+    final dynamic createTransaction = (dynamic tx) async {
+      dynamic doc = _collectionEventi.doc(id);
+      DocumentReference endedDoc = _collectionStoricoTerminati.doc(id);
+      DocumentSnapshot docEnded = await endedDoc.get();
+      if(docEnded.exists){
+        await tx.update(endedDoc,Map.of({field:data}));
+      }
+      await tx.update(doc,Map.of({field:data}));
+    };
+    _cloudFirestore.runTransaction(createTransaction);
   }
 
   void deleteEvent(Event e) async {
@@ -324,7 +354,7 @@ class CloudFirestoreService {
         for(var operator in [e.operator, ...e.suboperators]){
           if(operator != null) {
             List<Event> eventsInConflict = await _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: operator.id).where(Constants.tabellaEventi_dataInizio, isGreaterThan: e.start, isLessThanOrEqualTo: e.end)
-                .get().then(((snapshot) => snapshot.docs.map((document) => Event.fromMap(document.id, "", document.data())).toList()));
+                .get().then(((snapshot) => snapshot.docs.map((document) => Event.fromMap(document.id, "", document.data() as Map<String, dynamic>)).toList()));
             eventsInConflict.sort((a,b) => a.start.compareTo(b.start));
             Event eventConflict = e;
             eventsInConflict.forEach((eventInConflict) {
@@ -395,7 +425,7 @@ class CloudFirestoreService {
   }
 
   Future<Account> getUserByPhone(String phoneNumber) async{
-    return _collectionUtenti.where('Telefono', isEqualTo: phoneNumber).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data()!)).first);
+    return _collectionUtenti.where('Telefono', isEqualTo: phoneNumber).get().then((snapshot) => snapshot.docs.map((document) => Account.fromMap(document.id, document.data() as Map<String, dynamic>)).first);
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
