@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/mobile.dart';
 import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'dart:io' show Platform;
 
@@ -25,6 +26,7 @@ abstract class PlatformUtils {
   static dynamic myApp = MyApp();
   static const bool isMobile = true;
   static bool isIOS = Platform.isIOS;
+  static FileUtils fileUtils = new FileUtils.empty();
   
   static Future<bool> download(url, filename) async {
     final status = await Permission.storage.request();
@@ -44,7 +46,14 @@ abstract class PlatformUtils {
     }
     return false;
   }
-  
+
+  static void inizializateFile(){
+    fileUtils.inizializateFile();
+  }
+  static void disposeFile() {
+    fileUtils.dispose();
+  }
+
   static void initDownloader() => FlutterDownloader.initialize();
   
   static File file(path) => File(path);

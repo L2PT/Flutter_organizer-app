@@ -23,7 +23,9 @@ class PlatformUtils {
   static dynamic myApp = MyApp();
   static const bool isMobile = false;
   static const bool isIOS = false;
-  
+
+  static void inizializateFile() => null;
+  static void disposeFile() => null;
   static Future<bool> download(url,filename){ html.window.open(url, filename); return Future<bool>(()=>false); }
   static void initDownloader() => null;
   static Uint8List file(String path) => Base64Decoder().convert(path.split(",").last);

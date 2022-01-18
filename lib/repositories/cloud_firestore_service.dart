@@ -209,9 +209,6 @@ class CloudFirestoreService {
 
     if (filters.containsKey("status") && filters["status"]!.fieldValue != null){
       query = query.where(Constants.tabellaEventi_stato, isEqualTo: filters["status"]!.fieldValue);
-    }else if(!history){
-      query = query.where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New)
-          .orderBy(Constants.tabellaEventi_stato, descending: false);
     }
     query = query.orderBy(
         Constants.tabellaEventi_dataInizio, descending: true);
@@ -245,6 +242,10 @@ class CloudFirestoreService {
             document.data() as Map<String, dynamic>)).toList();
 
     DateTime lastRetrieved = events.isNotEmpty?events.last.start:DateTime.now();
+
+    if(!history) {
+      events.removeWhere((element) => element.status <= EventStatus.New);
+    }
 
     events = events.where((event) => filters.values.every((wrapper) =>
             event.filter(wrapper.filterFunction, wrapper.fieldValue))
