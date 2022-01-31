@@ -79,7 +79,11 @@ class _EventStepper extends StatelessWidget{
         isActive: currentStep >= 0,
         icon: FontAwesomeIcons.hardHat,
         title: Text('Tipologia'),
-        content:  _tipologyEvent(),
+        content:  ConstrainedBox(
+            constraints: new BoxConstraints(
+              minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:450,
+            ),
+            child: _tipologyEvent()),
       ),
       StepIcon(
           state: currentStep==1?StepState.editing:currentStep<1?StepState.indexed:StepState.complete,
@@ -92,7 +96,7 @@ class _EventStepper extends StatelessWidget{
                   textTheme: Theme.of(context).textTheme
               ), child: ConstrainedBox(
                     constraints: new BoxConstraints(
-                      minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:MediaQuery.of(context).size.height - 300,
+                      minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:450,
                     ),
                     child: _formBasiclyInfo()),
               )),
@@ -107,7 +111,7 @@ class _EventStepper extends StatelessWidget{
                   textTheme: Theme.of(context).textTheme
               ), child: ConstrainedBox(
               constraints: new BoxConstraints(
-                minHeight:PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:MediaQuery.of(context).size.height - 300,
+                minHeight:PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:450,
               ),
               child: _formClientInfo())
           )
@@ -122,7 +126,7 @@ class _EventStepper extends StatelessWidget{
               colorScheme: Theme.of(context).colorScheme, textTheme: Theme.of(context).textTheme
             ), child: ConstrainedBox(
               constraints: new BoxConstraints(
-                minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:MediaQuery.of(context).size.height - 300,
+                minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:450,
               ),
               child:_formAssignedList())
           )
@@ -162,12 +166,20 @@ class _EventStepper extends StatelessWidget{
               ElevatedButton(
                 child: new Text('Continua', style: button_card),
                 onPressed: (controls.currentStep > 0 && context.read<CreateEventCubit>().state.category.isEmpty)?null:
-                    () { FocusScope.of(context).unfocus(); controls.onStepContinue!();},
+                    () {
+                      DateTime currentTime = DateTime.now();
+                    if(!Utils.isDoubleClick(context.read<CreateEventCubit>().firstClick, currentTime)){
+                        context.read<CreateEventCubit>().setFirstClick(currentTime);
+                        FocusScope.of(context).unfocus();
+                        controls.onStepContinue!();
+                    }
+                },
               ),
               if (controls.currentStep > 2)
                 ElevatedButton(
                   child: new Text(context.read<CreateEventCubit>().state.event.operator == null? 'Salva in bozza': 'Salva', style: button_card),
-                  onPressed: _onSavePressed,),
+                  onPressed: (){
+                    if(!Utils.isDoubleClick(context.read<CreateEventCubit>().firstClick, DateTime.now())){_onSavePressed();}}),
             ],
           ));
         },
@@ -222,7 +234,7 @@ class _tipologyEvent extends StatelessWidget{
             ConstrainedBox(
               constraints: new BoxConstraints(
                 minHeight: 200,
-                maxHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 280:MediaQuery.of(context).size.height-350,
+                maxHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 280:250,
               ),
               child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 20.0),
@@ -559,9 +571,11 @@ class _fileStorageList extends StatelessWidget {
     return BlocBuilder<CreateEventCubit, CreateEventState>(
       buildWhen: (previous, current) => previous.documents != current.documents,
       builder: (context, state) {
-        return context.read<CreateEventCubit>().state.documents.keys.length > 0? new Container(
-          height: 80,
-          child: buildFilesList()
+        return context.read<CreateEventCubit>().state.documents.keys.length > 0? new ConstrainedBox(
+              constraints: new BoxConstraints(
+                minHeight: 80,
+                maxHeight: context.read<CreateEventCubit>().state.documents.keys.length*80,
+              ),child: buildFilesList()
         ): Container();
       },
     );
@@ -756,7 +770,7 @@ class _categoriesList extends StatelessWidget {
           ),
           ),
           Container(
-            height:PlatformUtils.isMobile?MediaQuery.of(context).size.height - 650:MediaQuery.of(context).size.height - 600,
+            height:PlatformUtils.isMobile?MediaQuery.of(context).size.height - 650:150,
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 20.0),
               child: GridView.builder(

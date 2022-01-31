@@ -80,6 +80,16 @@ class Utils {
     }
     return true;
   }
+
+  static bool isDoubleClick(DateTime? firstClickTime, DateTime currentTime){
+    if(firstClickTime==null){
+      return false;
+    }
+    if(currentTime.difference(firstClickTime).inSeconds<1.5){//set this difference time in seconds
+      return true;
+    }
+    return false;
+  }
 }
 
 class GeoUtils {
