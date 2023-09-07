@@ -100,8 +100,8 @@ class _listGroup extends StatelessWidget {
     List<Widget> dateHeader = [
       Row(
         children: <Widget>[
-          Expanded(
-            flex: 1,
+          Container(
+            margin: EdgeInsets.only(right: 10),
             child: Text(groupDate.day.toString(), style: title2),
           ),
           Expanded(
@@ -152,7 +152,8 @@ class _listTileEvent extends StatelessWidget {
         flex: 9,
         child: CardEvent(
           event: event,
-          height: 140,
+          height: 160,
+          showEventDetails: true,
           buttonArea: <String,Function(Event)>{
             "RIFIUTA": (event) async {RefuseAlert(context).show().then((justification)=>!string.isNullOrEmpty(justification)?context.read<WaitingEventListCubit>().cardActionRefuse(event, justification):null);},
             "ACCETTA":context.read<WaitingEventListCubit>().cardActionConfirm},

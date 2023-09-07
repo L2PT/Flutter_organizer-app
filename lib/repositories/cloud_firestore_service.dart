@@ -206,12 +206,11 @@ class CloudFirestoreService {
     // due to firebase limitations (we can't build a query with all filters) let the repository do ALL filtering work
     // despite some fields will be handled in the firebase query and some other in code
     bool endOfList = false;
+    bool filterStatus = false;
 
     if (filters.containsKey("status") && filters["status"]!.fieldValue != null){
+      filterStatus = true;
       query = query.where(Constants.tabellaEventi_stato, isEqualTo: filters["status"]!.fieldValue);
-    }else if(!history){
-      query = query.where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: EventStatus.New)
-          .orderBy(Constants.tabellaEventi_stato, descending: false);
     }
     query = query.orderBy(
         Constants.tabellaEventi_dataInizio, descending: true);
@@ -245,6 +244,10 @@ class CloudFirestoreService {
             document.data() as Map<String, dynamic>)).toList();
 
     DateTime lastRetrieved = events.isNotEmpty?events.last.start:DateTime.now();
+
+    if(!history && !filterStatus) {
+      events.removeWhere((element) => element.status <= EventStatus.New);
+    }
 
     events = events.where((event) => filters.values.every((wrapper) =>
             event.filter(wrapper.filterFunction, wrapper.fieldValue))

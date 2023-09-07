@@ -120,6 +120,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   void _notificationReminder(Timer t) {
       FirebaseMessagingService.sendNotifications(
           tokens: _account.tokens,
+          type: Constants.feedNotification,
           title: "Hai degli eventi in sospeso");
   }
 

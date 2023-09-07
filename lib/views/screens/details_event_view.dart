@@ -65,6 +65,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
 
   @override
   void initState() {
+    PlatformUtils.inizializateFile();
     super.initState();
   }
 
@@ -691,6 +692,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
 
   @override
   void dispose() {
+    PlatformUtils.disposeFile();
     _controller.dispose();
     super.dispose();
   }

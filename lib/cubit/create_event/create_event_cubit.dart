@@ -34,6 +34,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   late Map<String,dynamic> categories;
   late Map<String,dynamic> types;
   late Map<int, GlobalKey<FormState>> forms;
+  DateTime? firstClick;
 
   CreateEventCubit(this._databaseRepository, this._account, Event? event)
       : super(CreateEventState(event)) {
@@ -297,5 +298,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     forms = Map();
     forms.putIfAbsent(1, () => formKeyBasiclyInfo);
     forms.putIfAbsent(2, () => formKeyClientInfo);
+  }
+
+  void setFirstClick(DateTime date){
+    firstClick = date;
   }
 }
