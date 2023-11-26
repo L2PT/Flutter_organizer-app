@@ -245,7 +245,7 @@ class EventsFilterWidget extends FilterWidget {
                                 padding: PlatformUtils.isMobile?10:5,
                             ))]);
                       }),
-                      Text('Tipologia', style: subtitle.copyWith(color: white),),
+                      Text('Categoria', style: subtitle.copyWith(color: white),),
                       Container(
                           height: largeScreen?120:100,
                           child: Padding(

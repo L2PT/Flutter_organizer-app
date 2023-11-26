@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
@@ -12,6 +10,9 @@ import 'package:venturiautospurghi/views/widgets/alert/alert_base.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class LogIn extends StatefulWidget{
+
+  const LogIn({Key? key}) : super(key: key);
+
   @override
   _LogInState createState() => _LogInState();
 }
@@ -19,13 +20,15 @@ class LogIn extends StatefulWidget{
 class _LogInState extends State<LogIn> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
-  _LogInState() {
+  @override
+  void initState() {
+    super.initState();
     _controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();

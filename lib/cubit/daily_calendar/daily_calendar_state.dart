@@ -47,9 +47,8 @@ class DailyCalendarReady extends DailyCalendarState {
         allDayEvent = false;
         //identify minimum duration's event
         double md = 4;
-        selectedEvents.forEach((e) => {
-          md = max(0, min(md, (DailyCalendarCubit.getLastDailyWorkedMinute(e.end, selectedDay) - DailyCalendarCubit.getFirstDailyWorkedMinute(e.start, selectedDay)) / 60))
-        });
+        selectedEvents.forEach((e) => md = max(0, min(md, (DateUtils.getLastDailyWorkedMinute(e.end, selectedDay) - DateUtils.getFirstDailyWorkedMinute(e.start, selectedDay)) / 60))
+        );
         if(md>0 && md<0.5){
           gridHourHeight = 120;
           gridHourSpan = 0;

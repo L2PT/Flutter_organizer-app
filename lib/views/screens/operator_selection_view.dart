@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/cubit/operator_selection/operator_selection_cubit.dart';
+import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/views/widgets/filter_operators_widget.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
@@ -19,7 +20,6 @@ class OperatorSelection extends StatelessWidget {
   Widget build(BuildContext context) {
     if(callerContext != null) context = callerContext!;
     var repository = context.read<CloudFirestoreService>();
-
     return new Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: white,
@@ -39,6 +39,8 @@ class _operatorSelectableList extends StatefulWidget {
 }
 
 class _operatorSelectableListState extends State<_operatorSelectableList> {
+
+  late ScrollController scrollController;
 
   @override
   void initState() {
@@ -75,15 +77,15 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
               child: CircularProgressIndicator(),
             )):Container()
     );
-    void onExit(dynamic out) {
-      Navigator.pop(context, out);
+    void onExit(bool result,{ dynamic event }) {
+      PlatformUtils.backNavigator(context, <String,dynamic>{'event' : event, 'res': result});
     }
 
     return Scaffold(
         appBar: AppBar(
             title: Text('OPERATORI LIBERI',style: title_rev,),
             leading: IconButton(icon:Icon(Icons.arrow_back, color: white),
-              onPressed: () => onExit(false)
+              onPressed: () => onExit(false,event: context.read<OperatorSelectionCubit>().getEvent())
             ),
           actions: [
             Container(
@@ -96,20 +98,14 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
               ),
               onPressed: (){
                 if(context.read<OperatorSelectionCubit>().validateAndSave())
-                  onExit(context.read<OperatorSelectionCubit>().getEvent());
+                  onExit(true,event: context.read<OperatorSelectionCubit>().getEvent());
               },
             )),
           ],
         ),
-        body: Material(
-        elevation: 12.0,
-        borderRadius: new BorderRadius.only(
-            topLeft: new Radius.circular(16.0),
-            topRight: new Radius.circular(16.0)),
-        child: Column(
+        body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            SizedBox(height: 10,),
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(builder: (context, state) {
               return OperatorsFilterWidget(
                 hintTextSearch: "Cerca un operatore",
@@ -130,13 +126,18 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
               })
           ]
         )
-      )
     );
   }
 
   @override
+  void didChangeDependencies() {
+    scrollController = context.read<OperatorSelectionCubit>().scrollController;
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    context.read<OperatorSelectionCubit>().scrollController.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 

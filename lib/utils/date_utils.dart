@@ -1,4 +1,8 @@
+import 'dart:math';
+
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class DateUtils {
   static final DateFormat _monthFormat = DateFormat('MMMM yyyy');
@@ -6,6 +10,10 @@ class DateUtils {
   static final DateFormat _firstDayFormat = DateFormat('MMM dd');
   static final DateFormat _fullDayFormat = DateFormat('EEE MMM dd, yyyy');
   static final DateFormat _apiDayFormat = DateFormat('yyyy-MM-dd');
+  static final DateFormat _hoverDateFormat = DateFormat('EEEE, dd MMMM', 'it_IT');
+  static final DateFormat _pdfDateFormat = DateFormat('EEEE, dd MMMM yyyy', 'it_IT');
+  static final DateFormat _hoverTimeFormat = DateFormat('HH:mm');
+  static final DateFormat _hoverDateFormatDiff = DateFormat('dd MMMM hh:mm');
 
   static String formatMonth(DateTime d) => _monthFormat.format(d);
 
@@ -16,6 +24,14 @@ class DateUtils {
   static String fullDayFormat(DateTime d) => _fullDayFormat.format(d);
 
   static String apiDayFormat(DateTime d) => _apiDayFormat.format(d);
+
+  static String hoverDateFormat(DateTime d) => _hoverDateFormat.format(d);
+
+  static String hoverTimeFormat(DateTime d) => _hoverTimeFormat.format(d);
+
+  static String hoverDateFormatDiff(DateTime d) => _hoverDateFormatDiff.format(d);
+
+  static String pdfDateFormat(DateTime d) => _pdfDateFormat.format(d);
 
   static const List<String> weekdays = [
     'Sun',
@@ -158,5 +174,29 @@ class DateUtils {
 
   static DateTime nextWeek(DateTime w) {
     return w.add(Duration(days: 7));
+  }
+
+  static String nameOfMonth(DateTime w, BuildContext context) {
+    String locale = Localizations.localeOf(context).languageCode;
+    return DateFormat("MMMM",locale).format(w);
+  }
+
+  static double calcWidgetHeightInGrid(DateTime selectedDay, int gridHourSpan, double gridHourHeight,
+      {DateTime? start, DateTime? end, int? firstWorkedMinute, int? lastWorkedMinute}) {
+    if(start == null && firstWorkedMinute == null) throw new Exception("Start time not passed");
+    if(end == null && lastWorkedMinute == null) throw new Exception("End time not passed");
+    double hoursDurationEvent = (((lastWorkedMinute??getLastDailyWorkedMinute(end!, selectedDay)) -
+        (firstWorkedMinute??getFirstDailyWorkedMinute(start!, selectedDay))) / 60);
+    return hoursDurationEvent / gridHourSpan * gridHourHeight;
+  }
+
+  static int getFirstDailyWorkedMinute(DateTime start, DateTime currentDay) {
+    return (start.day != currentDay.day ? Constants.MIN_WORKTIME * 60 : max<int>(
+        Constants.MIN_WORKTIME * 60, start.hour * 60 + start.minute));
+  }
+
+  static int getLastDailyWorkedMinute(DateTime end, DateTime currentDay) {
+    return (end.day != currentDay.day ? Constants.MAX_WORKTIME * 60 : min<int>(
+        Constants.MAX_WORKTIME * 60, end.hour * 60 + end.minute));
   }
 }

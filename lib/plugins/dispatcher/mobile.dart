@@ -6,8 +6,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:package_info/package_info.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
@@ -15,8 +15,6 @@ import 'package:venturiautospurghi/mobile.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'dart:io' show Platform;
-
 import 'package:venturiautospurghi/utils/theme.dart';
 
 abstract class PlatformUtils {
@@ -62,9 +60,9 @@ abstract class PlatformUtils {
     context.read<MobileBloc>().add(NavigateEvent(route, arg));
   }
 
-  static Future<bool> backNavigator(BuildContext context) {
+  static Future<bool> backNavigator(BuildContext context,  [ res ]) {
     if (Navigator.canPop(context)) {
-      Navigator.pop(context);
+      Navigator.pop(context, res);
     } else context.read<MobileBloc>().add(NavigateBackEvent());
     return Future<bool>(()=>false);
   }

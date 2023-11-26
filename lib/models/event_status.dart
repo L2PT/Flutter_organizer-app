@@ -33,6 +33,28 @@ class EventStatus {
     }
   }
 
+  static int getIconCode(int status){
+    switch(status){
+      case Bozza:
+        return 0xe3c9;
+      case Deleted:
+        return 0xe872;
+      case Refused:
+        return 0xe85f;
+      case New:
+        return 0xe85d;
+      case Delivered:
+        return 0xe861;
+      case Seen:
+        return 0xe85e;
+      case Accepted:
+        return 0xe862;
+      case Ended:
+        return 0xe153;
+      default: return 0xe85d;
+    }
+  }
+
   static String getText(int status){
     switch(status){
       case EventStatus.Bozza: return "Bozza";

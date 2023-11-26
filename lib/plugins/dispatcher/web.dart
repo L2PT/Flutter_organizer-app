@@ -4,8 +4,8 @@ library jquery;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html' as html;
-import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -34,10 +34,8 @@ class PlatformUtils {
     context.read<WebBloc>().add(NavigateEvent(route, arg, context));
   }
 
-  static Future<bool> backNavigator(BuildContext context) {
-    if (Navigator.canPop(context)) {
-      Navigator.pop(context);
-    } else PlatformUtils.navigator(context, Constants.homeRoute);
+  static Future<bool> backNavigator(BuildContext context, [ res ]) {
+    PlatformUtils.navigator(context, Constants.closeOverViewRoute, res);
     return Future<bool>(()=>false);
   }
 

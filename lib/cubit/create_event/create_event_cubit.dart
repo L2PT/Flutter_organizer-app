@@ -11,10 +11,10 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
-import 'package:venturiautospurghi/utils/extensions.dart';
 
 part 'create_event_state.dart';
 
@@ -36,8 +36,9 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   late Map<int, GlobalKey<FormState>> forms;
   DateTime? firstClick;
 
-  CreateEventCubit(this._databaseRepository, this._account, Event? event)
-      : super(CreateEventState(event)) {
+  CreateEventCubit(this._databaseRepository, this._account, Event? event, int currentStep, DateTime? dateSelect)
+      : super(CreateEventState(event, dateSelect: dateSelect)) {
+    state.currentStep = currentStep;
     fillMapForms();
     if(event==null){
       _type = _eventType.create;
@@ -50,9 +51,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
       types = _databaseRepository.types;
       addressController = new TextEditingController();
       if(event != null ){
-        if(!string.isNullOrEmpty(event.category)){
-          onSelectedCategory(event.category);
-        }
+        if(event.documentsMap.isNotEmpty)
+          state.documents = event.documentsMap;
         addressController.text = state.event.address;
       }
   }
@@ -91,9 +91,8 @@ class CreateEventCubit extends Cubit<CreateEventState> {
             "Firebase save " + state.event.start.toString() + " : " +
                 state.event.end.toString());
         state.event.supervisor = _account;
-        state.event.category = state.category;
-        state.event.color = this.categories[state.category];
-        if(state.typeSelected == 'Contratto') state.event.title = state.typeSelected + " - " + state.event.title;
+        state.event.color = this.categories[state.event.category];
+        if(state.event.typology == 'Contratto') state.event.title = state.event.typology + " - " + state.event.title;
 
         bool sendNotification = true;
         if (state.event.operator == null){
@@ -108,7 +107,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
           state.event.status = EventStatus.New;
         }
 
-        state.event.documents = state.documents.keys.toList();
         if(this.isNew() || this.isCopy()) {
           state.event.id = state.event.end.isBefore(DateTime.now())?
              await _databaseRepository.addEventPast(state.event): await _databaseRepository.addEvent(state.event);
@@ -150,11 +148,15 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   removeDocument(String name) {
     Map<String, dynamic> newDocs = Map.from(state.documents);
     newDocs.remove(name);
+    state.event.documentsMap = newDocs;
+    state.event.documents = newDocs.keys.toList();
     emit(state.assign(documents: newDocs));
   }
 
   void openFileExplorer() async {
     Map<String, dynamic> newDocs = await FileUtils.openFileExplorer(state.documents);
+    state.event.documentsMap = newDocs;
+    state.event.documents = newDocs.keys.toList();
     emit(state.assign(documents: newDocs));
   }
 
@@ -177,6 +179,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void setIsScheduled(value){
+    state.event.isScheduled = value;
     emit(state.assign(isScheduled: value));
   }
 
@@ -287,10 +290,12 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void onSelectedType(String key){
+    state.event.typology = key;
     emit(state.assign(typeSelected: key));
   }
 
   void onSelectedCategory(String key){
+    state.event.category = key;
     emit(state.assign(category: key));
   }
 

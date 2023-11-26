@@ -1,5 +1,3 @@
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
@@ -25,7 +23,7 @@ abstract class PlatformUtils {
   static void disposeFile() => null;
 
   static dynamic navigator(context, route, [arg]) => null;
-  static Future<bool> backNavigator(BuildContext context) => Future<bool>(()=>false);
+  static Future<bool> backNavigator(BuildContext context,  [ res ]) => Future<bool>(()=>false);
   static String getRoute( context) => Constants.homeRoute;
 
   static dynamic notifyErrorMessage(msg) => null;

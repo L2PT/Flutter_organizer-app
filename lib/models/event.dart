@@ -15,6 +15,7 @@ class Event {
   List<dynamic> documents = [];
   int status = EventStatus.New;
   String category = "";
+  String typology = "Intervento";
   String color = "";
   String motivazione = "";
   Account? supervisor;
@@ -22,8 +23,12 @@ class Event {
   Account? operator;
   List<Account> suboperators = [];
 
+  //Attributi di trasporto
+  Map<String, dynamic> documentsMap = {};
+  bool isScheduled = false;
 
-  Event(this.id, this.title, this.description, this.notaOperator, this.start, this.end, this.address, this.documents, this.status, this.category, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer);
+
+  Event(this.id, this.title, this.description, this.notaOperator, this.start, this.end, this.address, this.documents, this.status, this.category,this.typology, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer);
   Event.empty();
 
   Event.fromMap(String id, String color, Map json) :
@@ -37,12 +42,15 @@ class Event {
     documents = json["Documenti"]??[],
     status = json["Stato"],
     category = json["Categoria"],
+    typology = json["Tipologia"]??"Intervento",
     color = (!string.isNullOrEmpty(color))?color:json["color"]??"",
     supervisor = json["Responsabile"]==null?Account.empty():Account.fromMap("", json["Responsabile"]),
     operator = json["Operatore"]==null?Account.empty():Account.fromMap("", json["Operatore"]),
     suboperators = (json["SubOperatori"] as List).map((subOp) => Account.fromMap("", subOp)).toList(),
     motivazione = json["Motivazione"]??"",
-    customer = json["Cliente"] == null? Customer.empty(): Customer.fromMap(id, json["Cliente"]);
+    customer = json["Cliente"] == null? Customer.empty(): Customer.fromMap(id, json["Cliente"]),
+    isScheduled = json["isScheduled"]??false,
+    documentsMap = json["documentsMap"] == null?{}:(json["documentsMap"] as Map<String,dynamic>) ;
 
   Map<String, dynamic> toMap() => {
       "id":this.id,
@@ -55,11 +63,14 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
+      "Tipologia":this.typology,
       "color":this.color,
       "Responsabile":this.supervisor?.toMap(),
       "Cliente": this.customer.toMap(),
       "Operatore":this.operator?.toMap(),
-      "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList()
+      "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList(),
+      "isScheduled":this.isScheduled,
+      "documentsMap":this.documentsMap,
   };
   Map<String, dynamic> toDocument(){
     return Map<String, dynamic>.of({
@@ -72,6 +83,7 @@ class Event {
       "Documenti":this.documents,
       "Stato":this.status,
       "Categoria":this.category,
+      "Tipologia":this.typology,
       "Responsabile":this.supervisor?.toMap(),
       "Cliente": this.customer.toMap(),
       "Operatore":this.operator?.toMap(),
@@ -109,6 +121,5 @@ class Event {
   bool isBozza() => this.status == EventStatus.Bozza;
 
   @override
-  String toString() => id+title+description+notaOperator+documents.join()+start.toString()+end.toString()+address+(status).toString()+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
-
+  String toString() => id+title+description+notaOperator+documents.join()+start.toString()+end.toString()+address+(status).toString()+typology+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
 }

@@ -20,23 +20,26 @@ class Constants {
 
   // ROUTES
   static const String homeRoute = '/';
-  static const String monthlyCalendarRoute = 'view/monthly_calendar';
-  static const String dailyCalendarRoute = 'view/daily_calendar';
-  static const String operatorListRoute = 'view/op_list';
-  static const String addWebOperatorRoute = 'view/op_web_list';
-  static const String registerRoute = 'view/register';
-  static const String detailsEventViewRoute = 'view/details_event';
-  static const String createEventViewRoute = 'view/form_event_creator';
-  static const String waitingEventListRoute = 'view/waiting_event_list';
-  static const String notUpadateversionAppRoute = 'view/version_app';
-  static const String waitingNotificationRoute = 'view/persistent_notification';
-  static const String historyEventListRoute = 'view/history_event_list';
-  static const String profileRoute = 'view/profile';
-  static const String resetCodeRoute = 'view/reset_code_page';
-  static const String logInRoute = 'view/log_in';
+  static const String closeOverViewRoute = '/close_over_view';
+  static const String monthlyCalendarRoute = '/view/monthly_calendar';
+  static const String dailyCalendarRoute = '/view/daily_calendar';
+  static const String operatorListRoute = '/view/op_list';
+  static const String addWebOperatorRoute = '/view/op_web_list';
+  static const String registerRoute = '/view/register';
+  static const String detailsEventViewRoute = '/view/details_event';
+  static const String createEventViewRoute = '/view/form_event_creator';
+  static const String waitingEventListRoute = '/view/waiting_event_list';
+  static const String notUpadateversionAppRoute = '/view/version_app';
+  static const String waitingNotificationRoute = '/view/persistent_notification';
+  static const String historyEventListRoute = '/view/history_event_list';
+  static const String profileRoute = '/view/profile';
+  static const String resetCodeRoute = '/reset_code_page';
+  static const String logInRoute = '/log_in';
+  static const String loadingRoute = '/loading';
   static const String logOut = 'log_out';
-  static const String filterEventListRoute = 'view/filter_event';
-  static const String bozzeEventListRoute = 'view/bozze_event_list';
+  static const String filterEventListRoute = '/view/filter_event';
+  static const String bozzeEventListRoute = '/view/bozze_event_list';
+  static const String manageUtenzeRoute = '/view/manage_utenze';
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
@@ -87,8 +90,8 @@ class Constants {
   static const String tabellaClienti_telefono = 'Telefono';
 
   // HANDLES
-  static const int MIN_WORKTIME = 6;
-  static const int MAX_WORKTIME = 21;
+  static const int MIN_WORKTIME = 7;
+  static const int MAX_WORKTIME = 19;
   static const int WORKTIME_SPAN = 30;
   static const double MIN_CALENDAR_EVENT_HEIGHT = 60.0;
 
@@ -96,6 +99,7 @@ class Constants {
   static const String googleMessagingApiKey = 'AIzaSyBF13XNJM1LDuRrLcWdQQxuEcZ5TakypEk';
   static const String webPushNotificationsVapidKey = 'BJstIUpFNSxgd1Ir1xQd_qt48ijnfLG2B3Md_9unMkA7nMBpZZRVX3_6A5f2HJJLCOZJoFH2CgpmtrimGRe-rWo';
 
-
-
+  //OVERVIEW SCREEN
+  static const double WIDTH_OVERVIEW = 400;
+  static const double HEIGHT_OVERVIEW = 655;
 }

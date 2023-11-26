@@ -1,16 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:meta/meta.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/views/screen_pages/bozze_event_list_view.dart';
-import 'package:venturiautospurghi/views/screens/filter_event_list_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/history_event_list_view.dart';
 import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screens/details_event_view.dart';
 import 'package:venturiautospurghi/views/screens/operator_selection_view.dart';
@@ -18,47 +15,38 @@ import 'package:venturiautospurghi/views/screens/register_view.dart';
 import 'package:venturiautospurghi/views/screens/table_calendar_view.dart';
 
 part 'web_event.dart';
-
 part 'web_state.dart';
 
 class WebBloc extends Bloc<WebEvent, WebState> {
-  final CloudFirestoreService _databaseRepository;
   final Account _account;
-  List<BuildContext> dialogStack = [];
+  List<Widget> overViewStack = [];
+  double _posLeftOverView;
+  double _posTopOverView;
 
   WebBloc({
     required CloudFirestoreService databaseRepository,
-    required Account account
-  }) : assert(databaseRepository != null && account != null),
-        _databaseRepository = databaseRepository,
-       _account = account,
+    required Account account,
+    required double posLeftOverView,
+    required double posTopOverView
+  }) :  _account = account,
+        _posLeftOverView = posLeftOverView,
+        _posTopOverView = posTopOverView,
        super(NotReady()){
+    on<NavigateEvent>(_onNavigateEvent);
+    on<InitAppEvent>(_onInitAppEvent);
     // if(Constants.debug)
     //   _databaseRepository.subscribeAccount(account.id).listen((userUpdate){ _account.update(userUpdate);});
   }
 
-
-  @override
-  Stream<WebState> mapEventToState(WebEvent event) async* {
-    if (event is NavigateEvent) {
-      yield* _mapUpdateViewToState(event);
-    }else if(event is InitAppEvent){
-      yield* _mapInitAppToState();
-    }
-  }
-
-  Stream<WebState> _mapUpdateViewToState(NavigateEvent event) async* {
+  Future<void> _onNavigateEvent(NavigateEvent event, Emitter<WebState> emit) async {
     switch(event.route){
-      case Constants.homeRoute: yield Ready(event.route); break;
-      case Constants.historyEventListRoute: yield Ready(event.route, HistoryEventList()); break;
-      case Constants.filterEventListRoute: yield Ready(event.route, FilterEventList()); break;
-      case Constants.bozzeEventListRoute: yield Ready(event.route, BozzeEventList()); break;
-      case Constants.detailsEventViewRoute: yield DialogReady(event.route, DetailsEvent((event.arg is Event)?event.arg:_getEventFromJson(event.arg)), event.callerContext!); break;
-      case Constants.createEventViewRoute: yield DialogReady(event.route, CreateEvent(event.arg), event.callerContext!); break;
-      case Constants.monthlyCalendarRoute: yield DialogReady(event.route, TableCalendarWithBuilders(), event.callerContext!); break;
-      case Constants.registerRoute: yield DialogReady(event.route, Register(), event.callerContext!); break;
-      case Constants.operatorListRoute:  yield DialogReady(event.route, OperatorSelection((event.arg is Map)?event.arg["event"]:event.arg, (event.arg is Map)?event.arg["requirePrimaryOperator"]:false), event.callerContext!, event.arg["callback"]); break;
-      case Constants.addWebOperatorRoute: Event e = new Event.empty()..suboperators = _account.webops; e.start = e.end = DateTime(0); yield DialogReady(event.route, OperatorSelection(e), event.callerContext!); break;
+      case Constants.closeOverViewRoute: emit( CloseOverView((event.arg is Map)?event.arg["event"]:Event.empty(),state.route,(event.arg is Map)?event.arg["res"]:false)); break;
+      case Constants.detailsEventViewRoute: emit( OverViewReady(event.route, DetailsEvent((event.arg is Event)?event.arg:_getEventFromJson(event.arg)),_posLeftOverView, _posTopOverView, )); break;
+      case Constants.createEventViewRoute: emit( OverViewReady(event.route, CreateEvent((event.arg is Map)?event.arg["event"]:event.arg,(event.arg is Map)?event.arg["currentStep"]??0:0, (event.arg is Map)?event.arg["dateSelect"]:DateTime.now()), _posLeftOverView, _posTopOverView,)); break;
+      case Constants.monthlyCalendarRoute: emit( OverViewReady(event.route, TableCalendarWithBuilders(), _posLeftOverView, _posTopOverView,)); break;
+      case Constants.registerRoute: emit( OverViewReady(event.route, Register(), _posLeftOverView, _posTopOverView,)); break;
+      case Constants.operatorListRoute: emit( OverViewReady(event.route, OperatorSelection((event.arg is Map)?event.arg["event"]:event.arg, (event.arg is Map)?event.arg["requirePrimaryOperator"]:false),_posLeftOverView, _posTopOverView)); break;
+      case Constants.addWebOperatorRoute: Event e = new Event.empty()..suboperators = _account.webops; e.start = e.end = DateTime(0); emit( OverViewReady(event.route, OperatorSelection(e), _posLeftOverView, _posTopOverView,)); break;
     }
   }
 
@@ -71,7 +59,18 @@ class WebBloc extends Bloc<WebEvent, WebState> {
 
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
-  Stream<WebState> _mapInitAppToState() async* {
+  Future<void> _onInitAppEvent(InitAppEvent event, Emitter<WebState> emit) async {
+    print("chiamata iniziale");
     add(NavigateEvent(Constants.homeRoute));
+  }
+
+  void updatePositionOverView(DraggableDetails details){
+    this._posLeftOverView = details.offset.dx;
+    this._posTopOverView = details.offset.dy;
+    emit((state as OverViewReady).assign(posLeftOverView: details.offset.dx, posTopOverView: details.offset.dy));
+  }
+
+  void underLevelOverView(String route, Widget child){
+    emit(OverViewReady(route, child, this._posLeftOverView, this._posTopOverView));
   }
 }

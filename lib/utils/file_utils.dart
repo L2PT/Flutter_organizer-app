@@ -1,5 +1,6 @@
 import 'dart:isolate';
 import 'dart:ui';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
@@ -21,7 +22,7 @@ class FileUtils {
     IsolateNameServer.removePortNameMapping('downloader_send_port');
   }
 
-  static void downloadCallback(String id, DownloadTaskStatus status, int progress) {
+  static void downloadCallback(String id, int status, int progress) {
     final SendPort send = IsolateNameServer.lookupPortByName('downloader_send_port')!;
     send.send([id, status, progress]);
   }

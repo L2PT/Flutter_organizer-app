@@ -1,7 +1,6 @@
 library app.utils;
 
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter/services.dart';
 import 'package:google_place/google_place.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
@@ -21,10 +20,9 @@ class TimeUtils {
   }
 
   static DateTime getNextStartWorkTimeSpan({DateTime? from, Duration? ofDuration}) {
-    DateTime date = from ?? DateTime.now();
+    DateTime date = from ?? DateTime.now().toLocal();
 
-    DateTime nextWorkTime = TimeUtils.addWorkTime(date, new Duration(minutes: Constants.WORKTIME_SPAN));
-    return getStartWorkTimeSpan(from:nextWorkTime, ofDuration: ofDuration);
+    return getStartWorkTimeSpan(from:date, ofDuration: ofDuration);
   }
 
   static DateTime getStartWorkTimeSpan({required DateTime from, Duration? ofDuration}) {
@@ -63,9 +61,6 @@ class Utils {
   }
 
   static bool isNumeric(String str) {
-    if(str == null) {
-      return false;
-    }
     return double.tryParse(str) != null;
   }
 

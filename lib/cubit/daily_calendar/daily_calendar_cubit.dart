@@ -7,6 +7,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/date_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
@@ -34,7 +35,7 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   }
 
   void loadMoreData([DateTime? start, DateTime? end]){
-    _databaseRepository.subscribeEventsByOperator((operator??_account).id, statusEqualOrAbove: _account.supervisor? EventStatus.Refused : EventStatus.Accepted,
+    _databaseRepository.subscribeEventsByOperator([(operator??_account).id], statusEqualOrAbove: _account.supervisor? EventStatus.Refused : EventStatus.Accepted,
         from: TimeUtils.truncateDate(start??DateTime.now().subtract(new Duration(days: 7)), "day"),
         to: end?.add(new Duration(days: 1))??TimeUtils.truncateDate((start??DateTime.now()).add(new Duration(days: 7)), "day")).listen((eventsList) {
       _events = eventsList;
@@ -60,21 +61,9 @@ class DailyCalendarCubit extends Cubit<DailyCalendarState> {
   }
 
   double calcWidgetHeightInGrid({DateTime? start, DateTime? end, int? firstWorkedMinute, int? lastWorkedMinute}) {
-    if(start == null && firstWorkedMinute == null) throw new Exception("Start time not passed");
-    if(end == null && lastWorkedMinute == null) throw new Exception("End time not passed");
-    double hoursDurationEvent = (((lastWorkedMinute??DailyCalendarCubit.getLastDailyWorkedMinute(end!, state.selectedDay)) -
-        (firstWorkedMinute??DailyCalendarCubit.getFirstDailyWorkedMinute(start!, state.selectedDay))) / 60);
-    return hoursDurationEvent / state.gridHourSpan * state.gridHourHeight;
+    return DateUtils.calcWidgetHeightInGrid(state.selectedDay, state.gridHourSpan, state.gridHourHeight,
+        start: start, end: end, firstWorkedMinute: firstWorkedMinute , lastWorkedMinute: lastWorkedMinute );
   }
 
-  static int getFirstDailyWorkedMinute(DateTime start, DateTime currentDay) {
-    return (start.day != currentDay.day ? Constants.MIN_WORKTIME * 60 : max<int>(
-        Constants.MIN_WORKTIME * 60, start.hour * 60 + start.minute));
-  }
-
-  static int getLastDailyWorkedMinute(DateTime end, DateTime currentDay) {
-    return (end.day != currentDay.day ? Constants.MAX_WORKTIME * 60 : min<int>(
-        Constants.MAX_WORKTIME * 60, end.hour * 60 + end.minute));
-  }
 
 }

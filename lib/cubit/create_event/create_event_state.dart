@@ -3,14 +3,16 @@ part of 'create_event_cubit.dart';
 enum _formStatus { normal, loading, success }
 
 class CreateEventState extends Equatable {
-  CreateEventState(Event? e) {
+  CreateEventState(Event? e, { DateTime? dateSelect }) {
     this.locations = List<String>.empty();
     if(e == null) {
       this.event = Event.empty();
-      event.start = TimeUtils.getNextStartWorkTimeSpan();
+      event.start = TimeUtils.getNextStartWorkTimeSpan(from: dateSelect);
       event.end = event.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
     } else this.event = e;
     documents = Map<String, dynamic>.fromIterable(event.documents, key: (v) => v, value: (v)=>null);
+    isAllDay = event.isAllDayLong();
+    isScheduled = event.isScheduled;
   }
 
   late final Event event;

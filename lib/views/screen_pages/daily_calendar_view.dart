@@ -8,14 +8,15 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/cubit/daily_calendar/daily_calendar_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/mobile.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/utils/date_utils.dart' as _;
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -327,7 +328,7 @@ class _verticalEventsGrid extends StatelessWidget {
                 ),
               ])
             ];
-            int newBaseMinutes = DailyCalendarCubit.getLastDailyWorkedMinute(event.end, context.read<DailyCalendarCubit>().state.selectedDay);
+            int newBaseMinutes = _.DateUtils.getLastDailyWorkedMinute(event.end, context.read<DailyCalendarCubit>().state.selectedDay);
             _base = TimeUtils.truncateDate(_base, "day").add(
                 Duration(hours: newBaseMinutes ~/ 60, minutes: (newBaseMinutes % 60).toInt()));
             return element;

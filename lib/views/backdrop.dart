@@ -14,14 +14,15 @@
 
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/backdrop_menu.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_base.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:flutter/material.dart';
+
 import '../utils/theme.dart';
 
 //HANDLE cambia questa velocità
@@ -47,7 +48,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
   void initState() {
     super.initState();
     _controller = AnimationController(duration: Duration(milliseconds: 100), value: 1.0, vsync: this);
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -116,7 +117,7 @@ class _MobileState extends State<Backdrop> with SingleTickerProviderStateMixin, 
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     super.dispose();
   }
