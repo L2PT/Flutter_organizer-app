@@ -1,10 +1,9 @@
 import 'dart:math';
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:bubble_tab_indicator/bubble_tab_indicator.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
 import 'package:venturiautospurghi/models/account.dart';
@@ -18,9 +17,9 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_delete.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_nota.dart';
-import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_refuse.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_success.dart';
+import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 
 
 class DetailsEvent extends StatelessWidget {
@@ -59,13 +58,13 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
   late final TabController _controller;
   final List<Tab> tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
   
-  _detailsViewState() {
-    _controller = new TabController(vsync: this, length: tabsHeaders.length);
-  }
+  _detailsViewState();
+
 
   @override
   void initState() {
     PlatformUtils.inizializateFile();
+    _controller = new TabController(vsync: this, length: tabsHeaders.length);
     super.initState();
   }
 
@@ -581,13 +580,12 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                       labelStyle: title.copyWith(fontSize: 16),
                                       labelColor: black,
                                       indicatorSize: TabBarIndicatorSize.tab,
-                                      indicator: new BubbleTabIndicator(
-                                        indicatorHeight: 40.0,
-                                        indicatorColor:
-                                        HexColor(event.color),
-                                        tabBarIndicatorSize:
-                                        TabBarIndicatorSize.tab,
+                                      indicator: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(50),
+                                        color: HexColor(event.color),
+
                                       ),
+                                      indicatorPadding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
                                       tabs: tabsHeaders,
                                       controller: _controller,
                                     ),
@@ -629,7 +627,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         ],
                       ),
                     ): event.isAccepted() && DateTime.now().isAfter(event.start) &&
-                        (event.operator!.id == account.id || event.suboperators.contains(account.id))?
+                        (event.operator!.id == account.id || event.suboperators.where((element) => element.id == account.id).isNotEmpty)?
                     Container(
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

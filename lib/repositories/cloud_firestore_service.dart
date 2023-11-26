@@ -3,8 +3,8 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 
 class CloudFirestoreService {
@@ -152,16 +152,16 @@ class CloudFirestoreService {
     });
   }// TODO merge subscription queries
 
-  Stream<List<Event>> subscribeEventsByOperator(String idOperator, {required int statusEqualOrAbove, DateTime? from, DateTime? to}) {
+  Stream<List<Event>> subscribeEventsByOperator(List<String> idsOperator, {required int statusEqualOrAbove, DateTime? from, DateTime? to}) {
     if(from != null && to != null)
-      return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator)
+      return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContainsAny: idsOperator)
           .where(Constants.tabellaEventi_dataInizio, isGreaterThanOrEqualTo: from)
           .where(Constants.tabellaEventi_dataInizio, isLessThan: to).snapshots().map((snapshot) {
         var documents = snapshot.docs;
         return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).where((event) => event.status>=statusEqualOrAbove).toList();
       });
     else
-      return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContains: idOperator)
+      return _collectionEventi.where(Constants.tabellaEventi_idOperatori, arrayContainsAny: idsOperator)
           .where(Constants.tabellaEventi_stato, isGreaterThanOrEqualTo: statusEqualOrAbove).snapshots().map((snapshot) {
         var documents = snapshot.docs;
         return documents.map((document) => Event.fromMap(document.id, _getColorByCategory(document.get(Constants.tabellaEventi_categoria)), document.data() as Map<String, dynamic>)).toList();

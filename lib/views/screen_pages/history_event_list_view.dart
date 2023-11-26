@@ -6,7 +6,6 @@ THIS IS THE MAIN PAGE OF THE OPERATOR
 -(O)al centro e in basso c'è una grglia oraria dove sono rappresentati i propri eventi del giorno selezionato in alto
  */
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/cubit/history_event_list/history_event_list_cubit.dart';
@@ -85,23 +84,6 @@ class _largeScreenState extends State<_largeScreen>  {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        Container(
-                          height: 50,
-                          width: 180,
-                          margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
-                          child: ElevatedButton(
-                              onPressed: ()=> PlatformUtils.navigator(context, Constants.createEventViewRoute),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(Icons.add_box, color: white,),
-                                  SizedBox(width:5),
-                                  Text("Nuovo Incarico", style: button_card,),
-                                ],
-                              )
-                          ),
-                        ),
-                        SizedBox(height: 20,),
                         Text("Archivi", style: title,),
                         SizedBox(height: 10,),
                         ...tabsHeaders.map((mapEntry)=>FlatTab(text: mapEntry.key.text!, icon:(mapEntry.key.icon as Icon).icon!, status: mapEntry.value, selectedStatus: state.selectedStatusTab)).toList(),
@@ -135,7 +117,7 @@ class _largeScreenState extends State<_largeScreen>  {
                               maxCrossAxisExtent: 350.0,
                               mainAxisSpacing: 5.0,
                               crossAxisSpacing: 5.0,
-                              childAspectRatio: 2.3,
+                              childAspectRatio: 3,
                             ),
                             children: (context.read<HistoryEventListCubit>().state as HistoryReady).selectedEvents().map((event)=> Container(
                                 child: CardEvent(
@@ -212,12 +194,11 @@ class _smallScreenState extends State<_smallScreen> with TickerProviderStateMixi
   late TabController _tabController;
   final List<MapEntry<Tab,int>> tabsHeaders;
 
-  _smallScreenState(this.tabsHeaders){
-    _tabController = new TabController(vsync: this, length: tabsHeaders.length);
-  }
+  _smallScreenState(this.tabsHeaders);
 
   @override
   void initState() {
+    _tabController = new TabController(vsync: this, length: tabsHeaders.length);
     context.read<HistoryEventListCubit>().scrollController.addListener(() {
       if (context.read<HistoryEventListCubit>().scrollController.position.pixels == context.read<HistoryEventListCubit>().scrollController.position.maxScrollExtent) {
         if(context.read<HistoryEventListCubit>().canLoadMore[context.read<HistoryEventListCubit>().state.selectedStatusTab]??false)

@@ -1,0 +1,162 @@
+import 'dart:js' as js;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/bloc/web_bloc/web_bloc.dart';
+import 'package:venturiautospurghi/cubit/messaging/messaging_cubit.dart';
+import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
+import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/page_parameter.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/web.dart';
+import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
+import 'package:venturiautospurghi/views/widgets/web/header_menu_widget.dart';
+import 'package:venturiautospurghi/views/widgets/web/side_menu_widget.dart';
+import 'package:venturiautospurghi/web.dart';
+
+final Map<String, PageParameter> parameterPage = {
+  Constants.homeRoute: PageParameter(Icons.add_box, Constants.createEventViewRoute, 'Nuovo incarico', FunctionalWidgetType.calendar,
+      true, true, true),
+  Constants.historyEventListRoute: PageParameter(Icons.add_box, Constants.createEventViewRoute, 'Nuovo incarico', FunctionalWidgetType.calendar,
+      false, false, false),
+  Constants.bozzeEventListRoute: PageParameter(Icons.add_box, Constants.createEventViewRoute, 'Nuova bozza', FunctionalWidgetType.calendar,
+      false, true, false),
+  Constants.manageUtenzeRoute: PageParameter(Icons.person_add, Constants.registerRoute, 'Nuovo dipendente', FunctionalWidgetType.calendar,
+      false, true, false),
+  Constants.filterEventListRoute: PageParameter(Icons.person_add, Constants.registerRoute, 'Nuovo dipendente', FunctionalWidgetType.calendar,
+      false, false, false),
+};
+
+class WebPage extends StatefulWidget {
+
+  final Widget content;
+
+  const WebPage(this.content, {Key? key}) : super(key: key);
+
+  @override
+  _WebPageState createState() => _WebPageState();
+}
+
+class _WebPageState extends State<WebPage> with TickerProviderStateMixin {
+
+  @override
+  void initState() {
+    super.initState();
+    init(Constants.debug, context.read<AuthenticationBloc>().account!.id);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final CloudFirestoreService databaseRepository = context.read<CloudFirestoreService>();
+    final FirebaseMessagingService messagingRepository = context.read<FirebaseMessagingService>();
+    final Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
+    PageParameter? pageParameter = parameterPage[GoRouterState.of(context).location];
+    MessagingCubit cubit = MessagingCubit(
+        databaseRepository,
+        messagingRepository,
+        context.watch<AuthenticationBloc>().account!
+    );
+    js.context['updateAccontTokens_dart'] = cubit.updateAccountTokens;
+    js.context['openEventDetails_dart'] = cubit.launchTheEvent;
+
+    return  MultiBlocProvider(providers: [
+        BlocProvider(create: (_) =>WebBloc(
+            account: context.read<AuthenticationBloc>().account!, databaseRepository: databaseRepository,
+            posLeftOverView: (MediaQuery.of(context).size.width/2) - (Constants.WIDTH_OVERVIEW/2),posTopOverView:  (MediaQuery.of(context).size.height/2) - (Constants.HEIGHT_OVERVIEW/2)
+    )),
+        BlocProvider(
+            create: (_) => WebCubit(GoRouterState.of(context).location, databaseRepository, account)),
+    ], child:Scaffold(
+          backgroundColor: Color(0x00000000),
+          body: Stack(
+          children: [
+
+            Row(
+              children: [
+                SideMenuLayerWeb(pageParameter!.showButton, pageParameter!.textButton, pageParameter.iconLink,
+                    pageParameter!.actionButtonRoute, pageParameter!.functionalWidgetType, pageParameter!.showFunctionWidget),
+                Expanded(child: Column(
+                  children: [
+                    new BlocBuilder<WebCubit, WebCubitState>(
+                      buildWhen: (previous, current) => previous.calendarDate != current.calendarDate,
+                      builder: (context, state) {
+                        return HeaderMenuLayerWeb(
+                            pageParameter!.showBoxCalendar,
+                            state.calendarDate,
+                            account,
+                            () => context.read<AuthenticationBloc>().add(LoggedOut()),
+                            () => context.read<WebCubit>().todayCalendarDate(),
+                            context.read<WebCubit>().selectNextorPrevious,
+                        );}),
+                    new BlocBuilder<WebCubit, WebCubitState>(
+                      buildWhen: (previous, current) => (previous.runtimeType) != (current.runtimeType),
+                      builder: (context, state) {
+                        return !(state is ReadyWebCubitState) ? Center(child: CircularProgressIndicator()):Expanded(child:  widget.content);
+                      })
+                  ]))
+              ],
+            ),
+            BlocBuilder<WebBloc, WebState>(
+                buildWhen: (previous, current) => previous != current,
+                builder: (context, state) {
+                  if (state is OverViewReady) {
+                    Widget child = RepositoryProvider<CloudFirestoreService>.value(
+                        value: RepositoryProvider.of<CloudFirestoreService>(context),
+                        child: BlocProvider.value(
+                            value: context.read<WebBloc>(),
+                            child: Container(
+                                height:Constants.HEIGHT_OVERVIEW, width:Constants.WIDTH_OVERVIEW,
+                                child: context.read<WebBloc>().state.content
+                            )));
+                        return Positioned(
+                            left: state.posLeftOverView,
+                            top: state.posTopOverView,
+                            child:Draggable(
+                                maxSimultaneousDrags: 1,
+                                feedback:  Opacity(
+                                  opacity: .3,
+                                  child: child,
+                                ),
+                                onDragEnd: context.read<WebBloc>().updatePositionOverView,
+                                child: child ));
+                  }
+                  if (state is CloseOverView) {
+                      switch(context.read<WebBloc>().state.route) {
+                        case Constants.addWebOperatorRoute :{
+                          if(state.result){
+                            Account account = context.read<AuthenticationBloc>().account!;
+                            account.webops = (context.read<WebBloc>().state as CloseOverView).arg.suboperators;
+                            //update firestore and calendarJs
+                            context.read<WebCubit>().updateAccount(account.webops);
+                          }
+                        }break;
+                        case Constants.operatorListRoute :{
+                          PlatformUtils.navigator(context, Constants.createEventViewRoute, <String,dynamic>{'event' : state.arg, 'currentStep' : 3});
+                        }
+                      }
+                  }
+                  return Container();
+                }
+            ),
+            BlocProvider<MessagingCubit>.value(
+                value: cubit,
+                child: BlocListener<MessagingCubit, MessagingState>(
+                  listenWhen: (previous, current) => true,
+                  listener: (BuildContext context, MessagingState state){
+                    if(state.isWaiting()) {
+                      final GoRouterState stateRoute = GoRouterState.of(context);
+                      if (stateRoute.location == Constants.detailsEventViewRoute)
+                        PlatformUtils.backNavigator(context);
+                      PlatformUtils.navigator(
+                          context, Constants.detailsEventViewRoute, state.event);
+                    }
+                  }, child: Container(),)
+            )
+          ])
+      )
+    );
+  }
+}

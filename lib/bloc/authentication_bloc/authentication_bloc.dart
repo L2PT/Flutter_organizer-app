@@ -1,16 +1,16 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/auth/authuser.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 
 part 'authentication_event.dart';
-
 part 'authentication_state.dart';
 
 class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> {
@@ -30,34 +30,22 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       _msgRepository = messagingService,
       _dbRepository = dbCloudFirestore,
         super(Uninitialized())  {
+    on<AppStarted>(_onAppStarted);
+    on<NotUpdateApp>((event, emit) { emit(Unavailable()); });
+    on<LoggedIn>(_onLoggedIn);
+    on<LoggedOut>(_onLoggedOut);
+    on<UpdateApp>(_onUpdateApp);
+    on<ResetAction>((event, emit) { emit(Reset(event.email, event.phone));});
     _userSubscription = _authenticationRepository.onAuthStateChanged.listen((user){
           if(user!=null) {
             if(state is Unauthenticated) add(LoggedIn(user));
           }
         },
       );
+
   }
 
-  @override
-  Stream<AuthenticationState> mapEventToState(
-    AuthenticationEvent event,
-  ) async* {
-    if (event is AppStarted) {
-      yield* _mapAppStartedToState();
-    } else if (event is LoggedIn) {
-      yield* _mapLoggedInToState(event);
-    } else if (event is LoggedOut) {
-      yield* _mapLoggedOutToState();
-    } else if (event is ResetAction) {
-      yield* _mapResetActionToState(event);
-    }else if (event is NotUpdateApp){
-      yield Unavailable();
-    }else if (event is UpdateApp){
-      yield* _mapAppUpdateToState();
-    }
-  }
-
-  Stream<AuthenticationState> _mapAppStartedToState() async* {
+  Future<void> _onAppStarted(AppStarted event, Emitter<AuthenticationState> emit) async {
     int numVersionApp =  await PlatformUtils.getVersionApp() ;
     int numBuildApp =  await PlatformUtils.getNumBuildApp();
     _dbRepository.getInfoApp().listen((infoApp)  {
@@ -82,33 +70,16 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     });
   }
 
-  Stream<AuthenticationState> _mapAppUpdateToState() async* {
-    try {
-      var user = await _authenticationRepository.currentUser();
-      if (user != null) {
-        account = await _dbRepository.getAccount(user.email);
-        _loginSubscription = _dbRepository.subscribeAccount(account!.id).listen((userUpdate){ account!.update(userUpdate);});
-        isSupervisor = account!.supervisor;
-        yield Authenticated(account!, isSupervisor);
-      } else {
-        yield Unauthenticated();
-      }
-    } catch (_) {
-      yield Unauthenticated();
-    }
-  }
-
-
-  Stream<AuthenticationState> _mapLoggedInToState(LoggedIn event) async* {
+  Future<void> _onLoggedIn(LoggedIn event, Emitter<AuthenticationState> emit) async {
     var user = event.user;
     account = await _dbRepository.getAccount(user.email);
     _loginSubscription = _dbRepository.subscribeAccount(account!.id).listen((userUpdate){ account!.update(userUpdate);});
     isSupervisor = account!.supervisor;
-    if (PlatformUtils.isMobile || isSupervisor) yield Authenticated(account!, isSupervisor, account!.tokens);
+    if (PlatformUtils.isMobile || isSupervisor) emit(Authenticated(account!, isSupervisor, account!.tokens));
   }
 
-  Stream<AuthenticationState> _mapLoggedOutToState() async* {
-    yield Unauthenticated();
+  Future<void> _onLoggedOut(LoggedOut event, Emitter<AuthenticationState> emit) async {
+    emit(Unauthenticated());
     String? token = await FirebaseMessagingService.getToken();
     if(token != null) {
       if (account!.tokens.contains(token)) {
@@ -121,8 +92,20 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     _loginSubscription?.cancel();
   }
 
-  Stream<AuthenticationState> _mapResetActionToState(ResetAction event) async* {
-    yield Reset(event.email, event.phone);
+  Future<void> _onUpdateApp(UpdateApp event, Emitter<AuthenticationState> emit) async {
+    try {
+      var user = await _authenticationRepository.currentUser();
+      if (user != null) {
+        account = await _dbRepository.getAccount(user.email);
+        _loginSubscription = _dbRepository.subscribeAccount(account!.id).listen((userUpdate){ account!.update(userUpdate);});
+        isSupervisor = account!.supervisor;
+        emit(Authenticated(account!, isSupervisor));
+      } else {
+        emit( Unauthenticated());
+      }
+    } catch (_) {
+        emit( Unauthenticated());
+    }
   }
 
   CloudFirestoreService? getDbRepository(){

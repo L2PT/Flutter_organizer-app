@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/animation/fade_animation.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/create_event/create_event_cubit.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
@@ -12,26 +12,27 @@ import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/models/event.dart';
+import 'package:venturiautospurghi/views/widgets/alert/alert_success.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
-import 'package:venturiautospurghi/views/widgets/alert/alert_success.dart';
 import 'package:venturiautospurghi/views/widgets/stepper_widget.dart';
 
 class CreateEvent extends StatelessWidget {
   final Event? _event;
+  int currentStep;
+  DateTime? dateSelect;
   static const iconWidth = 30.0; //HANDLE
 
-  CreateEvent([this._event]);
+  CreateEvent([this._event, this.currentStep = 0, this.dateSelect ]);
 
   @override
   Widget build(BuildContext context) {
     var repository = context.read<CloudFirestoreService>();
     var account = context.select((AuthenticationBloc bloc)=>bloc.account!);
-
+    print("create event: " + this._event.toString());
     return new BlocProvider(
-        create: (_) => CreateEventCubit(repository, account, _event),
+        create: (_) => CreateEventCubit(repository, account, _event, currentStep, dateSelect ),
         child: WillPopScope(
             onWillPop: ()=>PlatformUtils.backNavigator(context),
             child: new Scaffold(
@@ -78,7 +79,7 @@ class _EventStepper extends StatelessWidget{
         state: currentStep==0?StepState.editing:StepState.complete,
         isActive: currentStep >= 0,
         icon: FontAwesomeIcons.hardHat,
-        title: Text('Tipologia'),
+        title: Text('Categoria'),
         content:  ConstrainedBox(
             constraints: new BoxConstraints(
               minHeight: PlatformUtils.isMobile?MediaQuery.of(context).size.height - 230:450,
@@ -165,9 +166,9 @@ class _EventStepper extends StatelessWidget{
               if (controls.currentStep != numSteps-1)
               ElevatedButton(
                 child: new Text('Continua', style: button_card),
-                onPressed: (controls.currentStep > 0 && context.read<CreateEventCubit>().state.category.isEmpty)?null:
+                onPressed: (controls.currentStep > 0 && context.read<CreateEventCubit>().state.event.category.isEmpty)?null:
                     () {
-                      DateTime currentTime = DateTime.now();
+                      DateTime currentTime = DateTime.now().toLocal();
                     if(!Utils.isDoubleClick(context.read<CreateEventCubit>().firstClick, currentTime)){
                         context.read<CreateEventCubit>().setFirstClick(currentTime);
                         FocusScope.of(context).unfocus();
@@ -196,28 +197,31 @@ class _tipologyEvent extends StatelessWidget{
   Widget build(BuildContext context) {
 
     Widget sigleTypeWidget(String key, String value){
-      return GestureDetector(
-        onTap: () => context.read<CreateEventCubit>().onSelectedType(key),
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          padding: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: context.read<CreateEventCubit>().state.typeSelected == key ? Colors.grey.shade900 : Colors.grey.shade100,
-            border: Border.all(
-              color: context.read<CreateEventCubit>().state.typeSelected == key ? yellow : yellow.withOpacity(0),
-              width: 4.0,
+      return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child:GestureDetector(
+            onTap: () => context.read<CreateEventCubit>().onSelectedType(key),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              padding: EdgeInsets.all(10.0),
+              decoration: BoxDecoration(
+                color: context.read<CreateEventCubit>().state.event.typology == key ? Colors.grey.shade900 : Colors.grey.shade100,
+                border: Border.all(
+                  color: context.read<CreateEventCubit>().state.event.typology == key ? yellow : yellow.withOpacity(0),
+                  width: 4.0,
+                ),
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Image.asset((PlatformUtils.isMobile?'assets/':'/tipology/')+value, height: 100),
+                    SizedBox(height: 5,),
+                    Text(key, style: title.copyWith(color: context.read<CreateEventCubit>().state.event.typology == key ? white: black),)
+                  ]
+              ),
             ),
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image.asset((PlatformUtils.isMobile?'assets/':'/tipology/')+value, height: 100),
-                SizedBox(height: 5,),
-                Text(key, style: title.copyWith(color: context.read<CreateEventCubit>().state.typeSelected == key ? white: black),)
-              ]
-          ),
-        ),
+          )
       );
     }
 
@@ -270,7 +274,7 @@ class _formBasiclyInfo extends StatelessWidget{
       children: <Widget>[
       FadeAnimation(
       1.2,  Text(
-          'Inserisci le informazioni base del ' + context.read<CreateEventCubit>().state.typeSelected.toLowerCase() +'.',
+          'Inserisci le informazioni base del ' + context.read<CreateEventCubit>().state.event.typology.toLowerCase() +'.',
           style: title
         ),
       ), SizedBox(height: 10,),
@@ -368,7 +372,7 @@ class _formClientInfo extends StatelessWidget{
         children: <Widget>[
           FadeAnimation(
             1.2,  Text(
-              'Inserisci le informazioni sul cliente del ' + context.read<CreateEventCubit>().state.typeSelected.toLowerCase() +'.',
+              'Inserisci le informazioni sul cliente del ' + context.read<CreateEventCubit>().state.event.typology.toLowerCase() +'.',
               style: title
           ),
           ), SizedBox(height: 10,),
@@ -444,14 +448,13 @@ class _formAssignedList extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    Event event = context.read<CreateEventCubit>().state.event;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
       FadeAnimation(
       1.2,  Text(
-        'Calendarizza e assegna il ' + context.read<CreateEventCubit>().state.typeSelected.toLowerCase() +' agli operatori.',
+        'Calendarizza e assegna il ' + context.read<CreateEventCubit>().state.event.typology.toLowerCase() +' agli operatori.',
         style: title
     ),
     ), SizedBox(height: 10,),
@@ -729,34 +732,38 @@ class _categoriesList extends StatelessWidget {
   Widget build(BuildContext context) {
 
     Widget sigleCategoryWidget(String key, String value){
-      return GestureDetector(
-        onTap: () => context.read<CreateEventCubit>().onSelectedCategory(key),
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          padding: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: context.read<CreateEventCubit>().state.category == key ? Colors.grey.shade900 : Colors.grey.shade100,
-            border: Border.all(
-              color: context.read<CreateEventCubit>().state.category == key ? yellow : yellow.withOpacity(0),
-              width: 4.0,
+      return MouseRegion(
+          cursor: SystemMouseCursors.click,
+
+        child: GestureDetector(
+          onTap: () => context.read<CreateEventCubit>().onSelectedCategory(key),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            padding: EdgeInsets.all(10.0),
+            decoration: BoxDecoration(
+              color: context.read<CreateEventCubit>().state.event.category == key ? Colors.grey.shade900 : Colors.grey.shade100,
+              border: Border.all(
+                color: context.read<CreateEventCubit>().state.event.category == key ? yellow : yellow.withOpacity(0),
+                width: 4.0,
+              ),
+              borderRadius: BorderRadius.circular(20.0),
             ),
-            borderRadius: BorderRadius.circular(20.0),
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(5.0)), color: HexColor(value)),
+                  ),
+                  SizedBox(height: 5,),
+                  Text(key,textAlign: TextAlign.center, style: subtitle.copyWith(color: context.read<CreateEventCubit>().state.event.category == key ? white: black,
+                      fontWeight: context.read<CreateEventCubit>().state.event.category == key ? FontWeight.bold: FontWeight.normal),)
+                ]
+            ),
           ),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5.0)), color: HexColor(value)),
-                ),
-                SizedBox(height: 5,),
-                Text(key,textAlign: TextAlign.center, style: subtitle.copyWith(color: context.read<CreateEventCubit>().state.category == key ? white: black,
-                    fontWeight: context.read<CreateEventCubit>().state.category == key ? FontWeight.bold: FontWeight.normal),)
-              ]
-          ),
-        ),
+        )
       );
     }
 

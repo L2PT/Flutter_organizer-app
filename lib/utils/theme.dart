@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 
 final logo = new Image.asset('assets/logo.png', height: 128.0);
 final logo_web = new Image.asset('logo.png', height: 128.0);
+final logo_icon = new Image.asset('assets/favicon.png', height: 150.0);
 final no_events_image = new Image.asset('assets/no-events-image.png', width: 200,);
 final ThemeData customLightTheme = _buildTheme();
 final TextStyle title = TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: black, );
 final TextStyle title_big = TextStyle(fontWeight: FontWeight.bold, fontSize: 24, color: black, );
 final TextStyle subtitle = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: grey_dark);
 const TextStyle title_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: white, );
+const TextStyle title_rev_menu = TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: white, );
+const TextStyle title_rev_web = TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: white, );
 const TextStyle title_rev_big = TextStyle(fontWeight: FontWeight.bold, fontSize: 26, color: white, );
 final TextStyle subtitle_rev = TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: grey_light2);
 final TextStyle subtitle_accent = TextStyle(fontWeight: FontWeight.normal, fontSize: 16, color: yellow);
@@ -42,10 +45,9 @@ ThemeData _buildTheme() {
     textButtonTheme: TextButtonThemeData(style: flatButtonStyle),
     elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
     outlinedButtonTheme: OutlinedButtonThemeData(style: outlineButtonStyle),
-    colorScheme: ColorScheme.dark().copyWith(secondary: black, secondaryVariant: black, primary: yellow, background: black),
+    colorScheme: ColorScheme.dark().copyWith(secondary: black, primary: yellow, background: black),
     buttonBarTheme: ButtonBarThemeData(buttonTextTheme: ButtonTextTheme.accent,),
     hintColor: grey_light2,
-    buttonColor: black,
     inputDecorationTheme: InputDecorationTheme(
         border: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(50.0))),

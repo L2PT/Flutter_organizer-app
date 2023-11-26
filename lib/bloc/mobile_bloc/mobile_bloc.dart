@@ -1,32 +1,30 @@
 import 'dart:async';
+
 import 'package:bloc/bloc.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:meta/meta.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/models/event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
-import 'package:venturiautospurghi/models/event_status.dart';
+import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/views/screen_pages/bozze_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/daily_calendar_view.dart';
-import 'package:venturiautospurghi/views/screens/filter_event_list_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
-import 'package:venturiautospurghi/views/screens/details_event_view.dart';
-import 'package:venturiautospurghi/views/screens/create_event_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/monthly_calendar_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/operator_list_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/user_profile_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/waiting_event_list_view.dart';
+import 'package:venturiautospurghi/views/screens/create_event_view.dart';
+import 'package:venturiautospurghi/views/screens/details_event_view.dart';
+import 'package:venturiautospurghi/views/screens/filter_event_list_view.dart';
 import 'package:venturiautospurghi/views/screens/operator_selection_view.dart';
 import 'package:venturiautospurghi/views/screens/persistent_notification_view.dart';
 import 'package:venturiautospurghi/views/screens/register_view.dart';
-import 'package:venturiautospurghi/views/screen_pages/waiting_event_list_view.dart';
 
 part 'mobile_event.dart';
-
 part 'mobile_state.dart';
 ///
 /// The bloc that handle all the navigation and the global state for the mobile part of the application
@@ -49,51 +47,45 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   }) : assert(databaseRepository != null && account != null),
         _databaseRepository = databaseRepository,
         _account = account,
-        super(NotReady());
-
-  @override
-  Stream<MobileState> mapEventToState(MobileEvent event) async* {
-    if (event is NavigateEvent) {
-      yield* _mapUpdateViewToState(event);
-    }else if (event is NavigateBackEvent) {
+        super(NotReady()){
+    on<RestoreEvent>((event, emit)  { (savedState as InBackdropState).restore(); });
+    on<NavigateEvent>(_onNavigateEvent);
+    on<NavigateBackEvent>((event, emit)  {
       if(state is OutBackdropState){
-        yield (state as OutBackdropState).leave();
-        yield (savedState as InBackdropState).restore();
+         emit((state as OutBackdropState).leave());
+         emit((savedState as InBackdropState).restore());
       }
-    }else if (event is RestoreEvent) {
-        yield (savedState as InBackdropState).restore();
-    }else if(event is InitAppEvent) {
-      yield* _mapInitAppToState(event);
-    }
+    });
+    on<InitAppEvent>(_onInitAppEvent);
   }
 
   ///Map for the navigation event to update the view
-  Stream<MobileState> _mapUpdateViewToState(NavigateEvent event) async* {
+  Future<void> _onNavigateEvent(NavigateEvent event, Emitter<MobileState> emit) async {
     if(state is InBackdropState) savedState = state;
 
     switch(event.route) {
-      case Constants.detailsEventViewRoute: yield OutBackdropState(event.route, DetailsEvent(event.arg)); break;
-      case Constants.createEventViewRoute: yield OutBackdropState(event.route, CreateEvent(event.arg)); break;
-      case Constants.registerRoute: yield OutBackdropState(event.route, Register()); break;
-      case Constants.waitingNotificationRoute: yield NotificationWaitingState(event.route, PersistentNotification(event.arg)); break;
-      case Constants.homeRoute: yield InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar(event.arg != null? event.arg['day']:null,event.arg != null?event.arg['operator']:null) ); break;
-      case Constants.monthlyCalendarRoute: yield InBackdropState(event.route, MonthlyCalendar(event.arg != null?event.arg['month']:null,event.arg != null?event.arg['operator']:null) ); break;
-      case Constants.dailyCalendarRoute: yield InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) ); break;
-      case Constants.profileRoute: yield InBackdropState(event.route, Profile()); break;
+      case Constants.detailsEventViewRoute: emit(OutBackdropState(event.route, DetailsEvent(event.arg))); break;
+      case Constants.createEventViewRoute: emit( OutBackdropState(event.route, CreateEvent(event.arg))); break;
+      case Constants.registerRoute: emit( OutBackdropState(event.route, Register())); break;
+      case Constants.waitingNotificationRoute: emit( NotificationWaitingState(event.route, PersistentNotification(event.arg))); break;
+      case Constants.homeRoute: emit( InBackdropState(event.route, _account.supervisor? OperatorList() : DailyCalendar(event.arg != null? event.arg['day']:null,event.arg != null?event.arg['operator']:null) )); break;
+      case Constants.monthlyCalendarRoute: emit( InBackdropState(event.route, MonthlyCalendar(event.arg != null?event.arg['month']:null,event.arg != null?event.arg['operator']:null) )); break;
+      case Constants.dailyCalendarRoute: emit( InBackdropState(event.route, DailyCalendar(event.arg['day'],event.arg['operator']) )); break;
+      case Constants.profileRoute: emit( InBackdropState(event.route, Profile())); break;
       case Constants.operatorListRoute: Navigator.push(event.arg["context"], MaterialPageRoute(maintainState: true, builder: (context) => OperatorSelection(event.arg["event"],event.arg["requirePrimaryOperator"],event.arg["context"])))
           .then((value) { (event.arg["callback"]).call(); });break;
-      case Constants.createEventViewRoute: yield InBackdropState(event.route, CreateEvent()); break;
-      case Constants.waitingEventListRoute: yield InBackdropState(event.route, WaitingEventList()); break;
-      case Constants.historyEventListRoute: yield InBackdropState(event.route, HistoryEventList()); break;
-      case Constants.filterEventListRoute: yield InBackdropState(event.route, FilterEventList(filters: !_account.supervisor?{"suboperators" : [_account]}:{})); break;
-      case Constants.bozzeEventListRoute: yield InBackdropState(event.route, BozzeEventList()); break;
-      default: yield InBackdropState(event.route, Profile()); break;
+      case Constants.createEventViewRoute: emit( InBackdropState(event.route, CreateEvent())); break;
+      case Constants.waitingEventListRoute: emit( InBackdropState(event.route, WaitingEventList())); break;
+      case Constants.historyEventListRoute: emit( InBackdropState(event.route, HistoryEventList())); break;
+      case Constants.filterEventListRoute: emit( InBackdropState(event.route, FilterEventList(filters: !_account.supervisor?{"suboperators" : [_account]}:{}))); break;
+      case Constants.bozzeEventListRoute: emit( InBackdropState(event.route, BozzeEventList())); break;
+      default: emit( InBackdropState(event.route, Profile())); break;
     }
   }
 
   /// First method to be called after the login
   /// it initialize the bloc and start the subscription for the notification events
-  Stream<MobileState> _mapInitAppToState(InitAppEvent event) async* {
+  Future<void> _onInitAppEvent(InitAppEvent event, Emitter<MobileState> emit) async {
     add(NavigateEvent(Constants.homeRoute));
     int counter = 0;
     if (!_account.supervisor) {

@@ -308,7 +308,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
     final children = [
       _CustomIconButton(
         icon: widget.headerStyle.leftChevronIcon,
-        onTap: (widget.selectPrevious is Function)?_selectToDay:_selectPrevious,
+        onTap: (widget.selectPrevious is Function)? widget.selectPrevious! : widget.headerStyle.leftChevronIcon.icon == Icons.today? _selectToDay:_selectPrevious,
         margin: widget.headerStyle.leftChevronMargin,
         padding: widget.headerStyle.leftChevronPadding,
       ),
@@ -323,7 +323,7 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
       ),
       _CustomIconButton(
         icon: widget.headerStyle.rightChevronIcon,
-        onTap: (widget.selectMonthCalendar is Function)? widget.selectMonthCalendar! : _selectMonthCalendar,
+        onTap: (widget.selectMonthCalendar is Function)? widget.selectMonthCalendar! : _selectNext,
         margin: widget.headerStyle.rightChevronMargin,
         padding: widget.headerStyle.rightChevronPadding,
       ),
@@ -360,7 +360,6 @@ class _TableCalendarState extends State<TableCalendar> with SingleTickerProvider
         duration: Duration(milliseconds: widget.calendarController.calendarFormat == CalendarFormat.month ? 330 : 220),
         curve: Curves.fastOutSlowIn,
         alignment: Alignment(0, -1),
-        vsync: this,
         child: _buildWrapper(),
       );
     } else {

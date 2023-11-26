@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/cubit/event_filter_view/filter_event_list_cubit.dart';
-import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -68,23 +66,6 @@ class _largeScreenState extends State<_largeScreen>  {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget>[
-                        Container(
-                          height: 50,
-                          width: 180,
-                          margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
-                          child: ElevatedButton(
-                              onPressed: ()=> PlatformUtils.navigator(context, Constants.createEventViewRoute),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(Icons.add_box, color: white,),
-                                  SizedBox(width:5),
-                                  Text("Nuovo Incarico", style: button_card,),
-                                ],
-                              )
-                          ),
-                        ),
-                        SizedBox(height: 20,),
                         EventsFilterWidget(
                           hintTextSearch: 'Cerca gli interventi',
                           onSearchFieldChanged: context.read<FilterEventListCubit>().onFiltersChanged,
@@ -115,7 +96,7 @@ class _largeScreenState extends State<_largeScreen>  {
                                   maxCrossAxisExtent: 350.0,
                                   mainAxisSpacing: 5.0,
                                   crossAxisSpacing: 5.0,
-                                  childAspectRatio: 2.3,
+                                  childAspectRatio: 3,
                                 ),
                                 children: context.read<FilterEventListCubit>().state.listEventFiltered.map((event)=> Container(
                                     child: CardEvent(

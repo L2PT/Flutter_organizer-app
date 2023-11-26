@@ -14,7 +14,7 @@ import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 class ResetAuthAccount extends StatelessWidget {
   final String _autofilledEmail;
   final String _autofilledPhone;
-  ResetAuthAccount(this._autofilledEmail, this._autofilledPhone);
+  const ResetAuthAccount(this._autofilledEmail, this._autofilledPhone);
 
   @override
   Widget build(BuildContext context) {

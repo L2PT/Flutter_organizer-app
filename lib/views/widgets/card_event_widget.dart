@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
@@ -15,10 +13,12 @@ class CardEvent extends StatelessWidget {
   final double height;
   final bool externalBorder;
   final bool showEventDetails;
+  final GlobalKey? key;
 
   CardEvent({required this.event,
     this.onTapAction,
     this.buttonArea,
+    this.key,
     this.height = 160,
     this.externalBorder = false,
     this.showEventDetails = false});
@@ -49,6 +49,7 @@ class CardEvent extends StatelessWidget {
         heightBar = 60;
 
         card = Card(
+          key: key,
           child: Container(
             height: height,
             padding: EdgeInsets.only(left: 10, top: paddingContainer),
@@ -155,6 +156,14 @@ class CardEvent extends StatelessWidget {
         maxLine = height <= Constants.MIN_CALENDAR_EVENT_HEIGHT ? 1:2;
 
         card = Card(
+          borderOnForeground: true,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(4.0),
+            side: externalBorder? BorderSide(
+              color: EventStatus.getColorStatus(event.status),
+              width: 2.0,
+            ):BorderSide.none,
+          ),
           child: Container(
             height: height,
             child: Column(
@@ -202,12 +211,7 @@ class CardEvent extends StatelessWidget {
           color: black,
         );
       }
-      return externalBorder? Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4.0),
-            color: EventStatus.getColorStatus(event.status),
-          ),
-          child: card) : card;
+      return card;
     }
 
     return GestureDetector(
