@@ -14,7 +14,7 @@ extension DateTimeExtensions on DateTime {
 extension ListExtensions on Iterable {
   List<List<T>> groupBy<T, Y>(Y Function(dynamic) fn) {
     Map<Y,List<T>> a = Map.fromIterable(this, key: fn, value: (e)=>[]);
-    this.forEach((element)=>{ a[fn.call(element)]!.add(element) });
+    this.forEach((element){ a[fn.call(element)]!.add(element); });
     return a.values.toList();
   }
   
@@ -39,5 +39,33 @@ extension string on String {
   }
   String capitalize() {
     return "${this[0].toUpperCase()}${this.substring(1)}";
+  }
+
+  static bool isNumeric(String str) {
+    return double.tryParse(str) != null;
+  }
+
+  static bool isPhoneNumber(String str) {
+    String patttern = r'(^(?:[+3]9)?[0-9]{8,12}$)';
+    RegExp regExp = new RegExp(patttern);
+    if (str.length == 0) {
+      return false;
+    }
+    else if (!regExp.hasMatch(str)) {
+      return false;
+    }
+    return true;
+  }
+
+  static bool isEmail(String str) {
+    String patttern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$';
+    RegExp regExp = new RegExp(patttern);
+    if (str.length == 0) {
+      return false;
+    }
+    else if (!regExp.hasMatch(str)) {
+      return false;
+    }
+    return true;
   }
 }

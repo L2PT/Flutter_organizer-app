@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/cubit/filter_operators/filter_operators_cubit.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/filter_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_widget.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
@@ -14,6 +14,7 @@ class OperatorsFilterWidget extends FilterWidget {
   final Function callbackSearchFieldChanged;
 
   OperatorsFilterWidget({
+    double paddingTop = 25,
     String hintTextSearch = '',
     required void Function(Map<String, FilterWrapper> filters) onFiltersChanged,
     required void Function(Map<String, FilterWrapper> filters) onSearchFieldChanged,
@@ -25,6 +26,7 @@ class OperatorsFilterWidget extends FilterWidget {
       isExpandable: isExpandable,
       hintTextSearchField: hintTextSearch,
       showActionFilters: false,
+      paddingTop: paddingTop,
   );
 
   @override
@@ -99,7 +101,7 @@ class OperatorsFilterWidget extends FilterWidget {
             super.filtersBoxVisibile = state.filtersBoxVisibile;
             return largeScreen?
             Padding(
-              padding: EdgeInsets.only(top: 25),
+              padding: EdgeInsets.only(top: paddingTop),
               child: super.build(context),
             ): super.build(context);
           }

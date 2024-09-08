@@ -24,9 +24,10 @@ class CreateEventState extends Equatable {
   _formStatus status = _formStatus.normal;
   int currentStep = 0;
   String typeSelected = 'Intervento';
+  bool withCartel = false;
 
   @override
-  List<Object> get props => [event.toString(), locations.join(), documents.keys.join(), documents.values.join(), category, status, isScheduled, currentStep, typeSelected];
+  List<Object> get props => [event.toString(), locations.join(), documents.keys.join(), documents.values.join(), category, status, isScheduled, currentStep, typeSelected, withCartel];
 
   bool isLoading() => this.status == _formStatus.loading;
 
@@ -41,6 +42,7 @@ class CreateEventState extends Equatable {
     _formStatus? status,
     int? currentStep,
     String? typeSelected,
+    bool? withCartel,
   }) {
     var form = CreateEventState(event??this.event);
     form.category = category??this.category;
@@ -52,6 +54,7 @@ class CreateEventState extends Equatable {
     form.locations = locations??this.locations;
     form.currentStep = currentStep ?? this.currentStep;
     form.typeSelected = typeSelected ?? this.typeSelected;
+    form.withCartel = withCartel ?? this.withCartel;
     return form;
   }
 }

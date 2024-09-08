@@ -9,7 +9,7 @@ class EventsFilterState extends Equatable {
   _filterStatus status = _filterStatus.normal;
 
   EventsFilterState() {
-    filters = FilterWrapper.initFilter();
+    filters = FilterWrapper.initFilterEvent();
   }
 
   @override

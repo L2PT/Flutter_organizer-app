@@ -11,7 +11,7 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/filter_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_widget.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/platform_datepicker.dart';
 
@@ -23,6 +23,7 @@ class EventsFilterWidget extends FilterWidget {
   final double maxHeightContainerExpanded;
 
   EventsFilterWidget({
+    double paddingTop = 20,
     String hintTextSearch = '',
     required void Function(Map<String, FilterWrapper> filters) onFiltersChanged,
     required void Function(Map<String, FilterWrapper> filters) onSearchFieldChanged,
@@ -35,7 +36,8 @@ class EventsFilterWidget extends FilterWidget {
         filtersBoxVisibile: filtersBoxVisibile,
         isExpandable: isExpandable,
         hintTextSearchField: hintTextSearch,
-        textSearchFieldVisible: textSearchFieldVisible
+        textSearchFieldVisible: textSearchFieldVisible,
+        paddingTop: paddingTop,
   );
 
   List<Widget> buildCategoriesList(BuildContext context) {
@@ -103,7 +105,7 @@ class EventsFilterWidget extends FilterWidget {
                           padding: EdgeInsets.only(top: spaceInput),
                           child: Row(
                             children: <Widget>[
-                              Icon(FontAwesomeIcons.clipboard, color: grey,),
+                              Icon(Icons.assignment, color: grey,),
                               SizedBox(width: spaceIconText),
                               Expanded(
                                   child: TextFormField(
@@ -174,7 +176,7 @@ class EventsFilterWidget extends FilterWidget {
                                 padding: EdgeInsets.only(top: spaceInput),
                                 child: Row(
                                   children: <Widget>[
-                                    Icon(FontAwesomeIcons.calendarAlt, color: grey,),
+                                    Icon(Icons.calendar_month, color: grey,),
                                     SizedBox(width: spaceIconText),
                                     Expanded(
                                       child: GestureDetector(
@@ -223,7 +225,7 @@ class EventsFilterWidget extends FilterWidget {
                                 ));}),
                       if(isSupervisor) Row(
                         children: <Widget>[
-                          Icon(FontAwesomeIcons.hardHat, color: grey,),
+                          Icon(FontAwesomeIcons.helmetSafety, color: grey,),
                           SizedBox(width: 5),
                           Expanded(
                               child: Text("Operatori", style: subtitle.copyWith(color: grey))),
@@ -313,7 +315,7 @@ class EventsFilterWidget extends FilterWidget {
             if(!state.isLoading()){
                 return !textSearchFieldVisible?
                 Padding(
-                  padding: EdgeInsets.only(top: 20),
+                  padding: EdgeInsets.only(top: paddingTop),
                   child: super.build(context),
                 ): super.build(context);
             } else return CircularProgressIndicator();

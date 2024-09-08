@@ -10,6 +10,7 @@ import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
+import 'package:venturiautospurghi/utils/create_entity_utils.dart';
 import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/global_methods.dart';
@@ -76,7 +77,7 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
   void modifyEvent() {
     //shh this is wrong, it breaks the mvvm
     PlatformUtils.backNavigator(context);
-    PlatformUtils.navigator(context, Constants.createEventViewRoute, _event);
+    PlatformUtils.navigator(context, Constants.createEventViewRoute, <String,dynamic>{"objectParameter" : _event, 'typeStatus' : TypeStatus.modify});
   }
 
   void copyEvent() {
@@ -87,13 +88,22 @@ class DetailsEventCubit extends Cubit<DetailsEventState> {
     e.operator = null;
     e.start = TimeUtils.getNextStartWorkTimeSpan();
     e.end = e.start.add(Duration(minutes: Constants.WORKTIME_SPAN));
-    PlatformUtils.navigator(context, Constants.createEventViewRoute, e);
+    PlatformUtils.navigator(context, Constants.createEventViewRoute, <String,dynamic>{"objectParameter" : e, 'typeStatus' : TypeStatus.copy});
   }
 
   void callClient(String phone) async {
-    phone = "tel:"+phone;
-    if(await canLaunch(phone)){
-      launch(phone);
+    Uri phoneUri = Uri.parse("tel:"+phone);
+    if(await canLaunchUrl(phoneUri)){
+      launchUrl(phoneUri);
+    }
+  }
+
+  void launchMap(String address) async {
+    String query = Uri.encodeComponent(address);
+    Uri googleUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=$query");
+
+    if (await canLaunchUrl(googleUrl)) {
+      await launchUrl(googleUrl);
     }
   }
 

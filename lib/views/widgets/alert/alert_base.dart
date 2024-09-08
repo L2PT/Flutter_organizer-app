@@ -1,7 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/theme.dart';
 
 class Alert extends StatelessWidget {
   final Widget content;

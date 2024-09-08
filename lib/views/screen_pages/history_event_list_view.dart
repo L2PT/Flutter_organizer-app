@@ -15,7 +15,7 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/filter_events_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_events_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class HistoryEventList extends StatelessWidget{
@@ -124,7 +124,7 @@ class _largeScreenState extends State<_largeScreen>  {
                                   event: event,
                                   height: 120,
                                   showEventDetails: true,
-                                  onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
+                                  onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute,  <String,dynamic>{"objectParameter" : event}),
                                 ))).toList()
                         )): Container(
                           child: Column(
@@ -161,8 +161,8 @@ class _largeScreenState extends State<_largeScreen>  {
         height: 45,
         child: TextButton(
           style: flatButtonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.all<Color>(selected?black:whitebackground),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(15.0))),)
+              backgroundColor: WidgetStateProperty.all<Color>(selected?black:whitebackground),
+              shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(15.0))),)
           ),
           child: Row(
             children: <Widget>[

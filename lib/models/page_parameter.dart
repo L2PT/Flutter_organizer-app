@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum FunctionalWidgetType { calendar, filterEvent, FilterOperator }
+enum FunctionalWidgetType { calendar, filterEvent, FilterOperator, FilterCustomer }
 
 class PageParameter {
 

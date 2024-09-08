@@ -3,7 +3,6 @@
 // found in the LICENSE file.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 const TextStyle _kStepStyle = TextStyle(
   fontSize: 12.0,
@@ -38,9 +37,7 @@ class StepIcon {
     this.state = StepState.indexed,
     this.isActive = false,
     this.icon
-  }) : assert(title != null),
-        assert(content != null),
-        assert(state != null);
+  });
 
   /// The title of the step that typically describes it.
   final Widget title;
@@ -107,10 +104,7 @@ class StepperIcon extends StatefulWidget {
     this.controlsBuilder,
     this.elevation,
     this.margin,
-  }) : assert(steps != null),
-        assert(type != null),
-        assert(currentStep != null),
-        assert(0 <= currentStep && currentStep < steps.length),
+  }) : assert(0 <= currentStep && currentStep < steps.length),
         super(key: key);
 
   /// The steps of the stepper whose titles, subtitles, icons always get shown.
@@ -266,7 +260,6 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
   Widget _buildCircleChild(int index, bool oldState) {
     final StepState state = oldState ? _oldStates[index]! : widget.steps[index].state;
     final bool isDarkActive = _isDark() && widget.steps[index].isActive;
-    assert(state != null);
     switch (state) {
       case StepState.indexed:
       case StepState.disabled:
@@ -304,7 +297,7 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
     if (!_isDark()) {
       return widget.steps[index].isActive ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.38);
     } else {
-      return widget.steps[index].isActive ? colorScheme.secondary : colorScheme.background;
+      return widget.steps[index].isActive ? colorScheme.secondary : colorScheme.surface;
     }
   }
 
@@ -410,14 +403,14 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
             TextButton(
               onPressed: widget.onStepContinue,
               style: ButtonStyle(
-                foregroundColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-                  return states.contains(MaterialState.disabled) ? null : (_isDark() ? colorScheme.onSurface : colorScheme.onPrimary);
+                foregroundColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+                  return states.contains(WidgetState.disabled) ? null : (_isDark() ? colorScheme.onSurface : colorScheme.onPrimary);
                 }),
-                backgroundColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-                  return _isDark() || states.contains(MaterialState.disabled) ? null : colorScheme.primary;
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>((Set<WidgetState> states) {
+                  return _isDark() || states.contains(WidgetState.disabled) ? null : colorScheme.primary;
                 }),
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(buttonPadding),
-                shape: MaterialStateProperty.all<OutlinedBorder>(buttonShape),
+                padding: WidgetStateProperty.all<EdgeInsetsGeometry>(buttonPadding),
+                shape: WidgetStateProperty.all<OutlinedBorder>(buttonShape),
               ),
               child: Text(localizations.continueButtonLabel),
             ),
@@ -426,7 +419,7 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
               child: TextButton(
                 onPressed: widget.onStepCancel,
                 style: TextButton.styleFrom(
-                  primary: cancelColor,
+                  foregroundColor: cancelColor,
                   padding: buttonPadding,
                   shape: buttonShape,
                 ),
@@ -443,20 +436,19 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
     final ThemeData themeData = Theme.of(context);
     final TextTheme textTheme = themeData.textTheme;
 
-    assert(widget.steps[index].state != null);
     switch (widget.steps[index].state) {
 
       case StepState.editing:
-        return textTheme.bodyText1!;
+        return textTheme.bodyLarge!;
       case StepState.indexed:
       case StepState.complete:
-        return textTheme.caption!;
+        return textTheme.bodySmall!;
       case StepState.disabled:
-        return textTheme.bodyText1!.copyWith(
+        return textTheme.bodyLarge!.copyWith(
           color: _isDark() ? _kDisabledDark : _kDisabledLight,
         );
       case StepState.error:
-        return textTheme.bodyText1!.copyWith(
+        return textTheme.bodyLarge!.copyWith(
           color: _isDark() ? _kErrorDark : _kErrorLight,
         );
     }
@@ -466,18 +458,17 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
     final ThemeData themeData = Theme.of(context);
     final TextTheme textTheme = themeData.textTheme;
 
-    assert(widget.steps[index].state != null);
     switch (widget.steps[index].state) {
       case StepState.indexed:
       case StepState.editing:
       case StepState.complete:
-        return textTheme.caption!;
+        return textTheme.bodySmall!;
       case StepState.disabled:
-        return textTheme.caption!.copyWith(
+        return textTheme.bodySmall!.copyWith(
           color: _isDark() ? _kDisabledDark : _kDisabledLight,
         );
       case StepState.error:
-        return textTheme.caption!.copyWith(
+        return textTheme.bodySmall!.copyWith(
           color: _isDark() ? _kErrorDark : _kErrorLight,
         );
     }
@@ -695,7 +686,6 @@ class _StepperIconState extends State<StepperIcon> with TickerProviderStateMixin
         );
       return true;
     }());
-    assert(widget.type != null);
     switch (widget.type) {
       case StepperType.vertical:
         return _buildVertical();

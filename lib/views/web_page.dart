@@ -28,6 +28,8 @@ final Map<String, PageParameter> parameterPage = {
       false, true, false),
   Constants.filterEventListRoute: PageParameter(Icons.person_add, Constants.registerRoute, 'Nuovo dipendente', FunctionalWidgetType.calendar,
       false, false, false),
+  Constants.customerContactsListRoute: PageParameter(Icons.person_add, Constants.createCustomerViewRoute, 'Nuovo cliente', FunctionalWidgetType.FilterCustomer,
+      false, true, true),
 };
 
 class WebPage extends StatefulWidget {
@@ -53,7 +55,7 @@ class _WebPageState extends State<WebPage> with TickerProviderStateMixin {
     final CloudFirestoreService databaseRepository = context.read<CloudFirestoreService>();
     final FirebaseMessagingService messagingRepository = context.read<FirebaseMessagingService>();
     final Account account = context.select((AuthenticationBloc bloc)=>bloc.account!);
-    PageParameter? pageParameter = parameterPage[GoRouterState.of(context).location];
+    PageParameter? pageParameter = parameterPage[GoRouterState.of(context).uri.toString()];
     MessagingCubit cubit = MessagingCubit(
         databaseRepository,
         messagingRepository,
@@ -68,23 +70,22 @@ class _WebPageState extends State<WebPage> with TickerProviderStateMixin {
             posLeftOverView: (MediaQuery.of(context).size.width/2) - (Constants.WIDTH_OVERVIEW/2),posTopOverView:  (MediaQuery.of(context).size.height/2) - (Constants.HEIGHT_OVERVIEW/2)
     )),
         BlocProvider(
-            create: (_) => WebCubit(GoRouterState.of(context).location, databaseRepository, account)),
+            create: (_) => WebCubit(GoRouterState.of(context).uri.toString(), databaseRepository, account)),
     ], child:Scaffold(
           backgroundColor: Color(0x00000000),
           body: Stack(
           children: [
-
             Row(
               children: [
-                SideMenuLayerWeb(pageParameter!.showButton, pageParameter!.textButton, pageParameter.iconLink,
-                    pageParameter!.actionButtonRoute, pageParameter!.functionalWidgetType, pageParameter!.showFunctionWidget),
+                SideMenuLayerWeb(pageParameter!.showButton, pageParameter.textButton, pageParameter.iconLink,
+                    pageParameter.actionButtonRoute, pageParameter.functionalWidgetType, pageParameter.showFunctionWidget),
                 Expanded(child: Column(
                   children: [
                     new BlocBuilder<WebCubit, WebCubitState>(
                       buildWhen: (previous, current) => previous.calendarDate != current.calendarDate,
                       builder: (context, state) {
                         return HeaderMenuLayerWeb(
-                            pageParameter!.showBoxCalendar,
+                            pageParameter.showBoxCalendar,
                             state.calendarDate,
                             account,
                             () => context.read<AuthenticationBloc>().add(LoggedOut()),
@@ -124,18 +125,28 @@ class _WebPageState extends State<WebPage> with TickerProviderStateMixin {
                                 child: child ));
                   }
                   if (state is CloseOverView) {
-                      switch(context.read<WebBloc>().state.route) {
-                        case Constants.addWebOperatorRoute :{
-                          if(state.result){
-                            Account account = context.read<AuthenticationBloc>().account!;
-                            account.webops = (context.read<WebBloc>().state as CloseOverView).arg.suboperators;
-                            //update firestore and calendarJs
-                            context.read<WebCubit>().updateAccount(account.webops);
-                          }
-                        }break;
-                        case Constants.operatorListRoute :{
-                          PlatformUtils.navigator(context, Constants.createEventViewRoute, <String,dynamic>{'event' : state.arg, 'currentStep' : 3});
+                    if(state.callback != null)
+                      state.callback!.call();
+                      state.callback = null;
+                    switch(context.read<WebBloc>().state.route) {
+                      case Constants.addWebOperatorRoute :{
+                        if(state.result){
+                          Account account = context.read<AuthenticationBloc>().account!;
+                          account.webops = (context.read<WebBloc>().state as CloseOverView).arg["objectParameter"].suboperators;
+                          //update firestore and calendarJs
+                          context.read<WebCubit>().updateAccount(account.webops);
                         }
+                      }break;
+                      default: {
+                        if(state.route != Constants.noRoute)
+                          PlatformUtils.navigator(context, context.read<WebBloc>().state.route, <String,dynamic>{'objectParameter' : state.arg['objectParameter'],'typeStatus': state.arg['typeStatus'], 'currentStep' : state.arg['currentStep']});
+                        else if(state.result)
+                          switch(GoRouterState.of(context).uri.toString()){
+                            case Constants.customerContactsListRoute :{
+                              context.read<WebCubit>().onFiltersChanged(context.read<WebCubit>().state.filters);
+                            }break;
+                          }
+                      }break;
                       }
                   }
                   return Container();
@@ -148,7 +159,7 @@ class _WebPageState extends State<WebPage> with TickerProviderStateMixin {
                   listener: (BuildContext context, MessagingState state){
                     if(state.isWaiting()) {
                       final GoRouterState stateRoute = GoRouterState.of(context);
-                      if (stateRoute.location == Constants.detailsEventViewRoute)
+                      if (stateRoute.uri.toString() == Constants.detailsEventViewRoute)
                         PlatformUtils.backNavigator(context);
                       PlatformUtils.navigator(
                           context, Constants.detailsEventViewRoute, state.event);

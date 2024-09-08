@@ -5,7 +5,7 @@ import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/filter_operators_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_operators_widget.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 import 'package:venturiautospurghi/views/widgets/loading_screen.dart';
 
@@ -78,7 +78,7 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
             )):Container()
     );
     void onExit(bool result,{ dynamic event }) {
-      PlatformUtils.backNavigator(context, <String,dynamic>{'event' : event, 'res': result});
+      PlatformUtils.backNavigator(context, <String,dynamic>{'objectParameter' : event, 'res': result});
     }
 
     return Scaffold(
@@ -94,7 +94,7 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
             child: ElevatedButton(
               child: new Text('CONFERMA', style: subtitle_rev),
               style: raisedButtonStyle.copyWith(
-                  shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
+                  shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(5.0))),
               ),
               onPressed: (){
                 if(context.read<OperatorSelectionCubit>().validateAndSave())
@@ -108,6 +108,7 @@ class _operatorSelectableListState extends State<_operatorSelectableList> {
           children: <Widget>[
             BlocBuilder<OperatorSelectionCubit, OperatorSelectionState>(builder: (context, state) {
               return OperatorsFilterWidget(
+                paddingTop: 10,
                 hintTextSearch: "Cerca un operatore",
                 onSearchFieldChanged: context.read<OperatorSelectionCubit>().onSearchFieldChanged,
                 onFiltersChanged: context.read<OperatorSelectionCubit>().onFiltersChanged,

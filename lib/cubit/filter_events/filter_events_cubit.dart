@@ -53,7 +53,7 @@ class EventsFilterCubit extends Cubit<EventsFilterState> {
       formKey.currentState!.save();
       Event ev = Event.empty();
       ev.suboperators = state.filters["suboperators"]!.fieldValue;
-      PlatformUtils.navigator(context, Constants.operatorListRoute, <String,dynamic>{'event' : ev, 'requirePrimaryOperator' : false, 'context' : context, 'callback' : forceRefresh});
+      PlatformUtils.navigator(context, Constants.operatorListRoute, <String,dynamic>{'objectParameter' : ev, 'requirePrimaryOperator' : false, 'context' : context, 'callback' : forceRefresh});
     }
   }
 

@@ -5,12 +5,14 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/customer.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_storage_service.dart';
+import 'package:venturiautospurghi/utils/create_entity_utils.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/utils/file_utils.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -18,43 +20,37 @@ import 'package:venturiautospurghi/utils/global_methods.dart';
 
 part 'create_event_state.dart';
 
-enum _eventType{ create, modify, copy }
 
-class CreateEventCubit extends Cubit<CreateEventState> {
+class CreateEventCubit extends Cubit<CreateEventState> with CreateEntityUtils{
   final CloudFirestoreService _databaseRepository;
   final Account _account;
   final GlobalKey<FormState> formKeyAssignedInfo = GlobalKey<FormState>();
   final GlobalKey<FormState> formKeyBasiclyInfo = GlobalKey<FormState>();
-  final GlobalKey<FormState> formKeyClientInfo = GlobalKey<FormState>();
   final GlobalKey<FormState> formTimeControlsKey = GlobalKey<FormState>();
   late TextEditingController addressController;
-
-  late _eventType _type;
   late bool canModify;
   late Map<String,dynamic> categories;
   late Map<String,dynamic> types;
   late Map<int, GlobalKey<FormState>> forms;
   DateTime? firstClick;
 
-  CreateEventCubit(this._databaseRepository, this._account, Event? event, int currentStep, DateTime? dateSelect)
+  CreateEventCubit(this._databaseRepository, this._account, Event? event, int currentStep, DateTime? dateSelect, {TypeStatus type = TypeStatus.create})
       : super(CreateEventState(event, dateSelect: dateSelect)) {
     state.currentStep = currentStep;
     fillMapForms();
+    setType(type);
     if(event==null){
-      _type = _eventType.create;
       state.event.supervisor = _account;
-    } else if(event.id == '') {
-      _type = _eventType.copy;
-    }else _type = _eventType.modify;
-      canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
-      categories = _databaseRepository.categories;
-      types = _databaseRepository.types;
-      addressController = new TextEditingController();
-      if(event != null ){
-        if(event.documentsMap.isNotEmpty)
-          state.documents = event.documentsMap;
-        addressController.text = state.event.address;
-      }
+    }
+    canModify = isNew() ? true : !(state.event.start.isAfter(DateTime.now()) && state.event.start.isBefore(DateTime.now().subtract(Duration(minutes: 5))));
+    categories = _databaseRepository.categories;
+    types = _databaseRepository.typesEvent;
+    addressController = new TextEditingController();
+    if(event != null ){
+      if(event.documentsMap.isNotEmpty)
+        state.documents = event.documentsMap;
+      addressController.text = state.event.address;
+    }
   }
 
   void getLocations(String text) async {
@@ -73,10 +69,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     addressController.text = address;
     emit(state.assign(locations: <String>[], address: address));
   }
-
-  bool isNew() => this._type == _eventType.create;
-
-  bool isCopy() => this._type == _eventType.copy;
 
   Future<bool> saveEvent() async {
     if(state.isLoading()) return Future<bool>(()=>false);
@@ -254,7 +246,17 @@ class CreateEventCubit extends Cubit<CreateEventState> {
     if(state.event.end.hour < Constants.MIN_WORKTIME || (state.event.end.hour > Constants.MAX_WORKTIME && !state.event.isAllDayLong()) )
         return PlatformUtils.notifyErrorMessage("Inserisci un'orario finale valido");
     //shh this is wrong, it breaks the mvvm
-    PlatformUtils.navigator(context, Constants.operatorListRoute, <String, dynamic>{'event' : state.event, 'requirePrimaryOperator' : true, 'context' : context, 'callback': forceRefresh});
+    PlatformUtils.navigator(context, Constants.operatorListRoute, <String, dynamic>{'objectParameter' : state.event, 'currentStep': state.currentStep ,'requirePrimaryOperator' : true, 'context' : context});
+  }
+
+  void addCustomerDialog(BuildContext context) async {
+    PlatformUtils.navigator(context, Constants.customerListRoute, <String, dynamic>{'objectParameter' : state.event, 'currentStep': state.currentStep, 'context' : context});
+  }
+
+  void removeCustomer(){
+    Event event = Event.fromMap("", "", state.event.toMap());
+    event.customer = Customer.empty();
+    emit(state.assign(event: event));
   }
 
   void forceRefresh() {
@@ -274,7 +276,14 @@ class CreateEventCubit extends Cubit<CreateEventState> {
           emit(state.assign(currentStep: state.currentStep+1));
         }
       }else{
-        emit(state.assign(currentStep: state.currentStep+1));
+        if(state.currentStep == 2){
+          if(state.event.customer.name.isEmpty){
+            PlatformUtils.notifyErrorMessage("Nessun cliente selezionato, selezionane uno prima di proseguire");
+          }else
+            emit(state.assign(currentStep: state.currentStep+1));
+        }else{
+          emit(state.assign(currentStep: state.currentStep+1));
+        }
       }
     }
   }
@@ -290,8 +299,13 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   }
 
   void onSelectedType(String key){
-    state.event.typology = key;
-    emit(state.assign(typeSelected: key));
+    if(key == "contratto-cartello")
+      state.event.withCartel = !state.event.withCartel;
+    else {
+      state.event.withCartel = false;
+      state.event.typology = key;
+    }
+    emit(state.assign(typeSelected: key, withCartel: state.event.withCartel));
   }
 
   void onSelectedCategory(String key){
@@ -302,7 +316,6 @@ class CreateEventCubit extends Cubit<CreateEventState> {
   void fillMapForms(){
     forms = Map();
     forms.putIfAbsent(1, () => formKeyBasiclyInfo);
-    forms.putIfAbsent(2, () => formKeyClientInfo);
   }
 
   void setFirstClick(DateTime date){

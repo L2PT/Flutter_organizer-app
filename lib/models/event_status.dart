@@ -77,12 +77,12 @@ class EventStatus {
     }
   }
 
-  static Color getColorStatus(int status){
+  static Color getColorStatus(int status, bool withCartel, bool isContratto){
     switch(status){
       case EventStatus.Refused: return colorRefused;
       case EventStatus.Accepted: return colorAccepted;
       case EventStatus.Deleted: return colorDeleted;
-      case EventStatus.Ended: return black;
+      case EventStatus.Ended: return withCartel?darkred:isContratto?darkblue:black;
       default: return colorWaiting;
     }
   }

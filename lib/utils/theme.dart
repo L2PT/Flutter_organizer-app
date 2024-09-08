@@ -36,16 +36,34 @@ ThemeData _buildTheme() {
       selectionColor: yellow.withOpacity(0.7),
     ),
     disabledColor: grey,
-    errorColor: red,
     buttonTheme: ButtonThemeData(
       buttonColor: black,
       textTheme: ButtonTextTheme.accent
     ),
-    appBarTheme: AppBarTheme(color: black),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: white,
+      headerBackgroundColor: black,
+      surfaceTintColor:  Colors.transparent,
+      todayBorder: BorderSide(color: black),
+      todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return white;
+        }
+        return black;
+      }),
+      headerForegroundColor: grey_light,
+      dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return white;
+        }
+        return black;
+      }),
+    ),
+    appBarTheme: AppBarTheme(color: black, surfaceTintColor: black),
     textButtonTheme: TextButtonThemeData(style: flatButtonStyle),
     elevatedButtonTheme: ElevatedButtonThemeData(style: raisedButtonStyle),
     outlinedButtonTheme: OutlinedButtonThemeData(style: outlineButtonStyle),
-    colorScheme: ColorScheme.dark().copyWith(secondary: black, primary: yellow, background: black),
+    colorScheme: ColorScheme.dark().copyWith(secondary: black, primary: yellow, surface: black, error: red),
     buttonBarTheme: ButtonBarThemeData(buttonTextTheme: ButtonTextTheme.accent,),
     hintColor: grey_light2,
     inputDecorationTheme: InputDecorationTheme(
@@ -62,17 +80,17 @@ ThemeData _buildTheme() {
 
 TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
   return base.copyWith(
-    headline5: base.headline5!.copyWith(
+    headlineSmall: base.headlineSmall!.copyWith(
       fontWeight: FontWeight.w500,
     ),
-    headline6: base.headline6!.copyWith(
+    titleLarge: base.titleLarge!.copyWith(
         fontSize: 18.0
     ),
-    caption: base.caption!.copyWith(
+    bodySmall: base.bodySmall!.copyWith(
       fontWeight: FontWeight.w400,
       fontSize: 14.0,
     ),
-    bodyText1: base.bodyText1!.copyWith(
+    bodyLarge: base.bodyLarge!.copyWith(
       fontWeight: FontWeight.w500,
       fontSize: 16.0,
     ),
@@ -85,7 +103,7 @@ TextTheme _buildShrineTextTheme(TextTheme base, Color c) {
 
 
 final ButtonStyle flatButtonStyle = TextButton.styleFrom(
-  primary: black,
+  foregroundColor: black,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16.0),
   shape: const RoundedRectangleBorder(
@@ -94,8 +112,11 @@ final ButtonStyle flatButtonStyle = TextButton.styleFrom(
 );
 
 final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
-  onPrimary: black,
-  primary: black,
+  backgroundColor: black,
+  surfaceTintColor: black,
+  shadowColor: Colors.black,
+  foregroundColor: black,
+  elevation: 4.0,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: const RoundedRectangleBorder(
@@ -106,20 +127,21 @@ final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
 /// The OutlineButton style for OutlinedButton is a little more complicated because the outline’s color changes to the primary color when the button is pressed.
 /// The outline’s appearance is defined by a BorderSide and we’ll use a MaterialStateProperty to define the pressed outline color
 final ButtonStyle outlineButtonStyle = OutlinedButton.styleFrom(
-  primary: black,
+  foregroundColor: black,
   minimumSize: Size(88, 36),
   padding: EdgeInsets.symmetric(horizontal: 16),
   shape: const RoundedRectangleBorder(
     borderRadius: BorderRadius.all(Radius.circular(2)),
   ),
 ).copyWith(
-  side: MaterialStateProperty.resolveWith<BorderSide?>(
-        (Set<MaterialState> states) {
-      if (states.contains(MaterialState.pressed))
+  side: WidgetStateProperty.resolveWith<BorderSide?>(
+        (Set<WidgetState> states) {
+      if (states.contains(WidgetState.pressed))
         return BorderSide(
           color: black,
           width: 1,
         );
+      return null;
     },
   ),
 );
@@ -135,9 +157,13 @@ const white = const Color(0xFFFFFFFF);
 const whitebackground = const Color(0xFFFFFFFF); //background
 const whiteoverlapbackground = const Color(0x99FFFFFF); //overlap background
 const red = const Color(0xFFC5032B);
+const darkred = const Color(0xFF600101);
 const yellow = const Color(0xFFF8AD09);
+const darkyellow = const Color(0xFFFFC107);
 const yellow_light = const Color(0xFFF8D009);
 const blue = const Color(0xFF119DD1);
+const azure = const Color(0xFF9FE3FD);
+const darkblue = const Color(0xFF023146);
 const green = const Color(0xFF00664D);
 const green_success = const Color(0xFF1A7C4F);
 const colorDeleted = const Color(0xFFC34638);

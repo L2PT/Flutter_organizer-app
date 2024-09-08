@@ -1,15 +1,14 @@
 import 'dart:async';
 
-import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:venturiautospurghi/bloc/mobile_bloc/mobile_bloc.dart';
 import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
-import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
+import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
 part 'persistent_notification_state.dart';
@@ -26,7 +25,7 @@ class PersistentNotificationCubit extends Cubit<PersistentNotificationState> {
         _databaseRepository = databaseRepository, _account = account,
         super(PersistentNotificationState(events??[])) {
     _databaseRepository.subscribeEventsByOperatorWaiting(_account.id).listen((waitingEventsList) {
-      if(safeChecker != null) safeChecker.cancel();
+      safeChecker.cancel();
       if(waitingEventsList.length == 0) context.read<MobileBloc>().add(RestoreEvent());
       emit(PersistentNotificationState(waitingEventsList));
     });

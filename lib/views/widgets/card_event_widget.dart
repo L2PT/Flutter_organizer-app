@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
+import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/colors.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
@@ -30,7 +31,7 @@ class CardEvent extends StatelessWidget {
     Widget _buildButton(String text, Function onPressedAction) => Container(
       child: TextButton(
         child: new Text(text, style: button_card),
-        style: flatButtonStyle.copyWith(backgroundColor: MaterialStateProperty.all<Color>(HexColor(event.color))),
+        style: flatButtonStyle.copyWith(backgroundColor: WidgetStateProperty.all<Color>(HexColor(event.color))),
         onPressed: () {
           onPressedAction.call(event);
         },
@@ -63,7 +64,7 @@ class CardEvent extends StatelessWidget {
                           color: HexColor(event.color)),
                       width: 6,
                       height: heightBar,
-                      margin: const EdgeInsets.symmetric(horizontal: 15.0),
+                      margin: const EdgeInsets.symmetric(horizontal: 10.0),
                     ),
                     Expanded(
                       flex: 5,
@@ -114,21 +115,21 @@ class CardEvent extends StatelessWidget {
                               children: <Widget>[
                                 Center(
                                   child: Text(DateFormat('MMM', "it_IT").format(event.start) .toUpperCase(),
-                                      style: title_rev.copyWith(fontSize: 15)),
+                                      style: title_rev.copyWith(fontSize: 14)),
                                 ),
                                 Center(
                                   child: Text("${event.start.day}",
-                                      style: title_rev.copyWith(fontSize: 15)),
+                                      style: title_rev.copyWith(fontSize: 14)),
                                 ),
                                 Center(
                                   child: Text(DateFormat('E', "it_IT").format(event.start),
-                                      style: title_rev.copyWith(fontSize: 14, fontWeight: FontWeight.normal)),
+                                      style: title_rev.copyWith(fontSize: 13, fontWeight: FontWeight.normal)),
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(top: 2),
                                   child: Center(
                                     child: Text(DateFormat('y', "it_IT").format(event.start),
-                                        style: title_rev.copyWith(fontSize: 13)),
+                                        style: title_rev.copyWith(fontSize: 12)),
                                   ),
                                 ),
                               ],
@@ -148,7 +149,8 @@ class CardEvent extends StatelessWidget {
           ),
           margin: EdgeInsets.symmetric(vertical: 0, horizontal: 4),
           elevation: 5,
-          color: black,
+          color: event.withCartel?darkred:event.isContratto()?darkblue:black,
+          surfaceTintColor: black,
         );
       } else {
 
@@ -160,7 +162,7 @@ class CardEvent extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(4.0),
             side: externalBorder? BorderSide(
-              color: EventStatus.getColorStatus(event.status),
+              color: EventStatus.getColorStatus(event.status, event.withCartel, event.isContratto()),
               width: 2.0,
             ):BorderSide.none,
           ),
@@ -177,7 +179,7 @@ class CardEvent extends StatelessWidget {
                             color: HexColor(event.color)),
                         width: 6,
                         height: heightBar,
-                        margin: const EdgeInsets.symmetric(horizontal: 15.0),
+                        margin: const EdgeInsets.symmetric(horizontal: 10.0),
                       ),
                       Expanded(
                           child:Container(
@@ -186,16 +188,31 @@ class CardEvent extends StatelessWidget {
                               children: <Widget>[
                                 Text(
                                   event.title.toUpperCase(),
-                                  style: title_rev,
+                                  style: PlatformUtils.isMobile?title_rev:title_rev.copyWith(fontSize: 15),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: maxLine,
                                 ),
-                                Text(event.category.toUpperCase(),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: subtitle_rev.copyWith(
-                                      color: HexColor(event.color),
-                                      fontWeight: FontWeight.normal)),
+                                Row(
+                                  children: [
+                                    Text(event.category.toUpperCase(),
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                        style: subtitle_rev.copyWith(
+                                            fontSize: PlatformUtils.isMobile?16:14,
+                                            color: HexColor(event.color),
+                                            fontWeight: FontWeight.normal)),
+                                    Expanded(child: Container(),),
+                                    event.notaOperator.isNotEmpty?
+                                    Container(
+                                      margin: EdgeInsets.only(right: 5,top: 2),
+                                      child: Icon(
+                                        Icons.assignment_ind,
+                                        size: 18,
+                                        color: HexColor(event.color),
+                                      ),
+                                    ):Container()
+                                  ],
+                                )
                               ],
                             ),
                             margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -208,7 +225,8 @@ class CardEvent extends StatelessWidget {
           ),
           margin: EdgeInsets.symmetric(vertical: 0, horizontal: 4),
           elevation: 5,
-          color: black,
+          color: event.withCartel?darkred:event.isContratto()?darkblue:black,
+          surfaceTintColor: black,
         );
       }
       return card;

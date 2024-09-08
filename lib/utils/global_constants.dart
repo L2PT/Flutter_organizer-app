@@ -28,6 +28,9 @@ class Constants {
   static const String registerRoute = '/view/register';
   static const String detailsEventViewRoute = '/view/details_event';
   static const String createEventViewRoute = '/view/form_event_creator';
+  static const String createCustomerViewRoute = '/view/form_customer_creator';
+  static const String createAddressViewRoute = '/view/form_address_creator';
+  static const String customerListRoute = '/view/customer_list';
   static const String waitingEventListRoute = '/view/waiting_event_list';
   static const String notUpadateversionAppRoute = '/view/version_app';
   static const String waitingNotificationRoute = '/view/persistent_notification';
@@ -39,13 +42,16 @@ class Constants {
   static const String logOut = 'log_out';
   static const String filterEventListRoute = '/view/filter_event';
   static const String bozzeEventListRoute = '/view/bozze_event_list';
+  static const String customerContactsListRoute = '/view/customer_contacts_list';
   static const String manageUtenzeRoute = '/view/manage_utenze';
+  static const String noRoute = 'noRoute';
 
   // TABLES DATABASE
   static const String tabellaUtenti = 'Utenti';
   static const String tabellaCostanti = debug?'Costanti_DEBUG':'Costanti';
   static const String tabellaEventi = debug?'Eventi_DEBUG':'Eventi';
   static const String tabellaStorico = debug?'Storico_DEBUG':'Storico';
+  static const String tabellaClienti = debug?'Clienti_DEBUG':'Clienti';
   static const String subtabellaStorico = debug?'StoricoEventi_DEBUG':'StoricoEventi';
   static const String tabellaEventiEliminati = debug?'/Storico_DEBUG/StoricoEliminati/StoricoEventi_DEBUG':'/Storico/StoricoEliminati/StoricoEventi';
   static const String tabellaEventiTerminati = debug?'/Storico_DEBUG/StoricoTerminati/StoricoEventi_DEBUG':'/Storico/StoricoTerminati/StoricoEventi';
@@ -76,6 +82,7 @@ class Constants {
   static const String tabellaCostanti_Telefoni = 'Telefoni';
   static const String tabellaCostanti_InfoApp = 'InfoApp';
   static const String tabellaCostanti_Tipologie = 'Tipologie';
+  static const String tabellaCostanti_TipologieCliente = 'TipologieCliente';
 
   // TABLE UTENTI
   static const String tabellaUtenti_Nome = 'Nome';
@@ -83,11 +90,15 @@ class Constants {
 
   // TABLE CLIENTE
   static const String tabellaClienti_codicefiscale = 'CodiceFiscale';
-  static const String tabellaClienti_company = 'Company';
+  static const String tabellaClienti_tipologia = 'Tipologia';
   static const String tabellaClienti_email = 'Email';
   static const String tabellaClienti_nome = 'Nome';
+  static const String tabellaClienti_cognome = 'Cognome';
   static const String tabellaClienti_partitaIva = 'PartitaIva';
   static const String tabellaClienti_telefono = 'Telefono';
+  static const String tabellaClienti_telefoni = 'Telefoni';
+  static const String tabellaClienti_indirizzi = 'Indirizzi';
+  static const String tabellaClienti_indirizzo = 'Indirizzo';
 
   // HANDLES
   static const int MIN_WORKTIME = 7;

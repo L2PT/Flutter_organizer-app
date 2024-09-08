@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:venturiautospurghi/models/account.dart';
@@ -31,8 +30,8 @@ class ListTileOperator extends StatelessWidget {
           children: <Widget>[
             Container(
               margin: EdgeInsets.only(right: 10.0),
-              padding: EdgeInsets.all(3.0),
-              child: Icon(operator.supervisor? FontAwesomeIcons.userTie : FontAwesomeIcons.hardHat, color: darkStyle?black:yellow,),
+              padding: EdgeInsets.only(top: 3, left: 3, right: 6, bottom: 3),
+              child: Icon(operator.supervisor? FontAwesomeIcons.userTie : FontAwesomeIcons.helmetSafety, color: darkStyle?black:yellow,),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(5.0)),
                 color: darkStyle?yellow:black,
@@ -46,8 +45,8 @@ class ListTileOperator extends StatelessWidget {
                 Wrap(
                   direction: Axis.vertical,
                   children: [
-                    Text(operator.surname.toUpperCase() + " ", style: title.copyWith(color: darkStyle? grey_light:black, fontSize: 16)),
-                    Text(operator.name, overflow: TextOverflow.ellipsis,style: subtitle.copyWith(fontSize: 14)),
+                    Text(operator.surname.toUpperCase() + " ", style: title.copyWith(color: darkStyle? grey_light:black, fontSize: 13)),
+                    Text(operator.name, overflow: TextOverflow.ellipsis,style: subtitle.copyWith(fontSize: 12)),
                   ],
                 ):
                 Row(
@@ -57,14 +56,16 @@ class ListTileOperator extends StatelessWidget {
                   ],
                 ),
                 detailMode?
-                Text(position == 0?"Operatore principale":"Operatore", style: subtitle,): Container()
+                Text(position == 0?"Operatore principale":"Operatore", style: subtitle.copyWith(fontSize: 12),): Container()
               ],
             ),
             Expanded(child: Container(),),
             checkbox>=2?CheckboxTriState(onChanged: (v)=>onTap?.call(operator),
               value: isChecked>0?true:false, activeColor: black, checkColor: isChecked>=2?yellow:white, superColor: yellow,):
-            checkbox>=1?Checkbox(onChanged: (v)=>onTap?.call(operator),
-              value: isChecked>0?true:false, activeColor: black, checkColor: white,):
+            checkbox>=1? Theme(data: ThemeData(
+              unselectedWidgetColor: grey_light, // Your color
+            ),child: Checkbox(onChanged: (v)=>onTap?.call(operator),
+              value: isChecked>0?true:false, activeColor: black, checkColor: white, )):
             onRemove != null?IconButton(
                 icon: Icon(Icons.delete, color: darkStyle?grey_dark:black, size: 25),
                 onPressed: () => onRemove(operator)

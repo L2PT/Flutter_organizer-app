@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
 import 'package:venturiautospurghi/models/linkmenu.dart';
@@ -7,6 +8,7 @@ import 'package:venturiautospurghi/models/page_parameter.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_customer_widget.dart';
 
 import '../../../plugins/table_calendar/table_calendar.dart';
 
@@ -18,6 +20,8 @@ final Map<String, LinkMenu> menuWeb = const {
       Icons.history, Colors.white, 20, "Storico Incarichi", title_rev_menu),
   Constants.bozzeEventListRoute: const LinkMenu(
       Icons.assignment, Colors.white, 20, "Bozze", title_rev_menu),
+  Constants.customerContactsListRoute: const LinkMenu(
+      FontAwesomeIcons.solidAddressBook, Colors.white, 18, "Rubrica Cliente", title_rev_menu),
   /*Constants.manageUtenzeRoute: const LinkMenu(
       Icons.people, Colors.white, 20, "Gestione Utenze", title_rev_menu),*/
 };
@@ -44,10 +48,13 @@ class SideMenuLayerWeb extends StatelessWidget {
               ElevatedButton(
                   onPressed: () => PlatformUtils.navigator(context, actionButtonRoute, <String,dynamic>{'dateSelect' : context.read<WebCubit>().state.calendarDate} ),
                   style: ButtonStyle(
-                    backgroundColor:  MaterialStateProperty.all<Color>(black),
+                    backgroundColor:  WidgetStateProperty.all<Color>(black),
+                    surfaceTintColor: WidgetStateProperty.all<Color>(black),
+                    shadowColor: WidgetStateProperty.all<Color>(Colors.black),
+                    elevation: WidgetStateProperty.all<double>(4.0),
                     padding:
-                    MaterialStateProperty.all(EdgeInsets.all(22)),
-                    shape: MaterialStateProperty.all<
+                    WidgetStateProperty.all(EdgeInsets.all(22)),
+                    shape: WidgetStateProperty.all<
                         RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.0),
@@ -61,7 +68,7 @@ class SideMenuLayerWeb extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Icon(
-                        Icons.add_box,
+                        iconData,
                         color: white,
                       ),
                       SizedBox(width: 5),
@@ -94,7 +101,7 @@ class SideMenuLayerWeb extends StatelessWidget {
                 children: <Widget>[
                   Icon(
                     view.iconLink,
-                    color: stateRoute.location == route
+                    color: stateRoute.uri.toString() == route
                         ? yellow
                         : view.colorIcon,
                     size: view.sizeIcon,
@@ -113,7 +120,7 @@ class SideMenuLayerWeb extends StatelessWidget {
                 children: <Widget>[
                   Icon(
                     view.iconLink,
-                    color: stateRoute.location == route
+                    color: stateRoute.uri.toString() == route
                         ? yellow
                         : view.colorIcon,
                     size: view.sizeIcon * 2,
@@ -137,6 +144,7 @@ class SideMenuLayerWeb extends StatelessWidget {
             rowHeight: 25,
             locale: 'it_IT',
             calendarController: context.read<WebCubit>().calendarController,
+            initialSelectedDay: context.read<WebCubit>().newDate,
             initialCalendarFormat: CalendarFormat.month,
             formatAnimation: FormatAnimation.slide,
             startingDayOfWeek: StartingDayOfWeek.monday,
@@ -195,6 +203,25 @@ class SideMenuLayerWeb extends StatelessWidget {
       case FunctionalWidgetType.filterEvent:
         return Container();
       case FunctionalWidgetType.FilterOperator:
+        return Container();
+      case FunctionalWidgetType.FilterCustomer:
+        return BlocBuilder<WebCubit, WebCubitState>(
+            buildWhen: (previous, current) => previous != current,
+            builder: (context, state) =>
+                 CustomersFilterWidget(
+                  hintTextSearch: 'Cerca i clienti',
+                  onSearchFieldChanged: context.read<WebCubit>().onFiltersChanged,
+                  onFiltersChanged: context.read<WebCubit>().onFiltersChanged,
+                  maxHeightContainerExpanded: MediaQuery.of(context).size.height-270,
+                  textSearchFieldVisible: true,
+                  paddingTop: 10,
+                  paddingBottomBox: 0,
+                  paddingLeftBox: 0,
+                  paddingRightBox: 0,
+                  paddingTopBox: 0,
+                  spaceButton: 10,
+              ));
+      default:
         return Container();
     }
   }

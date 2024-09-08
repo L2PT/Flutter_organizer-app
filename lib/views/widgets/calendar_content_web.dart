@@ -132,7 +132,7 @@ class CalendarContentWeb extends StatelessWidget {
             children: [
               Icon(Icons.place, size: 14),
               SizedBox(width: 5,),
-              Text(eventHover.address, style: white_default, ),
+              Text(eventHover.customer.address.address, style: white_default, ),
             ],
           ),
           SizedBox(height: 2,),
@@ -223,21 +223,22 @@ class _HeaderOperatorCalendarState extends State<HeaderOperatorCalendar>  {
           width: 75,
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
           child: ElevatedButton(
-            onPressed: () => PlatformUtils.navigator(context, Constants.addWebOperatorRoute),
+            onPressed: () => PlatformUtils.navigator(context, Constants.addWebOperatorRoute, <String,dynamic>{} ),
             child: Icon(
-              FontAwesomeIcons.plus,
+              Icons.add,
               color: white,
-              size: 25,
+              size: 35,
             ),
             style: ButtonStyle(
-              shape: MaterialStateProperty.all(CircleBorder()),
-              padding: MaterialStateProperty.all(EdgeInsets.all(5)),
-              backgroundColor: MaterialStateProperty.all(black),
+              shape: WidgetStateProperty.all(CircleBorder()),
+              padding: WidgetStateProperty.all(EdgeInsets.all(5)),
+              backgroundColor: WidgetStateProperty.all(black),
               // <-- Button color
               overlayColor:
-              MaterialStateProperty.resolveWith<Color?>((states) {
-                if (states.contains(MaterialState.pressed))
-                  return black_light; // <-- Splash color
+              WidgetStateProperty.resolveWith<Color?>((states) {
+                if (states.contains(WidgetState.pressed))
+                  return black_light;
+                return null; // <-- Splash color
               }),
             ),
           )),
@@ -261,8 +262,8 @@ class _HeaderOperatorCalendarState extends State<HeaderOperatorCalendar>  {
             children: [
               Container(
                 margin: EdgeInsets.only(right: 10.0),
-                padding: EdgeInsets.all(5.0),
-                child: Icon(operator.supervisor? FontAwesomeIcons.userTie : FontAwesomeIcons.hardHat, size: 25, color: yellow,),
+                padding: EdgeInsets.only(top: 5, left: 5, right: 8, bottom: 5),
+                child: Icon(operator.supervisor? FontAwesomeIcons.userTie : FontAwesomeIcons.helmetSafety, size: 25, color: yellow,),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(5.0)),
                   color: black,
@@ -401,11 +402,11 @@ class _OperatorCalendarState extends State<OperatorCalendar>  {
                               event: event,
                               height: heightEvent,
                               externalBorder: true,
-                              onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute, event),
+                              onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute,  <String,dynamic>{"objectParameter" : event}),
                             ),
                             onEnter: (e) => context.read<CalendarContentWebCubit>().hoverCardEnter(selectDay,index, event),
                             onExit: (e) => context.read<CalendarContentWebCubit>().hoverCardExit(),
-                            cursor: MaterialStateMouseCursor.clickable,
+                            cursor: WidgetStateMouseCursor.clickable,
                           ),
                         ];
                         int newBaseMinutes = _.DateUtils.getLastDailyWorkedMinute(event.end, selectDay);
