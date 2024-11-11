@@ -60,22 +60,6 @@ class Utils {
     return event;
   }
 
-  static bool isNumeric(String str) {
-    return double.tryParse(str) != null;
-  }
-
-  static bool isPhoneNumber(String str) {
-    String patttern = r'(^(?:[+3]9)?[0-9]{8,12}$)';
-    RegExp regExp = new RegExp(patttern);
-    if (str.length == 0) {
-      return false;
-    }
-    else if (!regExp.hasMatch(str)) {
-      return false;
-    }
-    return true;
-  }
-
   static bool isDoubleClick(DateTime? firstClickTime, DateTime currentTime){
     if(firstClickTime==null){
       return false;
@@ -94,9 +78,9 @@ class GeoUtils {
     var result = await GooglePlace(Constants.googleMapsApiKey).autocomplete.get(address, language: "it",
         components: [new Component("country", "it")] );
     if(result != null && result.predictions != null)
-      result.predictions!.forEach((e) => {
+      result.predictions!.forEach((e) {
         if(!string.isNullOrEmpty(e.description))
-          locations.add(e.description!)
+          locations.add(e.description!);
       });
     return locations;
   }

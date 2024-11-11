@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
@@ -12,6 +11,12 @@ class FilterWidget extends StatelessWidget {
   bool isExpandable;
   late bool largeScreen;
   final bool textSearchFieldVisible;
+  double paddingTop;
+  double paddingTopBox;
+  double paddingRightBox;
+  double paddingLeftBox;
+  double paddingBottomBox;
+  double spaceButton;
 
 
   FilterWidget({
@@ -21,6 +26,12 @@ class FilterWidget extends StatelessWidget {
     required this.hintTextSearchField,
     this.showActionFilters = true,
     this.textSearchFieldVisible = false,
+    this.spaceButton = 15,
+    this.paddingTop = 20,
+    this.paddingTopBox = 16,
+    this.paddingLeftBox = 14,
+    this.paddingBottomBox = 14,
+    this.paddingRightBox = 14,
   });
 
   @override
@@ -36,8 +47,8 @@ class FilterWidget extends StatelessWidget {
           this.filtersBoxVisibile ? Container(
               margin: const EdgeInsets.symmetric(
                   vertical: 8.0, horizontal: 16.0),
-              padding: const EdgeInsets.only(
-                  top: 16.0, right: 14.0, bottom: 14.0, left: 14.0),
+              padding: EdgeInsets.only(
+                  top: paddingTopBox, right: paddingRightBox, bottom: paddingBottomBox, left: paddingLeftBox),
               decoration: BoxDecoration(color: black,
                   borderRadius: BorderRadius.all(Radius.circular(15.0))),
               child: Column(
@@ -54,8 +65,8 @@ class FilterWidget extends StatelessWidget {
     Widget WebFilter() {
       return Container(
           margin: const EdgeInsets.symmetric(vertical: 5.0),
-          padding: const EdgeInsets.only(
-              top: 16.0, right: 14.0, bottom: 14.0, left: 14.0),
+          padding: EdgeInsets.only(
+              top: paddingTopBox, right: paddingRightBox, bottom: paddingBottomBox, left: paddingLeftBox),
           decoration: BoxDecoration(
               color: black,
               borderRadius: BorderRadius.all(Radius.circular(15.0))),
@@ -94,6 +105,7 @@ class FilterWidget extends StatelessWidget {
                     color: white,
                   ),
                   hintText: hintTextSearchField,
+                  contentPadding: EdgeInsets.only(top: 12)
                 ),
               ),
             ),
@@ -114,7 +126,7 @@ class FilterWidget extends StatelessWidget {
             child: new Text('Annulla', style: label_rev,),
             onPressed: () => this.clearFilters(context),
           ),
-          SizedBox(width: 15,),
+          SizedBox(width: spaceButton,),
           ElevatedButton(
             style: ElevatedButton.styleFrom(side: BorderSide(width: 1.0, color: white,)),
             child: new Text('FILTRA', style: button_card),

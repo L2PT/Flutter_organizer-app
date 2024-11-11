@@ -1,12 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart' as http;
-import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
 class FirebaseMessagingService {

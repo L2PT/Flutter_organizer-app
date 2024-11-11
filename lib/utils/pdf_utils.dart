@@ -191,11 +191,11 @@ class PDFUtils {
               children: [
                 Icon(IconData(0xe0c8), size: 15, color: PdfColors.grey800),
                 SizedBox(width: 5,),
-                Text(event.address,
+                Text(event.customer.address.address,
                     style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.normal, color: PdfColors.grey700,), maxLines: 2),
               ],
             ),
-            !string.isNullOrEmpty(event.customer.phone)?
+            event.customer.phones.length != 0?
             Container(
               margin: EdgeInsets.only(top: 2),
               child:Row(
@@ -203,7 +203,7 @@ class PDFUtils {
                 children: [
                   Icon(IconData(0xe0cf), size: 15, color: PdfColors.grey800),
                   SizedBox(width: 5,),
-                  Text(event.customer.phone,
+                  Text(event.customer.address.phone.isNotEmpty?event.customer.address.phone+' - ':''+event.customer.phones.join(' - '),
                       style: TextStyle(fontSize: _fontSize, fontWeight: FontWeight.normal, color: PdfColors.grey700,), maxLines: 2),
                 ],
               ),

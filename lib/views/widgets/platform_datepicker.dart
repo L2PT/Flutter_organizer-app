@@ -7,8 +7,25 @@ class PlatformDatePicker {
   static Widget dialog_theme(BuildContext context, Widget? child) {
     return Theme(
       data: ThemeData.light().copyWith(
+        dialogTheme: DialogTheme(
+          surfaceTintColor: Colors.transparent,
+        ),
         colorScheme: ColorScheme.light().copyWith(
-          primary: black,
+          primary: black,),
+        timePickerTheme: TimePickerThemeData(
+          backgroundColor: white,
+          dialBackgroundColor: grey_light,
+          dayPeriodTextColor: black,
+          dayPeriodColor: grey_light, //Background of AM/PM.
+          dialHandColor: black,
+          hourMinuteTextColor: black,
+          hourMinuteColor: grey_light,
+        ),
+        datePickerTheme: DatePickerThemeData(
+          backgroundColor: white,
+          headerBackgroundColor: black,
+          surfaceTintColor:  Colors.transparent,
+          headerForegroundColor: grey_light,
         ),
       ),
       child: child ?? Container(),

@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
+import 'package:venturiautospurghi/cubit/web/web_cubit.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_messaging_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/router/GoRouterRefreshStream.dart';
 import 'package:venturiautospurghi/views/screen_pages/bozze_event_list_view.dart';
+import 'package:venturiautospurghi/views/screen_pages/customer_contacts_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/history_event_list_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/log_in_view.dart';
 import 'package:venturiautospurghi/views/screen_pages/reset_auth_account_view.dart';
@@ -61,6 +63,15 @@ class RouterWebApp{
                   name: 'filterEvent',
                   builder: (context, state) => FilterEventList(),
                 ),
+                GoRoute(
+                  parentNavigatorKey: _shellNavigatorKey,
+                  path: Constants.customerContactsListRoute,
+                  name: 'customerContacts',
+                  builder: (context, state) {
+                    context.read<WebCubit>().resetFilterCustomer();
+                    return CustomerContacts();
+                  },
+                ),
               ]),
           GoRoute(
             parentNavigatorKey: _rootNavigatorKey,
@@ -82,8 +93,8 @@ class RouterWebApp{
                 return CustomTransitionPage(
                   key: state.pageKey,
                   child: ResetAuthAccount(
-                      state.queryParameters['autofilledEmail'] as String,
-                      state.queryParameters['autofilledPhone'] as String),
+                      state.uri.queryParameters['autofilledEmail'] as String,
+                      state.uri.queryParameters['autofilledPhone'] as String),
                   transitionsBuilder: (context, animation, secondaryAnimation,
                       child) {
                     // Change the opacity of the screen using a Curve based on the the animation's
@@ -99,8 +110,7 @@ class RouterWebApp{
           ),
         ],
         redirect: (context, state) {
-
-          print("Location:" + state.location);
+          print("Location:" + state.uri.toString());
           final isLoggedIn =
               context.read<AuthenticationBloc>().state is Authenticated;
           final isReset =
@@ -112,9 +122,9 @@ class RouterWebApp{
 
           if(isUnLogged) return Constants.logInRoute;
 
-          if(isLoggedIn && (state.location == Constants.logInRoute || state.location == Constants.loadingRoute)) return Constants.homeRoute;
+          if(isLoggedIn && (state.uri.toString() == Constants.logInRoute || state.uri.toString() == Constants.loadingRoute)) return Constants.homeRoute;
 
-          if(isLoggedIn && state.location != Constants.logInRoute) return state.location;
+          if(isLoggedIn && state.uri.toString() != Constants.logInRoute) return state.uri.toString();
 
           return Constants.loadingRoute;
         },

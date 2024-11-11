@@ -5,7 +5,6 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 
 part 'operator_list_state.dart';
@@ -31,10 +30,7 @@ class OperatorListCubit extends Cubit<OperatorListState> {
 
   void loadMoreData() async {
     int prevSize = operators.length;
-    if(state.searchTimeField == null)
-      operators.addAll(await _databaseRepository.getOperators(limit: loadingElements, startFrom: operators.last.surname));
-    else
-      operators.addAll(await _databaseRepository.getOperatorsFree("", state.searchTimeField, state.searchTimeField.add(new Duration(minutes: Constants.WORKTIME_SPAN)), limit: loadingElements, startFrom: operators.last.surname));
+    operators.addAll(await _databaseRepository.getOperatorsFree("", state.searchTimeField, state.searchTimeField.add(new Duration(minutes: Constants.WORKTIME_SPAN)), limit: loadingElements, startFrom: operators.last.surname));
     canLoadMore = operators.length >= prevSize + loadingElements;
     emit((state as ReadyOperators).assign(operators: operators));
   }
@@ -61,12 +57,11 @@ class OperatorListCubit extends Cubit<OperatorListState> {
   }
 
   void scrollToTheTop(){
-    if(scrollController != null)
-      scrollController.animateTo(
-      0.0,
-      curve: Curves.easeOut,
-      duration: const Duration(milliseconds: 100),
-    );
+    scrollController.animateTo(
+    0.0,
+    curve: Curves.easeOut,
+    duration: const Duration(milliseconds: 100),
+  );
   }
 
 }

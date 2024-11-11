@@ -139,12 +139,11 @@ class OperatorSelectionCubit extends Cubit<OperatorSelectionState> {
   Event getEvent() => _event;
 
   void scrollToTheTop(){
-    if(scrollController != null)
-      scrollController.animateTo(
-      0.0,
-      curve: Curves.easeOut,
-      duration: const Duration(milliseconds: 100),
-    );
+    scrollController.animateTo(
+    0.0,
+    curve: Curves.easeOut,
+    duration: const Duration(milliseconds: 100),
+  );
   }
 
 }

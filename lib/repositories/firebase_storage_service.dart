@@ -11,7 +11,7 @@ class FirebaseStorageService {
         await _firebaseStorage.ref(storagePath).putFile(file);
       else
         await _firebaseStorage.ref(storagePath).putData(file);
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       // e.g, e.code == 'canceled'
     }
   }
@@ -21,7 +21,7 @@ class FirebaseStorageService {
 
     try {
       await _firebaseStorage.ref('uploads/file-to-upload.png') .putFile(file);
-    } on FirebaseException catch (e) {
+    } on FirebaseException {
       // e.g, e.code == 'canceled'
     }
   }

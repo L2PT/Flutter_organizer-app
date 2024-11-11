@@ -16,6 +16,7 @@ class Event {
   int status = EventStatus.New;
   String category = "";
   String typology = "Intervento";
+  bool withCartel = false;
   String color = "";
   String motivazione = "";
   Account? supervisor;
@@ -28,11 +29,11 @@ class Event {
   bool isScheduled = false;
 
 
-  Event(this.id, this.title, this.description, this.notaOperator, this.start, this.end, this.address, this.documents, this.status, this.category,this.typology, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer);
+  Event(this.id, this.title, this.description, this.notaOperator, this.start, this.end, this.address, this.documents, this.status, this.category,this.typology, this.color, this.supervisor, this.operator, this.suboperators, this.motivazione, this.customer, this.withCartel);
   Event.empty();
 
   Event.fromMap(String id, String color, Map json) :
-    id = (id!=null && id!="")?id:(json["id"]!=null)?json["id"]:"",
+    id = (id!="")?id:(json["id"]!=null)?json["id"]:"",
     title = json["Titolo"],
     description = json["Descrizione"],
     notaOperator = json["NotaOperatore"]??'',
@@ -50,6 +51,7 @@ class Event {
     motivazione = json["Motivazione"]??"",
     customer = json["Cliente"] == null? Customer.empty(): Customer.fromMap(id, json["Cliente"]),
     isScheduled = json["isScheduled"]??false,
+    withCartel = json["withCartel"]??false,
     documentsMap = json["documentsMap"] == null?{}:(json["documentsMap"] as Map<String,dynamic>) ;
 
   Map<String, dynamic> toMap() => {
@@ -70,6 +72,7 @@ class Event {
       "Operatore":this.operator?.toMap(),
       "SubOperatori":this.suboperators.map((op)=>op.toMap()).toList(),
       "isScheduled":this.isScheduled,
+      "withCartel": this.withCartel,
       "documentsMap":this.documentsMap,
   };
   Map<String, dynamic> toDocument(){
@@ -91,6 +94,9 @@ class Event {
       "Motivazione" : this.motivazione,
       "IdOperatore" : this.operator?.id??"",
       "IdOperatori" : [...this.suboperators.map((op) => op.id),operator?.id??""],
+      "isScheduled":this.isScheduled,
+      "withCartel": this.withCartel,
+      "documentsMap":this.documentsMap,
     });
   }
 
@@ -120,6 +126,9 @@ class Event {
   bool isEnded() => this.status == EventStatus.Ended;
   bool isBozza() => this.status == EventStatus.Bozza;
 
+  bool isIntervento() => this.typology == "Intervento";
+  bool isContratto() => this.typology == "Contratto";
+
   @override
-  String toString() => id+title+description+notaOperator+documents.join()+start.toString()+end.toString()+address+(status).toString()+typology+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
+  String toString() => id+title+description+notaOperator+customer.toString()+documents.join()+start.toString()+end.toString()+address+(status).toString()+typology+withCartel.toString()+category+color+(operator?.id??"")+suboperators.map((o) => o.id).join()+(motivazione);
 }

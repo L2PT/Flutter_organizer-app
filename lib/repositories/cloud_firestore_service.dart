@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/customer.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
 import 'package:venturiautospurghi/models/filter_wrapper.dart';
@@ -12,6 +13,7 @@ class CloudFirestoreService {
   final FirebaseFirestore _cloudFirestore;
   late CollectionReference _collectionUtenti;
   late CollectionReference _collectionEventi;
+  late CollectionReference _collectionClienti;
   late Query _collectionSubStoricoEventi;
   late CollectionReference _collectionStoricoEliminati;
   late CollectionReference _collectionStoricoTerminati;
@@ -19,12 +21,14 @@ class CloudFirestoreService {
   late CollectionReference _collectionCostanti;
 
   late Map<String,dynamic> categories;
-  late Map<String,dynamic> types;
+  late Map<String,dynamic> typesEvent;
+  late Map<String, dynamic> typesCustomer;
 
   CloudFirestoreService([FirebaseFirestore? cloudFirestore])
       : _cloudFirestore = cloudFirestore ??  FirebaseFirestore.instance {
     _collectionUtenti = _cloudFirestore.collection(Constants.tabellaUtenti) ;
     _collectionEventi = _cloudFirestore.collection(Constants.tabellaEventi);
+    _collectionClienti = _cloudFirestore.collection(Constants.tabellaClienti);
     _collectionSubStoricoEventi = _cloudFirestore.collectionGroup(Constants.subtabellaStorico);
     _collectionStoricoEliminati = _cloudFirestore.collection(Constants.tabellaEventiEliminati);
     _collectionStoricoTerminati = _cloudFirestore.collection(Constants.tabellaEventiTerminati);
@@ -35,7 +39,8 @@ class CloudFirestoreService {
   static Future<CloudFirestoreService> create() async {
     CloudFirestoreService instance = CloudFirestoreService();
     instance.categories = await instance._getCategories();
-    instance.types = await instance._getTypes();
+    instance.typesEvent = await instance._getTypesEvent();
+    instance.typesCustomer = await instance._getTypesCustomer();
     return instance;
   }
 
@@ -110,8 +115,12 @@ class CloudFirestoreService {
     return _collectionCostanti.doc(Constants.tabellaCostanti_Categorie).get().then((document) => document.data()! as Map<String, dynamic>);
   }
 
-  Future<Map<String, dynamic>> _getTypes() async {
+  Future<Map<String, dynamic>> _getTypesEvent() async {
     return _collectionCostanti.doc(Constants.tabellaCostanti_Tipologie).get().then((document) => document.data()! as Map<String, dynamic>);
+  }
+
+  Future<Map<String, dynamic>> _getTypesCustomer() async {
+    return _collectionCostanti.doc(Constants.tabellaCostanti_TipologieCliente).get().then((document) => document.data()! as Map<String, dynamic>);
   }
 
   Stream<Map<String, dynamic>> getInfoApp() {
@@ -419,6 +428,61 @@ class CloudFirestoreService {
       query = query.startAfter([startFrom]);
 
     return query;
+  }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Future<String> addCustomer(Customer data) async {
+    var docRef = await _collectionClienti.add(data.toDocument());
+    return docRef.id;
+  }
+
+  void updateCustomer(String id, Customer data) {
+    _collectionClienti.doc(id).update(data.toDocument());
+  }
+
+  Future<List<Customer>> getCustomers({limit, startFrom}) async {
+    Query query = _collectionClienti.orderBy(Constants.tabellaClienti_cognome);
+    query = addPagination(query, limit, startFrom);
+    return query.get().then((snapshot) => snapshot.docs.map((document) => Customer.fromMap(document.id, document.data() as Map<String, dynamic>)).toList());
+  }
+
+  void deleteCustomer(String id) {
+    _collectionClienti.doc(id).delete();
+  }
+
+  Future<List<Customer>> getCustomersActiveFiltered(Map<String, FilterWrapper> filters, {limit, startFrom}) {
+    return _getCustomersFiltered(_collectionClienti, filters, limit, startFrom, null);
+  }
+
+  Future<List<Customer>> _getCustomersFiltered(Query query, Map<String, FilterWrapper> filters, [limit, startFrom, remaining]) async {
+    Query startQuery = query;
+    filters = Map.from(filters);
+    // due to firebase limitations (we can't build a query with all filters) let the repository do ALL filtering work
+    // despite some fields will be handled in the firebase query and some other in code
+    bool endOfList = false;
+
+    if (filters.containsKey("typology") && filters["typology"]!.fieldValue != null){
+      query = query.where(Constants.tabellaClienti_tipologia, isEqualTo: filters["typology"]!.fieldValue);
+    }
+    query = query.orderBy(
+        Constants.tabellaClienti_cognome);
+    query = addPagination(query, limit, startFrom);
+
+    var docs = await query.get().then((snapshot) => snapshot.docs);
+    if (limit != null && docs.length < limit) endOfList = true;
+
+    List<Customer> customer = docs.map((document) =>
+        Customer.fromMap(document.id, document.data() as Map<String, dynamic>)).toList();
+
+    String lastSurnameRecived = customer.isNotEmpty?customer.last.surname:'';
+
+    customer = customer.where((customer) => filters.values.every((wrapper) =>
+        customer.filter(wrapper.filterFunction, wrapper.fieldValue))
+    ).toList();
+
+    var a = (customer.length>=(remaining??limit) || endOfList) ? customer :
+    [...customer, ...(await _getCustomersFiltered(startQuery, filters, limit, lastSurnameRecived, limit-customer.length))];
+    return a;
   }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

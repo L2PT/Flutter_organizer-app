@@ -3,13 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:venturiautospurghi/bloc/authentication_bloc/authentication_bloc.dart';
 import 'package:venturiautospurghi/cubit/details_event/details_event_cubit.dart';
 import 'package:venturiautospurghi/cubit/fab_widget/fab_cubit.dart';
+import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/models/event.dart';
-import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_delete.dart';
 
 class Fab extends StatelessWidget {
@@ -44,6 +42,7 @@ class Fab_details_super  extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.all(2),
           child: FloatingActionButton(
+            shape: const CircleBorder(),
             child: Icon(Icons.event_note,size: 40, color: white),
             onPressed: () => showDialog(
                 context: parentContext,
@@ -61,12 +60,14 @@ class Fab_details_super  extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 Text("Copia",
-                                    style: Theme.of(context).textTheme.headline6!
+                                    style: Theme.of(context).textTheme.titleLarge!
                                         .copyWith(color: white)),
                                 SizedBox(
                                   width: 10,
                                 ),
-                                GestureDetector(
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child:GestureDetector(
                                   onTap: () {
                                     Navigator.pop(dialogContext);//fab
                                     context.read<DetailsEventCubit>().copyEvent();
@@ -80,7 +81,7 @@ class Fab_details_super  extends StatelessWidget {
                                     ),
                                     child: Icon(Icons.copy, color: white,),
                                   ),
-                                )
+                                ))
                               ],
                             ),
                           ),
@@ -90,12 +91,14 @@ class Fab_details_super  extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 Text("Cancella",
-                                    style: Theme.of(context).textTheme.headline6!
+                                    style: Theme.of(context).textTheme.titleLarge!
                                         .copyWith(color: white)),
                                 SizedBox(
                                   width: 10,
                                 ),
-                                GestureDetector(
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child:GestureDetector(
                                   onTap: () async {
                                     ConfirmCancelAlert(parentContext, title: "CANCELLA INCARICO", text: "Confermi la cancellazione dell'incarico?").show().then((value) {
                                       if(value.first){
@@ -113,7 +116,7 @@ class Fab_details_super  extends StatelessWidget {
                                     ),
                                     child: Icon(Icons.delete, color: white,),
                                   ),
-                                )
+                                ))
                               ],
                             ),
                           ),
@@ -123,10 +126,12 @@ class Fab_details_super  extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: <Widget>[
                                 Text("Modifica",
-                                    style: Theme.of(context).textTheme.headline6!
+                                    style: Theme.of(context).textTheme.titleLarge!
                                         .copyWith(color: white)),
                                 SizedBox( width: 10, ),
-                                GestureDetector(
+                                MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child:GestureDetector(
                                   onTap: () {
                                     Navigator.pop(dialogContext);//fab
                                     context.read<DetailsEventCubit>().modifyEvent();
@@ -137,7 +142,7 @@ class Fab_details_super  extends StatelessWidget {
                                     ),
                                     child: Icon(Icons.edit, color: white),
                                   ),
-                                )
+                                ))
                               ],
                             ),
                           ),
@@ -183,7 +188,7 @@ class Fab_details_oper extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text("Responsabile",
-                                  style: Theme.of(context).textTheme.headline6!
+                                  style: Theme.of(context).textTheme.titleLarge!
                                       .copyWith(color: white)),
                               SizedBox(
                                 width: 10,
@@ -212,7 +217,7 @@ class Fab_details_oper extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: <Widget>[
                               Text("Ufficio",
-                                  style: Theme.of(context).textTheme.headline6!
+                                  style: Theme.of(context).textTheme.titleLarge!
                                       .copyWith(color: white)),
                               SizedBox(
                                 width: 10,

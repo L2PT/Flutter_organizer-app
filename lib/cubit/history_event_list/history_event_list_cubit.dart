@@ -14,7 +14,7 @@ class HistoryEventListCubit extends Cubit<HistoryEventListState> {
   final ScrollController scrollController = new ScrollController();
   List<Event> listEvent = [];
   int startingElements = 10;
-   int loadingElements = 1;
+  int loadingElements = 1;
   Map<int, bool> canLoadMore = {};
   Map<int, bool> loaded = {};
 
@@ -62,12 +62,11 @@ class HistoryEventListCubit extends Cubit<HistoryEventListState> {
   }
 
   void scrollToTheTop(){
-    if(scrollController != null)
-      scrollController.animateTo(
-      0.0,
-      curve: Curves.easeOut,
-      duration: const Duration(milliseconds: 100),
-    );
+    scrollController.animateTo(
+    0.0,
+    curve: Curves.easeOut,
+    duration: const Duration(milliseconds: 100),
+  );
   }
 
 }

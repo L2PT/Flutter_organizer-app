@@ -19,6 +19,7 @@ import 'package:venturiautospurghi/views/widgets/alert/alert_delete.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_nota.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_refuse.dart';
 import 'package:venturiautospurghi/views/widgets/alert/alert_success.dart';
+import 'package:venturiautospurghi/views/widgets/card_customer_widget.dart';
 import 'package:venturiautospurghi/views/widgets/fab_widget.dart';
 
 
@@ -56,7 +57,7 @@ class _detailsView extends StatefulWidget {
 
 class _detailsViewState extends State<_detailsView> with TickerProviderStateMixin {
   late final TabController _controller;
-  final List<Tab> tabsHeaders = <Tab>[Tab(text: "DETTAGLIO"), Tab(text: "DOCUMENTI"), Tab(text: "NOTE")];
+  final List<Tab> tabsHeaders = <Tab>[Tab(text: "Dettaglio"), Tab(text: "Cliente"), Tab(text: "Documenti"), Tab(text: "Note")];
   
   _detailsViewState();
 
@@ -110,10 +111,13 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
-                            GestureDetector(
-                              onTap: () { context.read<DetailsEventCubit>().callClient(event.customer.phone); },
-                              child: Text(event.customer.phone.isEmpty?'Nessun telefono indicato':event.customer.phone,
-                                style: subtitle_rev,overflow: TextOverflow.visible,),
+                            MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                              child:GestureDetector(
+                                onTap: () { context.read<DetailsEventCubit>().callClient(event.customer.address.phone); },
+                                child: Text(event.customer.address.phone.isEmpty?'Nessun telefono indicato':event.customer.address.phone,
+                                  style: subtitle_rev,overflow: TextOverflow.visible,),
+                              )
                             )
                           ],
                         ),
@@ -138,9 +142,14 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
-                                  Text(event.address.isEmpty?'Nessun indirizzo indicato':event.address,
-                                    style: subtitle_rev,overflow: TextOverflow.visible,),
-                      //Text(event.address, style: subtitle_rev)
+                                MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                  child:GestureDetector(
+                                    onTap: () { context.read<DetailsEventCubit>().launchMap(event.customer.address.address); },
+                                    child: Text(event.customer.address.address.isEmpty?'Nessun indirizzo indicato':event.customer.address.address,
+                                        style: subtitle_rev,overflow: TextOverflow.visible,),
+                                    ),
+                                )
                                ],
                              ),
                          ),
@@ -170,7 +179,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 child: Row(
                   children: <Widget>[
                     Icon(
-                      FontAwesomeIcons.hardHat,
+                      FontAwesomeIcons.helmetSafety,
                       size: widget.sizeIcon,
                     ),
                     SizedBox(width: widget.padding,),
@@ -212,7 +221,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                             children: [
                               SizedBox(width: widget.padding+widget.sizeIcon,),
                               Expanded(
-                                child: Text(event.motivazione == null || event.motivazione == ''?'Nessuna motivazione indicata':event.motivazione,
+                                child: Text(event.motivazione == ''?'Nessuna motivazione indicata':event.motivazione,
                                   style: label_rev, overflow: TextOverflow.visible,),
                               ),
                             ],
@@ -272,6 +281,28 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
       ],
     );
 
+    Widget detailsCustomer() =>
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 40.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child:Flex(
+              direction: Axis.vertical,
+              children: <Widget>[
+                Container(
+                  height: 300,
+                  child: CardCustomer(
+                    paddingTopHeader: 10,
+                    cardMode: true,
+                    customer:  event.customer,
+                    buttonMode: false,
+                    onLuanchAddressAction: context.read<DetailsEventCubit>().launchMap,
+                    onLuanchPhoneAction: context.read<DetailsEventCubit>().callClient,
+                  ),
+                )
+       ])
+    ));
+
     Widget detailsDocument() => BlocBuilder<DetailsEventCubit, DetailsEventState>(
         buildWhen: (previous, current) => previous.listDocuments != current.listDocuments,
         builder: (context, state) {
@@ -322,7 +353,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                 width: 230,
                 child: ElevatedButton(
                   style: raisedButtonStyle.copyWith(
-                      backgroundColor: MaterialStateProperty.all<Color>(HexColor(event.color))
+                      backgroundColor: WidgetStateProperty.all<Color>(HexColor(event.color))
                   ),
                   child: Center(
                     child: Row(
@@ -446,7 +477,7 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
             ],
         )));});
 
-    List<Widget> _tabsContents = [detailsContent(),detailsDocument(),detailsNote()];
+    List<Widget> _tabsContents = [detailsContent(), detailsCustomer(),detailsDocument(),detailsNote()];
 
     Widget tabView = new BlocBuilder<DetailsEventCubit, DetailsEventState>(
         buildWhen: (previous, current) => previous != current,
@@ -575,15 +606,17 @@ class _detailsViewState extends State<_detailsView> with TickerProviderStateMixi
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(30.0))),
                                     child: new TabBar(
+                                      tabAlignment: TabAlignment.center,
+                                      dividerHeight: 0,
+
                                       isScrollable: true,
                                       unselectedLabelColor: black,
-                                      labelStyle: title.copyWith(fontSize: 16),
+                                      labelStyle: title.copyWith(fontSize: 15),
                                       labelColor: black,
                                       indicatorSize: TabBarIndicatorSize.tab,
                                       indicator: BoxDecoration(
                                         borderRadius: BorderRadius.circular(50),
                                         color: HexColor(event.color),
-
                                       ),
                                       indicatorPadding: EdgeInsets.symmetric(vertical: 4.0, horizontal: 6.0),
                                       tabs: tabsHeaders,

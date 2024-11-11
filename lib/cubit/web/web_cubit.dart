@@ -1,8 +1,11 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:venturiautospurghi/models/account.dart';
+import 'package:venturiautospurghi/models/customer.dart';
 import 'package:venturiautospurghi/models/event.dart';
 import 'package:venturiautospurghi/models/event_status.dart';
+import 'package:venturiautospurghi/models/filter_wrapper.dart';
 import 'package:venturiautospurghi/plugins/table_calendar/table_calendar.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
@@ -17,6 +20,12 @@ class WebCubit extends Cubit<WebCubitState> {
   final int range = 3;
   DateTime newDate = DateTime.now();
   CalendarController calendarController = new CalendarController();
+  // Customer contacts
+  final ScrollController scrollControllerContacts = new ScrollController();
+  List<Customer> listCustomer = [];
+  final int startingElements = 25;
+  final int loadingElements = 10;
+  bool canLoadMoreCustomer = true;
 
   WebCubit( this.route, CloudFirestoreService databaseRepository, Account account,) :
         _databaseRepository = databaseRepository, _account = account,
@@ -84,4 +93,26 @@ class WebCubit extends Cubit<WebCubitState> {
   }
 
 
+  //FILTER CUSTOMER //
+  Future<List<Customer>> onFiltersChanged(Map<String, FilterWrapper> filters) async {
+    // Instead of do a basic repo get and evaluateEventsMap() the whole filtering process is handled directly in the query
+    listCustomer = await _databaseRepository.getCustomersActiveFiltered(filters, limit: startingElements);
+    canLoadMoreCustomer = listCustomer.length == startingElements;
+    scrollToTheTop();
+    emit(state.assign(filters: filters, customerList: listCustomer, filterCustomer: true));
+    return state.customerList;
+  }
+
+  void scrollToTheTop(){
+    if(scrollControllerContacts.hasClients)
+      scrollControllerContacts.animateTo(
+        0.0,
+        curve: Curves.easeOut,
+        duration: const Duration(milliseconds: 100),
+      );
+  }
+
+  void resetFilterCustomer(){
+    emit(state.assign( filterCustomer: false));
+  }
 }

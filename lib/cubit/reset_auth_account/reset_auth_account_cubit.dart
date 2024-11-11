@@ -1,13 +1,11 @@
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
-// import 'package:sms_autofill/sms_autofill.dart';
 import 'package:venturiautospurghi/models/auth/email.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
-import 'package:venturiautospurghi/utils/extensions.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
+import 'package:venturiautospurghi/utils/extensions.dart';
 
 part 'reset_auth_account_state.dart';
 

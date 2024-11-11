@@ -7,9 +7,8 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/plugins/dispatcher/platform_loader.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/repositories/firebase_auth_service.dart';
-import 'package:venturiautospurghi/utils/global_constants.dart';
-import 'package:venturiautospurghi/utils/global_methods.dart';
 import 'package:venturiautospurghi/utils/extensions.dart';
+import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 
 class Register extends StatefulWidget {
@@ -33,8 +32,8 @@ class RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {    
-    return WillPopScope(
-        onWillPop: ()=>PlatformUtils.backNavigator(context),
+    return PopScope(
+        onPopInvoked: (bool)=>PlatformUtils.backNavigator(context),
         child: Scaffold(
           appBar: AppBar(
             leading: new BackButton(
@@ -49,7 +48,7 @@ class RegisterState extends State<Register> {
               Container(
                 padding: EdgeInsets.all(6.0),
                 child: Icon(
-                  FontAwesomeIcons.hardHat,
+                  FontAwesomeIcons.helmetSafety,
                   color: yellow,
                   size: 70,
                 ),
@@ -166,7 +165,7 @@ class RegisterState extends State<Register> {
                               hintStyle: subtitle,
                               border: UnderlineInputBorder(borderSide: BorderSide(width: 2.0, style: BorderStyle.solid,),),),
                             validator: (value) => string.isNullOrEmpty(value)?
-                            'Il campo \'Telefono\' è obbligatorio' : !Utils.isPhoneNumber(value!)?
+                            'Il campo \'Telefono\' è obbligatorio' : !string.isPhoneNumber(value!)?
                             'Inserisci un valore valido' : null
                         ),
                       ),

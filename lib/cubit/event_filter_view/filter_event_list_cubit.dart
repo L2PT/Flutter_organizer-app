@@ -38,7 +38,7 @@ class FilterEventListCubit extends Cubit<FilterEventListState> {
   }
 
   void scrollToTheTop(){
-    if(scrollController != null && scrollController.hasClients)
+    if(scrollController.hasClients)
       scrollController.animateTo(
         0.0,
         curve: Curves.easeOut,

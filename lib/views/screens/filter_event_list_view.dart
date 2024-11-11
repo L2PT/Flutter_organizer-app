@@ -6,7 +6,7 @@ import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
 import 'package:venturiautospurghi/views/widgets/card_event_widget.dart';
-import 'package:venturiautospurghi/views/widgets/filter_events_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_events_widget.dart';
 import 'package:venturiautospurghi/views/widgets/responsive_widget.dart';
 
 class FilterEventList extends StatelessWidget {
@@ -103,7 +103,7 @@ class _largeScreenState extends State<_largeScreen>  {
                                       event: event,
                                       height: 120,
                                       showEventDetails: true,
-                                      onTapAction: (event) => PlatformUtils.navigator(context, Constants.detailsEventViewRoute, event),
+                                      onTapAction: (event) => PlatformUtils.navigator(context,Constants.detailsEventViewRoute,  <String,dynamic>{"objectParameter" : event}),
                                     ))).toList()
                             )): Container(
                           child: Column(

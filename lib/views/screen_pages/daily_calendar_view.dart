@@ -343,7 +343,7 @@ class _verticalEventsGrid extends StatelessWidget {
         builder: (context, state) {
           if (!(state is DailyCalendarReady))
             return Center(child: CircularProgressIndicator());
-          if((state as DailyCalendarReady).selectedEvents().isEmpty)
+          if((state).selectedEvents().isEmpty)
             return Padding(
               padding: EdgeInsets.all(20),
               child: EmptyEvent(

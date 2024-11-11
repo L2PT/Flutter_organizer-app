@@ -34,8 +34,8 @@ class HeaderMenuLayerWeb extends StatelessWidget {
                     Container(
                       margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                       child: ElevatedButton(
-                          style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
-                              shape:  MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0), ),)),
+                          style: raisedButtonStyle.copyWith(padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
+                              shape:  WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0), ),)),
                           onPressed: this.today,
                           child: Row(
                             children: <Widget>[
@@ -59,8 +59,8 @@ class HeaderMenuLayerWeb extends StatelessWidget {
                     Container(
                       margin: const EdgeInsets.symmetric(vertical:8.0, horizontal:16.0),
                       child: ElevatedButton(
-                          style: raisedButtonStyle.copyWith(padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
-                              shape:  MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0), ),)),
+                          style: raisedButtonStyle.copyWith(padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.symmetric(horizontal: 25, vertical: 15)),
+                              shape:  WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0), ),)),
                           onPressed: (){
                             context.go(Constants.filterEventListRoute);
                           },

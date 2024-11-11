@@ -44,7 +44,7 @@ class OverViewReady extends WebState {
 }
 
 class CloseOverView extends WebState {
-  final Event arg;
+  final dynamic arg;
   final bool result;
   Function? callback;
 

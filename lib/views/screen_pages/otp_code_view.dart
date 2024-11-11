@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 // import 'package:sms_autofill/sms_autofill.dart';
-import 'package:venturiautospurghi/views/widgets/platform_otpinputfield.dart';
 
 class OtpCode extends StatefulWidget {
   OtpCode(this.verifier);

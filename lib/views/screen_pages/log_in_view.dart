@@ -372,8 +372,8 @@ class _loginButton extends StatelessWidget {
                   new Expanded(
                     child: ElevatedButton(
                       style: raisedButtonStyle.copyWith(
-                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0))),
-                        backgroundColor: MaterialStateProperty.all<Color>(Constants.debug?Colors.red:black)
+                        shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(30.0))),
+                        backgroundColor: WidgetStateProperty.all<Color>(Constants.debug?Colors.red:black)
                       ),
                       child: new Row(
                         children: <Widget>[
@@ -393,8 +393,8 @@ class _loginButton extends StatelessWidget {
                               padding: PlatformUtils.isMobile? EdgeInsets.all(5.0) : EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                               child: TextButton(
                                 style: raisedButtonStyle.copyWith(
-                                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(45.0))),
-                                    backgroundColor: MaterialStateProperty.all<Color>(white)
+                                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(45.0))),
+                                    backgroundColor: WidgetStateProperty.all<Color>(white)
                                 ),
                                 child: Icon(
                                   Icons.arrow_forward,
@@ -462,8 +462,8 @@ class _LoginPhone extends StatelessWidget {
                 new Expanded(
                   child: ElevatedButton(
                       style: raisedButtonStyle.copyWith(
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(25.0))),
-                          backgroundColor: MaterialStateProperty.all<Color>(grey_dark)
+                          shape: WidgetStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(borderRadius: new BorderRadius.circular(25.0))),
+                          backgroundColor: WidgetStateProperty.all<Color>(grey_dark)
                       ),
                       onPressed: () {
                         context.read<LoginCubit>().switchLoginView();
@@ -474,7 +474,7 @@ class _LoginPhone extends StatelessWidget {
                           children: [
                             Icon(Icons.phone,color: white,),
                             SizedBox(width: 15,),
-                            Text("Collegati con il numero di telefono", style: label_rev,)
+                            Text("Collegati con il telefono", style: label_rev,)
                           ],
                         ))
                  )

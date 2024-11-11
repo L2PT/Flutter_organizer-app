@@ -44,8 +44,7 @@ class MobileBloc extends Bloc<MobileEvent, MobileState> {
   MobileBloc({
     required CloudFirestoreService databaseRepository,
     required Account account
-  }) : assert(databaseRepository != null && account != null),
-        _databaseRepository = databaseRepository,
+  }) : _databaseRepository = databaseRepository,
         _account = account,
         super(NotReady()){
     on<RestoreEvent>((event, emit)  { (savedState as InBackdropState).restore(); });

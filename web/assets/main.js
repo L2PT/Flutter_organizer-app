@@ -17,7 +17,7 @@ const logInRoute = 'view/log_in';
 const logOut = 'log_out';
 const webPushNotificationsVapidKey = 'BJstIUpFNSxgd1Ir1xQd_qt48ijnfLG2B3Md_9unMkA7nMBpZZRVX3_6A5f2HJJLCOZJoFH2CgpmtrimGRe-rWo';
 
-var debug = true;
+var debug = false;
 var calendar;
 var db;
 var storage;

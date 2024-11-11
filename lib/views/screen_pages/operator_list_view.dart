@@ -6,7 +6,7 @@ import 'package:venturiautospurghi/models/account.dart';
 import 'package:venturiautospurghi/repositories/cloud_firestore_service.dart';
 import 'package:venturiautospurghi/utils/global_constants.dart';
 import 'package:venturiautospurghi/utils/theme.dart';
-import 'package:venturiautospurghi/views/widgets/filter_operators_widget.dart';
+import 'package:venturiautospurghi/views/widgets/filter/filter_operators_widget.dart';
 import 'package:venturiautospurghi/views/widgets/list_tile_operator.dart';
 
 class OperatorList extends StatelessWidget {
