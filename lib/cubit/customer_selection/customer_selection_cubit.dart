@@ -47,7 +47,7 @@ class CustomerSelectionCubit extends Cubit<CustomerSelectionState> {
 
 
   void onSearchFieldChanged(Map<String, FilterWrapper> filters) {
-    String text = filters["name"]!.fieldValue;
+    String text = filters["name-surname"]!.fieldValue;
     state.searchNameField = text;
     scrollToTheTop();
     if(string.isNullOrEmpty(text))

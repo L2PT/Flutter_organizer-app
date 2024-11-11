@@ -103,7 +103,7 @@ class CardCustomer extends StatelessWidget {
               color: black,
             ),
             padding: EdgeInsets.all(5),
-            child: Icon(customer.isCompany()?Icons.domain:Icons.person, size: 45, color: yellow,),
+            child: Icon(customer.isCompany()?Icons.domain_rounded:Icons.person, size: 45, color: yellow,),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
